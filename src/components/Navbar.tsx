@@ -2,7 +2,6 @@ import useMediaQuery from '@/hooks/useMedia';
 import { useState } from 'react';
 import carousel1  from '@/assets/images/carousel-1.jpg';
 import carousel2  from '@/assets/images/carousel-2.jpg';
-import carousel3  from '@/assets/images/carousel-3.jpg';
 import {
   IoIosArrowDown, IoIosMenu
 } from 'react-icons/io';
@@ -89,7 +88,7 @@ const Navbar = () => {
             </nav>
             {isHomePage &&
                // Carousel for home page only caorousel-1 and carousel-2 are imported from assets
-              <HeaderCarousel images={[carousel2, carousel1,carousel3]} />
+              <HeaderCarousel images={[carousel2, carousel1]} />
             }
           </div>
         </div>
