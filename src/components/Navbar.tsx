@@ -6,6 +6,7 @@ import {
   IoIosArrowDown, IoIosMenu
 } from 'react-icons/io';
 import HeaderCarousel from './Header/HeaderCarousel';
+import PageBanner from './Header/PageBanner';
 
 
 const Navbar = () => {
@@ -22,7 +23,7 @@ const Navbar = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   }
 
-  const navItemsStyle = 'border-b-[1px] border-solid border-[#EDF1FF] text-black outline-none block';
+  const navItemsStyle = 'border-b-[1px] border-solid border-secondary text-black outline-none block';
 
   const isHomePage = location.pathname === '/'; // Assuming the home page path is '/'
   
@@ -31,18 +32,18 @@ const Navbar = () => {
   return (
     <>
       <div className="w-full mx-auto px-4">
-        <div className="grid-cols-12 grid xl:px-12 border-t border-solid border-[#EDF1FF]">
+        <div className="grid-cols-12 grid xl:px-12 border-t border-solid border-secondary">
           <div className="lg:col-span-3 col-span-12">
             <a href="#" data-toggle="collapse" role="button" id="categoriesBtn"
               className="flex items-center justify-between
-              bg-[#D19C97] text-black shadow-none 
+              bg-primary text-black shadow-none 
               w-full h-[65px] -mt-[1] py-0 px-[30px]" onClick={toggleCategoryMenu}>
               <h6 className="m-0 font-medium">
                 Categories
               </h6>
               <IoIosArrowDown className="h-5 w-5" />
             </a>
-            <nav className="relative z-10 focus:outline-none items-start p-0 border border-y-0 border-solid border-[#EDF1FF]">
+            <nav className="relative z-10 focus:outline-none items-start p-0 border border-y-0 border-solid border-secondary">
               <div className={`overflow-hidden w-full flex flex-col pl-0 mb-0 list-none transition-all duration-500 ease-in-out ${isCategoryMenuOpen ? 'max-h-0' : 'max-h-[500px]'} `}>
                 <a href="" className={navItemsStyle + " py-[8px] px-[30px]"}>Shirts</a>
                 <a href="" className={navItemsStyle + " py-[8px] px-[30px]"}>Jeans</a>
@@ -63,7 +64,7 @@ const Navbar = () => {
               <a href="" className="block lg:hidden text-black">
                 {/* font-size: calc(1.375rem + 1.5vw); */}
                 <h1 className="m-0 text-4xl font-semibold" style={{ fontSize: 'calc(1.375rem + 1.5vw)' }}>
-                  <span className="text-[#D19C97] font-bold border px-4 mr-1">D</span>
+                  <span className="text-primary font-bold border px-4 mr-1">D</span>
                   ailyShop
                 </h1>
               </a>
@@ -86,9 +87,11 @@ const Navbar = () => {
                 </div>
               </div>
             </nav>
-            {isHomePage &&
+            {isHomePage ?
                // Carousel for home page only caorousel-1 and carousel-2 are imported from assets
               <HeaderCarousel images={[carousel2, carousel1]} />
+              :
+                <PageBanner />
             }
           </div>
         </div>
