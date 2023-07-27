@@ -18,15 +18,6 @@ const HeaderCarousel = ({ images }: Props) => {
     return (
         <div className="touch-pan-y relative">
             <div className="relative w-full overflow-hidden">
-                {/* 
-    position: relative;
-    display: none;
-    float: left;
-    width: 100%;
-    margin-right: -100%;
-    backface-visibility: hidden;
-    transition: transform 0.6s ease-in-out;     
- */}
                 <div className="relative w-full flex">
                     {images.map((image, index) => (
                         <div
