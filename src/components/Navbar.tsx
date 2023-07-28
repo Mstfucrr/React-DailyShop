@@ -87,11 +87,8 @@ const Navbar = () => {
                 </div>
               </div>
             </nav>
-            {isHomePage ?
-               // Carousel for home page only caorousel-1 and carousel-2 are imported from assets
+            {isHomePage &&
               <HeaderCarousel images={[carousel2, carousel1]} />
-              :
-                <PageBanner />
             }
           </div>
         </div>
