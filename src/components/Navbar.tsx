@@ -6,7 +6,6 @@ import {
   IoIosArrowDown, IoIosMenu
 } from 'react-icons/io';
 import HeaderCarousel from './Header/HeaderCarousel';
-import PageBanner from './Header/PageBanner';
 
 
 const Navbar = () => {
