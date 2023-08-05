@@ -1,11 +1,12 @@
 import useMediaQuery from '@/hooks/useMedia';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import carousel1  from '@/assets/images/carousel-1.jpg';
 import carousel2  from '@/assets/images/carousel-2.jpg';
 import {
   IoIosArrowDown, IoIosMenu
 } from 'react-icons/io';
 import HeaderCarousel from './Header/HeaderCarousel';
+import { useOnClickOutside } from 'usehooks-ts';
 
 
 const Navbar = () => {
@@ -26,17 +27,27 @@ const Navbar = () => {
 
   const isHomePage = location.pathname === '/'; // Assuming the home page path is '/'
   
+  const categoriesBox = useRef(null);
+  useOnClickOutside(categoriesBox, () => {
+    setIsCategoryMenuOpen(true);
+    console.log('clicked outside')
+  });
 
 
   return (
     <>
       <div className="w-full mx-auto px-4">
         <div className="grid-cols-12 grid xl:px-12 border-t border-solid border-secondary">
-          <div className="lg:col-span-3 col-span-12">
+          <div className="lg:col-span-3 col-span-12"
+            ref={categoriesBox}
+          >
             <a href="#" data-toggle="collapse" role="button" id="categoriesBtn"
+
               className="flex items-center justify-between
-              bg-primary text-black shadow-none 
-              w-full h-[65px] -mt-[1] py-0 px-[30px]" onClick={toggleCategoryMenu}>
+                  bg-primary text-black shadow-none 
+                  w-full h-[65px] -mt-[1] py-0 px-[30px]" onClick={
+                () => setIsCategoryMenuOpen(!isCategoryMenuOpen)
+              }>
               <h6 className="m-0 font-medium">
                 Categories
               </h6>
@@ -54,8 +65,6 @@ const Navbar = () => {
                 <a href="" className={navItemsStyle + " py-[8px] px-[30px]"}>Bags</a>
                 <a href="" className={navItemsStyle + " py-[8px] px-[30px]"}>Accessories</a>
               </div>
-
-
             </nav>
           </div>
           <div className="lg:col-span-9 col-span-12 px-[15px]">
@@ -68,7 +77,10 @@ const Navbar = () => {
                 </h1>
               </a>
               <button className='py-1 px-3 text-[1.25rem] bg-transparent border border-solid lg:hidden'
-                onClick={toggleMobileMenu}
+
+                onClick={
+                  () => setIsMobileMenuOpen(!isMobileMenuOpen)
+                }
               >
                 <IoIosMenu className="text-3xl text-black " />
               </button>
@@ -86,8 +98,8 @@ const Navbar = () => {
                 </div>
               </div>
             </nav>
-            {isHomePage &&
-              <HeaderCarousel images={[carousel2, carousel1]} />
+            { isHomePage &&
+              <HeaderCarousel images={[carousel1,carousel2]} />
             }
           </div>
         </div>
