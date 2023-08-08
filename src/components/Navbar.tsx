@@ -7,6 +7,7 @@ import {
 } from 'react-icons/io';
 import HeaderCarousel from './Header/HeaderCarousel';
 import { useOnClickOutside } from 'usehooks-ts';
+import { Link, useLocation } from 'react-router-dom';
 
 
 const Navbar = () => {
@@ -14,14 +15,6 @@ const Navbar = () => {
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const isAboveMediumScreen = useMediaQuery("(min-width: 1060px)");
-
-  const toggleCategoryMenu = () => {
-    setIsCategoryMenuOpen(!isCategoryMenuOpen);
-  }
-
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  }
 
   const navItemsStyle = 'border-b-[1px] border-solid border-secondary text-black outline-none block';
 
@@ -53,7 +46,7 @@ const Navbar = () => {
               </h6>
               <IoIosArrowDown className="h-5 w-5" />
             </a>
-            <nav className="relative z-10 focus:outline-none items-start p-0 border border-y-0 border-solid border-secondary">
+            <nav className="lg:absolute relative z-10 focus:outline-none items-start p-0 border border-y-0 border-solid border-secondary">
               <div className={`overflow-hidden w-full flex flex-col pl-0 mb-0 list-none transition-all duration-500 ease-in-out ${isCategoryMenuOpen ? 'max-h-0' : 'max-h-[500px]'} `}>
                 <a href="" className={navItemsStyle + " py-[8px] px-[30px]"}>Shirts</a>
                 <a href="" className={navItemsStyle + " py-[8px] px-[30px]"}>Jeans</a>
@@ -86,15 +79,17 @@ const Navbar = () => {
               </button>
               <div className={`basis-full lg:flex lg:basis-auto flex-grow items-center transition-all duration-500 ease-in-out ${isMobileMenuOpen || isAboveMediumScreen ? 'block' : 'hidden'}`}>
                 <div className="lg:flex-row mr-auto py-0 flex flex-col pl-0 mb-0 mt-4">
-                  <a href="" className={navItemsStyle + " py-[10px] lx:py-[20px] px-[10px]"}>Home</a>
+                  <a href="/" className={navItemsStyle + " py-[10px] lx:py-[20px] px-[10px]"}>Home</a>
                   <a href="" className={navItemsStyle + " py-[10px] lx:py-[20px] px-[10px]"}>Shop</a>
                   <a href="" className={navItemsStyle + " py-[10px] lx:py-[20px] px-[10px]"}>Shop Detail</a>
                   <a href="" className={navItemsStyle + " py-[10px] lx:py-[20px] px-[10px]"}>Pages</a>
                   <a href="" className={navItemsStyle + " py-[10px] lx:py-[20px] px-[10px]"}>Contact</a>
                 </div>
                 <div className="lg:flex-row ml-auto py-0 flex flex-col pl-0 mb-0">
-                  <a href="" className={navItemsStyle + " py-[10px] lx:py-[20px] px-[10px]"}>Login</a>
-                  <a href="" className={navItemsStyle + " py-[10px] lx:py-[20px] px-[10px]"}>Register</a>
+                  {/* login register links */}
+                  <Link to="/login" className={navItemsStyle + " py-[10px] lx:py-[20px] px-[10px]"}>Login</Link>
+                  <Link to="/register" className={navItemsStyle + " py-[10px] lx:py-[20px] px-[10px]"}>Register</Link>
+                  
                 </div>
               </div>
             </nav>
