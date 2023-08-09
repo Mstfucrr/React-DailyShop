@@ -23,7 +23,6 @@ const Navbar = () => {
   const categoriesBox = useRef(null);
   useOnClickOutside(categoriesBox, () => {
     setIsCategoryMenuOpen(true);
-    console.log('clicked outside')
   });
 
 
