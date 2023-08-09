@@ -1,14 +1,11 @@
-import React, { useState } from 'react'
-import { InputText } from 'primereact/inputtext';
-import { Password } from 'primereact/password';
 import { Link } from 'react-router-dom';
 import LoginForm from '@/components/auth/loginForm';
 import Navbar from '@/components/Navbar';
-import Topbar from '@/components/Topbar';
 
 type Props = {}
 
 const index = (props: Props) => {
+    
 
 
     return (
