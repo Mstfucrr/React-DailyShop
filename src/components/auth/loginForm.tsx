@@ -73,7 +73,7 @@ const LoginForm = (props: Props) => {
     return (
         <>
 
-            <form className='w-4/5 h-4/5 flex flex-col' action=""
+            <form className='w-4/5 h-auto pb-16 flex flex-col' action=""
                 onSubmit={formik.handleSubmit}
             >
                 <div className="flex flex-col">
