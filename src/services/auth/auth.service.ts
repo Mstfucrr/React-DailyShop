@@ -5,6 +5,7 @@ import {
 
 const login = async (input: ILogin) => {
     // const { data } = await axios.post('https://api.dailyshop.com/api/Auth/sign-in', { input });
+    // return data;
     // for testing
     const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMTE"
     console.log("input", input)
@@ -19,7 +20,7 @@ const login = async (input: ILogin) => {
             "firstName": "John",
             "lastName": "Doe",
             "role": "admin",
-            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMTE"
+            "token": token
         }
     }
     return [null, data]
@@ -35,8 +36,29 @@ const login = async (input: ILogin) => {
 }
 
 const register = async (input: IRegister) => {
-    const { data } = await axios.post('https://api.dailyshop.com/api/Auth/sign-up', { input });
-    return data;
+    // const { data } = await axios.post('https://api.dailyshop.com/api/Auth/sign-up', { input });
+    // return data;
+
+    
+    // for testing
+    const data = {
+        "status": 200,
+        "message": "Register successfully",
+        'Content-Type': 'application/json',
+        "data": {
+            "id": 1,
+            "email": input.email,
+            "firstName": "John",
+            "lastName": "Doe",
+            "role": "admin",
+            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMTE"
+        }
+
+    }
+    return [null, data]
+    
+
+
 }
 
 export const authService = {
