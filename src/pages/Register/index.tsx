@@ -13,41 +13,11 @@ type Props = {}
 
 const index = (props: Props) => {
 
-  const [emailValue, setEmailValue] = useState<string>('')
-  const [passwordValue, setPasswordValue] = useState<string>('')
-  const [confirmPasswordValue, setConfirmPasswordValue] = useState<string>('')
-  const [nameValue, setNameValue] = useState<string>('')
-  const [surnameValue, setSurnameValue] = useState<string>('')
-  const [phoneValue, setPhoneValue] = useState<Nullable<string>>('')
-
-
-  useEffect(() => {
-    if (passwordValue !== confirmPasswordValue) {
-      console.log('Password not match')
-    } else {
-      console.log('Password match')
-    }
-
-  }, [passwordValue, confirmPasswordValue])
-
-  // submit
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    console.log('submit')
-    console.log(emailValue)
-    console.log(passwordValue)
-    console.log(confirmPasswordValue)
-    console.log(nameValue)
-    console.log(surnameValue)
-    console.log(phoneValue)
-
-  }
-
 
   return (
     <>
       <Navbar />
-      <div className='md:w-[560px] w-full md:h-[600px] h-auto md:my-0 pb-10 bg-white 
+      <div className='md:w-[560px] w-full h-auto md:my-0 pb-10 bg-white 
       border border-solid mx-auto md:mt-[150px]'>
         <div className='py-7 bg-primary flex justify-center items-center mb-4'>
           <h1 className='text-white md:text-4xl text-3xl font-bold text-center'>Register</h1>
