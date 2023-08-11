@@ -17,9 +17,6 @@ const LoginForm = (props: Props) => {
     const [isLoading, setIsLoading] = useState(false)
 
     const dispatch = useDispatch()
-    
-
-            
 
     const navigate = useNavigate()
 
@@ -100,8 +97,8 @@ const LoginForm = (props: Props) => {
                 </div>
                 <div className="flex flex-col mt-4">
                     <label htmlFor="password" className='text-primary text-xl font-medium'>Password</label>
-                    <Password placeholder="Password" name='password' id='password' feedback={false} 
-                        
+                    <Password placeholder="Password" name='password' id='password' feedback={false}
+
                         pt={{
                             "input": {
                                 className: "w-full"
@@ -142,7 +139,16 @@ const LoginForm = (props: Props) => {
                     <button className='w-full h-12 bg-primary text-white text-xl font-bold rounded-3xl
                             hover:text-primary hover:bg-white hover:border-primary border border-solid border-primary
                             transition duration-300 ease-in-out
-                        '>Login</button>
+                        '>
+                        {isLoading ?
+                            (<div className="flex justify-center items-center w-full">
+                                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                            </div>)
+                            : (
+                                <span>Login</span>
+                            )}
+
+                    </button>
                 </div>
 
             </form>
