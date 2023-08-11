@@ -46,14 +46,16 @@ const index = (props: Props) => {
 
   return (
     <>
-    <Navbar />
-      <div className='md:w-[560px] w-full md:h-[650px] my-20 md:my-0 h-auto bg-white 
-      border border-solid mx-auto relative top-1/2 -translate-y-1/2'>
+      <Navbar />
+      <div className='md:w-[560px] w-full md:h-[600px] h-auto md:my-0 pb-10 bg-white 
+      border border-solid mx-auto md:mt-[150px]'>
         <div className='py-7 bg-primary flex justify-center items-center mb-4'>
           <h1 className='text-white md:text-4xl text-3xl font-bold text-center'>Register</h1>
         </div>
-        <div className='w-full h-5/6 flex flex-col justify-center items-center'>
+        <div className='w-full h-5/6 flex flex-col justify-between items-center'>
+
           <RegisterForm />
+
           {/* login */}
           <div className="flex flex-row mx-auto mt-4">
             <span className='text-sm font-thin mr-3'>Do you have an account?</span>
@@ -66,6 +68,7 @@ const index = (props: Props) => {
           </div>
         </div>
       </div>
+      <div className="h-[100px]"></div>
     </>
 
   )
