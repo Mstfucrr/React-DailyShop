@@ -11,7 +11,9 @@ import { authService } from '@/services/auth/auth.service'
 import { IRegister } from '@/services/auth/types'
 import { SET_TOAST } from '@/store/Toast'
 
-import { AiOutlineLoading3Quarters } from 'react-icons/ai'
+import google from '@/assets/images/google.png'
+import facebook from '@/assets/images/facebook.png'
+
 
 type Props = {}
 
@@ -103,7 +105,7 @@ const RegisterForm = (props: Props) => {
 
 
     return (
-        <form className='w-4/5 h-4/5 flex flex-col' action=''
+        <form className='w-4/5 h-auto flex flex-col' action=''
             onSubmit={formik.handleSubmit}
         >
             <div className="flex md:flex-row flex-col justify-between">
@@ -225,20 +227,11 @@ const RegisterForm = (props: Props) => {
                 </div>
             </div>
 
-            {/* <div className="flex flex-col mt-4">
-            <label htmlFor="phone" className='text-primary text-xl font-medium'>Phone</label>
-            <InputMask placeholder="Phone" className='w-full !my-2' name='phone' id='phone'
-              value={phoneValue as string}
-              onChange={(e) => setPhoneValue(e.target.value)}
-              mask="(999) 999-9999"
-            />
-          </div> */}
-
             {/* submit */}
             <div className="flex flex-col mt-4">
                 <button className='w-full h-12 bg-primary text-white text-xl font-bold rounded-3xl
                          hover:text-primary hover:bg-white hover:border-primary border border-solid border-primary
-                         transition duration-300 ease-in-out'
+                         transition duration-300 ease-in-out active:scale-95'
                 >
                     {isLoading ?
 
@@ -247,8 +240,29 @@ const RegisterForm = (props: Props) => {
                         </div>)
                         : <div>Register</div>
                     }
-                    
+
                 </button>
+            </div>
+
+            {/* -- or -- */}
+            <div className="flex flex-col mt-4">
+                <div className="flex justify-center items-center">
+                    <div className="w-full h-px bg-gray-300"></div>
+                    <div className="mx-4 text-gray-400">OR</div>
+                    <div className="w-full h-px bg-gray-300"></div>
+                </div>
+            </div>
+
+            {/* google facebook register */}
+
+            <div className="flex flex-row mt-4 flex-1 justify-center gap-6 items-center">
+                <img src={google} alt="google" className="h-auto w-12 cursor-pointer rounded-full
+                active:scale-90 hover:opacity-80 transition duration-300 ease-in-out" 
+                
+                />
+                <img src={facebook} alt="facebook" className="h-auto w-12 cursor-pointer
+                active:scale-90 hover:opacity-80 transition duration-300 ease-in-out" />
+
             </div>
 
 
