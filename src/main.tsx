@@ -4,6 +4,8 @@ import App from './App'
 import './index.css'
 //theme
 import "primereact/resources/themes/lara-light-indigo/theme.css";
+// icons
+import 'primeicons/primeicons.css';
 
 //core
 import "primereact/resources/primereact.min.css";
