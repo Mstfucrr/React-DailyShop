@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
 import LoginForm from '@/components/auth/loginForm';
 import Navbar from '@/components/Navbar';
+import Searchbar from '@/components/Searchbar';
+import Topbar from '@/components/Topbar';
 
 type Props = {}
 
@@ -10,10 +12,12 @@ const index = (props: Props) => {
 
     return (
         <>
+            <Topbar />
+            <Searchbar />
             <Navbar />
 
             <div className='md:w-[500px] w-full h-auto md:my-0 pb-10 bg-white 
-            border border-solid mx-auto md:mt-[150px] '>
+            border border-solid mx-auto md:mt-[110px] '>
                 <div className='py-7 bg-primary flex justify-center items-center mb-4'>
                     <h1 className='text-white md:text-4xl text-3xl font-bold text-center'>Login</h1>
                 </div>

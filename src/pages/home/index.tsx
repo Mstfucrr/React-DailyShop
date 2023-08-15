@@ -1,4 +1,5 @@
 import Navbar from '@/components/Navbar'
+import Searchbar from '@/components/Searchbar'
 import Topbar from '@/components/Topbar'
 import React from 'react'
 
@@ -8,6 +9,7 @@ const index = (props: Props) => {
   return (
     <>
       <Topbar />
+      <Searchbar />
       <Navbar />
     </>
   )

@@ -7,6 +7,7 @@ import { Nullable } from 'primereact/ts-helpers';
 import RegisterForm from '@/components/auth/registerForm';
 import Navbar from '@/components/Navbar';
 import Topbar from '@/components/Topbar';
+import Searchbar from '@/components/Searchbar';
 
 
 type Props = {}
@@ -16,9 +17,11 @@ const index = (props: Props) => {
 
   return (
     <>
+      <Topbar />
+      <Searchbar />
       <Navbar />
       <div className='md:w-[560px] w-full h-auto md:my-0 pb-10 bg-white 
-      border border-solid mx-auto md:mt-[150px]'>
+      border border-solid mx-auto md:mt-[110px]'>
         <div className='py-7 bg-primary flex justify-center items-center mb-4'>
           <h1 className='text-white md:text-4xl text-3xl font-bold text-center'>Register</h1>
         </div>
