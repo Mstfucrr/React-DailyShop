@@ -14,6 +14,7 @@
     "await-to-js": "^3.0.0",
     "axios": "^1.4.0",
     "formik": "^2.4.3",
+    "primeicons": "^6.0.1",
     "primereact": "^9.6.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
