@@ -57,8 +57,12 @@ const register = async (input: IRegister) => {
     }
     return [null, data]
     
+}
 
-
+const googleLogin = async (input: ILogin) => {
+    // const { data } = await axios.post('https://api.dailyshop.com/api/Auth/sign-in', { input });
+    // return data;
+    // for testing
 }
 
 export const authService = {
