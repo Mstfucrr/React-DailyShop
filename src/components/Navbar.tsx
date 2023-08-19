@@ -1,13 +1,12 @@
 import useMediaQuery from '@/hooks/useMedia';
 import { useRef, useState } from 'react';
-import carousel1  from '@/assets/images/carousel-1.jpg';
-import carousel2  from '@/assets/images/carousel-2.jpg';
+
 import {
   IoIosArrowDown, IoIosMenu
 } from 'react-icons/io';
 import HeaderCarousel from './Header/HeaderCarousel';
 import { useOnClickOutside } from 'usehooks-ts';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 
 const Navbar = () => {
@@ -93,7 +92,7 @@ const Navbar = () => {
               </div>
             </nav>
             { isHomePage &&
-              <HeaderCarousel images={[carousel1,carousel2]} />
+              <HeaderCarousel />
             }
           </div>
         </div>
