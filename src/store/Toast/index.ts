@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import React from 'react';
 import {
     IToast
 } from './type';
@@ -8,7 +9,7 @@ export const toastSlice = createSlice({
     initialState: {
         severity: 'success',
         summary: '',
-        detail: '',
+        detail: '' as React.ReactNode,
         life: 3000,
     } as IToast,
     reducers: {
@@ -21,7 +22,7 @@ export const toastSlice = createSlice({
         CLEAR_TOAST: (state) => {
             state.severity = 'success';
             state.summary = '';
-            state.detail = '';
+            state.detail = '' as React.ReactNode;
             state.life = 3000;
         }
 

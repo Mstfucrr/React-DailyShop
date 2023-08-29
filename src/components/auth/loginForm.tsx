@@ -61,8 +61,13 @@ const LoginForm = (props: Props) => {
             dispatch(SET_TOAST({
                 severity: 'success',
                 summary: 'Success Message',
-                detail: 'Login successfully',
-                life: 3000
+                detail: (
+                    <div className="flex flex-col">
+                        <span>Login success</span>
+                        <span>Redirecting...</span>
+                    </div>
+                ),
+                life: 30000
             }))
 
             // go to home page
