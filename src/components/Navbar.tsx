@@ -114,6 +114,8 @@ const Navbar = () => {
                       {/* login register links */}
                       <Link to="/login" className={navItemsStyle + " py-[10px] lx:py-[20px] px-[10px]"}>Giriş Yap</Link>
                       <Link to="/register" className={navItemsStyle + " py-[10px] lx:py-[20px] px-[10px]"}>Kayıt Ol</Link>
+                      <Link to="/account" className={navItemsStyle + " py-[10px] lx:py-[20px] px-[10px]"}>Hesap</Link>
+
 
                     </div>
                   </motion.div>
