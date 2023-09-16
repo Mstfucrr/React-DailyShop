@@ -71,11 +71,11 @@ const CartList = (props: Props) => {
             <table className="w-100 text-[#6F6F6F] mb-0 text-center border-0 border-collapse">
                 <thead className="bg-secondary text-black">
                     <tr>
-                        <th className='p-3 border border-solid border-secondary'>Products</th>
-                        <th className='p-3 border border-solid border-secondary'>Price</th>
-                        <th className='p-3 border border-solid border-secondary'>Quantity</th>
-                        <th className='p-3 border border-solid border-secondary'>Total</th>
-                        <th className='p-3 border border-solid border-secondary'>Remove</th>
+                        <th className='p-3 border border-solid border-secondary'>Ürünler</th>
+                        <th className='p-3 border border-solid border-secondary'>Fiyat</th>
+                        <th className='p-3 border border-solid border-secondary'>Miktar</th>
+                        <th className='p-3 border border-solid border-secondary'>Toplam</th>
+                        <th className='p-3 border border-solid border-secondary'>Kaldır</th>
                     </tr>
                 </thead>
                 <tbody className='align-middle'>

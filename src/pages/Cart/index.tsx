@@ -16,7 +16,7 @@ const index = () => {
             <Topbar />
             <Searchbar />
             <Navbar />
-            <PageBanner title="SHOPPING CART" link="/cart" />
+            <PageBanner title="ALIŞVERİŞ SEPETİ" link="/cart" />
             <div className="grid lg:grid-rows-1 grid-rows-2 grid-flow-col lg:px-16 gap-9 mt-24 px-[15px]">
                 <div className="grid lg:col-span-12 col-span-12">
                     <CartList />
@@ -29,14 +29,14 @@ const index = () => {
                         {/* card header */}
                         <div className="py-3 px-5 bg-secondary">
                             <h4 className="font-semibold text-2xl text-black">
-                                Cart Summary
+                                Sepet Özeti
                             </h4>
                         </div>
                         {/* card body */}
                         <div className="flex-auto p-5">
                             <div className="flex justify-between mb-4 pt-1">
                                 <h6 className="font-medium text-black">
-                                    Subtotal
+                                    Ara Toplam
                                 </h6>
                                 <h6 className="font-medium text-black">
                                     $100.00
@@ -44,7 +44,7 @@ const index = () => {
                             </div>
                             <div className="flex justify-between ">
                                 <h6 className="font-medium text-black">
-                                    Shipping
+                                    Nakliye
                                 </h6>
                                 <h6 className="font-medium text-black">
                                     $10.00
@@ -55,7 +55,7 @@ const index = () => {
                         <div className="border border-solid border-secondary py-3 px-5">
                             <div className="flex justify-between mt-2 text-black">
                                 <h5 className="font-bold text-xl">
-                                    Total
+                                    Toplam
                                 </h5>
                                 <h5 className="font-bold text-xl">
                                     $110.00
@@ -65,7 +65,7 @@ const index = () => {
                                 hover:bg-primaryDark hover:border-primaryDark hover:text-white
                                 transition duration-300 ease-in-out
                             ">
-                                Proceed to Checkout
+                                Ödeme İşlemine Geçin
                             </button>
                         </div>
                     </div>

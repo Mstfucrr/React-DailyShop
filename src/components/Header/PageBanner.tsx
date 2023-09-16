@@ -6,7 +6,7 @@ type Props = {
 
 const PageBanner = (props: Props) => {
     return (
-        <div className="w-full px-[15px] mx-auto bg-secondary">
+        <div className="w-full px-[15px] mx-auto bg-secondary relative">
             <div className="flex flex-col justify-center min-h-[300px] ">
                 <h1 className="text-[2.5rem] font-semibold text-center text-black uppercase">
                     {props.title}

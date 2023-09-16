@@ -95,8 +95,7 @@ const RegisterForm = (props: Props) => {
                 detail: 'Register Success',
                 life: 3000
             }))
-            // navigate('/login')
-
+            navigate('/login')
 
         }
 
