@@ -33,5 +33,5 @@ export interface IUserAddress {
     city: string;
     state: string;
     country: string;
-    zipCode: string;
+    zipCode: number;
 }
