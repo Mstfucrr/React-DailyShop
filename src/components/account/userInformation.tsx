@@ -6,11 +6,14 @@ import { useEffect, useState } from 'react';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
+import { InputMask } from 'primereact/inputmask';
+import { InputNumber } from 'primereact/inputnumber';
 import * as Yup from 'yup'
 import { useFormik } from 'formik'
-import { InputMask } from 'primereact/inputmask';
 import { useDispatch } from 'react-redux';
 import { SET_TOAST } from '@/store/Toast';
+
+import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 
 
 const UserInformation = (
@@ -47,9 +50,13 @@ const UserInformation = (
             address: '',
             description: '',
             isMain: false,
+            city: '',
+            country: '',
+            zipCode: 0,
         } as IUserAddress)
         setAddressesState(addresses)
     }
+
 
     const formik = useFormik({
         initialValues: {
@@ -74,22 +81,36 @@ const UserInformation = (
                     address: Yup.string().required('Adres alanı zorunludur'),
                     description: Yup.string().required('Açıklama alanı zorunludur'),
                     city: Yup.string().required('Şehir alanı zorunludur'),
+                    country: Yup.string().required('Ülke alanı zorunludur'),
+                    zipCode: Yup.string().required('Posta kodu alanı zorunludur'),
+
                 })
             )
         }),
         onSubmit: () => {
-            dispatch(SET_TOAST({
-                severity: 'success',
-                summary: 'Başarılı',
-                detail: (
-                    <>
-                        <span className="font-semibold"> profiliniz başarıyla güncellendi.</span>
-                    </>
-                ),
-                life: 3000
-            }))
+            console.log("submit")
+            showToast(
+                {
+                    severity: 'success',
+                    summary: 'Başarılı',
+                    detail: 'Kullanıcı bilgileriniz güncellendi'
+                }
+            )
         }
     })
+
+    const showToast = ({severity ,summary,detail} : {severity: string, summary: string, detail: string}) => {
+        dispatch(SET_TOAST({
+            severity: severity,
+            summary: summary,
+            detail: (
+                <>
+                    {detail}
+                </>
+            ),
+            life: 3000
+        }))
+    }
 
     return (
         <motion.div
@@ -388,9 +409,6 @@ const UserInformation = (
                                         value={formik.values.addresses[index].city}
                                         onChange={(e) => {
                                             formik.setFieldValue(`addresses[${index}].city`, e.target.value)
-                                            if (formik?.errors?.addresses !== undefined) {
-                                                console.log(formik?.errors?.addresses[index]["city"])
-                                            }
                                         }}
 
                                         className={
@@ -409,6 +427,82 @@ const UserInformation = (
 
                                 </div>
                             </div>
+                            <div className="flex lg:flex-row flex-col gap-9 items-center">
+                                <div className="flex flex-col w-full">
+                                    <label htmlFor="country" className="text-primary">Şehir</label>
+                                    <InputText
+                                        id='country'
+                                        name='country'
+                                        value={formik.values.addresses[index].country}
+                                        onChange={(e) => {
+                                            formik.setFieldValue(`addresses[${index}].country`, e.target.value)
+                                        }}
+
+                                        className={
+                                            formik.errors.addresses && formik.errors.addresses[index] && formik?.errors?.addresses[index]["country"]
+                                                ? 'w-full !my-2 p-inputtext-sm p-invalid'
+                                                : 'w-full !my-2 p-inputtext-sm'
+                                        }
+                                    />
+
+                                    {formik.errors.addresses && formik.errors.addresses[index] && formik?.errors?.addresses[index]["country"]
+                                        ? (
+                                            <small className="text-red-500 ">{formik?.errors?.addresses[index]["country"]}</small>
+                                        ) : null
+                                    }
+                                </div>
+
+                                <div className="flex flex-col w-full">
+                                    <label htmlFor="zipCode" className="text-primary">Posta Kodu</label>
+                                    <InputNumber
+                                        id='zipCode'
+                                        name='zipCode'
+                                        value={parseInt(formik.values.addresses[index].zipCode)}
+                                        onChange={(e) => {
+                                            formik.setFieldValue(`addresses[${index}].zipCode`, e.value)
+                                        }}
+
+                                        className={
+                                            formik.errors.addresses && formik.errors.addresses[index] && formik?.errors?.addresses[index]["zipCode"]
+                                                ? 'w-full !my-2 p-inputtext-sm p-invalid'
+                                                : 'w-full !my-2 p-inputtext-sm'
+                                        }
+                                        useGrouping={false}
+                                    />
+
+                                </div>
+                            </div>
+                            <ConfirmDialog />
+                            <div className="w-full flex justify-end">
+                                <Button severity="danger"
+                                    className="!mt-6"
+                                    size="small"
+                                    label="Delete Address"
+                                    icon="pi pi-trash"
+                                    key={index}
+                                    onClick={() => {
+                                        const dia = confirmDialog({
+                                            message: 'Bu adresi silmek istediğinize emin misiniz?',
+                                            header: 'Silme Onayı',
+                                            icon: 'pi pi-info-circle',
+                                            acceptClassName: 'p-button-danger',
+                                            accept: () => {
+                                                formik.setFieldValue('addresses', formik.values.addresses.filter((_, i) => i !== index))
+                                                dia.hide()
+                                                showToast({
+                                                    severity: 'success',
+                                                    summary: 'Başarılı',
+                                                    detail: 'Adres başarıyla silindi'
+                                                })
+                                            },
+                                            reject: () => dia.hide()
+                                        })
+
+                                    }}
+                                />
+
+                            </div>
+
                         </Fieldset>
                     ))}
 

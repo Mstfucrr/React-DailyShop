@@ -28,6 +28,8 @@ const Account = () => {
                 description: 'Ev adresi',
                 isMain: true,
                 city: 'İstanbul',
+                country: 'Turkey',
+                zipCode : 12124
             },
             {
                 id : 2,
@@ -35,8 +37,9 @@ const Account = () => {
                 description: 'İş adresi',
                 isMain: false,
                 city: 'Ankara',
-                address: 'Ankara / Çankaya / Kızılay'
-
+                address: 'Ankara / Çankaya / Kızılay',
+                country: 'Turkey',
+                zipCode : 14124
             }
         ] as IUserAddress[],
         role : "User",
