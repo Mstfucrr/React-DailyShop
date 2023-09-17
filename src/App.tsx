@@ -2,6 +2,7 @@ import { Toast } from "primereact/toast";
 import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { BrowserRouter } from "react-router-dom"
+import Footer from "./components/Footer";
 import AppRouter from "./routes/AppRouter"
 import { CLEAR_TOAST } from "./store/Toast";
 import { IToast } from "./store/Toast/type";
@@ -37,7 +38,7 @@ function App() {
       <div className="app">
         <Toast ref={toast} />
         <AppRouter />
-
+        <Footer />
       </div>
     </BrowserRouter>
 
