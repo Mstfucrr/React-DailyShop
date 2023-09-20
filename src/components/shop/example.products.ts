@@ -154,7 +154,7 @@ export const products = [
         tags: ["jacket", "leather", "vintage"],
         date: new Date("2020-01-16T00:00:00")
     },{
-        id: 2,
+        id: 9,
         name: "Elegant Denim Jeans",
         price: 89.99,
         discount: 10,
@@ -169,7 +169,7 @@ export const products = [
         date: new Date("2020-01-06T00:00:00")
     },
     {
-        id: 3,
+        id: 10,
         name: "Classic White Sneakers",
         price: 59.99,
         discount: 5,
@@ -184,7 +184,7 @@ export const products = [
         date: new Date("2020-01-12T00:00:00")
     },
     {
-        id: 4,
+        id: 11,
         name: "Leather Messenger Bag",
         price: 149.99,
         discount: 20,
@@ -199,7 +199,7 @@ export const products = [
         date: new Date("2020-01-11T00:00:00")
     }
     , {
-        id: 9,
+        id: 12,
         name: "Smartphone Holder Stand",
         price: 19.99,
         discount: 5,
@@ -214,7 +214,7 @@ export const products = [
         date: new Date("2020-01-12T00:00:00")
     }
     , {
-        id: 2,
+        id: 13,
         name: "Elegant Denim Jeans",
         price: 89.99,
         discount: 10,
@@ -229,7 +229,7 @@ export const products = [
         date: new Date("2020-01-06T00:00:00")
     },
     {
-        id: 3,
+        id: 14,
         name: "Classic White Sneakers",
         price: 59.99,
         discount: 5,
@@ -244,7 +244,7 @@ export const products = [
         date: new Date("2020-01-12T00:00:00")
     },
     {
-        id: 4,
+        id: 15,
         name: "Leather Messenger Bag",
         price: 149.99,
         discount: 20,
@@ -258,7 +258,7 @@ export const products = [
         tags: ["bag", "leather", "messenger"],
         date: new Date("2020-01-11T00:00:00")
     },{
-        id: 10,
+        id: 16,
         name: "Designer Sunglasses",
         price: 129.99,
         discount: 0,

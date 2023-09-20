@@ -5,9 +5,11 @@ import { Button } from "primereact/button";
 import { IProduct } from "@/shared/types";
 
 const SideBar = (
-    {filteredProducts,setFilteredProducts} : {filteredProducts : IProduct[],setFilteredProducts : (
-        filteredProducts : IProduct[]
-    ) => void} 
+    { filteredProducts, setFilteredProducts }: {
+        filteredProducts: IProduct[], setFilteredProducts: (
+            filteredProducts: IProduct[]
+        ) => void
+    }
 ) => {
 
     const maxProductPrice = filteredProducts.reduce((max, product) => product.price > max ? product.price : max, 0) as number
