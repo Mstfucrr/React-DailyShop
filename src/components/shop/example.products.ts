@@ -21,13 +21,25 @@
 
 import { IProduct } from "../../shared/types";
 
+import p1 from "./img/product-1.jpg";
+import p2 from "./img/product-2.jpg";
+import p3 from "./img/product-3.jpg";
+import p4 from "./img/product-4.jpg";
+import p5 from "./img/product-5.jpg";
+import p6 from "./img/product-6.jpg";
+import p7 from "./img/product-7.jpg";
+import p8 from "./img/product-8.jpg";
+
+
+
+
 export const products = [
     {
         id: 1,
         name: "Colorful Stylish Shirt",
-        price: 123,
+        price: 1203,
         discount: 123,
-        image: "img/product-1.jpg",
+        image: p1,
         category: "Shirt",
         description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, voluptatibus.",
         rating: 4,
@@ -41,7 +53,7 @@ export const products = [
         name: "Elegant Denim Jeans",
         price: 89.99,
         discount: 10,
-        image: "img/product-2.jpg",
+        image: p2,
         category: "Jeans",
         description: "These elegant denim jeans are perfect for any occasion. Made with high-quality denim fabric.",
         rating: 4.5,
@@ -55,7 +67,7 @@ export const products = [
         name: "Classic White Sneakers",
         price: 59.99,
         discount: 5,
-        image: "img/product-3.jpg",
+        image: p3,
         category: "Shoes",
         description: "A pair of classic white sneakers that goes well with any outfit. Comfortable and stylish.",
         rating: 4.2,
@@ -69,7 +81,7 @@ export const products = [
         name: "Leather Messenger Bag",
         price: 149.99,
         discount: 20,
-        image: "img/product-4.jpg",
+        image: p4,
         category: "Bags",
         description: "A stylish leather messenger bag for carrying your essentials. Ideal for work or travel.",
         rating: 4.7,
@@ -83,7 +95,7 @@ export const products = [
         name: "Casual Cotton Trousers",
         price: 79.99,
         discount: 0,
-        image: "img/product-5.jpg",
+        image: p5,
         category: "Pants",
         description: "Comfortable and casual cotton trousers for everyday wear. Available in various colors.",
         rating: 4.0,
@@ -97,7 +109,7 @@ export const products = [
         name: "Women's Floral Dress",
         price: 69.99,
         discount: 15,
-        image: "img/product-6.jpg",
+        image: p6,
         category: "Dresses",
         description: "A beautiful floral dress for women. Perfect for summer parties and events.",
         rating: 4.8,
@@ -111,7 +123,7 @@ export const products = [
         name: "Sports Running Shoes",
         price: 79.99,
         discount: 0,
-        image: "img/product-7.jpg",
+        image: p7,
         category: "Shoes",
         description: "High-performance sports running shoes for athletes. Lightweight and breathable.",
         rating: 4.5,
@@ -125,7 +137,7 @@ export const products = [
         name: "Vintage Leather Jacket",
         price: 199.99,
         discount: 25,
-        image: "img/product-8.jpg",
+        image: p8,
         category: "Jackets",
         description: "A stylish vintage leather jacket with a classic design. Perfect for a rugged look.",
         rating: 4.6,
@@ -139,7 +151,7 @@ export const products = [
         name: "Smartphone Holder Stand",
         price: 19.99,
         discount: 5,
-        image: "img/product-9.jpg",
+        image: p1,
         category: "Accessories",
         description: "A convenient smartphone holder stand for hands-free use. Suitable for all phone sizes.",
         rating: 4.3,
@@ -153,7 +165,7 @@ export const products = [
         name: "Designer Sunglasses",
         price: 129.99,
         discount: 0,
-        image: "img/product-10.jpg",
+        image: p2,
         category: "Accessories",
         description: "Designer sunglasses that provide both style and UV protection. Available in various designs.",
         rating: 4.4,
