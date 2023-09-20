@@ -19,7 +19,7 @@
 */}
 
 
-import { IProduct } from "../../shared/types";
+import { IProduct, IShopResponse } from "../../shared/types";
 
 import p1 from "./img/product-1.jpg";
 import p2 from "./img/product-2.jpg";
@@ -47,6 +47,7 @@ export const products = [
         colors: ["red", "blue", "green"],
         sizes: ["S", "M", "L", "XL", "XXL"],
         tags: ["shirt", "stylish", "colorful"],
+        date: new Date("2020-01-01T00:00:00")
     },
     {
         id: 2,
@@ -60,7 +61,8 @@ export const products = [
         reviews: 8,
         colors: ["blue", "black", "gray"],
         sizes: ["S", "M", "L", "XL"],
-        tags: ["jeans", "elegant", "denim"]
+        tags: ["jeans", "elegant", "denim"],
+        date: new Date("2020-01-06T00:00:00")
     },
     {
         id: 3,
@@ -74,7 +76,8 @@ export const products = [
         reviews: 10,
         colors: ["white"],
         sizes: ["US 6", "US 7", "US 8", "US 9", "US 10"],
-        tags: ["sneakers", "classic", "white"]
+        tags: ["sneakers", "classic", "white"],
+        date: new Date("2020-01-12T00:00:00")
     },
     {
         id: 4,
@@ -88,7 +91,8 @@ export const products = [
         reviews: 15,
         colors: ["brown", "black"],
         sizes: ["Medium"],
-        tags: ["bag", "leather", "messenger"]
+        tags: ["bag", "leather", "messenger"],
+        date: new Date("2020-01-11T00:00:00")
     }
     , {
         id: 5,
@@ -102,7 +106,8 @@ export const products = [
         reviews: 6,
         colors: ["khaki", "black", "navy"],
         sizes: ["S", "M", "L", "XL"],
-        tags: ["trousers", "casual", "cotton"]
+        tags: ["trousers", "casual", "cotton"],
+        date: new Date("2020-01-30T00:00:00")
     }
     , {
         id: 6,
@@ -116,7 +121,8 @@ export const products = [
         reviews: 18,
         colors: ["pink", "blue", "yellow"],
         sizes: ["XS", "S", "M", "L"],
-        tags: ["dress", "floral", "women"]
+        tags: ["dress", "floral", "women"],
+        date: new Date("2020-01-20T00:00:00")
     }
     , {
         id: 7,
@@ -130,7 +136,8 @@ export const products = [
         reviews: 9,
         colors: ["red", "blue", "black"],
         sizes: ["US 6", "US 7", "US 8", "US 9", "US 10"],
-        tags: ["shoes", "sports", "running"]
+        tags: ["shoes", "sports", "running"],
+        date: new Date("2020-01-18T00:00:00")
     }
     , {
         id: 8,
@@ -144,7 +151,52 @@ export const products = [
         reviews: 14,
         colors: ["brown", "black"],
         sizes: ["S", "M", "L", "XL"],
-        tags: ["jacket", "leather", "vintage"]
+        tags: ["jacket", "leather", "vintage"],
+        date: new Date("2020-01-16T00:00:00")
+    },{
+        id: 2,
+        name: "Elegant Denim Jeans",
+        price: 89.99,
+        discount: 10,
+        image: p2,
+        category: "Jeans",
+        description: "These elegant denim jeans are perfect for any occasion. Made with high-quality denim fabric.",
+        rating: 4.5,
+        reviews: 8,
+        colors: ["blue", "black", "gray"],
+        sizes: ["S", "M", "L", "XL"],
+        tags: ["jeans", "elegant", "denim"],
+        date: new Date("2020-01-06T00:00:00")
+    },
+    {
+        id: 3,
+        name: "Classic White Sneakers",
+        price: 59.99,
+        discount: 5,
+        image: p3,
+        category: "Shoes",
+        description: "A pair of classic white sneakers that goes well with any outfit. Comfortable and stylish.",
+        rating: 4.2,
+        reviews: 10,
+        colors: ["white"],
+        sizes: ["US 6", "US 7", "US 8", "US 9", "US 10"],
+        tags: ["sneakers", "classic", "white"],
+        date: new Date("2020-01-12T00:00:00")
+    },
+    {
+        id: 4,
+        name: "Leather Messenger Bag",
+        price: 149.99,
+        discount: 20,
+        image: p4,
+        category: "Bags",
+        description: "A stylish leather messenger bag for carrying your essentials. Ideal for work or travel.",
+        rating: 4.7,
+        reviews: 15,
+        colors: ["brown", "black"],
+        sizes: ["Medium"],
+        tags: ["bag", "leather", "messenger"],
+        date: new Date("2020-01-11T00:00:00")
     }
     , {
         id: 9,
@@ -158,9 +210,54 @@ export const products = [
         reviews: 7,
         colors: ["black"],
         sizes: ["One Size"],
-        tags: ["accessory", "smartphone", "holder"]
+        tags: ["accessory", "smartphone", "holder"],
+        date: new Date("2020-01-12T00:00:00")
     }
     , {
+        id: 2,
+        name: "Elegant Denim Jeans",
+        price: 89.99,
+        discount: 10,
+        image: p2,
+        category: "Jeans",
+        description: "These elegant denim jeans are perfect for any occasion. Made with high-quality denim fabric.",
+        rating: 4.5,
+        reviews: 8,
+        colors: ["blue", "black", "gray"],
+        sizes: ["S", "M", "L", "XL"],
+        tags: ["jeans", "elegant", "denim"],
+        date: new Date("2020-01-06T00:00:00")
+    },
+    {
+        id: 3,
+        name: "Classic White Sneakers",
+        price: 59.99,
+        discount: 5,
+        image: p3,
+        category: "Shoes",
+        description: "A pair of classic white sneakers that goes well with any outfit. Comfortable and stylish.",
+        rating: 4.2,
+        reviews: 10,
+        colors: ["white"],
+        sizes: ["US 6", "US 7", "US 8", "US 9", "US 10"],
+        tags: ["sneakers", "classic", "white"],
+        date: new Date("2020-01-12T00:00:00")
+    },
+    {
+        id: 4,
+        name: "Leather Messenger Bag",
+        price: 149.99,
+        discount: 20,
+        image: p4,
+        category: "Bags",
+        description: "A stylish leather messenger bag for carrying your essentials. Ideal for work or travel.",
+        rating: 4.7,
+        reviews: 15,
+        colors: ["brown", "black"],
+        sizes: ["Medium"],
+        tags: ["bag", "leather", "messenger"],
+        date: new Date("2020-01-11T00:00:00")
+    },{
         id: 10,
         name: "Designer Sunglasses",
         price: 129.99,
@@ -172,10 +269,41 @@ export const products = [
         reviews: 11,
         colors: ["black", "brown", "silver"],
         sizes: ["One Size"],
-        tags: ["sunglasses", "designer", "accessory"]
+        tags: ["sunglasses", "designer", "accessory"],
+        date: new Date("2020-01-20T00:00:00")
     }
 
 
 
 
 ] as IProduct[];
+
+
+export const getProducts = async (
+    filteredProducts : IProduct[],
+    first : number,
+    rows: number,
+): Promise<IShopResponse> => {
+
+    const count = filteredProducts.length
+    const pages = Math.ceil(count / rows)
+    const next = first + rows < count ? first + rows : null
+    const prev = first - rows >= 0 ? first - rows : null
+
+    const data = filteredProducts.slice(first, first + rows)
+
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve({
+                data: data,
+                info: {
+                    count: count,
+                    pages: pages,
+                    next: next,
+                    prev: prev
+                }
+            })
+        }, 1000)
+    })
+}
+

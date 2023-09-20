@@ -1,11 +1,12 @@
 import { InputText } from 'primereact/inputtext'
-import { products } from './example.products'
+import { getProducts, products } from './example.products'
 import SideBar from './sideBar'
 import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card } from 'primereact/card';
 import { FaEye, FaShoppingCart } from 'react-icons/fa';
-import { IProduct } from '@/shared/types';
+import { IProduct, IShopResponse } from '@/shared/types';
+import { Paginator, PaginatorPageChangeEvent } from 'primereact/paginator';
 
 const Shop = () => {
 
@@ -18,21 +19,80 @@ const Shop = () => {
     { name: 'Price (high to low)', code: 'priceHighToLow' },
     { name: 'Name (A - Z)', code: 'nameAZ' },
     { name: 'Name (Z - A)', code: 'nameZA' },
+    { name: 'Top Rated', code: 'topRated' },
+    { name: "Review", code: 'review' }
   ]
 
+  useEffect(() => {
+
+    switch (selectSortBy) {
+      case 'newest':
+        setFilteredProducts([...filteredProducts].sort((a, b) => b.id - a.id))
+        break;
+      case 'priceLowToHigh':
+        setFilteredProducts([...filteredProducts].sort((a, b) => a.price - b.price))
+        break;
+      case 'priceHighToLow':
+        setFilteredProducts([...filteredProducts].sort((a, b) => b.price - a.price))
+        break;
+      case 'nameAZ':
+        setFilteredProducts([...filteredProducts].sort((a, b) => a.name.localeCompare(b.name)))
+        break;
+      case 'nameZA':
+        setFilteredProducts([...filteredProducts].sort((a, b) => b.name.localeCompare(a.name)))
+        break;
+      case 'topRated':
+        setFilteredProducts([...filteredProducts].sort((a, b) => b.rating - a.rating))
+        break;
+      case 'review':
+        setFilteredProducts([...filteredProducts].sort((a, b) => b.reviews - a.reviews))
+        break;
+      default:
+        setFilteredProducts([...products])
+        break;
+    }
+  }, [selectSortBy])
+
+
+  // gelen datalar pagnition ile listelencek
+
+
+
+  const [responseData, setResponseData] = useState<IShopResponse | undefined>(undefined)
+  const [first, setFirst] = useState(0);
+  const [rows, setRows] = useState(4)
+
+  useEffect(() => {
+    async function getPro() {
+      const response = await getProducts(filteredProducts, first, rows)
+      if (response !== undefined) {
+        setResponseData(response)
+      }
+    }
+    getPro()
+  }, [filteredProducts])
+
+  const onPageChange = (event: PaginatorPageChangeEvent) => {
+    setFirst(event.first);
+    setRows(event.rows);
+    console.log(event.first, event.rows)
+    // simule data
+    async function getPro() {
+      const response = await getProducts(filteredProducts, event.first, event.rows)
+      if (response !== undefined) {
+        setResponseData(response)
+      }
+    }
+    getPro()
+
+  };
 
 
   return (
     <div className='pt-16 px-14 gap-x-10'>
       <div className="grid md:grid-cols-4 gap-x-10">
 
-        {/* is above md : Side Bar */}
-        <SideBar filteredProducts={products} setFilteredProducts = {setFilteredProducts} />
-
-        {/* is below md : buttom bar */}
-
-
-
+        <SideBar filteredProducts={products} setFilteredProducts={setFilteredProducts} />
         {/* Shop Product */}
         <div className="row-span-4 md:row-span-1 md:col-span-3 col-span-1">
           <div className="flex md:flex-row flex-col justify-between items-start gap-y-2">
@@ -44,13 +104,19 @@ const Shop = () => {
 
             <div className="flex items-center">
               <Dropdown value={selectSortBy}
-                onChange={(e: DropdownChangeEvent) => setSelectSortBy(e.value)}
-                options={sortBy} optionLabel="name" placeholder="Sort By" className="mr-2" />
+                onChange={(e: DropdownChangeEvent) => {
+                  setSelectSortBy(e.value.code)
+                  console.log(e.value.code)
+                }
+                }
+                options={sortBy} optionLabel="name"
+                placeholder={selectSortBy ? selectSortBy : "Sort By"}
+                className="mr-2" />
             </div>
           </div>
 
           <div className="grid lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-5 py-10 ">
-            {filteredProducts.map((product) => (
+            {responseData?.data.map((product) => (
               <div className="flex pb-4 w-full" key={product.id}>
                 <Card
                   className="w-full"
@@ -79,20 +145,24 @@ const Shop = () => {
 
                     </div>
                   }
-
                 >
-
                 </Card>
-
-
-
-
-
               </div>
             ))}
           </div>
 
         </div>
+      </div>
+
+      {/* pagnition */}
+      <div className="card">
+        <Paginator
+          first={first}
+          rows={rows}
+          totalRecords={
+            filteredProducts.length
+          }
+          onPageChange={onPageChange} />
       </div>
     </div>
   )

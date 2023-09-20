@@ -23,5 +23,19 @@ export interface IProduct {
     reviews : number,
     colors : string[],
     sizes : string[],
-    tags : string[]
+    tags : string[],
+    date: Date,
+}
+  // gelen datalar pagnition ile listelencek
+
+export interface IShopResponse {
+    data: IProduct[],
+    info: Iinfo
+}
+
+export interface Iinfo {
+    count: number,
+    pages: number,
+    next: number | null,
+    prev: number | null
 }
