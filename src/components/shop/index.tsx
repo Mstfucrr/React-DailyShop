@@ -121,12 +121,17 @@ const Shop = () => {
                 <Card
                   className="w-full"
                   header={
-                    <div className='relative'>
-
-                      <img src={product.image} alt={product.name} className="w-full h-auto object-cover
-                    transition-all hover: 
-                    " />
+                    <div className="relative">
+                    <div className="border border-gray-200 rounded-md overflow-hidden">
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="w-full h-auto object-cover transition-transform duration-500 hover:scale-125"
+                      />
                     </div>
+                    <div className="absolute top-0 left-0 w-full h-full border -z-10 border-gray-200 opacity-0 transition-opacity duration-500 hover:opacity-100"></div>
+                  </div>
+
                   }
                   footer={
                     <div className="flex justify-between flex-col">
