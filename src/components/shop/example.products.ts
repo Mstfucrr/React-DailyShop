@@ -20,6 +20,7 @@
 
 
 import { IProduct, IShopResponse } from "../../shared/types";
+import { user } from "../account/example.user";
 
 import p1 from "./img/product-1.jpg";
 import p2 from "./img/product-2.jpg";
@@ -41,13 +42,45 @@ export const products = [
         discount: 123,
         image: p1,
         category: "Shirt",
-        description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, voluptatibus.",
+        description: `Product Description
+        Eos no lorem eirmod diam diam, eos elitr et gubergren diam sea. Consetetur vero aliquyam invidunt duo dolores et duo sit. Vero diam ea vero et dolore rebum, dolor rebum eirmod consetetur invidunt sed sed et, lorem duo et eos elitr, sadipscing kasd ipsum rebum diam. Dolore diam stet rebum sed tempor kasd eirmod. Takimata kasd ipsum accusam sadipscing, eos dolores sit no ut diam consetetur duo justo est, sit sanctus diam tempor aliquyam eirmod nonumy rebum dolor accusam, ipsum kasd eos consetetur at sit rebum, diam kasd invidunt tempor lorem, ipsum lorem elitr sanctus eirmod takimata dolor ea invidunt.
+        Dolore magna est eirmod sanctus dolor, amet diam et eirmod et ipsum. Amet dolore tempor consetetur sed lorem dolor sit lorem tempor. Gubergren amet amet labore sadipscing clita clita diam clita. Sea amet et sed ipsum lorem elitr et, amet et labore voluptua sit rebum. Ea erat sed et diam takimata sed justo. Magna takimata justo et amet magna et.`,
         rating: 4,
         reviews: 12,
         colors: ["red", "blue", "green"],
         sizes: ["S", "M", "L", "XL", "XXL"],
         tags: ["shirt", "stylish", "colorful"],
-        date: new Date("2020-01-01T00:00:00")
+        date: new Date("2020-01-01T00:00:00"),
+        images : [
+           p1, p2, p3, p4, p5, p6
+        ],
+        information : {
+            status : "Yeni",
+            stock : 17
+        },
+        reviewsData : [
+            {
+                id : 1,
+                date : new Date("2021-06-01T00:00:00"),
+                productId : 1,
+                rating : 3,
+                user : user,
+                review : "Diam amet duo labore stet elitr ea clita ipsum, tempor labore accusam ipsum et no at. Kasd diam tempor rebum magna dolores sed sed eirmod ipsum.",
+                name : user.name,
+                avatar : "https://bootdey.com/img/Content/avatar/avatar1.png",
+                email : user.email
+            },
+            {
+                id : 2,
+                date : new Date("2021-06-01T00:00:00"),
+                productId : 1,
+                rating : 4,
+                name : "John Doe",
+                email : "jhondoe@example.com",
+                review : "Diam amet duo labore stet elitr ea clita ipsum, tempor labore accusam ipsum et no at. Kasd diam tempor rebum magna dolores sed sed eirmod ipsum.",
+                avatar : "https://bootdey.com/img/Content/avatar/avatar2.png"
+            }
+        ]
     },
     {
         id: 2,
@@ -272,9 +305,6 @@ export const products = [
         tags: ["sunglasses", "designer", "accessory"],
         date: new Date("2020-01-20T00:00:00")
     }
-
-
-
 
 ] as IProduct[];
 
