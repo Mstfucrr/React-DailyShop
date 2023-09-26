@@ -7,12 +7,14 @@ import Register from '@/pages/register';
 import Cart from '@/pages/cart';
 import Admin from '@/pages/admin';
 import Account from '@/pages/Account';
+import ProductDetailPage from '@/pages/productDetail';
 
 const AppRouter: React.FC = () => {
     return (
         <Routes>
             <Route path="/" Component={Home} />
             <Route path="/shop" Component={Shop} />
+            <Route path="/productDetail/:id" Component={ProductDetailPage} /> {/* Updated path */}
             <Route path="/login" Component={Login} />
             <Route path="/register" Component={Register} />
             <Route path="/cart" Component={Cart} />
