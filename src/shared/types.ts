@@ -1,32 +1,41 @@
-// id: 1,
-// name: "Colorful Stylish Shirt",
-// price: 123,
-// discount: 123,
-// image: "img/product-1.jpg",
-// category: "Shirt",
-// description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, voluptatibus.",
-// rating: 4,
-// reviews: 12,
-// colors: ["red", "blue", "green"],
-// sizes: ["S", "M", "L", "XL", "XXL"],
-// tags: ["shirt", "stylish", "colorful"],
+import { IUser } from "@/services/auth/types"
 
 export interface IProduct {
     id: number,
-    name : string,
-    price : number,
-    discount : number,
-    image : string,
-    category : string,
-    description : string,
-    rating : number,
-    reviews : number,
-    colors : string[],
-    sizes : string[],
-    tags : string[],
+    name: string,
+    price: number,
+    discount: number,
+    image: string,
+    images: string[] | undefined,
+    category: string,
+    description: string,
+    information: {
+        status: string,
+        stock: number
+    } | undefined,
+    rating: number,
+    reviews: number,
+    colors: string[],
+    sizes: string[],
+    tags: string[],
     date: Date,
+    reviewsData: IReviews[],
+    
 }
-  // gelen datalar pagnition ile listelencek
+
+export interface IReviews {
+    id: number,
+    name: string | undefined,
+    email: string | undefined,
+    date: Date,
+    rating: number,
+    productId: number,
+    review: string,
+    user : IUser | undefined,
+    avatar : string | undefined
+}
+
+
 
 export interface IShopResponse {
     data: IProduct[],
@@ -39,3 +48,11 @@ export interface Iinfo {
     next: number | null,
     prev: number | null
 }
+
+export interface ICartItem {
+    id: number,
+    product: IProduct,
+    quantity: number,
+}
+
+  // gelen datalar pagnition ile listelencek
