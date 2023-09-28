@@ -1,8 +1,7 @@
 import { IUser, IUserAddress } from '@/services/auth/types';
 import { motion } from 'framer-motion'
-import { Card } from 'primereact/card';
 import { Fieldset } from 'primereact/fieldset';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
@@ -10,10 +9,10 @@ import { InputMask } from 'primereact/inputmask';
 import { InputNumber } from 'primereact/inputnumber';
 import * as Yup from 'yup'
 import { useFormik } from 'formik'
-import { useDispatch } from 'react-redux';
-import { SET_TOAST } from '@/store/Toast';
+
 
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
+import { Toast } from 'primereact/toast';
 
 
 const UserInformation = (
@@ -23,8 +22,8 @@ const UserInformation = (
 
     const [userState, setUserState] = useState<IUser>(user)
     const [addressesState, setAddressesState] = useState(user.addresses)
+    const toast = useRef<any>(null)
 
-    const dispatch = useDispatch()
 
     useEffect(() => {
         setUserState(user)
@@ -89,28 +88,16 @@ const UserInformation = (
         }),
         onSubmit: () => {
             console.log("submit")
-            showToast(
-                {
-                    severity: 'success',
-                    summary: 'Başarılı',
-                    detail: 'Kullanıcı bilgileriniz güncellendi'
-                }
-            )
+            toast.current?.show({
+                severity: 'success',
+                summary: 'Başarılı',
+                detail: 'Kullanıcı bilgileriniz güncellendi'
+            })
+
         }
     })
 
-    const showToast = ({severity ,summary,detail} : {severity: string, summary: string, detail: string}) => {
-        dispatch(SET_TOAST({
-            severity: severity,
-            summary: summary,
-            detail: (
-                <>
-                    {detail}
-                </>
-            ),
-            life: 3000
-        }))
-    }
+
 
     return (
         <motion.div
@@ -120,6 +107,7 @@ const UserInformation = (
             transition={{ duration: 0.4 }}
             className="w-full px-[15px] relative"
         >
+            <Toast ref={toast} />
             <h3 className="text-4xl my-4 text-primaryDark
                                             ">
                 Kullanıcı Bilgilerim
@@ -457,7 +445,7 @@ const UserInformation = (
                                     <InputNumber
                                         id='zipCode'
                                         name='zipCode'
-                                        value={parseInt(formik.values.addresses[index].zipCode)}
+                                        value={formik.values.addresses[index].zipCode}
                                         onChange={(e) => {
                                             formik.setFieldValue(`addresses[${index}].zipCode`, e.value)
                                         }}
