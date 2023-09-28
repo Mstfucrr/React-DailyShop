@@ -2,32 +2,10 @@ import { useEffect, useState } from 'react'
 import { products } from '../shop/example.products'
 import CartListItem from './CartListItem'
 import { ICartItem } from '@/shared/types'
+import { cartItemsExample } from '@/components/Shop/example.products'
+import { Link } from 'react-router-dom'
+
 const Cart = () => {
-
-
-
-    const cartItemsExample: ICartItem[] = [
-        {
-            id: 1,
-            product: products[0],
-            quantity: 1,
-        },
-        {
-            id: 2,
-            product: products[2],
-            quantity: 2,
-        }, {
-            id: 3,
-            product: products[0],
-            quantity: 1,
-        },
-        {
-            id: 4,
-            product: products[2],
-            quantity: 2,
-        }
-
-    ]
 
     const [cartItems, setCartItems] = useState<ICartItem[]>(cartItemsExample)
     const [cartTotal, setCartTotal] = useState(
@@ -105,12 +83,13 @@ const Cart = () => {
                                 ${cartTotal}
                             </h5>
                         </div>
-                        <button className="bg-primary border border-solid border-transparent text-[#212529] py-4 px-3 mt-4 w-full
+                        <Link className="bg-primary border border-solid border-transparent text-[#212529] py-4 px-3 mt-4 w-full
                                 hover:bg-primaryDark hover:border-primaryDark hover:text-white
-                                transition duration-300 ease-in-out
-                            ">
+                                transition duration-300 ease-in-out flex justify-center"
+                            to="/checkout"
+                                >
                             Ödeme İşlemine Geçin
-                        </button>
+                        </Link>
                     </div>
                 </div>
             </div>
