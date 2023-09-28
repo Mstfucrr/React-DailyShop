@@ -1,9 +1,8 @@
-import { IUser, IUserAddress } from "@/services/auth/types"
-import { AnimatePresence, motion } from "framer-motion"
-import { useEffect, useState } from "react"
+import { IUser } from "@/services/auth/types"
+import { AnimatePresence } from "framer-motion"
+import { useState } from "react"
 import { user } from "./example.user"
 import UserInformation from "./userInformation"
-import UserOrders from "./userOrders"
 
 enum AccountTabs {
     USER_INFO,
@@ -14,7 +13,7 @@ enum AccountTabs {
 
 const Account = () => {
     const [activeTab, setActiveTab] = useState(AccountTabs.USER_INFO)
-    
+
 
     const [userState, setUserState] = useState<IUser>(user)
 
@@ -29,7 +28,7 @@ const Account = () => {
                                 Hesabım
                             </h3>
                             <div className="flex flex-col w-full">
-                                <button className={`relative py-[10px] px-[15px] border border-solid border-[#ddd] rounded-t-2xl text-lg
+                                <button className={`relative py-[10px] px-[15px] border border-solid border-[#ddd] rounded-2xl text-lg
                                     hover:border-primary hover:bg-primary hover:text-white transition-all duration-300
                                     ${activeTab === AccountTabs.USER_INFO ? 'bg-primary text-white' : 'bg-white text-black'} 
                                     `}
@@ -37,40 +36,11 @@ const Account = () => {
                                 >
                                     Kullanıcı Bilgilerim
                                 </button>
-
-                                <button className={`relative py-[10px] px-[15px] border border-solid border-[#ddd] text-lg
-                                    hover:border-primary hover:bg-primary hover:text-white transition-all duration-300
-                                    ${activeTab === AccountTabs.USER_ORDERS ? 'bg-primary text-white' : 'bg-white text-black'}
-                                    `}
-                                    onClick={() => setActiveTab(AccountTabs.USER_ORDERS)}
-                                >
-                                    Siparişlerim
-                                </button>
-
-                                <button className={`relative py-[10px] px-[15px] border border-solid border-[#ddd] rounded-b-2xl text-lg
-                                    hover:border-primary hover:bg-primary hover:text-white transition-all duration-300
-                                    ${activeTab === AccountTabs.USER_COMMENTS ? 'bg-primary text-white' : 'bg-white text-black'}
-
-                                    `}
-                                    onClick={() => setActiveTab(AccountTabs.USER_COMMENTS)}
-                                >
-                                    Yorumlarım
-                                </button>
-
-
-
                             </div>
                         </div>
                         <div className="md:w-2/3 w-full">
                             <AnimatePresence>
-                                {activeTab === AccountTabs.USER_INFO && (
-                                    <UserInformation user={userState} setUser={setUserState} />
-                                )}
-
-                                {activeTab === AccountTabs.USER_ORDERS && (
-                                    <UserOrders />
-                                )}
-
+                                <UserInformation user={userState} setUser={setUserState} />
                             </AnimatePresence>
                         </div>
 
