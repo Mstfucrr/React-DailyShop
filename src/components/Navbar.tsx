@@ -6,11 +6,13 @@ import {
 } from 'react-icons/io';
 import HeaderCarousel from './Header/HeaderCarousel';
 import { useOnClickOutside } from 'usehooks-ts';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
+import { Button } from 'primereact/button';
 
 
 const Navbar = () => {
+  const navigate = useNavigate()
 
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -114,15 +116,13 @@ const Navbar = () => {
                       {/* login register links */}
                       <Link to="/login" className={navItemsStyle + " py-[10px] lx:py-[20px] px-[10px]"}>Giriş Yap</Link>
                       <Link to="/register" className={navItemsStyle + " py-[10px] lx:py-[20px] px-[10px]"}>Kayıt Ol</Link>
-                      <Link to="/account" className={navItemsStyle + " py-[10px] lx:py-[20px] px-[10px]"}>Hesap</Link>
-
-
+                      <Link to="/account" className={navItemsStyle + " py-[10px] lx:py-[20px] px-[10px] mr-4"}>Hesap</Link>
+                      <Button severity="warning" className=" py-[10px] lx:py-[20px] px-[10px] !text-black hover:!text-white duration-300"
+                        onClick={() => { navigate('/seller') }}> Satış Yap </Button>
                     </div>
                   </motion.div>
                 )}
               </AnimatePresence>
-
-
             </nav>
             {isHomePage &&
               <HeaderCarousel />
