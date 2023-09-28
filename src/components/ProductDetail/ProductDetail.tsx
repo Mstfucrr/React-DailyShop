@@ -40,6 +40,7 @@ const ProductDetail = ({ product }: Props) => {
     }
 
     const [selectSize, setSelectSize] = useState<string | undefined>(undefined)
+    const [selectColor, setSelectColor] = useState<string | undefined>(undefined)
 
     // const size = [{ name: "S", key: "s" }]
     const sizes = product.sizes?.map((size) => ({ name: size, key: size })) as any
@@ -110,8 +111,8 @@ const ProductDetail = ({ product }: Props) => {
                         {/* rating */}
                         <div className="flex flex-row gap-x-4 my-2">
                             <Rating value={product.rating} readOnly cancel={false} pt={{
-                                                                onIcon: { className: '!text-primary' }
-                                                            }} />
+                                onIcon: { className: '!text-primary' }
+                            }} />
                             ( {product.reviews} Reviews )
                         </div>
                         {/* price */}
@@ -127,12 +128,10 @@ const ProductDetail = ({ product }: Props) => {
                             <h2 className="text-lg font-semibold">
                                 Beden :
                             </h2>
-                            {sizes.map && sizes.map((size: any) => (
+                            {sizes && sizes.map((size: any, index: number) => (
 
-                                <div className="flex align-items-center">
-                                    <RadioButton inputId={size.key} name="category" value={size} onChange={(e) => setSelectSize(e.value.name as string)}
-                                        checked={selectSize === size.name}
-                                    />
+                                <div className="flex align-items-center" key={index}>
+                                    <RadioButton inputId={`size-${size.name}`} name="size" value={size} onChange={(e) => setSelectSize(e.value.name as string)} checked={selectSize === size.name} />
                                     <label htmlFor={size.key} className="ml-2">{size.name}</label>
                                 </div>
                             ))
@@ -144,10 +143,10 @@ const ProductDetail = ({ product }: Props) => {
                             <h2 className="text-lg font-semibold">
                                 Renkler :
                             </h2>
-                            {colors.map && colors.map((color: any) => (
-                                <div className="">
-                                    <RadioButton inputId={color.key} name="category" value={color} onChange={(e) => setSelectSize(e.value.name as string)}
-                                        checked={selectSize === color.name} />
+                            {colors && colors.map((color: any, index: number) => (
+                                <div className="flex align-items-center" key={index}>
+
+                                    <RadioButton inputId={`color-${color.name}`} name="color" value={color} onChange={(e) => setSelectColor(e.value.name as string)} checked={selectColor === color.name} />
                                     <label htmlFor={color.key} className="ml-2" style={{ color: color.name }}>{color.name}</label>
                                 </div>
                             ))
@@ -249,8 +248,8 @@ const ProductDetail = ({ product }: Props) => {
                                                             {review.date?.toLocaleDateString()}
                                                         </i></small> </h6>
                                                         <Rating value={review.rating} readOnly cancel={false} className="my-2" pt={{
-                                                                onIcon: { className: '!text-primary' }
-                                                            }} />
+                                                            onIcon: { className: '!text-primary' }
+                                                        }} />
                                                         <p>
                                                             {review.review}
                                                         </p>
