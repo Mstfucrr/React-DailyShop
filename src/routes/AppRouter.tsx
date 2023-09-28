@@ -8,6 +8,7 @@ import Cart from '@/pages/cart';
 import Admin from '@/pages/admin';
 import Account from '@/pages/Account';
 import ProductDetailPage from '@/pages/productDetail';
+import CheckoutPage from '@/pages/Checkout';
 
 const AppRouter: React.FC = () => {
     return (
@@ -20,7 +21,8 @@ const AppRouter: React.FC = () => {
             <Route path="/cart" Component={Cart} />
             <Route path="/admin" Component={Admin} />
             <Route path="/account" Component={Account} />
-            {/* <Route path="/checkout" Component={Checkout} />
+            <Route path="/checkout" Component={CheckoutPage} />
+            {/* 
         <Route path="/contact" Component={Contact} />  */}
         </Routes>
     );
