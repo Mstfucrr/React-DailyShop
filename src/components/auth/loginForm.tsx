@@ -102,7 +102,7 @@ const LoginForm = (props: Props) => {
                 </div>
                 <div className="flex flex-col mt-4">
                     <label htmlFor="password" className='text-primary text-xl font-medium'>Password</label>
-                    <Password placeholder="Password" name='password' id='password' feedback={false}
+                    <Password placeholder="Password" name='password' id='password' feedback={true}
 
                         pt={{
                             "input": {
