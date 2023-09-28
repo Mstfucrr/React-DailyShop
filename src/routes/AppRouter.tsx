@@ -9,6 +9,7 @@ import Admin from '@/pages/admin';
 import Account from '@/pages/Account';
 import ProductDetailPage from '@/pages/productDetail';
 import CheckoutPage from '@/pages/Checkout';
+import SellerPage from '@/pages/Seller';
 
 const AppRouter: React.FC = () => {
     return (
@@ -22,6 +23,7 @@ const AppRouter: React.FC = () => {
             <Route path="/admin" Component={Admin} />
             <Route path="/account" Component={Account} />
             <Route path="/checkout" Component={CheckoutPage} />
+            <Route path="/seller" Component={SellerPage} />
             {/* 
         <Route path="/contact" Component={Contact} />  */}
         </Routes>
