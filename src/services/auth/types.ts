@@ -1,3 +1,5 @@
+import { IReviews } from "@/shared/types";
+
 export interface ILogin {
     email: string;
     password: string;
@@ -22,6 +24,7 @@ export interface IUser {
     profileImage: string;
     phone: string;
     addresses: IUserAddress[];
+    reviews : IReviews[] | undefined;
 }
 
 export interface IUserAddress {
