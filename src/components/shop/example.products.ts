@@ -293,23 +293,12 @@ export const getProducts = async (
     rows: number,
 ): Promise<IShopResponse> => {
 
-    const count = filteredProducts.length
-    const pages = Math.ceil(count / rows)
-    const next = first + rows < count ? first + rows : null
-    const prev = first - rows >= 0 ? first - rows : null
-
     const data = filteredProducts.slice(first, first + rows)
 
     return new Promise((resolve, reject) => {
         setTimeout(() => {
             resolve({
-                data: data,
-                info: {
-                    count: count,
-                    pages: pages,
-                    next: next,
-                    prev: prev
-                }
+                data: data
             })
         }, 1000)
     })

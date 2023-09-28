@@ -39,15 +39,12 @@ export interface IReviews {
 
 
 export interface IShopResponse {
-    data: IProduct[],
-    info: Iinfo
+    data: IProduct[]
 }
 
 export interface Iinfo {
     count: number,
     pages: number,
-    next: number | null,
-    prev: number | null
 }
 
 export interface ICartItem {
