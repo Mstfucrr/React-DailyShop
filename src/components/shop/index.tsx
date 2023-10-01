@@ -60,7 +60,7 @@ const Shop = () => {
 
   const [responseData, setResponseData] = useState<IShopResponse | undefined>(undefined)
   const [first, setFirst] = useState(0);
-  const [rows, setRows] = useState(4)
+  const [rows, setRows] = useState(6)
 
   useEffect(() => {
     async function getPro() {
@@ -75,8 +75,6 @@ const Shop = () => {
   const onPageChange = (event: PaginatorPageChangeEvent) => {
     setFirst(event.first);
     setRows(event.rows);
-    console.log(event.first, event.rows)
-    // simule data
     async function getPro() {
       const response = await getProducts(filteredProducts, event.first, event.rows)
       if (response !== undefined) {
