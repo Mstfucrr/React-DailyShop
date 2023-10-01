@@ -19,6 +19,7 @@
 */}
 
 
+import { TreeNode } from "primereact/treenode";
 import { ICartItem, IProduct, IShopResponse } from "../../shared/types";
 import { reviews } from "../account/example.review";
 
@@ -30,7 +31,6 @@ import p5 from "./img/product-5.jpg";
 import p6 from "./img/product-6.jpg";
 import p7 from "./img/product-7.jpg";
 import p8 from "./img/product-8.jpg";
-
 
 
 
@@ -51,14 +51,14 @@ export const products = [
         sizes: ["S", "M", "L", "XL", "XXL"],
         tags: ["shirt", "stylish", "colorful"],
         date: new Date("2020-01-01T00:00:00"),
-        images : [
-           p1, p2, p3, p4, p5, p6
+        images: [
+            p1, p2, p3, p4, p5, p6
         ],
-        information : {
-            status : "Yeni",
-            stock : 17
+        information: {
+            status: "Yeni",
+            stock: 17
         },
-        reviewsData : reviews
+        reviewsData: reviews
     },
     {
         id: 2,
@@ -164,7 +164,7 @@ export const products = [
         sizes: ["S", "M", "L", "XL"],
         tags: ["jacket", "leather", "vintage"],
         date: new Date("2020-01-16T00:00:00")
-    },{
+    }, {
         id: 9,
         name: "Elegant Denim Jeans",
         price: 89.99,
@@ -268,7 +268,7 @@ export const products = [
         sizes: ["Medium"],
         tags: ["bag", "leather", "messenger"],
         date: new Date("2020-01-11T00:00:00")
-    },{
+    }, {
         id: 16,
         name: "Designer Sunglasses",
         price: 129.99,
@@ -288,8 +288,8 @@ export const products = [
 
 
 export const getProducts = async (
-    filteredProducts : IProduct[],
-    first : number,
+    filteredProducts: IProduct[],
+    first: number,
     rows: number,
 ): Promise<IShopResponse> => {
 
@@ -326,3 +326,108 @@ export const cartItemsExample: ICartItem[] = [
     }
 
 ]
+
+
+export interface Category {
+    id: number
+    name: string
+    parrentCategoryId: number | undefined
+    subCategories: Category[] | null
+
+}
+
+export const categories = [
+    {
+        id: 1,
+        name: "Elektronik",
+        parrentCategoryId: undefined,
+        subCategories: [
+            {
+                id: 2,
+                name: "Telefon",
+                parrentCategoryId: 1,
+                subCategories: null
+            },
+            {
+                id: 3,
+                name: "Bilgisayar",
+                parrentCategoryId: 1,
+                subCategories: null
+            },
+            {
+                id: 4,
+                name: "Kamera",
+                parrentCategoryId: 1,
+                subCategories: null
+            }
+        ]
+    },
+    {
+        id: 5,
+        name: "Giyim",
+        parrentCategoryId: undefined,
+        subCategories: [
+            {
+                id: 6,
+                name: "Erkek",
+                parrentCategoryId: 5,
+                subCategories: null
+            },
+            {
+                id: 7,
+                name: "Kadın",
+                parrentCategoryId: 5,
+                subCategories: null
+            },
+            {
+                id: 8,
+                name: "Çocuk",
+                parrentCategoryId: 5,
+                subCategories: null
+            }
+        ]
+    },
+
+
+] as Category[]
+
+
+// for tree select model converter
+
+export const convertCategoriesToTreeSelectModel = (categories: Category[], parentKey?: string): TreeNode[] => {
+    const treeSelectModel: TreeNode[] = [];
+    categories.forEach((category) => {
+        const key = parentKey ? `${parentKey}-${category.id}` : `${category.id}`;
+        treeSelectModel.push({
+            key,
+            label: category.name,
+            children: category.subCategories ? convertCategoriesToTreeSelectModel(category.subCategories, key) : undefined,
+            data: category
+        });
+    });
+    return treeSelectModel;
+};
+
+export const findCategoryByKeyInTreeSelectModel = (TreeNodes: TreeNode[], key: string): Category | undefined => {
+
+    for (const node of TreeNodes) {
+        if (node.key === key) {
+            return node.data as Category;
+        }
+        if (node.children) {
+            const result = findCategoryByKeyInTreeSelectModel(node.children, key);
+            if (result !== undefined) {
+                return result;
+            }
+        }
+    }
+    return undefined;
+} 
+
+export const getCategories = async (): Promise<Category[]> => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve(categories)
+        }, 1000)
+    })
+}
