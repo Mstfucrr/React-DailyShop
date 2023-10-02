@@ -21,10 +21,22 @@ type Props = {
 const ProductDetail = ({ product }: Props) => {
     const [images, setImages] = useState(null);
 
+    const [selectSize, setSelectSize] = useState<string | undefined>(undefined)
+    const [selectColor, setSelectColor] = useState<string | undefined>(undefined)
+
+    // const size = [{ name: "S", key: "s" }]
+    const sizes = product.sizes?.map((size) => ({ name: size, key: size })) as any
+
+    const colors = product.colors?.map((color) => ({ name: color, key: color })) as any
+
+    const [quantity, setQuantity] = useState(1)
+
+    const [rating, setRating] = useState(0)
+
 
     useEffect(() => {
         setImages(product.images?.map((image) => ({ source: image })) as any);
-        console.log(images)
+        console.log(product)
     }, [])
 
     const itemTemplate = (item: any) => {
@@ -39,17 +51,6 @@ const ProductDetail = ({ product }: Props) => {
         );
     }
 
-    const [selectSize, setSelectSize] = useState<string | undefined>(undefined)
-    const [selectColor, setSelectColor] = useState<string | undefined>(undefined)
-
-    // const size = [{ name: "S", key: "s" }]
-    const sizes = product.sizes?.map((size) => ({ name: size, key: size })) as any
-
-    const colors = product.colors?.map((color) => ({ name: color, key: color })) as any
-
-    const [quantity, setQuantity] = useState(1)
-
-    const [rating, setRating] = useState(0)
 
     // validate for review
     const validationSchema = Yup.object().shape({
@@ -113,7 +114,7 @@ const ProductDetail = ({ product }: Props) => {
                             <Rating value={product.rating} readOnly cancel={false} pt={{
                                 onIcon: { className: '!text-primary' }
                             }} />
-                            ( {product.reviews} Reviews )
+                            ( {product.reviews.length} İzlenim )
                         </div>
                         {/* price */}
                         <h2 className="font-semibold text-3xl text-black my-2">
@@ -235,11 +236,11 @@ const ProductDetail = ({ product }: Props) => {
                                 <div className="flex flex-col lg:flex-row w-full px-5 gap-x-3 gap-y-4 mt-6">
                                     <div className="w-full flex flex-col">
                                         <h1 className="text-3xl">
-                                            "{product.name}" için {product.reviewsData.length} Yorum
+                                            "{product.name}" için {product.reviews.length} Yorum
                                         </h1>
                                         <div className="flex flex-col w-full">
-                                            {product.reviewsData.map((review: IReviews) => (
-                                                <div className="flex items-start mx-4 my-2">
+                                            {product.reviews.map((review: IReviews, index: number) => (
+                                                <div className="flex items-start mx-4 my-2" key={index}>
                                                     <Avatar image={review.avatar} size={"large"}
                                                         className="m-2"
                                                     />
