@@ -2,7 +2,7 @@ import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
 import { TreeSelect, TreeSelectChangeEvent } from 'primereact/treeselect';
 import { InputNumber } from 'primereact/inputnumber';
 import { InputText } from 'primereact/inputtext';
-import { ChangeEvent, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { categories, Category, convertCategoriesToTreeSelectModel, findCategoryByKeyInTreeSelectModel } from '../shop/example.products';
 import { TreeNode } from "primereact/treenode";
 import { MultiSelect } from 'primereact/multiselect';
@@ -11,40 +11,30 @@ import { Button } from 'primereact/button';
 import * as Yup from 'yup'
 import { useFormik } from 'formik'
 
-type Props = {}
+type Props = {
+    setProductInfo: React.Dispatch<React.SetStateAction<{
+        name: string;
+        price: number;
+        stock: number;
+        description: string;
+        status: string;
+        categoryId: number;
+        colors: string[];
+    }>>
 
-const ProductInfo = (props: Props) => {
+}
 
-
-    /*
-        ------ Eklenecek ürünün bilgileri ------
-        Kategori seçimi (TreeSelect)
-        Ürün adı (input)
-        Fiyatı (input) (number) ve yanında TL ve fiyat önerisi var ise yanında yazılacak
-        image ve images diğer componentte
-        açıklama (text editör) 
-        renkler (dropdown) (multiple)
-        bedenler (dropdown) (multiple)
-        Tarih (date) (otomatik)
-        bilgiler: {
-            durum (dropdown)
-            stok (number)
-        }
-        
-
-    
-    */
+const ProductInfo = (
+    props: Props
+) => {
 
     const exampleCategories = categories
 
     const [TreeNodes, setTreeNodes] = useState<TreeNode[] | undefined>(undefined)
-    const [selectedNodeKey, setSelectedNodeKey] = useState<string | null>(null);
+    const [selectedNodeKey, setSelectedNodeKey] = useState<string | undefined>(undefined);
     const [selectedCategory, setSelectedCategory] = useState<Category | undefined>(undefined)
     const [selectedColors, setSelectedColors] = useState<string[]>([])
     const [selectedSizes, setSelectedSizes] = useState<string[]>([])
-    const [selectedStatus, setSelectedStatus] = useState<string>("Yeni")
-    const [stock, setStock] = useState<number>(0)
-    const [description, setDescription] = useState<string>('')
 
     const validationSchema = Yup.object().shape({
         productName: Yup.string()
@@ -60,7 +50,7 @@ const ProductInfo = (props: Props) => {
         description: Yup.string()
             .required('Açıklama gereklidir')
             .min(40, 'Açıklama çok kısa')
-            .max(500, 'Açıklama çok uzun'),
+            .max(1000, 'Açıklama çok uzun'),
         status: Yup.string()
             .required('Durum gereklidir'),
 
@@ -83,43 +73,22 @@ const ProductInfo = (props: Props) => {
             }
             return errors
         },
-        onSubmit: (values) => {
-            console.log("values: ", values);
-            // ex. conn service and send data
-            /*
-                const data = {
-                    productName: values.productName,
-                    price: values.price,
-                    stock: values.stock,
-                    description: values.description,
-                    status: values.status,
-                    category: selectedCategory.id,
+        onSubmit: async (values) => {
+
+            props.setProductInfo(
+                {
+                    categoryId: selectedCategory?.id!,
                     colors: selectedColors,
-                    sizes: selectedSizes,
-                    
+                    description: values.description,
+                    name: values.productName,
+                    price: values.price,
+                    status: values.status,
+                    stock: values.stock
                 }
+            )
 
-                const productService = () => {
-                    addProduct: async (data: any) => {
-                        const response = await axios.post('/api/products/add', data)
-                        return response
-                    }
-                }
-
-                const ps = await productService.addProduct(data)
-                if (ps.status === 200) {
-                    // success
-                } else {
-                    // error
-                }
-            
-
-
-             */
         }
     })
-
-
 
 
     const colorTemplete = (option: any) => {
@@ -133,22 +102,17 @@ const ProductInfo = (props: Props) => {
 
 
     useEffect(() => {
-        setTreeNodes(
-            convertCategoriesToTreeSelectModel(exampleCategories)
-        );
+        setTreeNodes(convertCategoriesToTreeSelectModel(exampleCategories));
     }, [])
 
     useEffect(() => {
-        if (TreeNodes && selectedNodeKey) {
+        if (TreeNodes && selectedNodeKey)
             setSelectedCategory(findCategoryByKeyInTreeSelectModel(TreeNodes, selectedNodeKey))
-            console.log("selectedCategory: ", selectedCategory);
-        }
     }, [selectedCategory, selectedNodeKey]);
 
-    const isFormFieldInvalid = (name: string) => !!((formik.touched[name] && formik.errors[name]));
 
-    const getFormErrorMessage = (name: string) => {
-        return isFormFieldInvalid(name) ? <small className="p-error block h-0 mb-6">{formik.errors[name]}</small> : null;
+    const showFormErrorMessage = (err: string) => {
+        return <small className="p-error block h-0 mb-6"> {err} </small>;
     };
 
 
@@ -168,8 +132,7 @@ const ProductInfo = (props: Props) => {
                             options={TreeNodes}
                             onChange={(e: TreeSelectChangeEvent) => {
                                 formik.setFieldValue('category', e.value);
-                                console.log(e);
-                                setSelectedNodeKey(e.value)
+                                setSelectedNodeKey(e.value as string)
                             }}
                             filter
 
@@ -178,7 +141,10 @@ const ProductInfo = (props: Props) => {
                         <label htmlFor="ts-category">
                             Bir Kategori Seç
                         </label>
-                        {getFormErrorMessage('category')}
+
+                        {formik.touched.category &&
+                            showFormErrorMessage(formik.errors.category!)
+                        }
 
                     </span>
 
@@ -193,8 +159,11 @@ const ProductInfo = (props: Props) => {
                                 value={formik.values.productName}
                                 onChange={(e) => formik.setFieldValue('productName', e.target.value)}
                             />
+                            {formik.touched.productName &&
+                                showFormErrorMessage(formik.errors.productName!)
+                            }
 
-                            {getFormErrorMessage('productName')}
+
                         </div>
                         <div className="w-full md:w-1/2 flex gap-x-3 flex-col">
                             <label htmlFor="in-product-price" className="font-bold block mb-2">Fiyatı</label>
@@ -204,7 +173,9 @@ const ProductInfo = (props: Props) => {
                                 onChange={(e) => formik.setFieldValue('price', e.value as any)}
                                 value={formik.values.price}
                             />
-                            {getFormErrorMessage('price')}
+                            {formik.touched.price &&
+                                showFormErrorMessage(formik.errors.price!)
+                            }
 
                             {/* fiyat önerisi getir */}
                             <div className="flex items-center gap-x-2 flex-row flex-wrap">
@@ -279,7 +250,9 @@ const ProductInfo = (props: Props) => {
                                 className={`w-full ${formik.touched.status && formik.errors.status ? 'p-invalid' : ''}`}
                             />
 
-                            {getFormErrorMessage('status')}
+                            {formik.touched.status &&
+                                showFormErrorMessage(formik.errors.status!)
+                            }
 
                         </div>
 
@@ -303,7 +276,10 @@ const ProductInfo = (props: Props) => {
                                 id="ed-description" name="ed-description"
                                 className={`w-full ${formik.touched.description && formik.errors.description ? 'border-red-500 border' : ''}`}
                             />
-                            {getFormErrorMessage('description')}
+
+                            {formik.touched.description &&
+                                showFormErrorMessage(formik.errors.description!)
+                            }
 
                         </div>
                     </div>
