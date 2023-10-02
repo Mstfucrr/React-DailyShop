@@ -12,7 +12,7 @@ type Props = {
 }
 
 const ImageUpload = (
-    { setcoverImage, setImages, images }
+    { setcoverImage, setImages }
         : Props) => {
     const fileUploadRef = useRef(null);
     const [totalSize, setTotalSize] = useState(0);
@@ -56,16 +56,6 @@ const ImageUpload = (
         );
     };
 
-    const imagesItemTemplate = (inFile: object) => {
-        const file = inFile as any;
-
-        return (
-            <div className="flex w-52">
-                <img alt={file.name} role="presentation" src={file.objectURL} className="w-52" />
-            </div>
-        );
-    }
-
     const itemTemplate = (inFile: object, props: ItemTemplateOptions) => {
         const file = inFile as any;
         return (
@@ -97,16 +87,14 @@ const ImageUpload = (
         const file = event.files[0] as any;
         const reader = new FileReader();
         let blob = await fetch(file.objectURL).then((r) => r.blob()); //blob:url
-
         reader.readAsDataURL(blob);
+        setImages(event.files)
 
-        reader.onloadend = function () {
-            const base64data = reader.result;
-        };
     };
-    const cancelOptions = { icon: 'pi pi-fw pi-times', iconOnly: true, className: 'custom-cancel-btn p-button-danger p-button-rounded p-button-outlined' };
-    const uploadOptions = { icon: '', iconOnly: true, className: '!hidden' };
 
+    const cancelOptions = { icon: 'pi pi-fw pi-times', iconOnly: true, className: 'custom-cancel-btn p-button-danger p-button-rounded p-button-outlined' };
+    const ImagesUploadOptions = { icon: 'pi pi-fw pi-cloud-upload', iconOnly: false, className: 'custom-upload-btn p-button-success p-button-rounded p-button-outlined' };
+    const CoverUploadOptions = { icon: '', iconOnly: true, className: '!hidden' };
     return (
         <>
             <Tooltip target=".custom-choose-btn" content="Choose" position="bottom" />
@@ -120,10 +108,10 @@ const ImageUpload = (
                     onSelect={() => { onTemplateSelect }}
                     maxFileSize={10000000}
                     itemTemplate={coverItemTemplate}
-                    name="demo[]" url="/api/upload" accept="image/*" customUpload uploadHandler={customBase64Uploader}
+                    name="demo[]" url="/api/upload" accept="image/*" customUpload
                     onClear={() => { onTemplateClear }}
                     cancelOptions={cancelOptions}
-                    uploadOptions={uploadOptions}
+                    uploadOptions={CoverUploadOptions}
                     chooseOptions={chooseOptions}
                     multiple={false}
                 />
@@ -136,14 +124,15 @@ const ImageUpload = (
                     onSelect={() => { onTemplateSelect }}
                     maxFileSize={10000000}
                     itemTemplate={itemTemplate}
-                    name="demo[]" url="/api/upload" accept="image/*" customUpload uploadHandler={customBase64Uploader}
+                    name="demo[]" accept="image/*" uploadHandler={customBase64Uploader}
                     onClear={() => { onTemplateClear }}
                     cancelOptions={cancelOptions}
-                    uploadOptions={uploadOptions}
+                    uploadOptions={ImagesUploadOptions}
                     chooseOptions={chooseOptions}
                     multiple
                     contentClassName="w-full"
-
+                    customUpload
+                    uploadLabel="Yükle"
                 />
 
             </div>
