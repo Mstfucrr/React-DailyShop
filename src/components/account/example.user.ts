@@ -1,5 +1,4 @@
 import { IUser, IUserAddress } from "@/services/auth/types";
-import { reviews } from "./example.review";
 
 export const user: IUser = {
     id: 1,

@@ -1,6 +1,5 @@
 import { Button } from 'primereact/button'
 import { InputText } from 'primereact/inputtext'
-import React from 'react'
 import { FaMapMarkerAlt, FaPhone } from 'react-icons/fa'
 
 import { IoChevronForwardSharp, IoMailSharp } from 'react-icons/io5'
