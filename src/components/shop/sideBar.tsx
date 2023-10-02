@@ -3,6 +3,7 @@ import { Slider } from "primereact/slider";
 import { InputNumber } from "primereact/inputnumber";
 import { Button } from "primereact/button";
 import { IProduct } from "@/shared/types";
+import { getProductsByCategoryId } from "@/services/shop/shop.service";
 
 const SideBar = (
     { filteredProducts, setFilteredProducts }: {
@@ -29,20 +30,32 @@ const SideBar = (
     }
 
     useEffect(() => {
-        const colors = filteredProducts.map((product) => product.colors)
+        const colors = filteredProducts.map((product) => product.colors !== undefined ? product.colors : [])
         const uniqueColors = [...new Set(colors.flat())]
         setColors(uniqueColors)
     }, [])
+    
 
     const hanldeFilter = () => {
-        const filteredPro = filteredProducts.filter((product) => {
-            const isPriceInRange = product.price >= min && product.price <= max
-            const isColorIncluded = activeColors.length === 0 || activeColors.some((activeColor) => product.colors.includes(activeColor))
+        const fetchData = async () => {
+            try {
+                await getProductsByCategoryId(1).then(response => {
 
-            return isPriceInRange && isColorIncluded
-        })
-        setFilteredProducts(filteredPro)
-        console.log(filteredPro)
+                    const filteredPro = response.data.filter((product) => {
+                        const isPriceInRange = product.price >= min && product.price <= max
+                        const isColorIncluded = activeColors.length === 0 || activeColors.some((activeColor) => product.colors?.includes(activeColor))
+                        return isPriceInRange && isColorIncluded
+                    })
+                    setFilteredProducts(filteredPro)
+                });
+            } catch (error) {
+                console.error("Hata:", error);
+            }
+        };
+
+        fetchData(); // async işlemi başlat
+
+
     }
 
     return (

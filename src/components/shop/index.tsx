@@ -1,5 +1,4 @@
 import { InputText } from 'primereact/inputtext'
-import { getProducts, products } from './example.products'
 import SideBar from './sideBar'
 import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
 import { useEffect, useState } from 'react';
@@ -7,11 +6,16 @@ import { Card } from 'primereact/card';
 import { FaEye, FaShoppingCart } from 'react-icons/fa';
 import { IProduct, IShopResponse } from '@/shared/types';
 import { Paginator, PaginatorPageChangeEvent } from 'primereact/paginator';
+import { getProductsByCategoryId } from '@/services/shop/shop.service';
 
 const Shop = () => {
 
   const [selectSortBy, setSelectSortBy] = useState<string>('')
-  const [filteredProducts, setFilteredProducts] = useState<IProduct[]>(products)
+  const [filteredProducts, setFilteredProducts] = useState<IProduct[]>([]);
+  const [responseData, setResponseData] = useState<IShopResponse | undefined>(undefined)
+  const [products, setProducts] = useState<IProduct[]>([]); // tüm ürünlerin listesi
+  const [first, setFirst] = useState(0);
+  const [rows, setRows] = useState(6)
 
   const sortBy = [
     { name: 'Newest', code: 'newest' },
@@ -24,6 +28,7 @@ const Shop = () => {
   ]
 
   useEffect(() => {
+
 
     switch (selectSortBy) {
       case 'newest':
@@ -45,44 +50,49 @@ const Shop = () => {
         setFilteredProducts([...filteredProducts].sort((a, b) => b.rating - a.rating))
         break;
       case 'review':
-        setFilteredProducts([...filteredProducts].sort((a, b) => b.reviews - a.reviews))
+        setFilteredProducts([...filteredProducts].sort((a, b) => b.reviews.length - a.reviews.length))
         break;
       default:
         setFilteredProducts([...products])
         break;
     }
+
   }, [selectSortBy])
 
+  useEffect(() => {
+
+    const fetchData = async () => {
+      try {
+        await getProductsByCategoryId(1).then(response => {
+          setFilteredProducts(response.data);
+          setProducts(response.data.slice(first, first + rows))
+          setResponseData(response)
+        });
+      } catch (error) {
+        // Hata yönetimi burada yapılabilir.
+        console.error("Hata:", error);
+      }
+    };
+
+    fetchData(); // async işlemi başlat
+  }, [])
 
   // gelen datalar pagnition ile listelencek
 
-
-
-  const [responseData, setResponseData] = useState<IShopResponse | undefined>(undefined)
-  const [first, setFirst] = useState(0);
-  const [rows, setRows] = useState(6)
-
   useEffect(() => {
-    async function getPro() {
-      const response = await getProducts(filteredProducts, first, rows)
-      if (response !== undefined) {
-        setResponseData(response)
-      }
-    }
-    getPro()
+
+    console.log("respdata : ", products)
+    console.log("filter : ", filteredProducts)
+    console.log("----------------------------------------------")
+    setProducts(filteredProducts.slice(first, first + rows))
+
   }, [filteredProducts])
+
 
   const onPageChange = (event: PaginatorPageChangeEvent) => {
     setFirst(event.first);
     setRows(event.rows);
-    async function getPro() {
-      const response = await getProducts(filteredProducts, event.first, event.rows)
-      if (response !== undefined) {
-        setResponseData(response)
-      }
-    }
-    getPro()
-
+    setProducts([...filteredProducts].slice(event.first, event.first + event.rows))
   };
 
 
@@ -90,7 +100,10 @@ const Shop = () => {
     <div className='pt-16 px-14 gap-x-10'>
       <div className="grid md:grid-cols-4 gap-x-10">
 
-        <SideBar filteredProducts={products} setFilteredProducts={setFilteredProducts} />
+        {/* SideBar */}
+        {responseData?.data && 
+          <SideBar filteredProducts={responseData?.data} setFilteredProducts={setFilteredProducts} />
+        }
         {/* Shop Product */}
         <div className="row-span-4 md:row-span-1 md:col-span-3 col-span-1">
           <div className="flex md:flex-row flex-col justify-between items-start gap-y-2">
@@ -114,21 +127,21 @@ const Shop = () => {
           </div>
 
           <div className="grid lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-5 py-10 ">
-            {responseData?.data.map((product) => (
+            {products.map((product) => (
               <div className="flex pb-4 w-full" key={product.id}>
                 <Card
                   className="w-full"
                   header={
                     <div className="relative">
-                    <div className="border border-gray-200 rounded-md overflow-hidden">
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        className="w-full h-auto object-cover transition-transform duration-500 hover:scale-125"
-                      />
+                      <div className="border border-gray-200 rounded-md overflow-hidden">
+                        <img
+                          src={product.image?.toString()}
+                          alt={product.name}
+                          className="w-full h-auto object-cover transition-transform duration-500 hover:scale-125"
+                        />
+                      </div>
+                      <div className="absolute top-0 left-0 w-full h-full border -z-10 border-gray-200 opacity-0 transition-opacity duration-500 hover:opacity-100"></div>
                     </div>
-                    <div className="absolute top-0 left-0 w-full h-full border -z-10 border-gray-200 opacity-0 transition-opacity duration-500 hover:opacity-100"></div>
-                  </div>
 
                   }
                   footer={
