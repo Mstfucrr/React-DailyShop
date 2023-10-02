@@ -1,13 +1,63 @@
+import { addProduct } from "@/services/product/product.service"
+import { IProductRequest, IProductResponse } from "@/services/product/types"
+import { SET_TOAST } from "@/store/Toast"
+import { IToast } from "@/store/Toast/type"
 import { useEffect, useState } from "react"
+import { useDispatch } from "react-redux"
 import ImageUpload from "./ImageUpload"
 import ProductInfo from "./ProductInfo"
 
-type Props = {}
 
-const Seller = (props: Props) => {
+const Seller = () => {
 
     const [coverImage, setcoverImage] = useState<File | null>(null)
     const [images, setImages] = useState<File[] | null>([])
+
+    const [productInfo, setProductInfo] = useState({
+        name: "",
+        price: 0,
+        stock: 0,
+        description: "",
+        status: "",
+        categoryId: 0,
+        colors: [] as string[],
+        sizes: [] as string[] | undefined,
+    })
+
+    const dispatch = useDispatch()
+
+    useEffect(() => {
+
+        if (coverImage !== null && images?.length !== 0 && images) {
+            const input: IProductRequest = {
+                data: {
+                    ...productInfo, image: coverImage, images: images
+                },
+            }
+            addProduct(input).then((res: IProductResponse) => {
+
+                const toast: IToast = {
+                    severity: res.status === 200 ? "success" : "error",
+                    summary: res.status === 200 ? "Başarılı" : "Hata",
+                    detail: res.message,
+                    life: 3000
+                }
+                dispatch(SET_TOAST(toast))
+
+            }).catch((err: any) => {
+                const toast: IToast = { severity: "error", summary: "Sistematik Hata", detail: err.message, life: 3000 } // service çalışmadı 
+                dispatch(SET_TOAST(toast))
+            })
+        }
+        else if (productInfo.name.length > 2) {
+            const toast: IToast = { severity: "error", summary: "Hata", detail: "Lütfen resim ekleyiniz ve yüklemeyi unutmayınız", life: 3000 }
+            dispatch(SET_TOAST(toast))
+        }
+
+
+
+    }, [productInfo])
+
 
     return (
         <>
@@ -19,7 +69,7 @@ const Seller = (props: Props) => {
                     </div>
                     {/* product informations */}
                     <div className="basis-3/5 h-full w-full">
-                        <ProductInfo />
+                        <ProductInfo setProductInfo={setProductInfo as any} />
                     </div>
                 </div>
             </section>
