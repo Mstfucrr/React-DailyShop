@@ -4,6 +4,7 @@ import { SET_TOAST } from "@/store/Toast"
 import { IToast } from "@/store/Toast/type"
 import { useEffect, useState } from "react"
 import { useDispatch } from "react-redux"
+import { useNavigate } from "react-router-dom"
 import ImageUpload from "./ImageUpload"
 import ProductInfo from "./ProductInfo"
 
@@ -26,6 +27,8 @@ const Seller = () => {
 
     const dispatch = useDispatch()
 
+    const navigate = useNavigate()
+
     useEffect(() => {
 
         if (coverImage !== null && images?.length !== 0 && images) {
@@ -43,6 +46,9 @@ const Seller = () => {
                     life: 3000
                 }
                 dispatch(SET_TOAST(toast))
+                if (res.status === 200)
+                    navigate("/productDetail/" + res.data?.id)
+
 
             }).catch((err: any) => {
                 const toast: IToast = { severity: "error", summary: "Sistematik Hata", detail: err.message, life: 3000 } // service çalışmadı 
