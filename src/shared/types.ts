@@ -4,23 +4,21 @@ export interface IProduct {
     id: number,
     name: string,
     price: number,
-    discount: number,
-    image: string,
-    images: string[] | undefined,
-    category: string,
+    image: File | undefined | string,
+    images: File[] | undefined | [],
+    categoryId: number,
     description: string,
     information: {
         status: string,
         stock: number
-    } | undefined,
-    rating: number,
-    reviews: number,
-    colors: string[],
-    sizes: string[],
-    tags: string[],
-    date: Date,
-    reviewsData: IReviews[],
-    
+    },
+    rating: number ,
+    colors: string[]| undefined,
+    sizes: string[]| undefined,
+    tags: string[]| undefined,
+    date: Date ,
+    reviews: IReviews[],
+
 }
 
 export interface IReviews {
@@ -30,16 +28,20 @@ export interface IReviews {
     date: Date,
     rating: number,
     productId: number,
-    product : IProduct | undefined,
+    product: IProduct | undefined,
     review: string,
-    user : IUser | undefined,
-    avatar : string | undefined
+    user: IUser | undefined,
+    avatar: string | undefined
 }
 
 
 
 export interface IShopResponse {
-    data: IProduct[]
+    status: number;
+    message: string;
+    'Content-Type': string;
+    data: IProduct[];
+    total: number;
 }
 
 export interface Iinfo {
