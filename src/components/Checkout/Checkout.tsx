@@ -1,10 +1,10 @@
 import { cartItemsExample } from '@/components/Shop/example.products'
 import { IUser } from '@/services/auth/types'
-import { user } from '../account/example.user'
+import { userEx } from '../account/example.user'
 
 const Checkout = () => {
 
-    const User: IUser = user;
+    const User: IUser = userEx;
 
     return (
         <div className="flex md:flex-row flex-col px-10 gap-x-3">

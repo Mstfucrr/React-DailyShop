@@ -4,15 +4,15 @@ import { Fieldset } from 'primereact/fieldset';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
-import { InputTextarea } from 'primereact/inputtextarea';
 import { InputMask } from 'primereact/inputmask';
-import { InputNumber } from 'primereact/inputnumber';
 import * as Yup from 'yup'
 import { useFormik } from 'formik'
 
 
-import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { Toast } from 'primereact/toast';
+import RenderAddressFields from './renderAddressFields';
+import { useDispatch } from 'react-redux';
+import { SET_TOAST } from '@/store/Toast';
 
 
 const UserInformation = (
@@ -40,10 +40,8 @@ const UserInformation = (
         }
     }
 
-
     const handleAddressAdd = () => {
-        const addresses = [...addressesState]
-        addresses.push({
+        const address = {
             id: 0,
             title: '',
             address: '',
@@ -52,9 +50,14 @@ const UserInformation = (
             city: '',
             country: '',
             zipCode: 0,
-        } as IUserAddress)
-        setAddressesState(addresses)
-    }
+        } as IUserAddress;
+
+        // Ekleme işlemi formik.values.addresses'e eklemek yerine setAddressesState ile states'i güncelleyin
+        setAddressesState([...addressesState, address]);
+
+        // Formik'in form değerlerini güncelleyin, böylece Save butonu görünebilir
+        formik.setFieldValue('addresses', [...formik.values.addresses, address]);
+    };
 
 
     const formik = useFormik({
@@ -64,7 +67,7 @@ const UserInformation = (
             email: userState.email,
             phone: userState.phone,
             profileImage: userState.profileImage,
-            addresses: addressesState
+            addresses: userState.addresses
         },
 
         validationSchema: Yup.object({
@@ -97,7 +100,20 @@ const UserInformation = (
         }
     })
 
+    const errorTemplate = (frm: any) => {
+        return (
+            <>
+                {frm ? (<small className="text-red-500 "> {frm} </small>) : null}
+            </>
+        )
+    }
 
+    const inputClassName = (frm: any) => {
+        return 'w-full !my-2 p-inputtext-sm ' +
+            (frm ? 'p-invalid' : '')
+    }
+
+    const dispatch = useDispatch()
 
     return (
         <motion.div
@@ -172,16 +188,9 @@ const UserInformation = (
                                         e.target.value
                                     )
                                 }
-                                className={
-                                    formik.errors.name
-                                        ? 'w-full !my-2 p-inputtext-sm p-invalid'
-                                        : 'w-full !my-2 p-inputtext-sm'
-                                }
+                                className={inputClassName(formik.errors.name)}
                             />
-                            {formik.errors.name ? (
-                                <small className="text-red-500 ">{formik.errors.name}</small>
-                            ) : null
-                            }
+                            {errorTemplate(formik.errors.name)}
                         </div>
 
 
@@ -193,29 +202,24 @@ const UserInformation = (
                                 value={formik.values.surname}
                                 onChange={(e) =>
                                     formik.setFieldValue('surname', e.target.value)}
-                                className={
-                                    formik.errors.surname
-                                        ? 'w-full !my-2 p-inputtext-sm p-invalid'
-                                        : 'w-full !my-2 p-inputtext-sm'
-                                }
+                                className={inputClassName(formik.errors.surname)}
                             />
-
-                            {formik.errors.surname ? (
-                                <small className="text-red-500 ">{formik.errors.surname}</small>
-                            ) : null
-                            }
+                            {errorTemplate(formik.errors.surname)}
 
                         </div>
                     </div>
 
-                    {user.name !== formik.values.name || user.surname !== formik.values.surname ? (
+                    {(user.name !== formik.values.name || user.surname !== formik.values.surname) ? (
                         <div className="flex flex-wrap justify-content-end gap-2 my-4">
-                            <Button label="Save" icon="pi pi-check"
-                                onClick={() => {
-                                    setUser({ ...user, name: formik.values.name, surname: formik.values.surname })
-                                    formik.handleSubmit()
-                                }}
-                            />
+                            {!formik.errors.name && !formik.errors.surname && (
+
+                                <Button label="Save" icon="pi pi-check"
+                                    onClick={() => {
+                                        setUser({ ...user, name: formik.values.name, surname: formik.values.surname })
+                                        formik.handleSubmit()
+                                    }}
+                                />
+                            )}
                             <Button label="Cancel" icon="pi pi-times" className="p-button-outlined p-button-secondary"
                                 onClick={() => {
                                     formik.setFieldValue('name', user.name)
@@ -248,16 +252,9 @@ const UserInformation = (
                                 value={formik.values.email}
                                 onChange={(e) =>
                                     formik.setFieldValue('email', e.target.value)}
-                                className={
-                                    formik.errors.email
-                                        ? 'w-full !my-2 p-inputtext-sm p-invalid'
-                                        : 'w-full !my-2 p-inputtext-sm'
-                                }
+                                className={inputClassName(formik.errors.email)}
                             />
-                            {formik.errors.email ? (
-                                <small className="text-red-500 ">{formik.errors.email}</small>
-                            ) : null
-                            }
+                            {errorTemplate(formik.errors.email)}
                         </div>
                         <div className="flex flex-col w-full">
                             <label htmlFor="phone" className="text-primary">Telefon</label>
@@ -267,25 +264,25 @@ const UserInformation = (
                                 value={formik.values.phone}
                                 onChange={(e) =>
                                     formik.setFieldValue('phone', e.target.value)}
-                                className={
-                                    formik.errors.phone
-                                        ? 'w-full !my-2 p-inputtext-sm p-invalid'
-                                        : 'w-full !my-2 p-inputtext-sm'
-                                }
                                 mask="(999) 999-9999"
+                                className={inputClassName(formik.errors.phone)}
                             />
+                            {errorTemplate(formik.errors.phone)}
 
                         </div>
                     </div>
 
-                    {user.email !== formik.values.email || user.phone !== formik.values.phone ? (
+                    {(user.email !== formik.values.email || user.phone !== formik.values.phone) ? (
                         <div className="flex flex-wrap justify-content-end gap-2 my-4">
-                            <Button label="Save" icon="pi pi-check"
-                                onClick={() => {
-                                    setUser({ ...user, email: formik.values.email, phone: formik.values.phone })
-                                    formik.handleSubmit()
-                                }}
-                            />
+                            {!formik.errors.phone && !formik.errors.email && (
+                                <Button label="Save" icon="pi pi-check"
+                                    onClick={() => {
+                                        setUser({ ...user, email: formik.values.email, phone: formik.values.phone })
+                                        formik.handleSubmit()
+                                        console.log(formik)
+                                    }}
+                                />
+                            )}
                             <Button label="Cancel" icon="pi pi-times" className="p-button-outlined p-button-secondary"
                                 onClick={() => {
                                     formik.setFieldValue('email', user.email)
@@ -308,219 +305,60 @@ const UserInformation = (
             } className="mb-4" toggleable >
                 <div className="flex flex-col">
                     {formik.values.addresses.map((address, index) => (
-                        <Fieldset legend={
-                            <div>
-                                {address.title} <br />
-                                <span className="text-primary text-sm">{address.description}</span>
-                            </div>
-                        } key={index} className="mb-4" toggleable>
-
-                            <div className="flex lg:flex-row flex-col gap-9 items-center">
-                                <div className="flex flex-col w-full">
-                                    <label htmlFor="title" className="text-primary">Adres Başlığı</label>
-                                    <InputText
-                                        id='title'
-                                        name='title'
-                                        value={formik.values.addresses[index].title}
-                                        onChange={(e) => {
-                                            formik.setFieldValue(`addresses[${index}].title`, e.target.value)
-                                        }}
-                                        className={
-                                            formik.errors.addresses && formik.errors.addresses[index] && formik?.errors?.addresses[index]["title"]
-                                                ? 'w-full !my-2 p-inputtext-sm p-invalid'
-                                                : 'w-full !my-2 p-inputtext-sm'
-                                        }
-                                    />
-
-                                    {formik.errors.addresses && formik.errors.addresses[index] && formik?.errors?.addresses[index]["title"]
-                                        ? (
-                                            <small className="text-red-500 ">{formik?.errors?.addresses[index]["title"]}</small>
-                                        ) : null
-                                    }
-
-                                </div>
-                                <div className="flex flex-col w-full">
-                                    <label htmlFor="description" className="text-primary">Adres Açıklaması</label>
-                                    <InputText
-                                        id='description'
-                                        name='description'
-                                        value={formik.values.addresses[index].description}
-                                        onChange={(e) => {
-                                            formik.setFieldValue(`addresses[${index}].description`, e.target.value)
-                                        }}
-                                        className={
-                                            formik.errors.addresses && formik.errors.addresses[index] && formik?.errors?.addresses[index]["description"]
-                                                ? 'w-full !my-2 p-inputtext-sm p-invalid'
-                                                : 'w-full !my-2 p-inputtext-sm'
-                                        }
-                                    />
-
-                                    {formik.errors.addresses && formik.errors.addresses[index] && formik?.errors?.addresses[index]["description"]
-                                        ? (
-                                            <small className="text-red-500 ">{formik?.errors?.addresses[index]["description"]}</small>
-                                        ) : null
-                                    }
-
-                                </div>
-                            </div>
-                            <div className="flex lg:flex-row flex-col gap-9 items-center">
-                                <div className="flex flex-col w-full">
-                                    <label htmlFor="address" className="text-primary">Adres</label>
-                                    <InputTextarea
-                                        id='address'
-                                        name='address'
-                                        value={formik.values.addresses[index].address}
-                                        onChange={(e) => {
-                                            formik.setFieldValue(`addresses[${index}].address`, e.target.value)
-                                        }}
-                                        className={
-                                            formik.errors.addresses && formik.errors.addresses[index] && formik?.errors?.addresses[index]["address"]
-                                                ? 'w-full !my-2 p-inputtext-sm p-invalid'
-                                                : 'w-full !my-2 p-inputtext-sm'
-                                        }
-                                    />
-
-                                    {formik.errors.addresses && formik.errors.addresses[index] && formik?.errors?.addresses[index]["address"]
-                                        ? (
-                                            <small className="text-red-500 ">{formik?.errors?.addresses[index]["address"]}</small>
-                                        ) : null
-                                    }
-
-
-                                </div>
-
-                                <div className="flex flex-col w-full">
-                                    <label htmlFor="city" className="text-primary">Şehir</label>
-                                    <InputText
-                                        id='city'
-                                        name='city'
-                                        value={formik.values.addresses[index].city}
-                                        onChange={(e) => {
-                                            formik.setFieldValue(`addresses[${index}].city`, e.target.value)
-                                        }}
-
-                                        className={
-                                            formik.errors.addresses && formik.errors.addresses[index] && formik?.errors?.addresses[index]["city"]
-                                                ? 'w-full !my-2 p-inputtext-sm p-invalid'
-                                                : 'w-full !my-2 p-inputtext-sm'
-                                        }
-                                    />
-
-                                    {formik.errors.addresses && formik.errors.addresses[index] && formik?.errors?.addresses[index]["city"]
-                                        ? (
-                                            <small className="text-red-500 ">{formik?.errors?.addresses[index]["city"]}</small>
-                                        ) : null
-                                    }
-
-
-                                </div>
-                            </div>
-                            <div className="flex lg:flex-row flex-col gap-9 items-center">
-                                <div className="flex flex-col w-full">
-                                    <label htmlFor="country" className="text-primary">Şehir</label>
-                                    <InputText
-                                        id='country'
-                                        name='country'
-                                        value={formik.values.addresses[index].country}
-                                        onChange={(e) => {
-                                            formik.setFieldValue(`addresses[${index}].country`, e.target.value)
-                                        }}
-
-                                        className={
-                                            formik.errors.addresses && formik.errors.addresses[index] && formik?.errors?.addresses[index]["country"]
-                                                ? 'w-full !my-2 p-inputtext-sm p-invalid'
-                                                : 'w-full !my-2 p-inputtext-sm'
-                                        }
-                                    />
-
-                                    {formik.errors.addresses && formik.errors.addresses[index] && formik?.errors?.addresses[index]["country"]
-                                        ? (
-                                            <small className="text-red-500 ">{formik?.errors?.addresses[index]["country"]}</small>
-                                        ) : null
-                                    }
-                                </div>
-
-                                <div className="flex flex-col w-full">
-                                    <label htmlFor="zipCode" className="text-primary">Posta Kodu</label>
-                                    <InputNumber
-                                        id='zipCode'
-                                        name='zipCode'
-                                        value={formik.values.addresses[index].zipCode}
-                                        onChange={(e) => {
-                                            formik.setFieldValue(`addresses[${index}].zipCode`, e.value)
-                                        }}
-
-                                        className={
-                                            formik.errors.addresses && formik.errors.addresses[index] && formik?.errors?.addresses[index]["zipCode"]
-                                                ? 'w-full !my-2 p-inputtext-sm p-invalid'
-                                                : 'w-full !my-2 p-inputtext-sm'
-                                        }
-                                        useGrouping={false}
-                                    />
-
-                                </div>
-                            </div>
-                            <ConfirmDialog />
-                            <div className="w-full flex justify-end">
-                                <Button severity="danger"
-                                    className="!mt-6"
-                                    size="small"
-                                    label="Delete Address"
-                                    icon="pi pi-trash"
-                                    key={index}
-                                    onClick={() => {
-                                        const dia = confirmDialog({
-                                            message: 'Bu adresi silmek istediğinize emin misiniz?',
-                                            header: 'Silme Onayı',
-                                            icon: 'pi pi-info-circle',
-                                            acceptClassName: 'p-button-danger',
-                                            accept: () => {
-                                                formik.setFieldValue('addresses', formik.values.addresses.filter((_, i) => i !== index))
-                                                dia.hide()
-                                                showToast({
-                                                    severity: 'success',
-                                                    summary: 'Başarılı',
-                                                    detail: 'Adres başarıyla silindi'
-                                                })
-                                            },
-                                            reject: () => dia.hide()
-                                        })
-
-                                    }}
-                                />
-
-                            </div>
-
-                        </Fieldset>
+                        <RenderAddressFields key={index} index={index} address={address} formik={formik} />
                     ))}
 
-                    {
-                        user.addresses !== formik.values.addresses ? (
-                            <div className="flex flex-wrap justify-content-end gap-2 my-4">
-                                <Button label="Save" icon="pi pi-check"
+                    {user.addresses !== formik.values.addresses ? (
+                        <div className="flex flex-wrap justify-content-end gap-2 my-4">
+                            {!formik.errors.addresses && user.addresses.length !== formik.values.addresses.length ? (
+                                <>
+                                    <Button
+                                        label="Save"
+                                        icon="pi pi-check"
+                                        onClick={() => {
+                                            setUser({ ...user, addresses: formik.values.addresses });
+                                            setAddressesState(formik.values.addresses);
+                                            formik.handleSubmit()
+                                        }}
+                                    />
+                                    <Button
+                                        label="Cancel"
+                                        icon="pi pi-times"
+                                        className="p-button-outlined p-button-secondary"
+                                        onClick={() => {
+                                            console.log(user.addresses)
+
+                                            formik.setFieldValue('addresses', user.addresses);
+                                        }}
+                                    />
+                                </>
+                            ) : (
+                                <Button
+                                    label="Cancel"
+                                    icon="pi pi-times"
+                                    className="p-button-outlined p-button-secondary"
                                     onClick={() => {
-                                        setUser({ ...user, addresses: formik.values.addresses })
-                                        formik.handleSubmit()
+                                        console.log(user.addresses)
+                                        formik.setFieldValue('addresses', user.addresses);
                                     }}
                                 />
-                                <Button label="Cancel" icon="pi pi-times" className="p-button-outlined p-button-secondary"
-                                    onClick={() => {
-                                        formik.setFieldValue('addresses', user.addresses)
-                                    }}
-                                />
+                            )}
+                        </div>
+                    ) : null}
 
-                            </div>
-                        ) : null
+                    {/* address ekle  */}
 
-                    }
+                    <Button label="Ekle" severity="success"
+                        className='md:w-1/2 w-full'
+                        onClick={() => handleAddressAdd()}
+                    />
+
 
 
 
                 </div>
 
             </Fieldset>
-
-
         </motion.div >
     )
 }

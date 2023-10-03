@@ -1,6 +1,6 @@
 import { IUser, IUserAddress } from "@/services/auth/types";
 
-export const user: IUser = {
+export const userEx: IUser = {
     id: 1,
     name: 'Mehmet',
     surname: 'Kaya',

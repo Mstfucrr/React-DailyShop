@@ -1,7 +1,7 @@
 import { IUser } from "@/services/auth/types"
 import { AnimatePresence } from "framer-motion"
 import { useState } from "react"
-import { user } from "./example.user"
+import { userEx } from "./example.user"
 import UserInformation from "./userInformation"
 
 enum AccountTabs {
@@ -15,7 +15,7 @@ const Account = () => {
     const [activeTab, setActiveTab] = useState(AccountTabs.USER_INFO)
 
 
-    const [userState, setUserState] = useState<IUser>(user)
+    const [user, setUser] = useState<IUser>(userEx)
 
     return (
         <>
@@ -40,7 +40,7 @@ const Account = () => {
                         </div>
                         <div className="md:w-2/3 w-full">
                             <AnimatePresence>
-                                <UserInformation user={userState} setUser={setUserState} />
+                                <UserInformation user={user} setUser={setUser} />
                             </AnimatePresence>
                         </div>
 
