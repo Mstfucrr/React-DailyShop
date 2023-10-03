@@ -1,7 +1,42 @@
+import { userEx } from "@/components/account/example.user";
 import axios from "axios";
 import {
     ILogin , IRegister
 } from "./types";
+
+
+
+export const GetAccount = async () => {
+    // const { res } = await fetch("https://api.dailyshop.com/api/Account", {
+    //     method: "GET",
+    //     headers: {
+    //         "Content-Type": "application/json",
+    //         Authorization: `Bearer ${localStorage.getItem("token")}`,
+    //     },
+    // }).then((res) => ({ res: res.json() }))
+
+
+    // for testing
+    const res = {
+        "status": 200,
+        "message": "Hesap bilgileri getirildi",
+        'Content-Type': 'application/json',
+        "data": userEx,
+    }
+
+
+    // for error testing
+    // const res = {
+    //     "status": 400,
+    //     "message": "Hesap bilgileri getirilemedi",
+    //     'Content-Type': 'application/json',
+    //     "data": null,
+    // }
+
+    return res
+
+}
+
 
 const login = async (input: ILogin) => {
     // const { data } = await axios.post('https://api.dailyshop.com/api/Auth/sign-in', { input });
@@ -36,12 +71,12 @@ const login = async (input: ILogin) => {
 }
 
 const register = async (input: IRegister) => {
-    // const { data } = await axios.post('https://api.dailyshop.com/api/Auth/sign-up', { input });
+    // const { res } = await axios.post('https://api.dailyshop.com/api/Auth/sign-up', { input });
     // return data;
 
     
     // for testing
-    const data = {
+    const res = {
         "status": 200,
         "message": "Register successfully",
         'Content-Type': 'application/json',
@@ -55,15 +90,27 @@ const register = async (input: IRegister) => {
         }
 
     }
-    return [null, data]
+    return [null, res]
     
 }
 
-const googleLogin = async (input: ILogin) => {
-    // const { data } = await axios.post('https://api.dailyshop.com/api/Auth/sign-in', { input });
+const logout = () => {
+    // const { res } = await axios.post('https://api.dailyshop.com/api/Auth/sign-up', { input });
     // return data;
+
+
     // for testing
+    const res = {
+        "status": 200,
+        "message": "Logout successfully",
+        'Content-Type': 'application/json',
+        "data": null
+    }
+    return [null, res]
+
 }
+
+
 
 export const authService = {
     login,
