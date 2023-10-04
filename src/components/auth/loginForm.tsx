@@ -11,6 +11,7 @@ import {
 } from 'react-router-dom'
 import { useDispatch } from 'react-redux';
 import { SET_TOAST } from '@/store/Toast';
+import { IToast } from '@/store/Toast/type'
 type Props = {}
 
 const LoginForm = (props: Props) => {
@@ -42,38 +43,37 @@ const LoginForm = (props: Props) => {
         validationSchema,
         onSubmit: async (values) => {
             setIsLoading(true)
-            const [err, data] = await authService.login(values)
-            console.log(err, data)
-            if (err) {
-                setIsLoading(false)
-                dispatch(SET_TOAST({
-                    severity: 'error',
-                    summary: 'Error Message',
-                    detail: err.message,
-                    life: 3000
-                }))
-                return
-            }
-            const accessToken = data?.data || undefined
-            console.log("accessToken", accessToken)
-            formik.resetForm()
-            setIsLoading(false)
-            dispatch(SET_TOAST({
-                severity: 'success',
-                summary: 'Success Message',
-                detail: (
-                    <div className="flex flex-col">
-                        <span>Login success</span>
-                        <span>Redirecting...</span>
-                    </div>
-                ),
-                life: 30000
-            }))
-
-            // go to home page
-            navigate('/', { replace: true })
+            await authService.login(values)
+                .then(
+                    res => {
+                        if (res.status === 200) {
+                            setIsLoading(false)
+                            formik.resetForm()
+                            const toast: IToast = { severity: 'success', summary: "Başarılı", detail: res.message, life: 3000 }
+                            dispatch(SET_TOAST(toast))
+                            const user = res?.data || undefined
+                            // localStorage.setItem('accessToken', accessToken)
+                            console.log(res)
+                            // setTimeout(() => {
+                            //     navigate('/', { replace: true })
+                            // }, 3000);
+                        }
+                        else {
+                            console.log("err res : ", res)
+                            setIsLoading(false)
+                            const toast: IToast = { severity: 'error', summary: "Hata", detail: res.message, life: 3000 }
+                            dispatch(SET_TOAST(toast))
+                        }
+                    })
+                .catch(err => {
+                    console.log("err : ", err)
+                    setIsLoading(false)
+                    const toast: IToast = { severity: 'error', summary: "Sistemsel Hata", detail: err.message, life: 3000 }
+                    dispatch(SET_TOAST(toast))
+                })
         },
     })
+
 
     return (
         <>

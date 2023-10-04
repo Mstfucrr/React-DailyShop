@@ -6,7 +6,6 @@ export interface ILogin {
 }
 
 export interface IRegister {
-    termAndConditionId: number;
     name: string;
     surname: string;
     email: string;

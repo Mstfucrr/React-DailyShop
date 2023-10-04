@@ -13,6 +13,7 @@ import { SET_TOAST } from '@/store/Toast'
 
 import google from '@/assets/images/google.png'
 import facebook from '@/assets/images/facebook.png'
+import { IToast } from '@/store/Toast/type'
 
 
 type Props = {}
@@ -64,38 +65,31 @@ const RegisterForm = (props: Props) => {
             setIsLoading(true)
             if (values.password !== values.confirmPassword) {
                 setIsLoading(false)
-                dispatch(SET_TOAST({
-                    severity: 'error',
-                    summary: 'Error Message',
-                    detail: 'Password and Confirm Password are not the same',
-                    life: 3000
-                }))
+                const toast: IToast = { severity: 'warning', summary: "Uyarı", detail: "Parola ve Parola Doğrulama aynı değil", life: 3000 }
+                dispatch(SET_TOAST(toast))
                 return
             }
 
-            const [err, data] = await authService.register(values as unknown as IRegister)
-            console.log(err, data)
-            if (err) {
-                setIsLoading(false)
-                dispatch(SET_TOAST({
-                    severity: 'error',
-                    summary: 'Error Message',
-                    detail: err.message,
-                    life: 3000
-                }))
-                return
-            }
-            const accessToken = data?.data || undefined
-            console.log("accessToken", accessToken)
-            formik.resetForm()
-            setIsLoading(false)
-            dispatch(SET_TOAST({
-                severity: 'success',
-                summary: 'Success Message',
-                detail: 'Register Success',
-                life: 3000
-            }))
-            navigate('/login')
+            await authService.register(values)
+                .then(res => {
+                    if (res.status == 200) {
+                        setIsLoading(false)
+                        formik.resetForm()
+                        const toast: IToast = { severity: 'success', summary: "Başarılı", detail: res.message, life: 3000 }
+                        dispatch(SET_TOAST(toast))
+                        navigate('/login')
+                    }
+                    else {
+                        setIsLoading(false)
+                        const toast: IToast = { severity: 'error', summary: "Hata", detail: res.message, life: 3000 }
+                        dispatch(SET_TOAST(toast))
+                    }
+                })
+                .catch(err => {
+                    setIsLoading(false)
+                    const toast: IToast = { severity: 'error', summary: "Sistematik Hata", detail: err.message, life: 3000 }
+                    dispatch(SET_TOAST(toast))
+                })
 
         }
 
@@ -256,8 +250,8 @@ const RegisterForm = (props: Props) => {
 
             <div className="flex flex-row mt-4 flex-1 justify-center gap-6 items-center">
                 <img src={google} alt="google" className="h-auto w-12 cursor-pointer rounded-full
-                active:scale-90 hover:opacity-80 transition duration-300 ease-in-out" 
-                
+                active:scale-90 hover:opacity-80 transition duration-300 ease-in-out"
+
                 />
                 <img src={facebook} alt="facebook" className="h-auto w-12 cursor-pointer
                 active:scale-90 hover:opacity-80 transition duration-300 ease-in-out" />
