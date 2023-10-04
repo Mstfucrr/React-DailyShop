@@ -1,43 +1,80 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { products } from '../shop/example.products'
 import CartListItem from './CartListItem'
 import { ICartItem } from '@/shared/types'
 import { cartItemsExample } from '@/components/Shop/example.products'
 import { Link } from 'react-router-dom'
+import { getCart } from '@/services/order/order.service'
+import { Messages } from 'primereact/messages'
 
 const Cart = () => {
 
-    const [cartItems, setCartItems] = useState<ICartItem[]>(cartItemsExample)
-    const [cartTotal, setCartTotal] = useState(
-        cartItems.reduce((total, cartItem) => total + (cartItem.product.price * cartItem.quantity), 0)
-    )
+    const [cartItems, setCartItems] = useState<[] | ICartItem[]>([])
+    const [cartTotal, setCartTotal] = useState(0)
+    const msgs = useRef<Messages>(null)
 
     useEffect(() => {
-        setCartTotal(cartItems.reduce((total, cartItem) => total + (cartItem.product.price * cartItem.quantity), 0))
+
+        const fetchCart = async () => {
+            await getCart()
+                .then((res: any) => {
+                    setCartItems(res.data);
+
+                    if (cartItems) {
+                        let total = 0
+                        cartItems.map((item: ICartItem) => {
+                            total += item.product.price * item.quantity
+                        })
+                        setCartTotal(total)
+                    }
+
+                    else {
+                        msgs.current?.clear()
+                        msgs.current?.show([
+                            { sticky: true, severity: 'error', summary: 'Hata', detail: res.message }
+                        ]);
+                    }
+                })
+                .catch((err: any) => {
+
+                    msgs.current?.clear()
+                    msgs.current?.show([
+                        { sticky: true, severity: 'error', summary: 'Sistematik Hata', detail: err.message }
+                    ]);
+
+                })
+        }
+
+        fetchCart()
     }, [cartItems])
+
 
     return (
         <div className="grid lg:grid-rows-1 grid-rows-2 grid-flow-col lg:px-16 gap-9 my-24 px-[15px]">
             <div className="grid lg:col-span-12 col-span-12">
-                <table className="w-100 text-[#6F6F6F] mb-0 text-center border-0 border-collapse">
-                    <thead className="bg-secondary text-black">
-                        <tr>
-                            <th className='p-3 border border-solid border-secondary'>Ürünler</th>
-                            <th className='p-3 border border-solid border-secondary'>Fiyat</th>
-                            <th className='p-3 border border-solid border-secondary'>Miktar</th>
-                            <th className='p-3 border border-solid border-secondary'>Toplam</th>
-                            <th className='p-3 border border-solid border-secondary'>Kaldır</th>
-                        </tr>
-                    </thead>
-                    <tbody className='align-middle'>
-                        {
-                            cartItems.map((cartItem) => (
+                {cartItems
+                    ? <table className="w-100 text-[#6F6F6F] mb-0 text-center border-0 border-collapse">
+                        <thead className="bg-secondary text-black">
+                            <tr>
+                                <th className='p-3 border border-solid border-secondary'>Ürünler</th>
+                                <th className='p-3 border border-solid border-secondary'>Fiyat</th>
+                                <th className='p-3 border border-solid border-secondary'>Miktar</th>
+                                <th className='p-3 border border-solid border-secondary'>Toplam</th>
+                                <th className='p-3 border border-solid border-secondary'>Kaldır</th>
+                            </tr>
+                        </thead>
+                        <tbody className='align-middle'>
+
+                            {cartItems.map((cartItem) => (
                                 <CartListItem key={cartItem.id} cartItem={cartItem} setCartItems={setCartItems} />
                             ))
-                        }
-                    </tbody>
+                            }
 
-                </table>
+                        </tbody>
+
+                    </table>
+                    : <Messages ref={msgs} />
+                }
             </div>
             <div className="grid lg:col-span-4 col-span-12">
                 <form action="" className="mb-12">
@@ -87,7 +124,7 @@ const Cart = () => {
                                 hover:bg-primaryDark hover:border-primaryDark hover:text-white
                                 transition duration-300 ease-in-out flex justify-center"
                             to="/checkout"
-                                >
+                        >
                             Ödeme İşlemine Geçin
                         </Link>
                     </div>
