@@ -80,12 +80,7 @@ const Shop = () => {
   // gelen datalar pagnition ile listelencek
 
   useEffect(() => {
-
-    console.log("respdata : ", products)
-    console.log("filter : ", filteredProducts)
-    console.log("----------------------------------------------")
     setProducts(filteredProducts.slice(first, first + rows))
-
   }, [filteredProducts])
 
 
