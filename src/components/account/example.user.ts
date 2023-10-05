@@ -29,7 +29,7 @@ export const userEx: IUser = {
             zipCode: 14124
         }
     ] as IUserAddress[],
-    role: "User",
+    role: "admin",
     createdAt: "2021-09-01T00:00:00.000Z",
     updatedAt: "2023-09-01T00:00:00.000Z",
     reviews: undefined
