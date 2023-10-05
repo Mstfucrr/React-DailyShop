@@ -12,6 +12,8 @@ import {
 import { useDispatch } from 'react-redux';
 import { SET_TOAST } from '@/store/Toast';
 import { IToast } from '@/store/Toast/type'
+import { SET_ADMIN_AUTH, SET_AUTH } from '@/store/auth'
+
 type Props = {}
 
 const LoginForm = (props: Props) => {
@@ -49,20 +51,24 @@ const LoginForm = (props: Props) => {
                         if (res.status === 200) {
                             setIsLoading(false)
                             formik.resetForm()
-                            const toast: IToast = { severity: 'success', summary: "Başarılı", detail: res.message, life: 3000 }
-                            dispatch(SET_TOAST(toast))
                             const user = res?.data || undefined
-                            // localStorage.setItem('accessToken', accessToken)
-                            console.log(res)
-                            // setTimeout(() => {
-                            //     navigate('/', { replace: true })
-                            // }, 3000);
+                            dispatch(SET_AUTH(user))
+
+
+                            const toast: IToast = { severity: 'success', summary: "Başarılı", detail: res.message, life: 13000 }
+                            dispatch(SET_TOAST(toast))
+                            if (user.role == "admin") {
+                                dispatch(SET_ADMIN_AUTH())
+                                navigate("/admin")
+                            }
+
                         }
                         else {
                             console.log("err res : ", res)
                             setIsLoading(false)
                             const toast: IToast = { severity: 'error', summary: "Hata", detail: res.message, life: 3000 }
                             dispatch(SET_TOAST(toast))
+
                         }
                     })
                 .catch(err => {
