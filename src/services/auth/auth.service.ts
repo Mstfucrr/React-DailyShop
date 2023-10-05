@@ -54,7 +54,7 @@ const login = async (input: ILogin) => {
         "status": 200,
         "message": "Login successfully",
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
+        "Authorization": `Bearer ${token}`,
         "data": userEx
     }
 
