@@ -20,13 +20,10 @@ export const authSlice = createSlice({
         SET_LOGOUT: (state) => {
             state.auth = {} as IUser;
             state.isAuthorized = false;
+            state.isAdminAuthorized = false;
         },
         SET_ADMIN_AUTH: (state) => {
-            console.log("2")
             state.isAdminAuthorized = true;
-        },
-        SET_ADMIN_LOGOUT: (state) => {
-            state.isAdminAuthorized = false;
         }
     },
 })
@@ -35,7 +32,6 @@ export const {
     SET_AUTH,
     SET_LOGOUT,
     SET_ADMIN_AUTH,
-    SET_ADMIN_LOGOUT
 }  = authSlice.actions;
 
 
