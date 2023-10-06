@@ -9,6 +9,10 @@ import { useOnClickOutside } from 'usehooks-ts';
 import { Link, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Button } from 'primereact/button';
+import { authSelector, SET_LOGOUT } from '@/store/auth';
+import { useDispatch, useSelector } from 'react-redux';
+import { SET_TOAST } from '@/store/Toast';
+import { IToast } from '@/store/Toast/type';
 
 
 const Navbar = () => {
@@ -26,6 +30,15 @@ const Navbar = () => {
   useOnClickOutside(categoriesBox, () => {
     setIsCategoryMenuOpen(true);
   });
+
+  const dispatch = useDispatch()
+  const { isAuthorized } = useSelector(authSelector)
+  const handleLogout = () => {
+    dispatch(SET_LOGOUT())
+    const toast: IToast = { severity: "success", summary: "Başarılı", detail: "Başarıyla çıkış yaptınız.", life: 3000 }
+    dispatch(SET_TOAST(toast))
+    navigate('/')
+  }
 
 
   return (
@@ -117,6 +130,13 @@ const Navbar = () => {
                       <Link to="/login" className={navItemsStyle + " py-[10px] lx:py-[20px] px-[10px]"}>Giriş Yap</Link>
                       <Link to="/register" className={navItemsStyle + " py-[10px] lx:py-[20px] px-[10px]"}>Kayıt Ol</Link>
                       <Link to="/account" className={navItemsStyle + " py-[10px] lx:py-[20px] px-[10px] mr-4"}>Hesap</Link>
+                      {/* logout */}
+                      {isAuthorized && (
+                        <a className={navItemsStyle + " py-[10px] lx:py-[20px] px-[10px] mr-4 cursor-pointer text-primary"}
+                          onClick={handleLogout}
+                        >Çıkış Yap</a>
+                      )}
+
                       <Button severity="warning" className=" py-[10px] lx:py-[20px] px-[10px] !text-black hover:!text-white duration-300"
                         onClick={() => { navigate('/seller') }}> Satış Yap </Button>
                     </div>
