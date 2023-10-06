@@ -16,8 +16,9 @@ import { InputText } from "primereact/inputtext";
 import { Messages } from "primereact/messages";
 import { useParams } from "react-router-dom";
 import { getProductById } from "@/services/product/product.service";
-import { GetAccount } from "@/services/auth/auth.service";
 import { setProductCookie } from "@/helper/cookieUtils";
+import { useSelector } from "react-redux";
+import { authSelector } from "@/store/auth";
 
 
 const ProductDetail = () => {
@@ -34,45 +35,31 @@ const ProductDetail = () => {
 
 
     // kullanıcı giriş yapmış mı konrol et ve hangi üründe ne kadar gezindiğini cooki ye kaydet
+
+    const { auth } = useSelector(authSelector)
+
     useEffect(() => {
-        const fetchData = async () => {
-            await GetAccount()
-                .then(res => {
-                    if (res.status === 200) {
-                        const user = res.data;
-                        const startTime = Date.now(); // Sayfa açılma zamanı
-                        console.log("startet")
-                        // Sayfa kapatıldığında veya başka bir sayfaya geçildiğinde
-                        const beforeUnloadHandler = () => {
-                            const endTime = Date.now(); // Sayfa kapatılma zamanı
-                            const durationInSeconds = (endTime - startTime) / 1000; // Saniye cinsinden geçen süre
-                            if (product) {
-                                setProductCookie(product.id, durationInSeconds);
-                            }
 
-                        };
+        if (auth && product) {
+            const startTime = Date.now(); // Sayfa açılma zamanı
+            // Sayfa kapatıldığında veya başka bir sayfaya geçildiğinde
+            const beforeUnloadHandler = () => {
+                const endTime = Date.now(); // Sayfa kapatılma zamanı
+                const durationInSeconds = (endTime - startTime) / 1000; // Saniye cinsinden geçen süre
+                if (product)
+                    setProductCookie(product.id, durationInSeconds);
+            };
 
-                        // beforeunload olayını dinle
-                        window.addEventListener('beforeunload', beforeUnloadHandler);
+            // beforeunload olayını dinle
+            window.addEventListener('beforeunload', beforeUnloadHandler);
 
-                        return () => {
-                            // Komponent kaldırıldığında, olay dinleyiciyi kaldır
-                            
-                            window.removeEventListener('beforeunload', beforeUnloadHandler);
-                        };
-                    } else {
-                        console.log("res : ", res);
-                    }
-                });
-        };
-
-        fetchData();
+            return () => { // Komponent kaldırıldığında, olay dinleyiciyi kaldır
+                window.removeEventListener('beforeunload', beforeUnloadHandler);
+            };
+        }
     }, []);
 
-
-
-
-
+    
     useEffect(() => {
         if (!id) return
         const fetchData = async () => {
