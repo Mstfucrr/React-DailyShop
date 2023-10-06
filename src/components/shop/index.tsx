@@ -7,6 +7,7 @@ import { FaEye, FaShoppingCart } from 'react-icons/fa';
 import { IProduct, IShopResponse } from '@/shared/types';
 import { Paginator, PaginatorPageChangeEvent } from 'primereact/paginator';
 import { getProductsByCategoryId } from '@/services/shop/shop.service';
+import { useParams } from 'react-router-dom';
 
 const Shop = () => {
 
@@ -16,6 +17,8 @@ const Shop = () => {
   const [products, setProducts] = useState<IProduct[]>([]); // tüm ürünlerin listesi
   const [first, setFirst] = useState(0);
   const [rows, setRows] = useState(6)
+
+  const { id } = useParams<{ id: string }>();
 
   const sortBy = [
     { name: 'Newest', code: 'newest' },
@@ -63,11 +66,12 @@ const Shop = () => {
 
     const fetchData = async () => {
       try {
-        await getProductsByCategoryId(1).then(response => {
-          setFilteredProducts(response.data);
-          setProducts(response.data.slice(first, first + rows))
-          setResponseData(response)
-        });
+        if (id)
+          await getProductsByCategoryId(parseInt(id)).then(response => {
+            setFilteredProducts(response.data);
+            setProducts(response.data.slice(first, first + rows))
+            setResponseData(response)
+          });
       } catch (error) {
         // Hata yönetimi burada yapılabilir.
         console.error("Hata:", error);
@@ -96,7 +100,7 @@ const Shop = () => {
       <div className="grid md:grid-cols-4 gap-x-10">
 
         {/* SideBar */}
-        {responseData?.data && 
+        {responseData?.data &&
           <SideBar filteredProducts={responseData?.data} setFilteredProducts={setFilteredProducts} />
         }
         {/* Shop Product */}
