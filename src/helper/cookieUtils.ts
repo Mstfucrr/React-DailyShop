@@ -9,16 +9,3 @@ export function setProductCookie(productId: number, durationInSeconds: number) {
     console.log("setProductCookie", document.cookie)
     console.log("cscs")
 }
-
-export const getTokenFromCookie = () => {
-
-    const token = document.cookie.split(';').filter((item) => {
-        return item.includes('access_token')
-    })[0].split('=')[1]
-
-    return token
-}
-
-export const addTokenToCookie = (token: string) => {
-    document.cookie = `access_token=${token};path=/`;
-}
