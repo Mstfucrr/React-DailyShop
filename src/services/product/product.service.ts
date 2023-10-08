@@ -19,7 +19,6 @@ export const addProduct = async (input: IProductRequest): Promise<IProductRespon
     const fetchResponse: IProductResponse = {
         status: 200,
         message: "Ürün başarıyla eklendi.",
-        'Content-Type': 'application/json',
         data: products[0]
     }
 
@@ -27,7 +26,6 @@ export const addProduct = async (input: IProductRequest): Promise<IProductRespon
     // const fetchResponse: IProductResponse = {
     //     status: 400,
     //     message: "Ürün eklenirken bir hata oluştu.",
-    //     'Content-Type': 'application/json',
     //     data: null
     // }
 
@@ -35,7 +33,7 @@ export const addProduct = async (input: IProductRequest): Promise<IProductRespon
     return fetchResponse
 };
 
-export const getProductById = async (id: string): Promise<IProductResponse> => {
+export const getProductById = async (id: number): Promise<IProductResponse> => {
 
     // const { fetchResponse } = await fetch(`https://api.dailyshop.com/api/Products/${id}`, {
     //     method: "GET",
@@ -49,7 +47,6 @@ export const getProductById = async (id: string): Promise<IProductResponse> => {
     const fetchResponse: IProductResponse = {
         status: 200,
         message: "Ürün başarıyla getirildi.",
-        'Content-Type': 'application/json',
         data: products[0]
     }
 
@@ -57,11 +54,42 @@ export const getProductById = async (id: string): Promise<IProductResponse> => {
     // const fetchResponse: IProductResponse = {
     //     status: 400,
     //     message: "Ürün getirilirken bir hata oluştu.",
-    //     'Content-Type': 'application/json',
     //     data: null
     // }
     return fetchResponse
 
+}
+
+export const addReviewToProduct = async (id: number, input: any) : Promise<IProductResponse> => {
+
+    // const { fetchResponse } = await fetch(`https://api.dailyshop.com/api/Products/AddReviewToProduct/${id}`, {
+    //     method: "POST",
+    //     headers: {
+    //         "Content-Type": "application/json",
+    //         Authorization: `Bearer ${localStorage.getItem("token")}`,
+    //     },
+    //     body: JSON.stringify(input),
+    // }).then((res) => ({ fetchResponse: res.json() }))
+
+
+    console.log(input)
+    // for test
+
+    const fetchResponse = {
+        status: 200,
+        message: "Yorum başarıyla eklendi.",
+        data: null
+    }
+
+    // for err test
+    // const fetchResponse = {
+    //     status: 400,
+    //     message: "Yorum eklenirken bir hata oluştu.",
+    //     data: null
+    // }        
+
+
+    return fetchResponse
 }
 
 

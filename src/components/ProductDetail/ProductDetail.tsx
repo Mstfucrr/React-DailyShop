@@ -15,10 +15,12 @@ import { InputTextarea } from "primereact/inputtextarea";
 import { InputText } from "primereact/inputtext";
 import { Messages } from "primereact/messages";
 import { useParams } from "react-router-dom";
-import { getProductById } from "@/services/product/product.service";
+import { getProductById, addReviewToProduct } from "@/services/product/product.service";
 import { setProductCookie } from "@/helper/cookieUtils";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { authSelector } from "@/store/auth";
+import { SET_TOAST } from "@/store/Toast";
+import { IToast } from "@/store/Toast/type";
 
 
 const ProductDetail = () => {
@@ -32,11 +34,12 @@ const ProductDetail = () => {
     const msgs = useRef<Messages>(null);
     const [sizes, setSizes] = useState<{ name: string; key: string; }[] | undefined>(undefined)
     const [colors, setColors] = useState<{ name: string; key: string; }[] | undefined>(undefined)
+    const dispatch = useDispatch()
 
 
     // kullanıcı giriş yapmış mı konrol et ve hangi üründe ne kadar gezindiğini cooki ye kaydet
 
-    const { auth } = useSelector(authSelector)
+    const { auth, isAuthorized } = useSelector(authSelector)
 
     useEffect(() => {
 
@@ -59,12 +62,12 @@ const ProductDetail = () => {
         }
     }, []);
 
-    
+
     useEffect(() => {
         if (!id) return
         const fetchData = async () => {
 
-            await getProductById(id)
+            await getProductById(parseInt(id))
                 .then(res => {
                     if (res.data) {
                         setProduct(res.data)
@@ -127,17 +130,41 @@ const ProductDetail = () => {
             .min(1, "Rating alanı boş bırakılamaz"),
 
     })
-
     const formik = useFormik({
         initialValues: {
             review: '',
-            name: '',
-            email: '',
+            name: isAuthorized ? auth.name : '',
+            email: isAuthorized ? auth.email : '',
             rating: 0
         },
         validationSchema,
         onSubmit: (values) => {
-            console.log(values)
+            if (!product) return
+            const r = {
+                name : values.name,
+                email : values.email,
+                rating : values.rating,
+                review : values.review,
+                productId : product.id,
+                userId : auth ? auth.id : undefined
+            }
+
+            addReviewToProduct(product.id, r)
+                .then(res => {
+                    if (res.status == 200) {
+                        const toast: IToast = { severity: 'success', summary: 'Başarılı', detail: res.message, life: 3000 }
+                        dispatch(SET_TOAST(toast))
+                    }
+                    else {
+                        const toast: IToast = { severity: 'error', summary: 'Hata', detail: res.message, life: 3000 }
+                        dispatch(SET_TOAST(toast))
+                    }
+                })
+                .catch(err => {
+                    const toast: IToast = { severity: 'error', summary: 'Sistemsel Hata', detail: err.message, life: 3000 }
+                    dispatch(SET_TOAST(toast))
+                })
+            formik.resetForm()
         }
     })
 
@@ -352,33 +379,40 @@ const ProductDetail = () => {
                                                             <div className="text-red-500 text-sm">{formik.errors.review}</div>
                                                         ) : null}
                                                     </div>
-                                                    <div className="flex flex-col">
-                                                        <label htmlFor="name" className="text-lg text-[#6F6F6F]">Adınız * :</label>
-                                                        <InputText id="name" className={`${formik.errors.name && formik.touched.name && "!border-red-500"}`}
-                                                            value={formik.values.name}
-                                                            onChange={formik.handleChange}
-                                                        />
-                                                        {formik.errors.name && formik.touched.name ? (
-                                                            <div className="text-red-500 text-sm">{formik.errors.name}</div>
-                                                        ) : null}
-                                                    </div>
-                                                    <div className="flex flex-col">
-                                                        <label htmlFor="email" className="text-lg text-[#6F6F6F]">E-posta * :</label>
-                                                        <InputText id="email" className={`${formik.errors.email && formik.touched.email && "!border-red-500"}`}
-                                                            value={formik.values.email}
-                                                            onChange={formik.handleChange}
-                                                        />
-                                                        {formik.errors.email && formik.touched.email ? (
-                                                            <div className="text-red-500 text-sm">{formik.errors.email}</div>
-                                                        ) : null}
-                                                    </div>
+                                                    {!isAuthorized && (
+                                                        <>
+                                                            <div className="flex flex-col">
+                                                                <label htmlFor="name" className="text-lg text-[#6F6F6F]">Adınız * :</label>
+                                                                <InputText id="name" className={`${formik.errors.name && formik.touched.name && "!border-red-500"}`}
+                                                                    value={formik.values.name}
+                                                                    onChange={formik.handleChange}
+                                                                />
+                                                                {formik.errors.name && formik.touched.name ? (
+                                                                    <div className="text-red-500 text-sm">{formik.errors.name}</div>
+                                                                ) : null}
+                                                            </div>
 
+                                                            <div className="flex flex-col">
+                                                                <label htmlFor="email" className="text-lg text-[#6F6F6F]">E-posta * :</label>
+                                                                <InputText id="email" className={`${formik.errors.email && formik.touched.email && "!border-red-500"}`}
+                                                                    value={formik.values.email}
+                                                                    onChange={formik.handleChange}
+                                                                />
+                                                                {formik.errors.email && formik.touched.email ? (
+                                                                    <div className="text-red-500 text-sm">{formik.errors.email}</div>
+                                                                ) : null}
+                                                            </div>
+                                                        </>
+
+                                                    )}
                                                     <div className="flex flex-col mt-4">
                                                         <button className='md:w-1/3 w-full h-12 bg-primary text-white text-xl font-bold rounded-xl  
                                                                     hover:text-primary hover:bg-white hover:border-primary border border-solid border-primary
-                                                                    transition duration-300 ease-in-out
-                                                                '>
-                                                            Gönder
+                                                                    transition duration-300 ease-in-out'
+                                                            type="submit"
+                                                        >
+                                                            Yorum Yap
+
                                                         </button>
 
                                                     </div>
