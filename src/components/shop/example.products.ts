@@ -54,9 +54,11 @@ export const products = [
         ],
         information: {
             status: "Yeni",
-            stock: 17
+            stock: 0
         },
-        reviews: reviews
+        reviews: reviews,
+        isDeleted: true
+        
     },
     {
         id: 2,
@@ -75,7 +77,9 @@ export const products = [
             stock : 55,
         },
         images : [],
-        reviews : []
+        reviews : [],
+        isDeleted: true
+
     },
     {
         id: 3,
@@ -94,7 +98,9 @@ export const products = [
             stock : 55,
         },
         images : [],
-        reviews : []
+        reviews : [],
+        isDeleted: false
+
     },
     {
         id: 4,
@@ -113,7 +119,9 @@ export const products = [
             stock : 55,
         },
         images : [],
-        reviews : []
+        reviews : [],
+        isDeleted: false
+
     }
     , {
         id: 5,
@@ -132,7 +140,9 @@ export const products = [
             stock : 55,
         },
         images : [],
-        reviews : []
+        reviews : [],
+        isDeleted: false
+
     }
     , {
         id: 6,
@@ -151,7 +161,9 @@ export const products = [
             stock : 55,
         },
         images : [],
-        reviews : []
+        reviews : [],
+        isDeleted: true
+
     }
     , {
         id: 7,
@@ -170,7 +182,9 @@ export const products = [
             stock : 55,
         },
         images : [],
-        reviews : []
+        reviews : [],
+        isDeleted: false
+
     }
     , {
         id: 8,
@@ -189,7 +203,9 @@ export const products = [
             stock : 55,
         },
         images : [],
-        reviews : []
+        reviews : [],
+        isDeleted: false
+
     }, {
         id: 9,
         name: "Elegant Denim Jeans",
@@ -207,7 +223,9 @@ export const products = [
             stock : 55,
         },
         images : [],
-        reviews : []
+        reviews : [],
+        isDeleted: false
+
     },
     {
         id: 10,

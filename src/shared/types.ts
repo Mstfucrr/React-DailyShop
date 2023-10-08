@@ -18,6 +18,7 @@ export interface IProduct {
     tags: string[]| undefined,
     date: Date ,
     reviews: IReviews[],
+    isDeleted: boolean | undefined | null,
 
 }
 
