@@ -8,6 +8,7 @@ import { IProduct, IShopResponse } from '@/shared/types';
 import { Paginator, PaginatorPageChangeEvent } from 'primereact/paginator';
 import { getProductsByCategoryId } from '@/services/shop/shop.service';
 import { useParams } from 'react-router-dom';
+import { InputSwitch, InputSwitchChangeEvent } from "primereact/inputswitch";
 
 const Shop = () => {
 
@@ -17,6 +18,7 @@ const Shop = () => {
   const [products, setProducts] = useState<IProduct[]>([]); // tüm ürünlerin listesi
   const [first, setFirst] = useState(0);
   const [rows, setRows] = useState(6)
+  const [isDelProductShow, setIsDelProductShow] = useState<boolean>(true);
 
   const { id } = useParams<{ id: string }>();
 
@@ -62,31 +64,28 @@ const Shop = () => {
 
   }, [selectSortBy])
 
+  const fetchData = async () => {
+    try {
+      if (id)
+        await getProductsByCategoryId(parseInt(id),isDelProductShow).then(response => {
+          setFilteredProducts(response.data);
+          setProducts(response.data.slice(first, first + rows))
+          setResponseData(response)
+        });
+    } catch (error) {
+      // Hata yönetimi burada yapılabilir.
+      console.error("Hata:", error);
+    }
+  };
   useEffect(() => {
-
-    const fetchData = async () => {
-      try {
-        if (id)
-          await getProductsByCategoryId(parseInt(id)).then(response => {
-            setFilteredProducts(response.data);
-            setProducts(response.data.slice(first, first + rows))
-            setResponseData(response)
-          });
-      } catch (error) {
-        // Hata yönetimi burada yapılabilir.
-        console.error("Hata:", error);
-      }
-    };
-
     fetchData(); // async işlemi başlat
-  }, [])
+  }, [isDelProductShow])
 
   // gelen datalar pagnition ile listelencek
 
   useEffect(() => {
     setProducts(filteredProducts.slice(first, first + rows))
   }, [filteredProducts])
-
 
   const onPageChange = (event: PaginatorPageChangeEvent) => {
     setFirst(event.first);
@@ -95,22 +94,39 @@ const Shop = () => {
   };
 
 
+
+
   return (
     <div className='pt-16 px-14 gap-x-10'>
       <div className="grid md:grid-cols-4 gap-x-10">
 
         {/* SideBar */}
         {responseData?.data &&
-          <SideBar filteredProducts={responseData?.data} setFilteredProducts={setFilteredProducts} />
+          <SideBar data={responseData.data} setData={setFilteredProducts} />
         }
         {/* Shop Product */}
         <div className="row-span-4 md:row-span-1 md:col-span-3 col-span-1">
           <div className="flex md:flex-row flex-col justify-between items-start gap-y-2">
             {/* search and sortby */}
-            <span className="p-input-icon-right">
-              <i className="pi pi-search" />
-              <InputText placeholder="Search" />
-            </span>
+            <div className="flex flex-row flex-wrap items-center gap-x-9 gap-y-4">
+
+              <span className="p-input-icon-right">
+                <i className="pi pi-search" />
+                <InputText placeholder="Search" />
+              </span>
+              {/* show deleted products switch */}
+              <div className="flex gap-4">
+
+                <InputSwitch
+                  checked={isDelProductShow}
+                  onChange={(e) => setIsDelProductShow(e.value as boolean)}
+
+                />
+                <span className={isDelProductShow ? "text-gray-900" : "text-gray-400"}>Show Deleted Products</span>
+              </div>
+
+            </div>
+
 
             <div className="flex items-center">
               <Dropdown value={selectSortBy}
