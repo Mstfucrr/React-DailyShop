@@ -2,7 +2,7 @@ import { products } from "@/components/shop/example.products";
 
 
 
-export async function getProductsByCategoryId(id: number) {
+export async function getProductsByCategoryId(id: number, isDeletedDatas: boolean) {
 
 
     // const fetchResponse = await fetch(`https://api.dailyshop.com/api/Products/GetProductsByCategoryId/${id}`, {
@@ -14,11 +14,15 @@ export async function getProductsByCategoryId(id: number) {
     // }).then((res) => res.json())
 
     // return fetchResponse
-        
+
     // for test 
 
-    const data = products.slice(0, 7);
 
+    const data =
+        isDeletedDatas
+            ? products.slice(0, 7)
+            : products.slice(0, 7).filter((product) => product.isDeleted === false)
+    
     const fetchResponse = {
         status: 200,
         message: "Ürünler başarıyla getirildi.",
