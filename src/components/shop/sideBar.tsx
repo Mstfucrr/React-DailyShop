@@ -6,15 +6,13 @@ import { IProduct } from "@/shared/types";
 import { getProductsByCategoryId } from "@/services/shop/shop.service";
 
 const SideBar = (
-    { filteredProducts, setFilteredProducts }: {
-        filteredProducts: IProduct[], setFilteredProducts: (
-            filteredProducts: IProduct[]
-        ) => void
+    { data, setData }: {
+        data: IProduct[], setData: (filteredProducts: IProduct[]) => void
     }
 ) => {
 
-    const maxProductPrice = filteredProducts.reduce((max, product) => product.price > max ? product.price : max, 0) as number
-    const minProductPrice = filteredProducts.reduce((min, product) => product.price <= min ? product.price : min, 0) as number
+    const maxProductPrice = data.reduce((max, product) => product.price > max ? product.price : max, 0) as number
+    const minProductPrice = data.reduce((min, product) => product.price <= min ? product.price : min, 0) as number
     const [[min, max], setMinMax] = useState<number[]>([minProductPrice, maxProductPrice])
 
     const [colors, setColors] = useState<string[]>([])
@@ -30,32 +28,19 @@ const SideBar = (
     }
 
     useEffect(() => {
-        const colors = filteredProducts.map((product) => product.colors !== undefined ? product.colors : [])
+        const colors = data.map((product) => product.colors !== undefined ? product.colors : [])
         const uniqueColors = [...new Set(colors.flat())]
         setColors(uniqueColors)
     }, [])
-    
 
     const hanldeFilter = () => {
-        const fetchData = async () => {
-            try {
-                await getProductsByCategoryId(1).then(response => {
-
-                    const filteredPro = response.data.filter((product) => {
-                        const isPriceInRange = product.price >= min && product.price <= max
-                        const isColorIncluded = activeColors.length === 0 || activeColors.some((activeColor) => product.colors?.includes(activeColor))
-                        return isPriceInRange && isColorIncluded
-                    })
-                    setFilteredProducts(filteredPro)
-                });
-            } catch (error) {
-                console.error("Hata:", error);
-            }
-        };
-
-        fetchData(); // async işlemi başlat
-
-
+        
+        const filteredPro = data.filter((product) => {
+            const isPriceInRange = product.price >= min && product.price <= max
+            const isColorIncluded = activeColors.length === 0 || activeColors.some((activeColor) => product.colors?.includes(activeColor))
+            return isPriceInRange && isColorIncluded
+        })
+        setData(filteredPro)
     }
 
     return (
