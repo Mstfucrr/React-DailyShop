@@ -26,7 +26,6 @@ export async function getProductsByCategoryId(id: number, isDeletedDatas: boolea
     const fetchResponse = {
         status: 200,
         message: "Ürünler başarıyla getirildi.",
-        'Content-Type': 'application/json',
         data: data,
         total: data.length
     }
