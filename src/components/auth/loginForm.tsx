@@ -61,6 +61,8 @@ const LoginForm = (props: Props) => {
                                 dispatch(SET_ADMIN_AUTH())
                                 navigate("/admin")
                             }
+                            else
+                                navigate("/")
 
                         }
                         else {
