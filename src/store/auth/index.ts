@@ -6,21 +6,29 @@ import { IinitialState } from "./types";
 const initialState: IinitialState = {
     auth: {} as IUser,
     isAdminAuthorized: false,
-    isAuthorized: false
+    isAuthorized: false,
+    token : "",
+}
+
+export type ISetAuth = {
+    token: string;
+    user: IUser;
 }
 
 export const authSlice = createSlice({
     name: 'auth',
     initialState,
     reducers: {
-        SET_AUTH: (state, action: PayloadAction<IUser>) => {
-            state.auth = action.payload;
+        SET_AUTH: (state, action: PayloadAction<ISetAuth>) => {
             state.isAuthorized = true;
+            state.token = action.payload.token;
+            state.auth = action.payload.user;
         },
         SET_LOGOUT: (state) => {
             state.auth = {} as IUser;
             state.isAuthorized = false;
             state.isAdminAuthorized = false;
+            state.token = "";
         },
         SET_ADMIN_AUTH: (state) => {
             state.isAdminAuthorized = true;

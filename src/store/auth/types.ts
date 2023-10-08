@@ -4,4 +4,5 @@ export interface IinitialState {
     isAuthorized: boolean;
     isAdminAuthorized: boolean;
     auth: IUser;
+    token : string;
 }

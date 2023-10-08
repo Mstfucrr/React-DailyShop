@@ -52,7 +52,12 @@ const LoginForm = (props: Props) => {
                             setIsLoading(false)
                             formik.resetForm()
                             const user = res?.data || undefined
-                            dispatch(SET_AUTH(user))
+                            dispatch(SET_AUTH(
+                                {
+                                    user : user,
+                                    token : res.Authorization
+                                }
+                            ))
 
 
                             const toast: IToast = { severity: 'success', summary: "Başarılı", detail: res.message, life: 13000 }
