@@ -7,6 +7,7 @@ import { InputText } from 'primereact/inputtext';
 import { InputMask } from 'primereact/inputmask';
 import * as Yup from 'yup'
 import { useFormik } from 'formik'
+import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 
 
 import { Toast } from 'primereact/toast';
@@ -114,6 +115,8 @@ const UserInformation = (
     }
 
     const dispatch = useDispatch()
+
+
 
     return (
         <motion.div
@@ -352,13 +355,57 @@ const UserInformation = (
                         className='md:w-1/2 w-full'
                         onClick={() => handleAddressAdd()}
                     />
-
-
-
-
                 </div>
 
             </Fieldset>
+
+            {/* hesap sil */}
+            <Fieldset legend={
+                <div className="flex align-items-center text-primary">
+                    <span className="pi pi-trash mr-2 mt-1"></span>
+                    <span className="font-bold text-lg">Hesabı Sil</span>
+                </div>
+            } className="mb-4" toggleable >
+                <div className="flex flex-col">
+                    <div className="flex flex-col w-full">
+
+                        <Button
+                            onClick={() => {
+                                const dia = confirmDialog({
+                                    message: 'Hesabınızı silmek istediğinize emin misiniz?',
+                                    header: 'Hesap Sil',
+                                    icon: 'pi pi-exclamation-triangle',
+                                    acceptClassName: 'p-button-danger',
+                                    accept: () => {
+                                        // deleteUser(user.id)
+                                        localStorage.removeItem('user')
+                                        // history.push('/')
+                                        dia.hide()
+
+                                    },
+                                    reject: () => {
+                                        dia.hide()
+                                    },
+                                    closable: false
+                                    
+                                })
+                            }}  
+                            label="Hesabı Sil"
+                            severity="danger"
+                            className='md:w-1/2 w-full'
+                        />
+
+
+
+                    </div>
+                </div>
+
+            </Fieldset>
+
+
+
+
+
         </motion.div >
     )
 }
