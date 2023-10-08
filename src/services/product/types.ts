@@ -19,6 +19,5 @@ export interface IProductRequest {
 export interface IProductResponse {
     status: number;
     message: string;
-    'Content-Type': string;
     data: IProduct | null;
 }
