@@ -3,24 +3,26 @@ import { Galleria } from 'primereact/galleria';
 import { useEffect, useRef, useState } from "react";
 import { Rating } from "primereact/rating";
 import { RadioButton } from "primereact/radiobutton";
-import { FaCommentAlt, FaInfoCircle, FaMinus, FaPlus, FaShoppingCart } from "react-icons/fa";
+import { FaCommentAlt, FaInfoCircle, FaMinus, FaPlus, FaShoppingCart, FaTrashAlt } from "react-icons/fa";
 import { MdDescription } from "react-icons/md";
 import { TabView, TabPanel } from 'primereact/tabview';
 import { Avatar } from 'primereact/avatar';
-import { IReviews } from "@/shared/types";
+import { IReview } from "@/shared/types";
 import * as Yup from 'yup'
 import { useFormik } from 'formik'
 import { emailRegex } from "@/helper/regex";
 import { InputTextarea } from "primereact/inputtextarea";
 import { InputText } from "primereact/inputtext";
 import { Messages } from "primereact/messages";
-import { useParams } from "react-router-dom";
-import { getProductById, addReviewToProduct } from "@/services/product/product.service";
+import { Link, useParams } from "react-router-dom";
+import { getProductById, addReviewToProduct, deleteReviewFromProduct } from "@/services/product/product.service";
 import { setProductCookie } from "@/helper/cookieUtils";
 import { useDispatch, useSelector } from "react-redux";
 import { authSelector } from "@/store/auth";
 import { SET_TOAST } from "@/store/Toast";
 import { IToast } from "@/store/Toast/type";
+import { addToCart, IaddToCartRequest } from "@/services/order/order.service";
+import { InputNumber } from "primereact/inputnumber";
 
 
 const ProductDetail = () => {
@@ -29,6 +31,7 @@ const ProductDetail = () => {
     const [product, setProduct] = useState<IProduct | null>(null)
     const [selectSize, setSelectSize] = useState<string | undefined>(undefined)
     const [selectColor, setSelectColor] = useState<string | undefined>(undefined)
+    const [reviews, setReviews] = useState<IReview[]>([])
     // const size = [{ name: "S", key: "s" }]
     const [quantity, setQuantity] = useState(1)
     const msgs = useRef<Messages>(null);
@@ -39,7 +42,7 @@ const ProductDetail = () => {
 
     // kullanıcı giriş yapmış mı konrol et ve hangi üründe ne kadar gezindiğini cooki ye kaydet
 
-    const { auth, isAuthorized } = useSelector(authSelector)
+    const { auth, isAuthorized, token } = useSelector(authSelector)
 
     useEffect(() => {
 
@@ -74,6 +77,7 @@ const ProductDetail = () => {
                         setSizes(res.data.sizes?.map((size) => ({ name: size, key: size })))
                         setColors(res.data.colors?.map((color) => ({ name: color, key: color })))
                         setImages(res.data.images?.map((image) => ({ source: image })))
+                        setReviews(res.data.reviews)
                     }
                     else {
                         msgs.current?.clear()
@@ -141,19 +145,20 @@ const ProductDetail = () => {
         onSubmit: (values) => {
             if (!product) return
             const r = {
-                name : values.name,
-                email : values.email,
-                rating : values.rating,
-                review : values.review,
-                productId : product.id,
-                userId : auth ? auth.id : undefined
+                name: values.name,
+                email: values.email,
+                rating: values.rating,
+                review: values.review,
+                productId: product.id,
+                userId: auth ? auth.id : undefined
             }
 
-            addReviewToProduct(product.id, r)
+            addReviewToProduct(product.id, r, token)
                 .then(res => {
                     if (res.status == 200) {
                         const toast: IToast = { severity: 'success', summary: 'Başarılı', detail: res.message, life: 3000 }
                         dispatch(SET_TOAST(toast))
+                        setReviews(res.data)
                     }
                     else {
                         const toast: IToast = { severity: 'error', summary: 'Hata', detail: res.message, life: 3000 }
@@ -168,6 +173,91 @@ const ProductDetail = () => {
         }
     })
 
+    const handleAddToCart = async () => {
+        if (!product) return
+        if (!auth) {
+            const toast: IToast = { severity: 'error', summary: 'Hata', detail: 'Sepete eklemek için giriş yapmalısınız', life: 3000 }
+            dispatch(SET_TOAST(toast))
+            return
+        }
+
+        if ((sizes && sizes?.length > 0 && !selectSize) || (colors && colors?.length > 0 && !selectColor)) {
+            const toast: IToast = { severity: 'error', summary: 'Hata', detail: 'Lütfen renk ve beden seçiniz', life: 3000 }
+            dispatch(SET_TOAST(toast))
+            return
+        }
+
+        const cartAdd: IaddToCartRequest = {
+            quantity: quantity,
+            size: selectSize,
+            color: selectColor,
+            productId: product.id,
+            userId: auth.id
+        }
+
+        await addToCart(cartAdd, token)
+            .then(res => {
+                if (res.status == 200) {
+                    const toast: IToast = { severity: 'success', summary: 'Başarılı', detail: addToCartSuccessTemplete(), life: 5000 }
+                    dispatch(SET_TOAST(toast))
+                }
+                else {
+                    const toast: IToast = { severity: 'error', summary: 'Hata', detail: res.message, life: 3000 }
+                    dispatch(SET_TOAST(toast))
+                }
+            })
+            .catch(err => {
+                const toast: IToast = { severity: 'error', summary: 'Sistemsel Hata', detail: err.message, life: 3000 }
+                dispatch(SET_TOAST(toast))
+            }
+            )
+
+    }
+
+    const handleDeleteReview = async (rewId: number) => {
+
+        if (!product) return
+
+        await deleteReviewFromProduct(product?.id, rewId, token)
+            .then(res => {
+                if (res.status == 200) {
+                    const toast: IToast = { severity: 'success', summary: 'Başarılı', detail: res.message, life: 3000 }
+                    dispatch(SET_TOAST(toast))
+                    setReviews(res.data)
+                }
+                else {
+                    const toast: IToast = { severity: 'error', summary: 'Hata', detail: res.message, life: 3000 }
+                    dispatch(SET_TOAST(toast))
+
+                }
+            })
+            .catch(err => {
+                const toast: IToast = { severity: 'error', summary: 'Sistemsel Hata', detail: err.message, life: 3000 }
+                dispatch(SET_TOAST(toast))
+            }
+            )
+    }
+
+    const addToCartSuccessTemplete = () => {
+
+        return (
+            <div className="flex flex-col justify-center">
+                <div className="flex">
+                    <img src={product?.image as string} alt={product?.name} className="w-20 h-20 mx-auto" />
+                    <div className="flex flex-col">
+                        <h2 className="text-xl font-semibold">Ürün sepete eklendi</h2>
+                        <h3 className="text-md font-semibold">{product?.name}</h3>
+                        <h3 className="text-md font-semibold">{quantity} x {product?.price} TL</h3>
+                    </div>
+                </div>
+                <div className="flex flex-row gap-x-2 mt-4">
+                    <Link to="/cart" className="bg-primary text-white px-3 py-2 rounded-md">Sepete Git</Link>
+                    <Link to={`/shop/${product?.categoryId}`} className="bg-primary text-white px-3 py-2 rounded-md">Alışverişe Devam Et</Link>
+                </div>
+
+            </div>
+        )
+    }
 
     return (
 
@@ -206,51 +296,64 @@ const ProductDetail = () => {
                                 {product.description.substring(0, 300) + "..."}
                             </p>
                             {/* sizes */}
-                            <div className="flex flex-row flex-wrap gap-x-5 items-center">
-                                <h2 className="text-lg font-semibold">
-                                    Beden :
-                                </h2>
-                                {sizes && sizes.map((size: any, index: number) => (
+                            {product.sizes && product.sizes?.length > 0 && (
 
-                                    <div className="flex align-items-center" key={index}>
-                                        <RadioButton inputId={`size-${size.name}`} name="size" value={size} onChange={(e) => setSelectSize(e.value.name as string)} checked={selectSize === size.name} />
-                                        <label htmlFor={size.key} className="ml-2">{size.name}</label>
-                                    </div>
-                                ))
-                                }
-                            </div>
+                                <div className="flex flex-row flex-wrap gap-x-5 items-center">
+                                    <h2 className="text-lg font-semibold">
+                                        Beden :
+                                    </h2>
+                                    {sizes && sizes.map((size: any, index: number) => (
+
+                                        <div className="flex align-items-center" key={index}>
+                                            <RadioButton inputId={`size-${size.name}`} name="size" value={size} onChange={(e) => setSelectSize(e.value.name as string)} checked={selectSize === size.name} />
+                                            <label htmlFor={size.key} className="ml-2">{size.name}</label>
+                                        </div>
+                                    ))
+                                    }
+                                </div>
+                            )}
                             {/* colors */}
-                            <div className="flex flex-row flex-wrap gap-x-5 items-center mt-3">
+                            {product.colors && product.colors.length > 0 && (
+                                <div className="flex flex-row flex-wrap gap-x-5 items-center mt-3">
 
-                                <h2 className="text-lg font-semibold">
-                                    Renkler :
-                                </h2>
-                                {colors && colors.map((color: any, index: number) => (
-                                    <div className="flex align-items-center" key={index}>
+                                    <h2 className="text-lg font-semibold">
+                                        Renkler :
+                                    </h2>
+                                    {colors && colors.map((color: any, index: number) => (
+                                        <div className="flex align-items-center" key={index}>
 
-                                        <RadioButton inputId={`color-${color.name}`} name="color" value={color} onChange={(e) => setSelectColor(e.value.name as string)} checked={selectColor === color.name} />
-                                        <label htmlFor={color.key} className="ml-2" style={{ color: color.name }}>{color.name}</label>
-                                    </div>
-                                ))
-                                }
+                                            <RadioButton inputId={`color-${color.name}`} name="color" value={color} onChange={(e) => setSelectColor(e.value.name as string)} checked={selectColor === color.name}
+                                                pt={{
+                                                    input: { className: selectColor == color.name ? '!bg-primary !border-primary' : '' },
+                                                }}
 
-                            </div>
+                                            />
+                                            <label htmlFor={color.key} className="ml-2" style={{ color: color.name }}>{color.name}</label>
+                                        </div>
+                                    ))
+                                    }
+
+                                </div>
+                            )}
                             <div className="flex flex-wrap items-center mt-5 gap-x-6">
 
                                 <div className="relative flex flex-nowrap max-w-[130px]">
                                     <div>
                                         <button className='inline-block bg-primary text-[#212529] border-primary py-3 px-3 leading-6 hover:text-white hover:bg-primaryDark transition-all duration-300 ease-in-out'
                                             onClick={() => setQuantity(quantity - 1)}
-                                            disabled={quantity === 1}
-
-                                        >
-                                            <FaMinus className='' />
+                                            disabled={quantity === 1}>
+                                            <FaMinus />
                                         </button>
                                     </div>
 
-                                    <input type="text" className='relative w-[3%] flex-[1_1_auto] text-center bg-secondary py-1 px-2 outline-none text-sm'
+                                    <InputNumber type="text"
                                         value={quantity}
-                                        onChange={(e) => setQuantity(parseInt(e.target.value))}
+                                        onChange={(e) => {
+                                            if (e.value)
+                                                setQuantity(e.value)
+                                        }}
+                                        inputClassName="relative w-[3%] flex-[1_1_auto] text-center bg-secondary !py-1 px-2 outline-none text-sm"
+                                        allowEmpty={false}
                                         min={1}
 
                                     />
@@ -258,13 +361,15 @@ const ProductDetail = () => {
                                         <button className='inline-block bg-primary text-[#212529] border-primary py-3 px-3 leading-6 hover:text-white hover:bg-primaryDark transition-all duration-300 ease-in-out'
                                             onClick={() => setQuantity(quantity + 1)}
                                         >
-                                            <FaPlus className='' />
+                                            <FaPlus />
                                         </button>
                                     </div>
                                 </div>
 
                                 <div className="">
-                                    <button className='inline-block bg-primary text-[#212529] border-primary py-2 px-3 leading-6 hover:text-white hover:bg-primaryDark transition-all duration-300 ease-in-out'>
+                                    <button className='inline-block bg-primary text-[#212529] border-primary py-2 px-3 leading-6 hover:text-white hover:bg-primaryDark transition-all duration-300 ease-in-out'
+                                        onClick={() => handleAddToCart()}
+                                    >
                                         <FaShoppingCart className="inline mr-3" />
                                         Sepete Ekle
                                     </button>
@@ -320,7 +425,7 @@ const ProductDetail = () => {
                                                 "{product.name}" için {product.reviews.length} Yorum
                                             </h1>
                                             <div className="flex flex-col w-full">
-                                                {product.reviews.map((review: IReviews, index: number) => (
+                                                {reviews.map((review: IReview, index: number) => (
                                                     <div className="flex items-start mx-4 my-2" key={index}>
                                                         <Avatar image={review.avatar} size={"large"}
                                                             className="m-2"
@@ -337,6 +442,18 @@ const ProductDetail = () => {
                                                             </p>
 
                                                         </div>
+                                                        {
+                                                            review.user?.id == auth.id &&
+                                                            <div className="">
+                                                                <button className="text-primary hover:text-primaryDark transition-all duration-300 ease-in-out"
+                                                                    onClick={() => handleDeleteReview(review.id)}
+                                                                >
+                                                                    <FaTrashAlt className="inline mr-2" />
+                                                                    Yorumu Sil
+                                                                </button>
+
+                                                            </div>
+                                                        }
 
                                                     </div>
                                                 ))}
