@@ -1,4 +1,4 @@
-import { IReviews } from "@/shared/types";
+import { IReview } from "@/shared/types";
 import { userEx } from "./example.user";
 
 export const reviews = [
@@ -23,5 +23,5 @@ export const reviews = [
         review : "Diam amet duo labore stet elitr ea clita ipsum, tempor labore accusam ipsum et no at. Kasd diam tempor rebum magna dolores sed sed eirmod ipsum.",
         avatar : "https://bootdey.com/img/Content/avatar/avatar2.png",
     }
-] as IReviews[]
+] as IReview[]
 

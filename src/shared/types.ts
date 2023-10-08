@@ -17,12 +17,12 @@ export interface IProduct {
     sizes: string[]| undefined,
     tags: string[]| undefined,
     date: Date ,
-    reviews: IReviews[],
+    reviews: IReview[],
     isDeleted: boolean | undefined | null,
 
 }
 
-export interface IReviews {
+export interface IReview {
     id: number,
     name: string | undefined,
     email: string | undefined,
@@ -40,7 +40,6 @@ export interface IReviews {
 export interface IShopResponse {
     status: number;
     message: string;
-    'Content-Type': string;
     data: IProduct[];
     total: number;
 }
