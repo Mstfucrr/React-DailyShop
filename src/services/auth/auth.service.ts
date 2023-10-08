@@ -17,10 +17,9 @@ export const GetAccount = async () => {
 
     // for testing
     const res = {
-        "status": 200,
-        "message": "Hesap bilgileri getirildi",
-        'Content-Type': 'application/json',
-        "data": userEx,
+        status: 200,
+        message: "Hesap bilgileri getirildi",
+        data: userEx,
     }
 
 
@@ -28,7 +27,6 @@ export const GetAccount = async () => {
     // const res = {
     //     "status": 400,
     //     "message": "Hesap bilgileri getirilemedi",
-    //     'Content-Type': 'application/json',
     //     "data": null,
     // }
 
@@ -51,11 +49,10 @@ const login = async (input: ILogin) => {
     const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMTE"
 
     const res = {
-        "status": 200,
-        "message": "Login successfully",
-        'Content-Type': 'application/json',
-        "Authorization": `Bearer ${token}`,
-        "data": userEx
+        status: 200,
+        message: "Login successfully",
+        Authorization: `${token}`,
+        data: userEx,
     }
 
 
@@ -63,7 +60,6 @@ const login = async (input: ILogin) => {
     // const res = {
     //     "status": 400,
     //     "message": "Login failed",
-    //     'Content-Type': 'application/json',
     //     "data": null
     // }
 
@@ -84,7 +80,6 @@ const register = async (input: IRegister) => {
     const res = {
         "status": 200,
         "message": "Register successfully",
-        'Content-Type': 'application/json',
         "data": userEx
     }
 
@@ -92,7 +87,6 @@ const register = async (input: IRegister) => {
     // const res = {
     //     "status": 400,
     //     "message": "Register failed",
-    //     'Content-Type': 'application/json',
     //     "data": null
     // }
 
@@ -108,7 +102,6 @@ const logout = () => {
     const res = {
         "status": 200,
         "message": "Logout successfully",
-        'Content-Type': 'application/json',
         "data": null
     }
 

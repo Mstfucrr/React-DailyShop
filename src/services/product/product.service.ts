@@ -1,5 +1,5 @@
 import { products } from "@/components/shop/example.products";
-import { IProductRequest, IProductResponse } from "./types";
+import { IProductRequest, IProductResponse, IReviewResponse } from "./types";
 
 
 
@@ -39,7 +39,6 @@ export const getProductById = async (id: number): Promise<IProductResponse> => {
     //     method: "GET",
     //     headers: {
     //         "Content-Type": "application/json",
-    //         Authorization: `Bearer ${localStorage.getItem("token")}`,
     //     },
     // }).then((res) => ({ fetchResponse: res.json() }))
 
@@ -60,13 +59,14 @@ export const getProductById = async (id: number): Promise<IProductResponse> => {
 
 }
 
-export const addReviewToProduct = async (id: number, input: any) : Promise<IProductResponse> => {
+
+export const addReviewToProduct = async (id: number, input: any,token : string) : Promise<IReviewResponse> => {
 
     // const { fetchResponse } = await fetch(`https://api.dailyshop.com/api/Products/AddReviewToProduct/${id}`, {
     //     method: "POST",
     //     headers: {
     //         "Content-Type": "application/json",
-    //         Authorization: `Bearer ${localStorage.getItem("token")}`,
+    //         Authorization: `${token}`,
     //     },
     //     body: JSON.stringify(input),
     // }).then((res) => ({ fetchResponse: res.json() }))
@@ -78,7 +78,7 @@ export const addReviewToProduct = async (id: number, input: any) : Promise<IProd
     const fetchResponse = {
         status: 200,
         message: "Yorum başarıyla eklendi.",
-        data: null
+        data: products[0].reviews,
     }
 
     // for err test
@@ -91,5 +91,33 @@ export const addReviewToProduct = async (id: number, input: any) : Promise<IProd
 
     return fetchResponse
 }
+
+export const deleteReviewFromProduct = async (productId: number, reviewId: number, token: string) : Promise<IReviewResponse> => {
+    
+    // const { fetchResponse } = await fetch(`https://api.dailyshop.com/api/Products/DeleteReviewFromProduct/${productId}/${reviewId}`, {
+    //     method: "DELETE",
+    //     headers: {
+    //         "Content-Type": "application/json",
+    //         Authorization: `${token}`,
+    //     },
+
+    // for test
+    const fetchResponse = {
+        status: 200,
+        message: "Yorum başarıyla silindi.",
+        data: products[0].reviews,
+    }
+
+    // for err test
+    // const fetchResponse = {
+    //     status: 400,
+    //     message: "Yorum silinirken bir hata oluştu.",
+    //     data: null
+    // }
+
+    return fetchResponse
+}
+
+
 
 
