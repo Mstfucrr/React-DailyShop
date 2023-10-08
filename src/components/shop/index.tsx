@@ -8,7 +8,7 @@ import { IProduct, IShopResponse } from '@/shared/types';
 import { Paginator, PaginatorPageChangeEvent } from 'primereact/paginator';
 import { getProductsByCategoryId } from '@/services/shop/shop.service';
 import { useParams } from 'react-router-dom';
-import { InputSwitch, InputSwitchChangeEvent } from "primereact/inputswitch";
+import { InputSwitch } from "primereact/inputswitch";
 
 const Shop = () => {
 
