@@ -14,6 +14,9 @@ import { SET_TOAST } from '@/store/Toast'
 import google from '@/assets/images/google.png'
 import facebook from '@/assets/images/facebook.png'
 import { IToast } from '@/store/Toast/type'
+import to from 'await-to-js'
+import { InputNumber } from 'primereact/inputnumber'
+import { InputMask } from 'primereact/inputmask'
 
 
 type Props = {}
@@ -27,30 +30,35 @@ const RegisterForm = (props: Props) => {
 
     const validationSchema = Yup.object().shape({
         name: Yup.string()
-            .required('Name is required')
-            .max(50, 'Name is too long')
-            .min(2, 'Name is too short'),
+            .required('Ad alanı zorunludur')
+            .max(50, 'Ad çok uzun')
+            .min(2, 'Ad çok kısa'),
         surname: Yup.string()
-            .required('Surname is required')
-            .max(50, 'Surname is too long')
-            .min(2, 'Surname is too short'),
+            .required('Soyad alanı zorunludur')
+            .max(50, 'Soyad çok uzun')
+            .min(2, 'Soyad çok kısa'),
         email: Yup.string()
-            .email('Email is invalid')
-            .required('Email is required')
-            .max(50, 'Email is too long')
-            .min(2, 'Email is too short')
-            .matches(emailRegex(), 'Email is invalid'),
+            .email('Geçersiz E-posta')
+            .required('E-posta zorunludur')
+            .max(50, 'E-posta çok uzun')
+            .min(2, 'E-posta çok kısa')
+            .matches(emailRegex(), 'Geçersiz E-posta'),
+        PhoneNumber: Yup.string()
+            .required('Telefon Numarası zorunludur')
+            .max(50, 'Telefon Numarası çok uzun')
+            .min(2, 'Telefon Numarası çok kısa'),
         password: Yup.string()
-            .required('Password is required')
-            .max(50, 'Password is too long')
-            .min(2, 'Password is too short')
-            .matches(passwordRegex(), 'Password is invalid'),
+            .required('Şifre zorunludur')
+            .max(50, 'Şifre çok uzun')
+            .min(2, 'Şifre çok kısa')
+            .matches(passwordRegex(), 'Geçersiz Şifre'),
         confirmPassword: Yup.string()
-            .required('Confirm Password is required')
-            .max(50, 'Confirm Password is too long')
-            .min(2, 'Confirm Password is too short')
-            .matches(passwordRegex(), 'Confirm Password is invalid'),
+            .required('Şifreyi Onayla alanı zorunludur')
+            .max(50, 'Şifreyi Onayla çok uzun')
+            .min(2, 'Şifreyi Onayla çok kısa')
+            .matches(passwordRegex(), 'Geçersiz Şifreyi Onayla'),
     })
+
 
     const formik = useFormik({
         initialValues: {
@@ -59,6 +67,8 @@ const RegisterForm = (props: Props) => {
             email: '',
             password: '',
             confirmPassword: '',
+            PhoneNumber: '',
+
         },
         validationSchema,
         onSubmit: async (values) => {
@@ -70,30 +80,34 @@ const RegisterForm = (props: Props) => {
                 return
             }
 
-            await authService.register(values)
-                .then(res => {
-                    if (res.status == 200) {
-                        setIsLoading(false)
-                        formik.resetForm()
-                        const toast: IToast = { severity: 'success', summary: "Başarılı", detail: res.message, life: 3000 }
-                        dispatch(SET_TOAST(toast))
-                        navigate('/login')
-                    }
-                    else {
-                        setIsLoading(false)
-                        const toast: IToast = { severity: 'error', summary: "Hata", detail: res.message, life: 3000 }
-                        dispatch(SET_TOAST(toast))
-                    }
-                })
-                .catch(err => {
-                    setIsLoading(false)
-                    const toast: IToast = { severity: 'error', summary: "Sistematik Hata", detail: err.message, life: 3000 }
-                    dispatch(SET_TOAST(toast))
-                })
-
+            const [err, data] = await to(authService.register(values))
+            if (err) {
+                const toast: IToast = { severity: 'error', summary: "Hata", detail: err.message, life: 3000 }
+                dispatch(SET_TOAST(toast))
+                setIsLoading(false)
+                return
+            }
+            setIsLoading(false)
+            const toast: IToast = { severity: 'success', summary: "Başarılı", detail: data.message, life: 3000 }
+            dispatch(SET_TOAST(toast))
+            // navigate('/login')
         }
 
     })
+
+
+    const errorTemplate = (frm: any) => {
+        return (
+            <>
+                {frm ? (<small className="p-error p-d-block "> {frm} </small>) : null}
+            </>
+        )
+    }
+
+    const inputClassName = (frm: any) => {
+        return 'w-full !my-2 p-inputtext-sm ' +
+            (frm ? 'p-invalid' : '')
+    }
 
 
 
@@ -108,18 +122,9 @@ const RegisterForm = (props: Props) => {
                     <InputText placeholder="Name" name='name' id='name'
                         value={formik.values.name}
                         onChange={formik.handleChange}
-                        className={
-                            formik.errors.name && formik.touched.name
-                                ? 'w-full !my-2 p-inputtext-sm p-invalid'
-                                : 'w-full !my-2 p-inputtext-sm'
-                        }
+                        className={inputClassName(formik.errors.name)}
                     />
-                    {formik.errors.name && formik.touched.name ? (
-                        <small id="username2-help" className="p-error p-d-block">
-                            {formik.errors.name}
-                        </small>
-                    ) : null}
-
+                    {errorTemplate(formik.errors.name)}
 
                 </div>
                 <div className="flex flex-col w-full">
@@ -127,95 +132,67 @@ const RegisterForm = (props: Props) => {
                     <InputText placeholder="Surname" name='surname' id='surname'
                         value={formik.values.surname}
                         onChange={formik.handleChange}
-                        className={
-                            formik.errors.surname && formik.touched.surname
-                                ? 'w-full !my-2 p-inputtext-sm p-invalid'
-                                : 'w-full !my-2 p-inputtext-sm'
-                        }
+                        className={inputClassName(formik.errors.surname)}
                     />
-                    {formik.errors.surname && formik.touched.surname ? (
-                        <small id="username2-help" className="p-error p-d-block">
-                            {formik.errors.surname}
-                        </small>
-                    ) : null}
+                    {errorTemplate(formik.errors.surname)}
 
                 </div>
             </div>
+            {/* email */}
             <div className="flex flex-col">
                 <label htmlFor="email" className='text-primary text-xl font-medium'>Email</label>
                 <InputText placeholder="Email" name='email' id='email'
                     value={formik.values.email}
                     onChange={formik.handleChange}
-                    className={
-                        formik.errors.email && formik.touched.email
-                            ? 'w-full !my-2 p-inputtext-sm p-invalid'
-                            : 'w-full !my-2 p-inputtext-sm'
-                    }
+                    className={inputClassName(formik.errors.email)}
                 />
-                {formik.errors.email && formik.touched.email ? (
-                    <small id="username2-help" className="p-error p-d-block">
-                        {formik.errors.email}
-                    </small>
-                ) : null}
+                {errorTemplate(formik.errors.email)}
             </div>
+
+            {/* phone */}
+            <div className="flex flex-col">
+                <label htmlFor="PhoneNumber" className='text-primary text-xl font-medium'>Phone Number</label>
+                <InputMask placeholder='Phone Number' name='PhoneNumber' id='PhoneNumber'
+                    value={formik.values.PhoneNumber}
+                    onChange={formik.handleChange}
+                    mask="(999) 999-9999"
+                    slotChar="_"
+                    className={inputClassName(formik.errors.PhoneNumber)}
+                />
+                {errorTemplate(formik.errors.PhoneNumber)}
+            </div>
+
+
             <div className="flex sm:flex-row flex-col justify-between">
 
                 <div className="flex flex-col sm:w-1/2 mr-2">
                     <label htmlFor="password" className='text-primary text-xl font-medium'>Password</label>
                     <Password placeholder="Password" name='password' id='password' toggleMask
                         pt={{
-                            "input": {
-                                className: "w-full"
-                            },
-                            "showIcon": {
-                                className: "relative flex -top-1"
-                            },
-                            "hideIcon": {
-                                className: "relative flex -top-1"
-                            }
+                            "input": { className: "w-full" },
+                            "showIcon": { className: "relative flex -top-1" },
+                            "hideIcon": { className: "relative flex -top-1" }
                         }}
-                        className={
-                            formik.errors.password && formik.touched.password
-                                ? '!my-2 p-inputtext-sm p-invalid'
-                                : '!my-2 p-inputtext-sm'
-                        }
+
                         value={formik.values.password}
                         onChange={formik.handleChange}
+                        className={inputClassName(formik.errors.password)}
                     />
-                    {formik.errors.password && formik.touched.password ? (
-                        <small id="username2-help" className="p-error p-d-block">
-                            {formik.errors.password}
-                        </small>
-                    ) : null}
+                    {errorTemplate(formik.errors.password)}
                 </div>
                 <div className="flex flex-col sm:w-1/2">
                     <label htmlFor="confirmPassword" className='text-primary text-xl font-medium'>Confirm Password</label>
                     <Password placeholder="Confirm Password" name='confirmPassword' id='confirmPassword' toggleMask
                         pt={{
-                            "input": {
-                                className: "w-full"
-                            },
-                            "showIcon": {
-                                className: "relative flex -top-1"
-                            },
-                            "hideIcon": {
-                                className: "relative flex -top-1"
-                            }
+                            "input": { className: "w-full" },
+                            "showIcon": { className: "relative flex -top-1" },
+                            "hideIcon": { className: "relative flex -top-1" }
                         }}
-                        className={
-                            formik.errors.confirmPassword && formik.touched.confirmPassword
-                                ? '!my-2 p-inputtext-sm p-invalid'
-                                : '!my-2 p-inputtext-sm'
-                        }
                         value={formik.values.confirmPassword}
                         onChange={formik.handleChange}
-
+                        className={inputClassName(formik.errors.confirmPassword)}
                     />
-                    {formik.errors.confirmPassword && formik.touched.confirmPassword ? (
-                        <small id="username2-help" className="p-error p-d-block">
-                            {formik.errors.confirmPassword}
-                        </small>
-                    ) : null}
+                    {errorTemplate(formik.errors.confirmPassword)}
 
                 </div>
             </div>
@@ -225,6 +202,7 @@ const RegisterForm = (props: Props) => {
                 <button className='w-full h-12 bg-primary text-white text-xl font-bold rounded-3xl
                          hover:text-primary hover:bg-white hover:border-primary border border-solid border-primary
                          transition duration-300 ease-in-out active:scale-95'
+                    type='submit'
                 >
                     {isLoading ?
 

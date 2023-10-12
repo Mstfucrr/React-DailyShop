@@ -7,13 +7,15 @@ import { InputText } from 'primereact/inputtext';
 import { InputMask } from 'primereact/inputmask';
 import * as Yup from 'yup'
 import { useFormik } from 'formik'
-import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
+import { confirmDialog } from "primereact/confirmdialog";
 
 
 import { Toast } from 'primereact/toast';
 import RenderAddressFields from './renderAddressFields';
-import { useDispatch } from 'react-redux';
-import { SET_TOAST } from '@/store/Toast';
+import { useDispatch, useSelector } from 'react-redux';
+import { authSelector, SET_AUTH } from '@/store/auth';
+import { authService } from '@/services/auth/auth.service';
+import to from 'await-to-js';
 
 
 const UserInformation = (
@@ -24,7 +26,8 @@ const UserInformation = (
     const [userState, setUserState] = useState<IUser>(user)
     const [addressesState, setAddressesState] = useState(user.addresses)
     const toast = useRef<any>(null)
-
+    const { token } = useSelector(authSelector)
+    const dispatch = useDispatch()
 
     useEffect(() => {
         setUserState(user)
@@ -90,14 +93,29 @@ const UserInformation = (
                 })
             )
         }),
-        onSubmit: () => {
-            console.log("submit")
-            toast.current?.show({
-                severity: 'success',
-                summary: 'Başarılı',
-                detail: 'Kullanıcı bilgileriniz güncellendi'
-            })
+        onSubmit: async () => {
 
+            setUser({
+                ...userState,
+                name: formik.values.name,
+                surname: formik.values.surname,
+                email: formik.values.email,
+                phone: formik.values.phone,
+                profileImage: formik.values.profileImage,
+                addresses: formik.values.addresses
+            })
+            const [err,data] = await to(authService.updateAccount(user,token))
+            if(err){
+                toast.current.show({ severity: 'error', summary: 'Hata', detail: 'Bilgileriniz güncellenirken hata oluştu', life: 3000 });
+                return
+            }
+            toast.current.show({ severity: 'success', summary: 'Başarılı', detail: data.message, life: 3000 });
+            dispatch(SET_AUTH(
+                {
+                    user : data.data,
+                    token : token
+                }
+            ))
         }
     })
 
@@ -113,10 +131,6 @@ const UserInformation = (
         return 'w-full !my-2 p-inputtext-sm ' +
             (frm ? 'p-invalid' : '')
     }
-
-    const dispatch = useDispatch()
-
-
 
     return (
         <motion.div
@@ -307,9 +321,15 @@ const UserInformation = (
                 </div>
             } className="mb-4" toggleable >
                 <div className="flex flex-col">
-                    {formik.values.addresses.map((address, index) => (
-                        <RenderAddressFields key={index} index={index} address={address} formik={formik} />
-                    ))}
+
+                    {formik.values.addresses
+
+                        ? formik.values.addresses.map((address, index) => (
+                            <RenderAddressFields key={index} index={index} address={address} formik={formik} />
+                        )
+                        ) : (
+                            null
+                        )}
 
                     {user.addresses !== formik.values.addresses ? (
                         <div className="flex flex-wrap justify-content-end gap-2 my-4">
@@ -337,11 +357,14 @@ const UserInformation = (
                                 </>
                             ) : (
                                 <Button
-                                    label="Cancel"
+                                    label="Cancels"
                                     icon="pi pi-times"
                                     className="p-button-outlined p-button-secondary"
                                     onClick={() => {
-                                        console.log(user.addresses)
+                                        console.log(!formik.errors.addresses)
+                                        console.log(user.addresses.length)
+                                        console.log(formik.values.addresses.length)
+
                                         formik.setFieldValue('addresses', user.addresses);
                                     }}
                                 />
@@ -387,9 +410,9 @@ const UserInformation = (
                                         dia.hide()
                                     },
                                     closable: false
-                                    
+
                                 })
-                            }}  
+                            }}
                             label="Hesabı Sil"
                             severity="danger"
                             className='md:w-1/2 w-full'

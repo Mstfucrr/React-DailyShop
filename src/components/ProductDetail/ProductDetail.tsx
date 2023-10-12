@@ -72,7 +72,7 @@ const ProductDetail = () => {
 
             await getProductById(parseInt(id))
                 .then(res => {
-                    if (res.data) {
+                    if (res.status == 200 && res.data) {
                         setProduct(res.data)
                         setSizes(res.data.sizes?.map((size) => ({ name: size, key: size })))
                         setColors(res.data.colors?.map((color) => ({ name: color, key: color })))
@@ -443,7 +443,7 @@ const ProductDetail = () => {
 
                                                         </div>
                                                         {
-                                                            review.user?.id == auth.id &&
+                                                            auth.id && review.user?.id == auth.id &&
                                                             <div className="">
                                                                 <button className="text-primary hover:text-primaryDark transition-all duration-300 ease-in-out"
                                                                     onClick={() => handleDeleteReview(review.id)}

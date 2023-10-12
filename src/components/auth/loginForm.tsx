@@ -13,6 +13,9 @@ import { useDispatch } from 'react-redux';
 import { SET_TOAST } from '@/store/Toast';
 import { IToast } from '@/store/Toast/type'
 import { SET_ADMIN_AUTH, SET_AUTH } from '@/store/auth'
+import to from 'await-to-js'
+import { IUser } from '@/services/auth/types'
+import { userEx } from '../account/example.user'
 
 type Props = {}
 
@@ -44,46 +47,39 @@ const LoginForm = (props: Props) => {
         },
         validationSchema,
         onSubmit: async (values) => {
+            dispatch(SET_AUTH(
+                {
+                    user: userEx,
+                    token: "authorization"
+                }
+            ))
             setIsLoading(true)
-            await authService.login(values)
-                .then(
-                    res => {
-                        if (res.status === 200) {
-                            setIsLoading(false)
-                            formik.resetForm()
-                            const user = res?.data || undefined
-                            dispatch(SET_AUTH(
-                                {
-                                    user : user,
-                                    token : res.Authorization
-                                }
-                            ))
+            const [err, data] = await to(authService.login(values))
+            if (err) {
 
-
-                            const toast: IToast = { severity: 'success', summary: "Başarılı", detail: res.message, life: 13000 }
-                            dispatch(SET_TOAST(toast))
-                            if (user.role == "admin") {
-                                dispatch(SET_ADMIN_AUTH())
-                                navigate("/admin")
-                            }
-                            else
-                                navigate("/")
-
-                        }
-                        else {
-                            console.log("err res : ", res)
-                            setIsLoading(false)
-                            const toast: IToast = { severity: 'error', summary: "Hata", detail: res.message, life: 3000 }
-                            dispatch(SET_TOAST(toast))
-
-                        }
-                    })
-                .catch(err => {
-                    console.log("err : ", err)
-                    setIsLoading(false)
-                    const toast: IToast = { severity: 'error', summary: "Sistemsel Hata", detail: err.message, life: 3000 }
-                    dispatch(SET_TOAST(toast))
-                })
+                const toast: IToast = { severity: 'error', summary: "Hata", detail: err.message, life: 3000 }
+                dispatch(SET_TOAST(toast))
+                setIsLoading(false)
+                return
+            }
+            const { authorization } = data
+            const user = data?.data || undefined as unknown as IUser
+            setIsLoading(false)
+            if (user != undefined) {
+                dispatch(SET_AUTH(
+                    {
+                        user: userEx,
+                        token: authorization
+                    }
+                ))
+                // {status: 200, message: 'Başarılıyla giriş yaptın', authorization: 'Bearer AccessToken', data: 'null'}
+                const toast: IToast = { severity: 'success', summary: "Başarılı", detail: data.message, life: 3000 }
+                dispatch(SET_TOAST(toast))
+                if (user.role == "admin") {
+                    dispatch(SET_ADMIN_AUTH())
+                    navigate("/admin")
+                }
+            }
         },
     })
 
@@ -156,8 +152,7 @@ const LoginForm = (props: Props) => {
                 <div className="flex flex-col mt-4">
                     <button className='w-full h-12 bg-primary text-white text-xl font-bold rounded-3xl
                             hover:text-primary hover:bg-white hover:border-primary border border-solid border-primary
-                            transition duration-300 ease-in-out
-                        '>
+                            transition duration-300 ease-in-out' type="submit">
                         {isLoading ?
                             (<div className="flex justify-center items-center w-full">
                                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>

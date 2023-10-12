@@ -1,4 +1,3 @@
-import { GetAccount } from "@/services/auth/auth.service"
 import { IUser } from "@/services/auth/types"
 import { IToast } from "@/store/Toast/type"
 import { AnimatePresence } from "framer-motion"
@@ -6,47 +5,38 @@ import { useEffect, useRef, useState } from "react"
 import { userEx } from "./example.user"
 import UserInformation from "./userInformation"
 import { Messages } from 'primereact/messages';
-
-enum AccountTabs {
-    USER_INFO,
-    USER_ORDERS,
-    USER_COMMENTS
-}
+import { useSelector } from "react-redux"
+import { authSelector } from "@/store/auth"
 
 
 const Account = () => {
-    const [activeTab, setActiveTab] = useState(AccountTabs.USER_INFO)
 
 
     const [user, setUser] = useState<IUser | null>(null)
     const msgs = useRef<Messages>(null);
+    const { auth, token , isAuthorized } = useSelector(authSelector)
+
+    useEffect(() => {
+        if (isAuthorized)
+            setUser(auth)
+        else {
+            msgs.current?.clear()
+            msgs.current?.show({
+                severity: 'error',
+                summary: 'Hata',
+                detail : 'Kullanıcı bilgileri alınamadı',
+                closable: false,
+                sticky: true
+            });
+        }
+        console.log(auth)
+    }, [])
 
     useEffect(() => {
 
-        const fetchUser = async () => {
-            await GetAccount()
-                .then((res: any) => {
-                    if (res.status === 200) {
-                        setUser(res.data)
-                    }
-                    else {
-                        msgs.current?.clear()
-                        msgs.current?.show([
-                            { sticky: true, severity: 'error', summary: 'Hata', detail: res.message }
-                        ]);
-                    }
-                })
-                .catch((err: any) => {
-                    msgs.current?.clear()
-                    msgs.current?.show([
-                        { sticky: true, severity: 'error', summary: 'Sistematik Hata', detail: err.message }
-                    ]);
-                })
-        }
+        
 
-        fetchUser()
-
-    }, [])
+    },[user])
 
     return (
         <>
@@ -59,19 +49,16 @@ const Account = () => {
                                 Hesabım
                             </h3>
                             <div className="flex flex-col w-full">
-                                <button className={`relative py-[10px] px-[15px] border border-solid border-[#ddd] rounded-2xl text-lg
+                                <button className="relative py-[10px] px-[15px] border border-solid border-[#ddd] rounded-2xl text-lg
                                     hover:border-primary hover:bg-primary hover:text-white transition-all duration-300
-                                    ${activeTab === AccountTabs.USER_INFO ? 'bg-primary text-white' : 'bg-white text-black'} 
-                                    `}
-                                    onClick={() => setActiveTab(AccountTabs.USER_INFO)}
-                                >
+                                    bg-primary text-white">
                                     Kullanıcı Bilgilerim
                                 </button>
                             </div>
                         </div>
                         <div className="md:w-2/3 w-full">
                             <AnimatePresence>
-                                {user
+                                {isAuthorized && user 
                                     ? <UserInformation user={user} setUser={setUser} />
                                     : <Messages ref={msgs} />
                                 }
