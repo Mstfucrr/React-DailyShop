@@ -1,10 +1,11 @@
 import { products } from "@/components/shop/example.products";
+import axios from "axios";
 import { IProductRequest, IProductResponse, IReviewResponse } from "./types";
 
 
 
 
-export const addProduct = async (input: IProductRequest): Promise<IProductResponse> => {
+export const addProduct = async (input: IProductRequest, token: string): Promise<IProductResponse> => {
 
     // const { fetchResponse } = await fetch("https://api.dailyshop.com/api/Products", {
     //     method: "POST",
@@ -15,6 +16,14 @@ export const addProduct = async (input: IProductRequest): Promise<IProductRespon
     //     body: JSON.stringify(input.data),
     // }).then((res) => ({ fetchResponse: res.json() }))
 
+    // const { data } = await axios.post("https://api.dailyshop.com/api/Products", input, {
+    //     headers: {
+    //         "Content-Type": "application/json",
+    //         Authorization : token
+    //     },
+    // });
+    // console.log("data : ", data)
+    // return data
     // for test 
     const fetchResponse: IProductResponse = {
         status: 200,
@@ -22,6 +31,7 @@ export const addProduct = async (input: IProductRequest): Promise<IProductRespon
         data: products[0]
     }
 
+    return fetchResponse
     // for err test
     // const fetchResponse: IProductResponse = {
     //     status: 400,
@@ -30,7 +40,6 @@ export const addProduct = async (input: IProductRequest): Promise<IProductRespon
     // }
 
 
-    return fetchResponse
 };
 
 export const getProductById = async (id: number): Promise<IProductResponse> => {

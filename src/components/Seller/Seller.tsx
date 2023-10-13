@@ -1,9 +1,11 @@
 import { addProduct } from "@/services/product/product.service"
 import { IProductRequest, IProductResponse } from "@/services/product/types"
+import { authSelector } from "@/store/auth"
 import { SET_TOAST } from "@/store/Toast"
 import { IToast } from "@/store/Toast/type"
+import to from "await-to-js"
 import { useEffect, useState } from "react"
-import { useDispatch } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 import { useNavigate } from "react-router-dom"
 import ImageUpload from "./ImageUpload"
 import ProductInfo from "./ProductInfo"
@@ -14,6 +16,7 @@ const Seller = () => {
     const [coverImage, setcoverImage] = useState<File | null>(null)
     const [images, setImages] = useState<File[] | null>([])
 
+    const { isAuthorized , token } = useSelector(authSelector)
     const [productInfo, setProductInfo] = useState({
         name: "",
         price: 0,
@@ -30,37 +33,45 @@ const Seller = () => {
     const navigate = useNavigate()
 
     useEffect(() => {
-
-        if (coverImage !== null && images?.length !== 0 && images) {
-            const input: IProductRequest = {
-                data: {
-                    ...productInfo, image: coverImage, images: images
-                },
-            }
-            addProduct(input).then((res: IProductResponse) => {
+        if (!isAuthorized) {
+            const toast: IToast = { severity: "error", summary: "Hata", detail: "Bu sayfaya erişim yetkiniz bulunmamaktadır.", life: 3000 } // service çalışmadı
+            dispatch(SET_TOAST(toast))
+            navigate("/login")
+            return 
+        }
+        if (coverImage !== null && images?.length !== 0 && images && productInfo.name.length > 2) {
+            const addData = async () => {
+                const input: IProductRequest = {
+                    data: {
+                        ...productInfo, image: coverImage, images: images
+                    },
+                }
+                const [err, data] = await to(addProduct(input,token))
+                if (err) {
+                    const toast: IToast = { severity: "error", summary: "Sistematik Hata", detail: err.message, life: 3000 } // service çalışmadı 
+                    dispatch(SET_TOAST(toast))
+                    return
+                }
 
                 const toast: IToast = {
-                    severity: res.status === 200 ? "success" : "error",
-                    summary: res.status === 200 ? "Başarılı" : "Hata",
-                    detail: res.message,
+                    severity: data?.status === 200 ? "success" : "error",
+                    summary: data?.status === 200 ? "Başarılı" : "Hata",
+                    detail: data?.message,
                     life: 3000
                 }
                 dispatch(SET_TOAST(toast))
-                if (res.status === 200)
-                    navigate("/productDetail/" + res.data?.id)
+                // if (data?.status === 200)
+                //     navigate("/productDetail/" + data?.data?.id)
 
 
-            }).catch((err: any) => {
-                const toast: IToast = { severity: "error", summary: "Sistematik Hata", detail: err.message, life: 3000 } // service çalışmadı 
-                dispatch(SET_TOAST(toast))
-            })
+            }
+
+            addData()
         }
-        else if (productInfo.name.length > 2) {
-            const toast: IToast = { severity: "error", summary: "Hata", detail: "Lütfen resim ekleyiniz ve yüklemeyi unutmayınız", life: 3000 }
+        else {
+            const toast: IToast = { severity: "info", summary: "Hata", detail: "Lütfen tüm alanları doldurduğunuzdan emin olun.", life: 3000 } // service çalışmadı 
             dispatch(SET_TOAST(toast))
         }
-
-
 
     }, [productInfo])
 
