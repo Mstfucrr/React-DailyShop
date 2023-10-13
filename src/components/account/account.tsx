@@ -17,8 +17,9 @@ const Account = () => {
     const { auth, token , isAuthorized } = useSelector(authSelector)
 
     useEffect(() => {
-        if (!isAuthorized && auth)
+        if (isAuthorized && auth){
             setUser(auth)
+        }
         else {
             msgs.current?.clear()
             msgs.current?.show({
@@ -29,14 +30,7 @@ const Account = () => {
                 sticky: true
             });
         }
-        console.log(auth)
     }, [])
-
-    useEffect(() => {
-
-        
-
-    },[user])
 
     return (
         <>

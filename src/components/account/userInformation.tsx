@@ -61,6 +61,8 @@ const UserInformation = (
 
         // Formik'in form değerlerini güncelleyin, böylece Save butonu görünebilir
         formik.setFieldValue('addresses', [...formik.values.addresses, address]);
+        console.log("addressesState : ", addressesState)
+        console.log("formik.values.addresses : ", formik.values.addresses)
     };
 
 
@@ -95,18 +97,9 @@ const UserInformation = (
         }),
         onSubmit: async () => {
 
-            setUser({
-                ...userState,
-                name: formik.values.name,
-                surname: formik.values.surname,
-                email: formik.values.email,
-                phone: formik.values.phone,
-                profileImage: formik.values.profileImage,
-                addresses: formik.values.addresses
-            })
-            const [err,data] = await to(authService.updateAccount(user,token))
-            if(err){
-                                const res = err as any
+            const [err, data] = await to(authService.updateAccount(user, token))
+            if (err) {
+                const res = err as any
                 const errorMessage = res.response.data.message || err.message;
                 toast.current.show({ severity: 'error', summary: 'Hata', detail: errorMessage, life: 3000 });
                 return
@@ -114,8 +107,8 @@ const UserInformation = (
             toast.current.show({ severity: 'success', summary: 'Başarılı', detail: data.message, life: 3000 });
             dispatch(SET_AUTH(
                 {
-                    user : data.data,
-                    token : token
+                    user: data.data,
+                    token: token
                 }
             ))
         }
@@ -329,9 +322,7 @@ const UserInformation = (
                         ? formik.values.addresses.map((address, index) => (
                             <RenderAddressFields key={index} index={index} address={address} formik={formik} />
                         )
-                        ) : (
-                            null
-                        )}
+                        ) : null }
 
                     {user.addresses !== formik.values.addresses ? (
                         <div className="flex flex-wrap justify-content-end gap-2 my-4">
@@ -341,7 +332,11 @@ const UserInformation = (
                                         label="Save"
                                         icon="pi pi-check"
                                         type='submit'
-                                        onClick={() => formik.handleSubmit()}
+                                        onClick={() => {
+                                            setUser({...user , addresses: formik.values.addresses})
+                                            setAddressesState(formik.values.addresses)
+                                            formik.handleSubmit()                                            
+                                        }}
                                     />
                                     <Button
                                         label="Cancel"
@@ -362,9 +357,8 @@ const UserInformation = (
                                     onClick={() => {
                                         console.log(!formik.errors.addresses)
                                         console.log(user.addresses.length)
-                                        console.log(formik.values.addresses.length)
-
-                                        formik.setFieldValue('addresses', user.addresses);
+                                        formik.setFieldValue('addresses', user.addresses)
+                                            .then(() => console.log(formik.values.addresses))
                                     }}
                                 />
                             )}
