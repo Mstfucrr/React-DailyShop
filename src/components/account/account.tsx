@@ -17,7 +17,7 @@ const Account = () => {
     const { auth, token , isAuthorized } = useSelector(authSelector)
 
     useEffect(() => {
-        if (isAuthorized)
+        if (!isAuthorized && auth)
             setUser(auth)
         else {
             msgs.current?.clear()

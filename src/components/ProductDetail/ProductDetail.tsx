@@ -23,6 +23,7 @@ import { SET_TOAST } from "@/store/Toast";
 import { IToast } from "@/store/Toast/type";
 import { addToCart, IaddToCartRequest } from "@/services/order/order.service";
 import { InputNumber } from "primereact/inputnumber";
+import to from "await-to-js";
 
 
 const ProductDetail = () => {
@@ -69,7 +70,6 @@ const ProductDetail = () => {
     useEffect(() => {
         if (!id) return
         const fetchData = async () => {
-
             await getProductById(parseInt(id))
                 .then(res => {
                     if (res.status == 200 && res.data) {
@@ -92,6 +92,25 @@ const ProductDetail = () => {
                         { sticky: true, severity: 'error', summary: 'Sistematik Hata', detail: err.message }
                     ]);
                 })
+
+            const [err, data] = await to(getProductById(parseInt(id)))
+            if (err) {
+                const res = err as any
+                const errorMessage = res?.response?.data?.message || err.message;
+                msgs.current?.clear()
+                msgs.current?.show([
+                    { sticky: true, severity: 'error', summary: 'Hata', detail: errorMessage, closable : false }
+                ]);
+                return 
+            }
+            if (data.data != null) {
+                setProduct(data.data)
+                setSizes(data.data.sizes?.map((size) => ({ name: size, key: size })))
+                setColors(data.data.colors?.map((color) => ({ name: color, key: color })))
+                setImages(data.data.images?.map((image) => ({ source: image })))
+                setReviews(data.data.reviews)
+            }
+
         }
 
         fetchData()

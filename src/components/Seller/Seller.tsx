@@ -16,7 +16,7 @@ const Seller = () => {
     const [coverImage, setcoverImage] = useState<File | null>(null)
     const [images, setImages] = useState<File[] | null>([])
 
-    const { isAuthorized , token } = useSelector(authSelector)
+    const { isAuthorized, token } = useSelector(authSelector)
     const [productInfo, setProductInfo] = useState({
         name: "",
         price: 0,
@@ -37,7 +37,7 @@ const Seller = () => {
             const toast: IToast = { severity: "error", summary: "Hata", detail: "Bu sayfaya erişim yetkiniz bulunmamaktadır.", life: 3000 } // service çalışmadı
             dispatch(SET_TOAST(toast))
             navigate("/login")
-            return 
+            return
         }
         if (coverImage !== null && images?.length !== 0 && images && productInfo.name.length > 2) {
             const addData = async () => {
@@ -46,24 +46,20 @@ const Seller = () => {
                         ...productInfo, image: coverImage, images: images
                     },
                 }
-                const [err, data] = await to(addProduct(input,token))
+                const [err, data] = await to(addProduct(input, token))
                 if (err) {
-                    const toast: IToast = { severity: "error", summary: "Sistematik Hata", detail: err.message, life: 3000 } // service çalışmadı 
+                    const res = err as any
+                    const errorMessage = res?.response?.data?.message || err.message;
+                    const toast: IToast = { severity: "error", summary: "Sistematik Hata", detail: errorMessage, life: 3000 } // service çalışmadı 
                     dispatch(SET_TOAST(toast))
                     return
                 }
 
-                const toast: IToast = {
-                    severity: data?.status === 200 ? "success" : "error",
-                    summary: data?.status === 200 ? "Başarılı" : "Hata",
-                    detail: data?.message,
-                    life: 3000
+                if (data.data) {
+                    const toast: IToast = { severity: "success", summary: "Başarılı", detail: data?.message, life: 3000 }
+                    dispatch(SET_TOAST(toast))
+                    navigate("/productDetail/" + data?.data?.id)
                 }
-                dispatch(SET_TOAST(toast))
-                // if (data?.status === 200)
-                //     navigate("/productDetail/" + data?.data?.id)
-
-
             }
 
             addData()

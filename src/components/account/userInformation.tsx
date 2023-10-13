@@ -106,7 +106,9 @@ const UserInformation = (
             })
             const [err,data] = await to(authService.updateAccount(user,token))
             if(err){
-                toast.current.show({ severity: 'error', summary: 'Hata', detail: 'Bilgileriniz güncellenirken hata oluştu', life: 3000 });
+                                const res = err as any
+                const errorMessage = res.response.data.message || err.message;
+                toast.current.show({ severity: 'error', summary: 'Hata', detail: errorMessage, life: 3000 });
                 return
             }
             toast.current.show({ severity: 'success', summary: 'Başarılı', detail: data.message, life: 3000 });
@@ -333,16 +335,13 @@ const UserInformation = (
 
                     {user.addresses !== formik.values.addresses ? (
                         <div className="flex flex-wrap justify-content-end gap-2 my-4">
-                            {!formik.errors.addresses && user.addresses.length !== formik.values.addresses.length ? (
+                            {!formik.errors.addresses ? (
                                 <>
                                     <Button
                                         label="Save"
                                         icon="pi pi-check"
-                                        onClick={() => {
-                                            setUser({ ...user, addresses: formik.values.addresses });
-                                            setAddressesState(formik.values.addresses);
-                                            formik.handleSubmit()
-                                        }}
+                                        type='submit'
+                                        onClick={() => formik.handleSubmit()}
                                     />
                                     <Button
                                         label="Cancel"

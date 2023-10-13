@@ -22,15 +22,6 @@ export const GetAccount = async () => {
         message: "Hesap bilgileri getirildi",
         data: userEx,
     }
-
-
-    // for error testing
-    // const res = {
-    //     "status": 400,
-    //     "message": "Hesap bilgileri getirilemedi",
-    //     "data": null,
-    // }
-
     return res
 
 }
@@ -43,33 +34,8 @@ const login = async (input: ILogin) => {
             "Content-Type": "application/json",
         },
     });
-
     console.log("Response Data:", data);
     return data;
-    try {
-
-    } catch (error: any) {
-        console.log("Login Error:", error);
-        return error.response.data.length !== 0 ? error.response.data : error;
-    }
-    // for testing
-    // const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMTE"
-
-    // const res = {
-    //     status: 200,
-    //     message: "Login successfully",
-    //     Authorization: `${token}`,
-    //     data: userEx,
-    // }
-
-
-    // for error testing
-    // const res = {
-    //     "status": 400,
-    //     "message": "Login failed",
-    //     "data": null
-    // }
-
 }
 
 const register = async (input: IRegister) => {
@@ -80,30 +46,6 @@ const register = async (input: IRegister) => {
     });
     console.log("Response Data:", data);
     return data;
-    try {
-
-    } catch (error: any) {
-        console.log("Register Error:", error);
-        return error.response.data.length !== 0 ? error.response.data : error;
-    }
-
-
-    // for testing
-    // const res = {
-    //     "status": 200,
-    //     "message": "Register successfully",
-    //     "data": userEx
-    // }
-
-    // for error testing
-    // const res = {
-    //     "status": 400,
-    //     "message": "Register failed",
-    //     "data": null
-    // }
-
-    // return res
-
 }
 
 const updateAccount = async (input: IUser, token: string) => {

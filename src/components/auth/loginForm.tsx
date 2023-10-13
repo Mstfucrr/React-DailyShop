@@ -56,8 +56,9 @@ const LoginForm = (props: Props) => {
             setIsLoading(true)
             const [err, data] = await to(authService.login(values))
             if (err) {
-
-                const toast: IToast = { severity: 'error', summary: "Hata", detail: err.message, life: 3000 }
+                const res = err as any
+                const errorMessage = res.response.data.message || err.message;
+                const toast: IToast = { severity: 'error', summary: "Hata", detail: errorMessage, life: 3000 }
                 dispatch(SET_TOAST(toast))
                 setIsLoading(false)
                 return
