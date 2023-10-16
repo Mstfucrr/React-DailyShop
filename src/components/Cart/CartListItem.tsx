@@ -1,6 +1,12 @@
 import { useEffect, useState } from 'react'
 import { FaMinus, FaPlus, FaTimes } from 'react-icons/fa'
 import { ICartItem } from '@/shared/types'
+import { removeFromCart } from '@/services/order/order.service'
+import to from 'await-to-js'
+import { authSelector } from '@/store/auth'
+import { useDispatch, useSelector } from 'react-redux'
+import { SET_TOAST } from '@/store/Toast'
+import { IToast } from '@/store/Toast/type'
 
 
 
@@ -11,6 +17,8 @@ const CartListItem = (
   const [quantity, setQuantity] = useState(cartItem.quantity)
   const [total, setTotal] = useState(0)
 
+  const { token } = useSelector(authSelector)
+  const dispatch = useDispatch()
 
   useEffect(() => {
     setTotal((quantity * cartItem.product.price))
@@ -23,14 +31,23 @@ const CartListItem = (
     console.log("q")
   }, [quantity])
 
-  const handleRemoveItem = (id: number) => {
-    setCartItems((prev) => prev.filter((item) => item.id !== id))
+  const handleRemoveItem = async (id: number) => {
+    
+    const [err, data] = await to(removeFromCart(id, token))
+    if (err) {
+      const res = err as any
+      const errorMessage = res?.response?.data?.message || err.message;
+      const toast : IToast = { severity : 'error', summary : 'Sistematik Hata', detail : errorMessage, life : 5000 }
+      dispatch(SET_TOAST(toast))
+      return
+    }
+    setCartItems(data.data)
   }
 
   return (
     <tr className='bg-white'>
       <td className='p-3 border border-solid border-secondary align-middle'>
-        <img src={cartItem.product.image} width={50} alt=""
+        <img src={cartItem.product.image as string} width={50} alt=""
           className='inline-block object-cover w-12 h-12 rounded-md'
         />
         <span className='ml-3'>{cartItem.product.name}</span>

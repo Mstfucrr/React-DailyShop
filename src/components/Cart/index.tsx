@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
-import { products } from '../shop/example.products'
 import CartListItem from './CartListItem'
 import { ICartItem } from '@/shared/types'
-import { cartItemsExample } from '@/components/Shop/example.products'
 import { Link } from 'react-router-dom'
 import { getCart } from '@/services/order/order.service'
 import { Messages } from 'primereact/messages'
+import to from 'await-to-js'
+import { useSelector } from 'react-redux'
+import { authSelector } from '@/store/auth'
 
 const Cart = () => {
 
@@ -13,40 +14,44 @@ const Cart = () => {
     const [cartTotal, setCartTotal] = useState(0)
     const msgs = useRef<Messages>(null)
 
+    const { isAuthorized, token } = useSelector(authSelector)
+
     useEffect(() => {
 
         const fetchCart = async () => {
-            await getCart()
-                .then((res: any) => {
-                    setCartItems(res.data);
 
-                    if (cartItems) {
-                        let total = 0
-                        cartItems.map((item: ICartItem) => {
-                            total += item.product.price * item.quantity
-                        })
-                        setCartTotal(total)
-                    }
+            const [err, data] = await to(getCart(token))
+            if (err) {
+                msgs.current?.clear()
+                const res = err as any
+                const errorMessage = res?.response?.data?.message || err.message;
+                msgs.current?.show([
+                    { sticky: true, severity: 'error', summary: 'Sistematik Hata', detail: errorMessage }
+                ]);
+                return
+            }
+            setCartItems(data.data)
 
-                    else {
-                        msgs.current?.clear()
-                        msgs.current?.show([
-                            { sticky: true, severity: 'error', summary: 'Hata', detail: res.message }
-                        ]);
-                    }
+            if (cartItems) {
+                let total = 0
+                cartItems.map((item: ICartItem) => {
+                    total += item.product.price * item.quantity
                 })
-                .catch((err: any) => {
+                setCartTotal(total)
+            }
 
-                    msgs.current?.clear()
-                    msgs.current?.show([
-                        { sticky: true, severity: 'error', summary: 'Sistematik Hata', detail: err.message }
-                    ]);
-
-                })
         }
+        if (isAuthorized)
+            fetchCart()
+        else {
+            msgs.current?.clear()
+            msgs.current?.show([
+                { sticky: true, severity: 'error', summary: 'Sistematik', detail: "Sepetinizi görmek için giriş yapmalısınız." }
+            ]);
+        }
+        
 
-        fetchCart()
-    }, [cartItems])
+    }, [])
 
 
     return (
