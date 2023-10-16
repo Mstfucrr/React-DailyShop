@@ -11,6 +11,7 @@ import { useParams } from 'react-router-dom';
 import { InputSwitch } from "primereact/inputswitch";
 import to from 'await-to-js';
 import { Messages } from 'primereact/messages';
+import { addToCart } from '@/services/order/order.service';
 
 const Shop = () => {
 
@@ -106,7 +107,6 @@ const Shop = () => {
 
 
 
-
   return (
     <div className='pt-16 px-14 gap-x-10'>
       {responseData?.data ?
@@ -181,8 +181,9 @@ const Shop = () => {
 
                           </div>
                           <div className="flex flex-row justify-between border-t-[1px] pt-2">
-                            <a href="" className="flex items-center"><FaEye className='text-primary mr-2' />View Detail</a>
-                            <a href="" className="flex items-center"><FaShoppingCart className='text-primary mr-2' />Add To Cart</a>
+                            <a href={`/productDetail/${product.id}`} 
+                            className="flex items-center"><FaEye className='text-primary mr-2' />Detaylı gör</a>
+                            {/* <button className="flex items-center"><FaShoppingCart className='text-primary mr-2' />Sepete Ekle</button> */}
 
                           </div>
 
