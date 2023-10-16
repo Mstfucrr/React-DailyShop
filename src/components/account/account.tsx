@@ -7,6 +7,7 @@ import UserInformation from "./userInformation"
 import { Messages } from 'primereact/messages';
 import { useSelector } from "react-redux"
 import { authSelector } from "@/store/auth"
+import { Link } from "react-router-dom"
 
 
 const Account = () => {
@@ -14,10 +15,10 @@ const Account = () => {
 
     const [user, setUser] = useState<IUser | null>(null)
     const msgs = useRef<Messages>(null);
-    const { auth, token , isAuthorized } = useSelector(authSelector)
+    const { auth, token, isAuthorized } = useSelector(authSelector)
 
     useEffect(() => {
-        if (isAuthorized && auth){
+        if (isAuthorized && auth) {
             setUser(auth)
         }
         else {
@@ -25,7 +26,13 @@ const Account = () => {
             msgs.current?.show({
                 severity: 'error',
                 summary: 'Hata',
-                detail : 'Kullanıcı bilgileri alınamadı',
+                detail: <>
+                    <div className="flex gap-6 text-lg">
+                        <p className="">Giriş yapmalısınız</p>
+                        <Link to={"/login"} className="text-black underline">Giriş Yap</Link> veya <Link to={"/register"} className="text-black underline">Kayıt Ol</Link>
+                    </div>
+
+                </>,
                 closable: false,
                 sticky: true
             });
@@ -52,7 +59,7 @@ const Account = () => {
                         </div>
                         <div className="md:w-2/3 w-full">
                             <AnimatePresence>
-                                {isAuthorized && user 
+                                {isAuthorized && user
                                     ? <UserInformation user={user} setUser={setUser} />
                                     : <Messages ref={msgs} />
                                 }
