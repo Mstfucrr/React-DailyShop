@@ -70,38 +70,15 @@ const ProductDetail = () => {
     useEffect(() => {
         if (!id) return
         const fetchData = async () => {
-            await getProductById(parseInt(id))
-                .then(res => {
-                    if (res.status == 200 && res.data) {
-                        setProduct(res.data)
-                        setSizes(res.data.sizes?.map((size) => ({ name: size, key: size })))
-                        setColors(res.data.colors?.map((color) => ({ name: color, key: color })))
-                        setImages(res.data.images?.map((image) => ({ source: image })))
-                        setReviews(res.data.reviews)
-                    }
-                    else {
-                        msgs.current?.clear()
-                        msgs.current?.show([
-                            { sticky: true, severity: 'error', summary: 'Hata', detail: res.message }
-                        ]);
-                    }
-                })
-                .catch(err => {
-                    msgs.current?.clear()
-                    msgs.current?.show([
-                        { sticky: true, severity: 'error', summary: 'Sistematik Hata', detail: err.message }
-                    ]);
-                })
-
             const [err, data] = await to(getProductById(parseInt(id)))
             if (err) {
                 const res = err as any
                 const errorMessage = res?.response?.data?.message || err.message;
                 msgs.current?.clear()
                 msgs.current?.show([
-                    { sticky: true, severity: 'error', summary: 'Hata', detail: errorMessage, closable : false }
+                    { sticky: true, severity: 'error', summary: 'Hata', detail: errorMessage, closable: false }
                 ]);
-                return 
+                return
             }
             if (data.data != null) {
                 setProduct(data.data)
