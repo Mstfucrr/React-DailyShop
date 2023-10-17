@@ -7,13 +7,16 @@ import { Column } from 'primereact/column';
 import { userEx } from '../account/example.user';
 import { IUser, IUserAddress } from '@/services/auth/types';
 import { Button } from 'primereact/button';
-import { IReview } from '@/shared/types';
+import { IProduct, IReview } from '@/shared/types';
 import to from 'await-to-js';
 import { reviews } from '../account/example.review';
 import { Rating } from 'primereact/rating';
 import { Dropdown } from 'primereact/dropdown';
 import { SET_TOAST } from '@/store/Toast';
 import { IToast } from '@/store/Toast/type';
+import { Fieldset } from 'primereact/fieldset';
+import { Galleria } from 'primereact/galleria';
+import { products } from '../shop/example.products';
 
 
 const UserSettings = () => {
@@ -24,6 +27,7 @@ const UserSettings = () => {
     const [selectedUser, setSelectedUser] = useState<IUser>()
     const [selectedUserAddress, setSelectedUserAddress] = useState<IUserAddress[]>([])
     const [selectedUserReviews, setSelectedUserReviews] = useState<IReview[]>([])
+    const [selectedUserPaddingProduct, setSelectedUserPaddingProduct] = useState<IProduct>()
     const [loading, setLoading] = useState<boolean>(false)
     const dispatch = useDispatch()
 
@@ -65,6 +69,17 @@ const UserSettings = () => {
                     setSelectedUserReviews(reviews)
                     return
                 }
+                if (data2)
+                    setSelectedUserReviews([data2])
+
+                const [err3, data3] = await adminService.fetchPaddingProductByUserId(selectedUser.id, token)
+                if (err3) {
+                    setSelectedUserPaddingProduct(products[0])
+                    return
+                }
+                if (data3)
+                    setSelectedUserPaddingProduct(data3)
+
 
             }
 
@@ -75,7 +90,7 @@ const UserSettings = () => {
 
     const isRowSelectable = (event: any) => (event.data ? isSelectable(event.data) : true);
 
-    const handleReviewStatusChange = async (data : IReview, status: string) => {
+    const handleReviewStatusChange = async (data: IReview, status: string) => {
         const [err, data2] = await to(adminService.updateReviewStatus(data.id, status, token))
         if (err) {
             console.log(err)
@@ -134,6 +149,7 @@ const UserSettings = () => {
                                 <span className="font-semibold">{selectedUser.phone}</span>
                             </div>
                         </div>
+                        {/* Adres bilgileri */}
 
                         <div className="mt-5">
                             <div className="flex flex-col">
@@ -155,6 +171,7 @@ const UserSettings = () => {
                             </div>
                         </div>
 
+                        {/* Yorumlar */}
                         <div className="mt-5">
                             <div className="flex flex-col">
                                 <h3 className="text-xl font-semibold text-center">Yorumlar</h3>
@@ -162,7 +179,13 @@ const UserSettings = () => {
                                 <DataTable value={selectedUserReviews} scrollable scrollHeight="400px">
                                     <Column field="id" header="ID" />
                                     <Column field="review" header="Yorum" />
-                                    <Column field="product" header="Ürün" />
+                                    <Column header="Ürün bağlantılı imagesi" body={(data: IReview) => {
+                                        return (
+                                            <a href={`/productDetail/${data.productId}`} className="flex justify-center items-center">
+                                                <img src={data.product?.image} alt="" className="w-20 h-20" />
+                                            </a>
+                                        )
+                                    }}></Column>
                                     <Column header="Puan" body={(data: any) => {
                                         return (
                                             <Rating value={data.rating} readOnly cancel={false} />
@@ -174,11 +197,9 @@ const UserSettings = () => {
                                             <Dropdown options={[{ label: 'Yeni', value: 'new' }, { label: 'Onayla', value: 'approved' }, { label: 'Reddet', value: 'reject' }]}
                                                 value={data.status}
                                                 onChange={(e) => {
-
                                                     handleReviewStatusChange(data, e.value)
                                                 }}
                                             />
-
                                         )
                                     }}>
                                     </Column>
@@ -187,6 +208,22 @@ const UserSettings = () => {
 
                             </div>
                         </div>
+
+                        {/* Satışta ürünü varsa ( onay bekleyen ) */}
+                        <Fieldset
+                            legend="Satışta bekleyen ürünü ( onay bekleyen )"
+                            toggleable
+                        >
+                            {selectedUserPaddingProduct ?
+                                <></>
+                                :
+                                <div className="flex flex-col justify-center items-center">
+                                    <span className="text-xl font-semibold">Satışta bekleyen ürünü yok</span>
+                                </div>
+                            }
+                        </Fieldset>
+
+
 
                     </div>
                 }

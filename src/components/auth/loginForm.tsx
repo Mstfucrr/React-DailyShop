@@ -67,18 +67,17 @@ const LoginForm = (props: Props) => {
                 setIsLoading(false)
                 return
             }
-            const { authorization } = data
-            const user = data?.data || undefined as unknown as IUser
+            const { authorization , user , message } = data
             setIsLoading(false)
             if (user != undefined) {
                 dispatch(SET_AUTH(
                     {
-                        user: userEx,
+                        user: user,
                         token: authorization
                     }
                 ))
                 // {status: 200, message: 'Başarılıyla giriş yaptın', authorization: 'Bearer AccessToken', data: 'null'}
-                const toast: IToast = { severity: 'success', summary: "Başarılı", detail: data.message, life: 3000 }
+                const toast: IToast = { severity: 'success', summary: "Başarılı", detail: message, life: 3000 }
                 dispatch(SET_TOAST(toast))
                 if (user.role == "admin") {
                     dispatch(SET_ADMIN_AUTH())

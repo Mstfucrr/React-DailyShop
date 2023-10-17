@@ -1,5 +1,6 @@
 import axios from "axios";
 import { IProductRequest, IProductResponse, IReviewResponse } from "./types";
+import { products } from "@/components/shop/example.products";
 
 
 
@@ -16,13 +17,14 @@ export const addProduct = async (input: IProductRequest, token: string): Promise
 };
 
 export const getProductById = async (id: number): Promise<IProductResponse> => {
-    const { data } = await axios.get(`https://api.dailyshop.com/api/Products/${id}`, {
-        headers: {
-            "Content-Type": "application/json",
-        },
-    });
+    // const { data } = await axios.get(`https://api.dailyshop.com/api/Products/${id}`, {
+    //     headers: {
+    //         "Content-Type": "application/json",
+    //     },
+    // });
+    const data = products[0];
     console.log("data : ", data)
-    return data
+    return {data : data , message : "success" , status : 200}
 }
 
 

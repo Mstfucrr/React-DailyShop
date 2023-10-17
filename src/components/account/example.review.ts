@@ -1,4 +1,5 @@
 import { IReview } from "@/shared/types";
+import { products } from "../shop/example.products";
 // import { userEx } from "./example.user";
 
 export const reviews = [
@@ -11,7 +12,8 @@ export const reviews = [
         name : "userEx.name",
         avatar : "https://bootdey.com/img/Content/avatar/avatar1.png",
         email : "userEx.email",
-        status : "new"
+        status : "new",
+        
     },
     {
         id : 2,

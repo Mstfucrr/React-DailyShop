@@ -42,14 +42,6 @@ export interface IaddToCartRequest {
 
 export const addToCart = async (input: IaddToCartRequest, token: string) => {
 
-    // const { fetchResponse } = await fetch("https://api.dailyshop.com/api/Cart", {
-    //     method: "POST",
-    //     headers: {
-    //         "Content-Type": "application/json",
-    //         Authorization: `Bearer: ${token}`,
-    //     },
-    //     body: JSON.stringify(cartAdd),
-    // }).then((res) => ({ fetchResponse: res.json() }))
 
     // const { data } = await axios.post(`https://api.dailyshop.com/api/Cart`, input, {
     //     headers: {

@@ -34,6 +34,7 @@ export interface IReview {
     user: IUser | undefined,
     avatar: string | undefined,
     status: string | undefined,
+
 }
 
 

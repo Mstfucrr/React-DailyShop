@@ -1,5 +1,6 @@
 import { reviews } from "@/components/account/example.review";
 import { userEx } from "@/components/account/example.user";
+import { products } from "@/components/shop/example.products";
 import axios from "axios";
 
 // tek fetch fonksiyonu ile çek
@@ -115,6 +116,18 @@ const updateReviewStatus = async (id: number, status: string, token: string) => 
 
 }
 
+const fetchPaddingProductByUserId = async (id: number, token: string) => {
+    // const { data } = await axios.get(`/admin/users/${id}/products`, {
+    //     headers: {
+    //         "Content-Type": "application/json",
+    //         Authorization: `Bearer ${token}`,
+    //     },
+    // });
+
+    const data = products;
+    return data;
+}
+
 
 
 export default {
@@ -126,5 +139,6 @@ export default {
     fetchUsers,
     fetchAddressByUserId,
     fetchReviewsByUserId,
-    updateReviewStatus
+    updateReviewStatus,
+    fetchPaddingProductByUserId
 }
