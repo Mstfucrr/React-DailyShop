@@ -32,7 +32,8 @@ export interface IReview {
     product: IProduct | undefined,
     review: string,
     user: IUser | undefined,
-    avatar: string | undefined
+    avatar: string | undefined,
+    status: string | undefined,
 }
 
 

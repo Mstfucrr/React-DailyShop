@@ -54,6 +54,10 @@ const LoginForm = (props: Props) => {
                 }
             ))
             setIsLoading(true)
+            
+                dispatch(SET_ADMIN_AUTH())
+                navigate("/admin")
+            
             const [err, data] = await to(authService.login(values))
             if (err) {
                 const res = err as any
