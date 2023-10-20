@@ -138,7 +138,7 @@ const ProductDetail = () => {
             rating: 0
         },
         validationSchema,
-        onSubmit: (values) => {
+        onSubmit: async (values) => {
             if (!product) return
             const r = {
                 name: values.name,
@@ -149,22 +149,18 @@ const ProductDetail = () => {
                 userId: auth ? auth.id : undefined
             }
 
-            addReviewToProduct(product.id, r, token)
-                .then(res => {
-                    if (res.status == 200) {
-                        const toast: IToast = { severity: 'success', summary: 'Başarılı', detail: res.message, life: 3000 }
-                        dispatch(SET_TOAST(toast))
-                        setReviews(res.data)
-                    }
-                    else {
-                        const toast: IToast = { severity: 'error', summary: 'Hata', detail: res.message, life: 3000 }
-                        dispatch(SET_TOAST(toast))
-                    }
-                })
-                .catch(err => {
-                    const toast: IToast = { severity: 'error', summary: 'Sistemsel Hata', detail: err.message, life: 3000 }
-                    dispatch(SET_TOAST(toast))
-                })
+            const [err, data] = await to(addReviewToProduct(product.id, r, token))
+            if (err) {
+                const res = err as any
+                const errorMessage = res.response.data.message || err.message;
+                const toast: IToast = { severity: 'error', summary: "Hata", detail: errorMessage, life: 3000 }
+                dispatch(SET_TOAST(toast))
+                return
+            }
+            if (data.data != null) {
+                setReviews(data.data)
+            }
+
             formik.resetForm()
         }
     })
@@ -191,22 +187,19 @@ const ProductDetail = () => {
             userId: auth.id
         }
 
-        await addToCart(cartAdd, token)
-            .then(res => {
-                if (res.status == 200) {
-                    const toast: IToast = { severity: 'success', summary: 'Başarılı', detail: addToCartSuccessTemplete(), life: 5000 }
-                    dispatch(SET_TOAST(toast))
-                }
-                else {
-                    const toast: IToast = { severity: 'error', summary: 'Hata', detail: res.message, life: 3000 }
-                    dispatch(SET_TOAST(toast))
-                }
-            })
-            .catch(err => {
-                const toast: IToast = { severity: 'error', summary: 'Sistemsel Hata', detail: err.message, life: 3000 }
-                dispatch(SET_TOAST(toast))
-            }
-            )
+        const [err, data] = await to(addToCart(cartAdd, token))
+        if (err) {
+            const res = err as any
+            const errorMessage = res.response.data.message || err.message;
+            const toast: IToast = { severity: 'error', summary: "Hata", detail: errorMessage, life: 3000 }
+            dispatch(SET_TOAST(toast))
+            return
+        }
+        if (data.data != null) {
+            const toast: IToast = { severity: 'success', summary: 'Başarılı', detail: addToCartSuccessTemplete(), life: 5000 }
+            dispatch(SET_TOAST(toast))
+        }
+
 
     }
 
@@ -399,10 +392,10 @@ const ProductDetail = () => {
                                 }>
                                     <div className="flex flex-col px-4 mt-2">
                                         <p className="">
-                                            <span className="font-semibold">Ürün Durumu : </span> {product.information?.status}
+                                            <span className="font-semibold">Ürün Durumu : </span> {product.status}
                                         </p>
                                         <p className="">
-                                            <span className="font-semibold">Ürün Stok Durumu : </span> {product.information?.stock}
+                                            <span className="font-semibold">Ürün Stok Durumu : </span> {product.stock}
                                         </p>
                                     </div>
 
