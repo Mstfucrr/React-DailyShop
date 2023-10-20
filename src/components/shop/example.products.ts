@@ -52,13 +52,12 @@ export const products = [
         images: [
             p1, p2, p3, p4, p5, p6
         ],
-        information: {
-            status: "Yeni",
-            stock: 0
-        },
+        status: "Yeni",
+        stock: 0,
+
         reviews: reviews,
         isDeleted: true
-        
+
     },
     {
         id: 2,
@@ -72,12 +71,11 @@ export const products = [
         sizes: ["S", "M", "L", "XL"],
         tags: ["jeans", "elegant", "denim"],
         date: new Date("2020-01-06T00:00:00"),
-        information: {
-            status : "Eski",
-            stock : 55,
-        },
-        images : [],
-        reviews : [],
+        status: "Eski",
+        stock: 55,
+
+        images: [],
+        reviews: [],
         isDeleted: true
 
     },
@@ -93,12 +91,11 @@ export const products = [
         sizes: ["US 6", "US 7", "US 8", "US 9", "US 10"],
         tags: ["sneakers", "classic", "white"],
         date: new Date("2020-01-12T00:00:00"),
-        information: {
-            status : "Eski",
-            stock : 55,
-        },
-        images : [],
-        reviews : [],
+        status: "Eski",
+        stock: 55,
+
+        images: [],
+        reviews: [],
         isDeleted: false
 
     },
@@ -114,12 +111,11 @@ export const products = [
         sizes: ["Medium"],
         tags: ["bag", "leather", "messenger"],
         date: new Date("2020-01-11T00:00:00"),
-        information: {
-            status : "Eski",
-            stock : 55,
-        },
-        images : [],
-        reviews : [],
+        status: "Eski",
+        stock: 55,
+
+        images: [],
+        reviews: [],
         isDeleted: false
 
     }
@@ -135,12 +131,11 @@ export const products = [
         sizes: ["S", "M", "L", "XL"],
         tags: ["trousers", "casual", "cotton"],
         date: new Date("2020-01-30T00:00:00"),
-        information: {
-            status : "Eski",
-            stock : 55,
-        },
-        images : [],
-        reviews : [],
+        status: "Eski",
+        stock: 55,
+
+        images: [],
+        reviews: [],
         isDeleted: false
 
     }
@@ -156,12 +151,11 @@ export const products = [
         sizes: ["XS", "S", "M", "L"],
         tags: ["dress", "floral", "women"],
         date: new Date("2020-01-20T00:00:00"),
-        information: {
-            status : "Eski",
-            stock : 55,
-        },
-        images : [],
-        reviews : [],
+        status: "Eski",
+        stock: 55,
+
+        images: [],
+        reviews: [],
         isDeleted: true
 
     }
@@ -177,12 +171,11 @@ export const products = [
         sizes: ["US 6", "US 7", "US 8", "US 9", "US 10"],
         tags: ["shoes", "sports", "running"],
         date: new Date("2020-01-18T00:00:00"),
-        information: {
-            status : "Eski",
-            stock : 55,
-        },
-        images : [],
-        reviews : [],
+        status: "Eski",
+        stock: 55,
+
+        images: [],
+        reviews: [],
         isDeleted: false
 
     }
@@ -198,12 +191,11 @@ export const products = [
         sizes: ["S", "M", "L", "XL"],
         tags: ["jacket", "leather", "vintage"],
         date: new Date("2020-01-16T00:00:00"),
-        information: {
-            status : "Eski",
-            stock : 55,
-        },
-        images : [],
-        reviews : [],
+        status: "Eski",
+        stock: 55,
+
+        images: [],
+        reviews: [],
         isDeleted: false
 
     }, {
@@ -218,12 +210,11 @@ export const products = [
         sizes: ["S", "M", "L", "XL"],
         tags: ["jeans", "elegant", "denim"],
         date: new Date("2020-01-06T00:00:00"),
-        information: {
-            status : "Eski",
-            stock : 55,
-        },
-        images : [],
-        reviews : [],
+        status: "Eski",
+        stock: 55,
+
+        images: [],
+        reviews: [],
         isDeleted: false
 
     },
@@ -239,12 +230,11 @@ export const products = [
         sizes: ["US 6", "US 7", "US 8", "US 9", "US 10"],
         tags: ["sneakers", "classic", "white"],
         date: new Date("2020-01-12T00:00:00"),
-        information: {
-            status : "Eski",
-            stock : 55,
-        },
-        images : [],
-        reviews : []
+        status: "Eski",
+        stock: 55,
+
+        images: [],
+        reviews: []
     },
     {
         id: 11,
@@ -258,12 +248,11 @@ export const products = [
         sizes: ["Medium"],
         tags: ["bag", "leather", "messenger"],
         date: new Date("2020-01-11T00:00:00"),
-        information: {
-            status : "Eski",
-            stock : 55,
-        },
-        images : [],
-        reviews : []
+        status: "Eski",
+        stock: 55,
+
+        images: [],
+        reviews: []
     }
     , {
         id: 12,
@@ -277,12 +266,11 @@ export const products = [
         sizes: ["One Size"],
         tags: ["accessory", "smartphone", "holder"],
         date: new Date("2020-01-12T00:00:00"),
-        information: {
-            status : "Eski",
-            stock : 55,
-        },
-        images : [],
-        reviews : []
+        status: "Eski",
+        stock: 55,
+
+        images: [],
+        reviews: []
     }
     , {
         id: 13,
@@ -296,12 +284,11 @@ export const products = [
         sizes: ["S", "M", "L", "XL"],
         tags: ["jeans", "elegant", "denim"],
         date: new Date("2020-01-06T00:00:00"),
-        information: {
-            status : "Eski",
-            stock : 55,
-        },
-        images : [],
-        reviews : []
+        status: "Eski",
+        stock: 55,
+
+        images: [],
+        reviews: []
     },
     {
         id: 14,
@@ -315,12 +302,11 @@ export const products = [
         sizes: ["US 6", "US 7", "US 8", "US 9", "US 10"],
         tags: ["sneakers", "classic", "white"],
         date: new Date("2020-01-12T00:00:00"),
-        information: {
-            status : "Eski",
-            stock : 55,
-        },
-        images : [],
-        reviews : []
+        status: "Eski",
+        stock: 55,
+
+        images: [],
+        reviews: []
     },
     {
         id: 15,
@@ -334,12 +320,11 @@ export const products = [
         sizes: ["Medium"],
         tags: ["bag", "leather", "messenger"],
         date: new Date("2020-01-11T00:00:00"),
-        information: {
-            status : "Eski",
-            stock : 55,
-        },
-        images : [],
-        reviews : []
+        status: "Eski",
+        stock: 55,
+
+        images: [],
+        reviews: []
     }, {
         id: 16,
         name: "Designer Sunglasses",
@@ -352,11 +337,10 @@ export const products = [
         sizes: ["One Size"],
         tags: ["sunglasses", "designer", "accessory"],
         date: new Date("2020-01-20T00:00:00"),
-        information: {
-            status : "Eski",
-            stock : 55,
-        },
-        images : []
+        status: "Eski",
+        stock: 55,
+
+        images: []
     }
 
 ] as IProduct[];
