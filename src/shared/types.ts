@@ -8,15 +8,13 @@ export interface IProduct {
     images: File[] | undefined | [],
     categoryId: number,
     description: string,
-    information: {
-        status: string,
-        stock: number
-    },
-    rating: number ,
-    colors: string[]| undefined,
-    sizes: string[]| undefined,
-    tags: string[]| undefined,
-    date: Date ,
+    status: string,
+    stock: number,
+    rating: number,
+    colors: string[] | undefined,
+    sizes: string[] | undefined,
+    tags: string[] | undefined,
+    date: Date,
     reviews: IReview[],
     isDeleted: boolean | undefined | null,
 
@@ -57,4 +55,4 @@ export interface ICartItem {
     quantity: number,
 }
 
-  // gelen datalar pagnition ile listelencek
+// gelen datalar pagnition ile listelencek
