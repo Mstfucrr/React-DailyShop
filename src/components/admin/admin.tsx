@@ -3,6 +3,7 @@ import { Menubar } from 'primereact/menubar';
 import { MenuItem } from 'primereact/menuitem';
 import Settings from './settings';
 import UserSettings from './users';
+import ProductSettings from './ProductSettings';
 
 enum AdminPage {
     Settings = 'settings',
@@ -76,7 +77,7 @@ const Admin: React.FC = () => {
 
                     {selectedPage === AdminPage.Settings && <Settings />}
                     {selectedPage === AdminPage.Users && <UserSettings />}
-                    {selectedPage === AdminPage.Products && <div>Products</div>}
+                    {selectedPage === AdminPage.Products && <ProductSettings />}
 
                 </div>
             </div>

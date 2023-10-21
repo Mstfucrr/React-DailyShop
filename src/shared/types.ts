@@ -17,6 +17,14 @@ export interface IProduct {
     date: Date,
     reviews: IReview[],
     isDeleted: boolean | undefined | null,
+    isApproved: boolean | undefined | null,
+}
+
+export interface ICategory {
+    id: number
+    name: string
+    parrentCategoryId: number | undefined
+    subCategories: ICategory[] | null
 
 }
 

@@ -1,6 +1,6 @@
 import adminService from '@/services/admin/admin.service'
 import { authSelector } from '@/store/auth'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -9,14 +9,13 @@ import { IUser, IUserAddress } from '@/services/auth/types';
 import { Button } from 'primereact/button';
 import { IProduct, IReview } from '@/shared/types';
 import to from 'await-to-js';
-import { reviews } from '../account/example.review';
 import { Rating } from 'primereact/rating';
 import { Dropdown } from 'primereact/dropdown';
 import { SET_TOAST } from '@/store/Toast';
 import { IToast } from '@/store/Toast/type';
 import { Fieldset } from 'primereact/fieldset';
-import { Galleria } from 'primereact/galleria';
-import { products } from '../shop/example.products';
+import { Link } from 'react-router-dom';
+import { DataView } from 'primereact/dataview';
 
 
 const UserSettings = () => {
@@ -37,7 +36,6 @@ const UserSettings = () => {
             setLoading(true)
             const [err, data] = await to(adminService.fetchUsers(token))
             if (err) {
-                console.log(err)
                 setUsers([userEx])
                 setLoading(false)
                 return
@@ -58,28 +56,20 @@ const UserSettings = () => {
         const fetchUserAddressAndReviews = async () => {
             if (selectedUser) {
                 const [err, data] = await to(adminService.fetchAddressByUserId(selectedUser.id, token))
-                if (err) {
-                    return
-                }
                 if (data)
                     setSelectedUserAddress(data)
 
                 const [err2, data2] = await adminService.fetchReviewsByUserId(selectedUser.id, token)
-                if (err2) {
-                    setSelectedUserReviews(reviews)
-                    return
-                }
                 if (data2)
                     setSelectedUserReviews([data2])
 
                 const [err3, data3] = await adminService.fetchPaddingProductByUserId(selectedUser.id, token)
-                if (err3) {
-                    setSelectedUserPaddingProduct(products[0])
-                    return
-                }
                 if (data3)
                     setSelectedUserPaddingProduct(data3)
 
+                if (err || err2 || err3) {
+                    console.log("")
+                }
 
             }
 
@@ -103,6 +93,32 @@ const UserSettings = () => {
         }
     }
 
+    const handleProductStatusChange = async (data: IProduct, status: boolean) => {
+        const [err, data2] = await to(adminService.updateProductStatus(data.id, status, token))
+        if (err) {
+            console.log(err)
+            return
+        }
+        if (data2) {
+            console.log(data2)
+            const toast: IToast = { severity: 'success', summary: 'Başarılı', detail: data2.message, life: 3000 }
+            dispatch(SET_TOAST(toast))
+        }
+    }
+
+    const handleBlockUser = async (id: number) => {
+        const [err, data] = await to(adminService.blockUser(id, token))
+        if (err) {
+            console.log(err)
+            return
+        }
+        if (data) {
+            console.log(data)
+            const toast: IToast = { severity: 'success', summary: 'Başarılı', detail: data.message, life: 3000 }
+            dispatch(SET_TOAST(toast))
+        }
+    }
+
 
 
     return (
@@ -122,7 +138,7 @@ const UserSettings = () => {
                         return (
                             <Button label="Engelle" className="p-button-danger !p-2 !text-sm"
                                 onClick={() => {
-                                    console.log(data)
+                                    handleBlockUser(data.id)
                                 }} />
                         )
                     }}></Column>
@@ -182,7 +198,11 @@ const UserSettings = () => {
                                     <Column header="Ürün bağlantılı imagesi" body={(data: IReview) => {
                                         return (
                                             <a href={`/productDetail/${data.productId}`} className="flex justify-center items-center">
-                                                <img src={data.product?.image} alt="" className="w-20 h-20" />
+                                                {data.product?.image ? (
+                                                    <img src={typeof data.product.image === 'string' ? data.product.image : URL.createObjectURL(data.product.image)} alt="" className="w-20 h-20" />
+                                                ) : (
+                                                    <span>Resim yok</span>
+                                                )}
                                             </a>
                                         )
                                     }}></Column>
@@ -215,7 +235,38 @@ const UserSettings = () => {
                             toggleable
                         >
                             {selectedUserPaddingProduct ?
-                                <></>
+                                <>
+                                    <DataView value={[selectedUserPaddingProduct]} itemTemplate={(data: IProduct) => {
+                                        return (
+                                            <div className="flex items-center w-full">
+                                                <div className="flex flex-row items-center w-full justify-evenly gap-2 ml-2">
+                                                    {data.image ? (
+                                                        <img src={typeof data.image === 'string' ? data.image : URL.createObjectURL(data.image)} alt="" className="w-20 h-20" />
+                                                    ) : (
+                                                        <span>Resim yok</span>
+                                                    )}
+                                                    <span className="text-xl font-semibold">{data.name}</span>
+                                                    <span className="text-xl font-semibold">{data.price} ₺</span>
+                                                    <span className="text-xl font-semibold"> {data.stock} adet</span>
+                                                    {/* yeni onayla reddet */}
+                                                    <Link to={`/productDetail/${selectedUserPaddingProduct.id}`}>
+                                                        <Button label="Ürünü görüntüle" className="p-button-info p-button-outlined" size="small" />
+                                                    </Link>
+                                                    <div className="card flex flex-wrap gap-2 justify-content-center">
+                                                        <Button onClick={() => (handleProductStatusChange(data, true))} icon="pi pi-check" label="Onayla" className="p-button-success p-button-outlined" size='small' />
+                                                        <Button onClick={() => { handleProductStatusChange(data, false) }} icon="pi pi-times" className="p-button-danger p-button-outlined" label="Reddet" size='small' />
+                                                    </div>
+
+                                                </div>
+
+
+                                            </div>
+                                        )
+                                    }
+                                    }
+                                        className='w-full'
+                                    />
+                                </>
                                 :
                                 <div className="flex flex-col justify-center items-center">
                                     <span className="text-xl font-semibold">Satışta bekleyen ürünü yok</span>

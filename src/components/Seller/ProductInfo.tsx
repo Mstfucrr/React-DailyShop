@@ -3,13 +3,14 @@ import { TreeSelect, TreeSelectChangeEvent } from 'primereact/treeselect';
 import { InputNumber } from 'primereact/inputnumber';
 import { InputText } from 'primereact/inputtext';
 import { useEffect, useState } from 'react';
-import { categories, Category, convertCategoriesToTreeSelectModel, findCategoryByKeyInTreeSelectModel } from '../shop/example.products';
+import { categoriesEx, convertCategoriesToTreeSelectModel, findCategoryByKeyInTreeSelectModel } from '../shop/example.products';
 import { TreeNode } from "primereact/treenode";
 import { MultiSelect } from 'primereact/multiselect';
 import { Editor, EditorTextChangeEvent } from "primereact/editor";
 import { Button } from 'primereact/button';
 import * as Yup from 'yup'
 import { useFormik } from 'formik'
+import { ICategory } from '@/shared/types';
 
 type Props = {
     setProductInfo: React.Dispatch<React.SetStateAction<{
@@ -28,11 +29,11 @@ const ProductInfo = (
     props: Props
 ) => {
 
-    const exampleCategories = categories
+    const exampleCategories = categoriesEx
 
     const [TreeNodes, setTreeNodes] = useState<TreeNode[] | undefined>(undefined)
     const [selectedNodeKey, setSelectedNodeKey] = useState<string | undefined>(undefined);
-    const [selectedCategory, setSelectedCategory] = useState<Category | undefined>(undefined)
+    const [selectedCategory, setSelectedCategory] = useState<ICategory | undefined>(undefined)
     const [selectedColors, setSelectedColors] = useState<string[]>([])
     const [selectedSizes, setSelectedSizes] = useState<string[]>([])
 

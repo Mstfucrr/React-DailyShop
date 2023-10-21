@@ -20,7 +20,7 @@
 
 
 import { TreeNode } from "primereact/treenode";
-import { ICartItem, IProduct, IShopResponse } from "../../shared/types";
+import { ICartItem, ICategory, IProduct, IShopResponse } from "../../shared/types";
 import { reviews } from "../account/example.review";
 
 import p1 from "./img/product-1.jpg";
@@ -54,10 +54,10 @@ export const products = [
         ],
         status: "Yeni",
         stock: 0,
-
         reviews: reviews,
-        isDeleted: true
-
+        isDeleted: true,
+        isApproved: true
+        
     },
     {
         id: 2,
@@ -76,8 +76,8 @@ export const products = [
 
         images: [],
         reviews: [],
-        isDeleted: true
-
+        isDeleted: true,
+        isApproved: false
     },
     {
         id: 3,
@@ -96,8 +96,8 @@ export const products = [
 
         images: [],
         reviews: [],
-        isDeleted: false
-
+        isDeleted: false,
+        isApproved: true
     },
     {
         id: 4,
@@ -116,10 +116,10 @@ export const products = [
 
         images: [],
         reviews: [],
-        isDeleted: false
-
-    }
-    , {
+        isDeleted: false,
+        isApproved: true
+    },
+    {
         id: 5,
         name: "Casual Cotton Trousers",
         price: 79.99,
@@ -136,10 +136,10 @@ export const products = [
 
         images: [],
         reviews: [],
-        isDeleted: false
-
-    }
-    , {
+        isDeleted: false,
+        isApproved: true
+    },
+    {
         id: 6,
         name: "Women's Floral Dress",
         price: 69.99,
@@ -157,9 +157,8 @@ export const products = [
         images: [],
         reviews: [],
         isDeleted: true
-
-    }
-    , {
+    },
+    {
         id: 7,
         name: "Sports Running Shoes",
         price: 79.99,
@@ -177,9 +176,8 @@ export const products = [
         images: [],
         reviews: [],
         isDeleted: false
-
-    }
-    , {
+    },
+    {
         id: 8,
         name: "Vintage Leather Jacket",
         price: 199.99,
@@ -197,7 +195,6 @@ export const products = [
         images: [],
         reviews: [],
         isDeleted: false
-
     }, {
         id: 9,
         name: "Elegant Denim Jeans",
@@ -216,7 +213,6 @@ export const products = [
         images: [],
         reviews: [],
         isDeleted: false
-
     },
     {
         id: 10,
@@ -253,8 +249,8 @@ export const products = [
 
         images: [],
         reviews: []
-    }
-    , {
+    },
+    {
         id: 12,
         name: "Smartphone Holder Stand",
         price: 19.99,
@@ -271,8 +267,8 @@ export const products = [
 
         images: [],
         reviews: []
-    }
-    , {
+    },
+    {
         id: 13,
         name: "Elegant Denim Jeans",
         price: 89.99,
@@ -342,8 +338,7 @@ export const products = [
 
         images: []
     }
-
-] as IProduct[];
+] as unknown as IProduct[];
 
 
 
@@ -371,15 +366,9 @@ export const cartItemsExample: ICartItem[] = [
 ]
 
 
-export interface Category {
-    id: number
-    name: string
-    parrentCategoryId: number | undefined
-    subCategories: Category[] | null
 
-}
 
-export const categories = [
+export const categoriesEx = [
     {
         id: 1,
         name: "Elektronik",
@@ -432,12 +421,12 @@ export const categories = [
     },
 
 
-] as Category[]
+] as ICategory[]
 
 
 // for tree select model converter
 
-export const convertCategoriesToTreeSelectModel = (categories: Category[], parentKey?: string): TreeNode[] => {
+export const convertCategoriesToTreeSelectModel = (categories: ICategory[], parentKey?: string): TreeNode[] => {
     const treeSelectModel: TreeNode[] = [];
     categories.forEach((category) => {
         const key = parentKey ? `${parentKey}-${category.id}` : `${category.id}`;
@@ -451,11 +440,11 @@ export const convertCategoriesToTreeSelectModel = (categories: Category[], paren
     return treeSelectModel;
 };
 
-export const findCategoryByKeyInTreeSelectModel = (TreeNodes: TreeNode[], key: string): Category | undefined => {
+export const findCategoryByKeyInTreeSelectModel = (TreeNodes: TreeNode[], key: string): ICategory | undefined => {
 
     for (const node of TreeNodes) {
         if (node.key === key) {
-            return node.data as Category;
+            return node.data as ICategory;
         }
         if (node.children) {
             const result = findCategoryByKeyInTreeSelectModel(node.children, key);
@@ -467,10 +456,10 @@ export const findCategoryByKeyInTreeSelectModel = (TreeNodes: TreeNode[], key: s
     return undefined;
 }
 
-export const getCategories = async (): Promise<Category[]> => {
+export const getCategories = async (): Promise<ICategory[]> => {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
-            resolve(categories)
+            resolve(categoriesEx)
         }, 1000)
     })
 }
