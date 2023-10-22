@@ -83,9 +83,9 @@ const ProductDetail = () => {
             }
             if (data.data != null) {
                 setProduct(data.data)
-                setSizes(data.data.sizes?.map((size) => ({ name: size, key: size })))
-                setColors(data.data.colors?.map((color) => ({ name: color, key: color })))
-                setImages(data.data.images?.map((image) => ({ source: image })))
+                setSizes(data.data.sizes?.map((size: string) => ({ name: size, key: size })))
+                setColors(data.data.colors?.map((color: string) => ({ name: color, key: color })))
+                setImages(data.data.images?.map((image: string) => ({ source: image })))
                 setReviews(data.data.reviews)
             }
 
