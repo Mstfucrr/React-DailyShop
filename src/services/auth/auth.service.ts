@@ -1,87 +1,27 @@
-import { userEx } from "@/components/account/example.user";
-import axios, { AxiosError } from "axios";
 import {
     ILogin, IRegister, IUser
 } from "./types";
+import { makeRequest } from "../base/base";
 
 
+const login = async (input: ILogin) =>
+    await makeRequest<any>("Auths/Login", "POST", input);
 
-export const GetAccount = async () => {
-    // const { res } = await fetch("https://api.dailyshop.com/api/Account", {
-    //     method: "GET",
-    //     headers: {
-    //         "Content-Type": "application/json",
-    //         Authorization: `Bearer ${localStorage.getItem("token")}`,
-    //     },
-    // }).then((res) => ({ res: res.json() }))
+const register = async (input: IRegister) =>
+    await makeRequest<any>("Auths/Register", "POST", input);
 
 
-    // for testing
-    const res = {
-        status: 200,
-        message: "Hesap bilgileri getirildi",
-        data: userEx,
-    }
-    return res
-
-}
+const updateAccount = async (input: IUser, token: string) =>
+    await makeRequest<any>("Auths/UpdateAccount", "PUT", input, token);
 
 
-
-const login = async (input: ILogin) => {
-    const { data } = await axios.post("http://localhost:5025/api/Auths/Login", input, {
-        headers: {
-            "Content-Type": "application/json",
-        },
-    });
-    console.log("Response Data:", data);
-    return data;
-}
-
-const register = async (input: IRegister) => {
-    const { data } = await axios.post("http://localhost:5025/api/Auths/Register", input, {
-        headers: {
-            "Content-Type": "application/json",
-        },
-    });
-    console.log("Response Data:", data);
-    return data;
-}
-
-const updateAccount = async (input: IUser, token: string) => {
-    const { data } = await axios.put("http://localhost:5025/api/Auths/UpdateAccount", input, {
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-        },
-    });
-    console.log("Response Data:", data);
-    return data
-}
-
-
-
-const logout = () => {
-    // const { res } = await fetch
-
-
-    // for testing
-    const res = {
-        "status": 200,
-        "message": "Logout successfully",
-        "data": null
-    }
-
-    return res
-
-}
-
-
-
+const logout = async (token: string) =>
+    await makeRequest<any>("Auths/Logout", "POST", null, token);
 
 
 export const authService = {
     login,
     register,
+    logout,
     updateAccount
 }

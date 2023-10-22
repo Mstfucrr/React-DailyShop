@@ -1,37 +1,6 @@
-import { products } from "@/components/shop/example.products";
-import axios from "axios";
+import { makeRequest } from "../base/base";
 
 
 
-export async function getProductsByCategoryId(id: number, isDeletedDatas: boolean) {
-
-
-    // for test 
-
-    // const { data } = await axios.get(`https://api.dailyshop.com/api/Products/GetProductsByCategoryId/${id}`, {
-    //     headers: {
-    //         "Content-Type": "application/json",
-    //     },
-    //     params: {
-    //         isDeletedDatas: isDeletedDatas
-    //     }
-    // });
-    // console.log("data : ", data)
-    // return data
-
-
-    const data =
-        isDeletedDatas
-            ? products.slice(0, 7)
-            : products.slice(0, 7).filter((product) => product.isDeleted === false)
-
-    const fetchResponse = {
-        status: 200,
-        message: "Ürünler başarıyla getirildi.",
-        data: data,
-        total: data.length
-    }
-
-    return fetchResponse
-
-} 
+export const getProductsByCategoryId = async (id: number, isDeletedDatas: boolean) => 
+    await makeRequest<any>(`Products/GetProductsByCategoryId/${id}/${isDeletedDatas}`, "GET");

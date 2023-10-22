@@ -1,4 +1,3 @@
-import { IProduct, IReview } from "@/shared/types";
 
 export interface IProductRequest {
     data: {
@@ -14,16 +13,4 @@ export interface IProductRequest {
         sizes: string[] | undefined,
     }
 
-}
-
-export interface IProductResponse {
-    status: number;
-    message: string;
-    data: IProduct | null;
-}
-
-export type IReviewResponse = {
-    data: IReview[],
-    status: number,
-    message: string,
 }
