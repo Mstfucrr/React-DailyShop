@@ -127,15 +127,21 @@ const Navbar = () => {
                     </div>
                     <div className="lg:flex-row ml-auto py-0 flex flex-col pl-0 mb-0">
                       {/* login register links */}
-                      <Link to="/login" className={navItemsStyle + " py-[10px] lx:py-[20px] px-[10px]"}>Giriş Yap</Link>
-                      <Link to="/register" className={navItemsStyle + " py-[10px] lx:py-[20px] px-[10px]"}>Kayıt Ol</Link>
-                      <Link to="/account" className={navItemsStyle + " py-[10px] lx:py-[20px] px-[10px] mr-4"}>Hesap</Link>
+
                       {/* logout */}
-                      {isAuthorized && (
-                        <a className={navItemsStyle + " py-[10px] lx:py-[20px] px-[10px] mr-4 cursor-pointer text-primary"}
-                          onClick={handleLogout}
-                        >Çıkış Yap</a>
-                      )}
+                      {isAuthorized ?
+                        <>
+                          <Link to="/account" className={navItemsStyle + " py-[10px] lx:py-[20px] px-[10px] mr-4"}>Hesap</Link>
+                          <a className={navItemsStyle + " py-[10px] lx:py-[20px] px-[10px] mr-4 cursor-pointer text-primary"}
+                            onClick={handleLogout}
+                          >Çıkış Yap</a>
+                        </>
+                        :
+                        <>
+                          <Link to="/login" className={navItemsStyle + " py-[10px] lx:py-[20px] px-[10px]"}>Giriş Yap</Link>
+                          <Link to="/register" className={navItemsStyle + " py-[10px] lx:py-[20px] px-[10px]"}>Kayıt Ol</Link>
+                        </>
+                      }
 
                       <Button severity="warning" className=" py-[10px] lx:py-[20px] px-[10px] !text-black hover:!text-white duration-300"
                         onClick={() => { navigate('/seller') }}> Satış Yap </Button>
