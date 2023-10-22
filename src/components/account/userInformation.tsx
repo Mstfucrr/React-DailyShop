@@ -1,7 +1,7 @@
 import { IUser, IUserAddress } from '@/services/auth/types';
 import { motion } from 'framer-motion'
 import { Fieldset } from 'primereact/fieldset';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { InputMask } from 'primereact/inputmask';
@@ -10,12 +10,13 @@ import { useFormik } from 'formik'
 import { confirmDialog } from "primereact/confirmdialog";
 
 
-import { Toast } from 'primereact/toast';
 import RenderAddressFields from './renderAddressFields';
 import { useDispatch, useSelector } from 'react-redux';
 import { authSelector, SET_AUTH } from '@/store/auth';
 import { authService } from '@/services/auth/auth.service';
 import to from 'await-to-js';
+import { SET_TOAST } from '@/store/Toast';
+import { IToast } from '@/store/Toast/type';
 
 
 const UserInformation = (
@@ -25,7 +26,6 @@ const UserInformation = (
 
     const [userState, setUserState] = useState<IUser>(user)
     const [addressesState, setAddressesState] = useState(user.addresses)
-    const toast = useRef<any>(null)
     const { token } = useSelector(authSelector)
     const dispatch = useDispatch()
 
@@ -61,8 +61,6 @@ const UserInformation = (
 
         // Formik'in form değerlerini güncelleyin, böylece Save butonu görünebilir
         formik.setFieldValue('addresses', [...formik.values.addresses, address]);
-        console.log("addressesState : ", addressesState)
-        console.log("formik.values.addresses : ", formik.values.addresses)
     };
 
 
@@ -82,7 +80,7 @@ const UserInformation = (
             surname: Yup.string().required('Soyad alanı zorunludur'),
             email: Yup.string().email('Geçerli bir email adresi giriniz').required('Email alanı zorunludur'),
             phone: Yup.string().required('Telefon alanı zorunludur'),
-            profileImage: Yup.string().required('Profil resmi zorunludur'),
+            profileImage: Yup.string().notRequired(),
             addresses: Yup.array().of(
                 Yup.object().shape({
                     title: Yup.string().required('Başlık alanı zorunludur'),
@@ -98,16 +96,19 @@ const UserInformation = (
         onSubmit: async () => {
 
             const [err, data] = await to(authService.updateAccount(user, token))
+
             if (err) {
                 const res = err as any
                 const errorMessage = res.response.data.Message || err.message;
-                toast.current.show({ severity: 'error', summary: 'Hata', detail: errorMessage, life: 3000 });
+                const toast: IToast = { severity: 'error', summary: "Hata", detail: errorMessage, life: 3000 }
+                dispatch(SET_TOAST(toast))
                 return
             }
-            toast.current.show({ severity: 'success', summary: 'Başarılı', detail: data.message, life: 3000 });
+            const toast: IToast = { severity: 'success', summary: "Başarılı", detail: data.message, life: 3000 }
+            dispatch(SET_TOAST(toast))
             dispatch(SET_AUTH(
                 {
-                    user: data.data,
+                    user: data.user,
                     token: token
                 }
             ))
@@ -135,7 +136,6 @@ const UserInformation = (
             transition={{ duration: 0.4 }}
             className="w-full px-[15px] relative"
         >
-            <Toast ref={toast} />
             <h3 className="text-4xl my-4 text-primaryDark
                                             ">
                 Kullanıcı Bilgilerim
@@ -164,14 +164,14 @@ const UserInformation = (
                     {
                         userState.profileImage !== user.profileImage && (
                             <div className="flex flex-wrap justify-content-end gap-2 my-4">
-                                <Button label="Save" icon="pi pi-check"
+                                <Button label="Save" icon="pi pi-check" type='submit'
                                     onClick={() => {
                                         setUser({ ...user, profileImage: userState.profileImage })
                                         formik.handleSubmit()
                                     }}
                                 />
                                 <Button label="Cancel" icon="pi pi-times" className="p-button-outlined p-button-secondary"
-                                    onClick={() => { setUserState(user) }} />
+                                    onClick={() => { setUserState(user) }}/>
                             </div>
                         )
                     }
@@ -226,7 +226,7 @@ const UserInformation = (
                         <div className="flex flex-wrap justify-content-end gap-2 my-4">
                             {!formik.errors.name && !formik.errors.surname && (
 
-                                <Button label="Save" icon="pi pi-check"
+                                <Button label="Save" icon="pi pi-check"  type='submit'
                                     onClick={() => {
                                         setUser({ ...user, name: formik.values.name, surname: formik.values.surname })
                                         formik.handleSubmit()
@@ -288,7 +288,7 @@ const UserInformation = (
                     {(user.email !== formik.values.email || user.phone !== formik.values.phone) ? (
                         <div className="flex flex-wrap justify-content-end gap-2 my-4">
                             {!formik.errors.phone && !formik.errors.email && (
-                                <Button label="Save" icon="pi pi-check"
+                                <Button label="Save" icon="pi pi-check"  type='submit'
                                     onClick={() => {
                                         setUser({ ...user, email: formik.values.email, phone: formik.values.phone })
                                         formik.handleSubmit()
@@ -331,7 +331,7 @@ const UserInformation = (
                                 <>
                                     <Button
                                         label="Save"
-                                        icon="pi pi-check"
+                                        icon="pi pi-check" 
                                         type='submit'
                                         onClick={() => {
                                             setUser({...user , addresses: formik.values.addresses})
