@@ -21,7 +21,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { authSelector } from "@/store/auth";
 import { SET_TOAST } from "@/store/Toast";
 import { IToast } from "@/store/Toast/type";
-import { addToCart, IaddToCartRequest } from "@/services/order/order.service";
+import { addToCart } from "@/services/order/order.service";
+import { IaddToCartRequest } from "@/services/order/types";
 import { InputNumber } from "primereact/inputnumber";
 import to from "await-to-js";
 
@@ -152,7 +153,7 @@ const ProductDetail = () => {
             const [err, data] = await to(addReviewToProduct(product.id, r, token))
             if (err) {
                 const res = err as any
-                const errorMessage = res.response.data.message || err.message;
+                const errorMessage = res.response.data.Message || err.message;
                 const toast: IToast = { severity: 'error', summary: "Hata", detail: errorMessage, life: 3000 }
                 dispatch(SET_TOAST(toast))
                 return
@@ -167,7 +168,7 @@ const ProductDetail = () => {
 
     const handleAddToCart = async () => {
         if (!product) return
-        if (!auth) {
+        if (!isAuthorized) {
             const toast: IToast = { severity: 'error', summary: 'Hata', detail: 'Sepete eklemek için giriş yapmalısınız', life: 3000 }
             dispatch(SET_TOAST(toast))
             return
@@ -190,7 +191,7 @@ const ProductDetail = () => {
         const [err, data] = await to(addToCart(cartAdd, token))
         if (err) {
             const res = err as any
-            const errorMessage = res.response.data.message || err.message;
+            const errorMessage = res.response.data.Message || err.message;
             const toast: IToast = { severity: 'error', summary: "Hata", detail: errorMessage, life: 3000 }
             dispatch(SET_TOAST(toast))
             return

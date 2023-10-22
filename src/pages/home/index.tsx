@@ -2,9 +2,8 @@ import Navbar from '@/components/Navbar'
 import Searchbar from '@/components/Searchbar'
 import Topbar from '@/components/Topbar'
 
-type Props = {}
 
-const index = (props: Props) => {
+const index = () => {
   return (
     <>
       <Topbar />

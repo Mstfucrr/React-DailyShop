@@ -41,14 +41,12 @@ const Admin: React.FC = () => {
             <div className="flex flex-wrap justify-between gap-5 py-7">
 
                 <a href="/" className=" text-black">
-                    {/* font-size: calc(1.375rem + 1.5vw); */}
                     <h1 className="m-0 text-4xl font-semibold" style={{ fontSize: 'calc(1.375rem + 1.5vw)' }}>
                         <span className="text-primary font-bold border px-4 mr-1">D</span>
                         ailyShop
                     </h1>
                 </a>
 
-                {/* Hoşgeldin */}
                 <div className="flex justify-end items-center">
                     <div className="flex flex-col">
                         <span className="text-xl font-semibold">Hoşgeldin</span>
@@ -72,9 +70,6 @@ const Admin: React.FC = () => {
 
                 </div>
                 <div className="flex w-full md:w-4/5 pl-6">
-                    {/* Content goes here */}
-                    {/* url path global router güncellemesi aynı sayfada farklı componentler gelecek */}
-
                     {selectedPage === AdminPage.Settings && <Settings />}
                     {selectedPage === AdminPage.Users && <UserSettings />}
                     {selectedPage === AdminPage.Products && <ProductSettings />}

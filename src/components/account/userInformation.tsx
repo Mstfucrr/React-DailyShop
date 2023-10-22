@@ -100,7 +100,7 @@ const UserInformation = (
             const [err, data] = await to(authService.updateAccount(user, token))
             if (err) {
                 const res = err as any
-                const errorMessage = res.response.data.message || err.message;
+                const errorMessage = res.response.data.Message || err.message;
                 toast.current.show({ severity: 'error', summary: 'Hata', detail: errorMessage, life: 3000 });
                 return
             }
@@ -167,6 +167,7 @@ const UserInformation = (
                                 <Button label="Save" icon="pi pi-check"
                                     onClick={() => {
                                         setUser({ ...user, profileImage: userState.profileImage })
+                                        formik.handleSubmit()
                                     }}
                                 />
                                 <Button label="Cancel" icon="pi pi-times" className="p-button-outlined p-button-secondary"

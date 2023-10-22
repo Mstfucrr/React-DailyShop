@@ -1,15 +1,16 @@
 import adminService from "@/services/admin/admin.service"
+import { SET_TOAST } from "@/store/Toast"
+import { IToast } from "@/store/Toast/type"
 import { authSelector } from "@/store/auth"
 import to from "await-to-js"
 import { Button } from "primereact/button"
 import { Editor } from "primereact/editor"
 import { FileUpload } from "primereact/fileupload"
 import { InputMask } from "primereact/inputmask"
-import { InputNumber } from "primereact/inputnumber"
 import { InputText } from "primereact/inputtext"
 import { InputTextarea } from "primereact/inputtextarea"
 import { useEffect, useState } from "react"
-import { useSelector } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 
 const Settings = () => {
 
@@ -21,6 +22,18 @@ const Settings = () => {
     const [siteIcon, setSiteIcon] = useState<File>()
 
     const { token } = useSelector(authSelector)
+    const dispatch = useDispatch();
+
+    const showErrorMessage = (err: any) => {
+        const res = err as any
+        const errorMessage = res.response.data.Message || err.message;
+        const toast: IToast = { severity: 'error', summary: "Hata", detail: errorMessage, life: 3000 }
+        dispatch(SET_TOAST(toast))
+    }
+    const showSuccess = (message : string) => {
+        const toast: IToast = { severity: 'success', summary: "Başarılı", detail: message, life: 3000 }
+        dispatch(SET_TOAST(toast))
+    }
 
     useEffect(() => {
 
@@ -28,7 +41,7 @@ const Settings = () => {
 
             const [err, data] = await to(adminService.fetchSettings(token))
             if (err) {
-                console.log(err)
+                showErrorMessage(err)
                 return
             }
             if (data) {
@@ -38,7 +51,7 @@ const Settings = () => {
                 setPhone(data.data.phone)
                 setAddress(data.data.address)
             }
-            
+
         }
 
         fetchDatas()
@@ -53,6 +66,7 @@ const Settings = () => {
         return (
             <div className="flex items-center flex-wrap w-full">
                 <div className="flex items-center w-full">
+                    {/* @ts-ignore */}
                     <img alt={siteIcon?.name} role="presentation" src={siteIcon?.objectURL as string} />
                 </div>
             </div>
@@ -94,22 +108,24 @@ const Settings = () => {
 
         const [err, data] = await to(adminService.saveAbout(about, token))
         if (err) {
-            console.log(err)
+            showErrorMessage(err)
             return
         }
-        if (data)
-            console.log(data)
+        if (data) {
+            showSuccess(data.message)
+        }
     }
 
     const saveContact = async () => {
 
         const [err, data] = await to(adminService.saveContact(email, phone, token))
         if (err) {
-            console.log(err)
+            showErrorMessage(err)
             return
         }
-        if (data)
-            console.log(data)
+        if (data) {
+            showSuccess(data.message)
+        }
 
     }
 
@@ -117,11 +133,12 @@ const Settings = () => {
 
         const [err, data] = await to(adminService.saveAddress(address, token))
         if (err) {
-            console.log(err)
+            showErrorMessage(err)
             return
         }
-        if (data)
-            console.log(data)
+        if (data) {
+            showSuccess(data.message)
+        }
 
     }
 
@@ -129,18 +146,14 @@ const Settings = () => {
 
         const [err, data] = await to(adminService.saveSiteIcon(siteIcon as File, token))
         if (err) {
-            console.log(err)
+            showErrorMessage(err)
             return
         }
-        if (data)
-            console.log(data)
+        if (data) {
+            showSuccess(data.message)
+        }
 
     }
-
-
-
-    const UploadOptions = { icon: '', iconOnly: true, className: '!hidden' };
-
 
     return (
         <>

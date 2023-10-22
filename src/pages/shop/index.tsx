@@ -4,9 +4,8 @@ import Searchbar from '@/components/Searchbar'
 import Shop from '@/components/shop'
 import Topbar from '@/components/Topbar'
 
-type Props = {}
 
-const index = (props: Props) => {
+const index = () => {
     return (
         <>
             <Topbar />

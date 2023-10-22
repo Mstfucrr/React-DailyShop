@@ -14,12 +14,9 @@ import { SET_TOAST } from '@/store/Toast';
 import { IToast } from '@/store/Toast/type'
 import { SET_ADMIN_AUTH, SET_AUTH } from '@/store/auth'
 import to from 'await-to-js'
-import { IUser } from '@/services/auth/types'
-import { userEx } from '../account/example.user'
 
-type Props = {}
 
-const LoginForm = (props: Props) => {
+const LoginForm = () => {
     const [isLoading, setIsLoading] = useState(false)
 
     const dispatch = useDispatch()
@@ -47,36 +44,21 @@ const LoginForm = (props: Props) => {
         },
         validationSchema,
         onSubmit: async (values) => {
-            dispatch(SET_AUTH(
-                {
-                    user: userEx,
-                    token: "authorization"
-                }
-            ))
             setIsLoading(true)
-            
-                dispatch(SET_ADMIN_AUTH())
-                navigate("/admin")
-            
             const [err, data] = await to(authService.login(values))
             if (err) {
                 const res = err as any
-                const errorMessage = res.response.data.message || err.message;
+                console.log(res)
+                const errorMessage = res.response.data.Message || err.message;
                 const toast: IToast = { severity: 'error', summary: "Hata", detail: errorMessage, life: 3000 }
                 dispatch(SET_TOAST(toast))
                 setIsLoading(false)
                 return
             }
-            const { authorization , user , message } = data
+            const { authorization, user, message } = data
             setIsLoading(false)
             if (user != undefined) {
-                dispatch(SET_AUTH(
-                    {
-                        user: user,
-                        token: authorization
-                    }
-                ))
-                // {status: 200, message: 'Başarılıyla giriş yaptın', authorization: 'Bearer AccessToken', data: 'null'}
+                dispatch(SET_AUTH({ user: user, token: authorization }))
                 const toast: IToast = { severity: 'success', summary: "Başarılı", detail: message, life: 3000 }
                 dispatch(SET_TOAST(toast))
                 if (user.role == "admin") {
@@ -95,9 +77,9 @@ const LoginForm = (props: Props) => {
                 onSubmit={formik.handleSubmit}
             >
                 <div className="flex flex-col">
-                    <label htmlFor="email" className='text-primary text-xl font-medium'>Email</label>
+                    <label htmlFor="email" className='text-primary text-xl font-medium'>E-Posta</label>
                     <InputText name='email' id='email'
-                        placeholder="Email"
+                        placeholder="E-Posta"
                         value={formik.values.email}
                         onChange={formik.handleChange}
                         className={
@@ -114,8 +96,8 @@ const LoginForm = (props: Props) => {
 
                 </div>
                 <div className="flex flex-col mt-4">
-                    <label htmlFor="password" className='text-primary text-xl font-medium'>Password</label>
-                    <Password placeholder="Password" name='password' id='password' feedback={true}
+                    <label htmlFor="password" className='text-primary text-xl font-medium'>Parola</label>
+                    <Password placeholder="Parola" name='password' id='password' feedback={true}
 
                         pt={{
                             "input": {
@@ -148,7 +130,7 @@ const LoginForm = (props: Props) => {
                 <div className="flex flex-col mx-auto mt-4">
                     <a href="#" className='underline text-sm font-thin
                             hover:text-black transition duration-300 ease-in-out
-                        '>Forgot password?</a>
+                        '>Parolanızı mı unuttunuz ? </a>
                 </div>
 
 
@@ -162,7 +144,7 @@ const LoginForm = (props: Props) => {
                                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
                             </div>)
                             : (
-                                <span>Login</span>
+                                <span>Giriş Yap</span>
                             )}
 
                     </button>

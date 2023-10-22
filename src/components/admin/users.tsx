@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { userEx } from '../account/example.user';
 import { IUser, IUserAddress } from '@/services/auth/types';
 import { Button } from 'primereact/button';
 import { IProduct, IReview } from '@/shared/types';
@@ -30,24 +29,34 @@ const UserSettings = () => {
     const [loading, setLoading] = useState<boolean>(false)
     const dispatch = useDispatch()
 
+    const showErrorMessage = (err: any) => {
+        const res = err as any
+        const errorMessage = res.response.data.Message || err.message;
+        const toast: IToast = { severity: 'error', summary: "Hata", detail: errorMessage, life: 3000 }
+        dispatch(SET_TOAST(toast))
+    }
+    const showSuccess = (message: string) => {
+        const toast: IToast = { severity: 'success', summary: "Başarılı", detail: message, life: 3000 }
+        dispatch(SET_TOAST(toast))
+    }
+
 
     useEffect(() => {
         const fetchUsers = async () => {
             setLoading(true)
             const [err, data] = await to(adminService.fetchUsers(token))
             if (err) {
-                setUsers([userEx])
+                showErrorMessage(err)
                 setLoading(false)
                 return
             }
             if (data) {
                 setUsers(data)
+                showSuccess(data.message)
                 setLoading(false)
             }
         }
-        setUsers([userEx])
-        setLoading(false)
-        // fetchUsers()
+        fetchUsers()
     }, [])
 
     useEffect(() => {
@@ -68,7 +77,10 @@ const UserSettings = () => {
                     setSelectedUserPaddingProduct(data3)
 
                 if (err || err2 || err3) {
-                    console.log("")
+                    showErrorMessage(err)
+                    showErrorMessage(err2)
+                    showErrorMessage(err3)
+                    return
                 }
 
             }
@@ -76,46 +88,37 @@ const UserSettings = () => {
         }
         fetchUserAddressAndReviews()
     }, [selectedUser])
-    const isSelectable = (data: { role: string; }) => data.role !== 'admin';
-
-    const isRowSelectable = (event: any) => (event.data ? isSelectable(event.data) : true);
 
     const handleReviewStatusChange = async (data: IReview, status: string) => {
         const [err, data2] = await to(adminService.updateReviewStatus(data.id, status, token))
         if (err) {
-            console.log(err)
+            showErrorMessage(err)
             return
         }
         if (data2) {
-            console.log(data2)
-            const toast: IToast = { severity: 'success', summary: 'Başarılı', detail: data2.message, life: 3000 }
-            dispatch(SET_TOAST(toast))
+            showSuccess(data2.message)
         }
     }
 
-    const handleProductStatusChange = async (data: IProduct, status: boolean) => {
-        const [err, data2] = await to(adminService.updateProductStatus(data.id, status, token))
+    const handleProductApprovalStatusChange = async (data: IProduct, status: boolean) => {
+        const [err, data2] = await to(adminService.updateProductApprovalStatus(data.id, status, token))
         if (err) {
-            console.log(err)
+            showErrorMessage(err)
             return
         }
         if (data2) {
-            console.log(data2)
-            const toast: IToast = { severity: 'success', summary: 'Başarılı', detail: data2.message, life: 3000 }
-            dispatch(SET_TOAST(toast))
+            showSuccess(data2.message)
         }
     }
 
     const handleBlockUser = async (id: number) => {
         const [err, data] = await to(adminService.blockUser(id, token))
         if (err) {
-            console.log(err)
+            showErrorMessage(err)
             return
         }
         if (data) {
-            console.log(data)
-            const toast: IToast = { severity: 'success', summary: 'Başarılı', detail: data.message, life: 3000 }
-            dispatch(SET_TOAST(toast))
+            showSuccess(data.message)
         }
     }
 
@@ -125,7 +128,6 @@ const UserSettings = () => {
         <>
             <div className="flex flex-col gap-10     w-full">
                 <DataTable value={users} loading={loading} selection={selectedUser} onSelectionChange={(e) => setSelectedUser(e.value as IUser)}
-                    // isDataSelectable={isRowSelectable}
                     scrollable scrollHeight="400px"
                 >
                     <Column selectionMode="single" headerStyle={{ width: '3rem' }}></Column>
@@ -253,8 +255,8 @@ const UserSettings = () => {
                                                         <Button label="Ürünü görüntüle" className="p-button-info p-button-outlined" size="small" />
                                                     </Link>
                                                     <div className="card flex flex-wrap gap-2 justify-content-center">
-                                                        <Button onClick={() => (handleProductStatusChange(data, true))} icon="pi pi-check" label="Onayla" className="p-button-success p-button-outlined" size='small' />
-                                                        <Button onClick={() => { handleProductStatusChange(data, false) }} icon="pi pi-times" className="p-button-danger p-button-outlined" label="Reddet" size='small' />
+                                                        <Button onClick={() => (handleProductApprovalStatusChange(data, true))} icon="pi pi-check" label="Onayla" className="p-button-success p-button-outlined" size='small' />
+                                                        <Button onClick={() => { handleProductApprovalStatusChange(data, false) }} icon="pi pi-times" className="p-button-danger p-button-outlined" label="Reddet" size='small' />
                                                     </div>
 
                                                 </div>

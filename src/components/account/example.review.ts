@@ -1,5 +1,4 @@
 import { IReview } from "@/shared/types";
-import { products } from "../shop/example.products";
 // import { userEx } from "./example.user";
 
 export const reviews = [

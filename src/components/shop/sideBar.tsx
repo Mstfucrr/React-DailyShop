@@ -3,7 +3,6 @@ import { Slider } from "primereact/slider";
 import { InputNumber } from "primereact/inputnumber";
 import { Button } from "primereact/button";
 import { IProduct } from "@/shared/types";
-import { getProductsByCategoryId } from "@/services/shop/shop.service";
 
 const SideBar = (
     { data, setData }: {

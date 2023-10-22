@@ -20,7 +20,7 @@
 
 
 import { TreeNode } from "primereact/treenode";
-import { ICartItem, ICategory, IProduct, IShopResponse } from "../../shared/types";
+import { ICartItem, ICategory, IProduct } from "../../shared/types";
 import { reviews } from "../account/example.review";
 
 import p1 from "./img/product-1.jpg";
@@ -454,12 +454,4 @@ export const findCategoryByKeyInTreeSelectModel = (TreeNodes: TreeNode[], key: s
         }
     }
     return undefined;
-}
-
-export const getCategories = async (): Promise<ICategory[]> => {
-    return new Promise((resolve, reject) => {
-        setTimeout(() => {
-            resolve(categoriesEx)
-        }, 1000)
-    })
 }

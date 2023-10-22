@@ -3,7 +3,7 @@ import SideBar from './sideBar'
 import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
 import { useEffect, useRef, useState } from 'react';
 import { Card } from 'primereact/card';
-import { FaEye, FaShoppingCart } from 'react-icons/fa';
+import { FaEye } from 'react-icons/fa';
 import { IProduct, IShopResponse } from '@/shared/types';
 import { Paginator, PaginatorPageChangeEvent } from 'primereact/paginator';
 import { getProductsByCategoryId } from '@/services/shop/shop.service';
@@ -11,7 +11,6 @@ import { useParams } from 'react-router-dom';
 import { InputSwitch } from "primereact/inputswitch";
 import to from 'await-to-js';
 import { Messages } from 'primereact/messages';
-import { addToCart } from '@/services/order/order.service';
 
 const Shop = () => {
 

@@ -1,5 +1,4 @@
 import { Messages } from 'primereact/messages'
-import React from 'react'
 import un401 from "@/assets/images/errors/hop.jpg"
 
 type Props = {

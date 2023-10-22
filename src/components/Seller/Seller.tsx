@@ -1,5 +1,5 @@
 import { addProduct } from "@/services/product/product.service"
-import { IProductRequest, IProductResponse } from "@/services/product/types"
+import { IProductRequest } from "@/services/product/types"
 import { authSelector } from "@/store/auth"
 import { SET_TOAST } from "@/store/Toast"
 import { IToast } from "@/store/Toast/type"

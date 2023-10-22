@@ -5,7 +5,7 @@ import to from 'await-to-js'
 import { Button } from 'primereact/button'
 import { InputText } from 'primereact/inputtext'
 import { TreeSelect } from 'primereact/treeselect'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { findCategoryByKeyInTreeSelectModel, convertCategoriesToTreeSelectModel } from '../shop/example.products'
 import * as Yup from 'yup'
@@ -16,7 +16,6 @@ import { Tree } from 'primereact/tree';
 
 const CategorySettings = () => {
 
-    const [categories, setCategories] = useState<ICategory[] | null>(null)
     const [TreeNodes, setTreeNodes] = useState<any>(null)
     const [selectedNodeKey, setSelectedNodeKey] = useState<any>(null)
     const [selectedCategory, setSelectedCategory] = useState<ICategory | undefined>(undefined)
@@ -36,12 +35,17 @@ const CategorySettings = () => {
 
         const getAllCategories = async () => {
             const [err, data] = await to(adminService.getAllCategories(token));
-            // if (err) return console.log(err);
-            if (data) {
-                setCategories(data);
-                setTreeNodes(convertCategoriesToTreeSelectModel(data));
+            if (err) {
+                const errMessage = err as any;
+                const toast: IToast = { severity: 'error', summary: 'Kategori Eklenemedi', detail: errMessage.response.data.message || errMessage.message, life: 5000 }
+                dispatch(SET_TOAST(toast))
+                setLoading(false);
+                return
             }
-            setLoading(false);
+            if (data) {
+                setTreeNodes(convertCategoriesToTreeSelectModel(data));
+                setLoading(false);
+            }
         }
         getAllCategories();
     }, []);
@@ -69,13 +73,13 @@ const CategorySettings = () => {
     const handleGetAllCategories = async () => {
         const [err, data] = await to(adminService.getAllCategories(token));
         if (err) {
-            const errMessage = err as any;
-            const toast: IToast = { severity: 'error', summary: 'Kategoriler Getirilemedi', detail: errMessage.response.data.message || errMessage.message, life: 5000 }
+            const res = err as any
+            const errorMessage = res.response.data.Message || err.message;
+            const toast: IToast = { severity: 'error', summary: "Hata", detail: errorMessage, life: 3000 }
             dispatch(SET_TOAST(toast))
             return
         }
         if (data) {
-            setCategories(data);
             setTreeNodes(convertCategoriesToTreeSelectModel(data));
         }
     }
@@ -112,8 +116,9 @@ const CategorySettings = () => {
     const handleUpdateCategory = async (id: number, val: any) => {
         const [err, data] = await to(adminService.updateCategoryById(id, val, token));
         if (err) {
-            const errMessage = err as any;
-            const toast: IToast = { severity: 'error', summary: 'Kategori Güncellenemedi', detail: errMessage.response.data.message || errMessage.message, life: 5000 }
+            const res = err as any
+            const errorMessage = res.response.data.Message || err.message;
+            const toast: IToast = { severity: 'error', summary: "Hata", detail: errorMessage, life: 3000 }
             dispatch(SET_TOAST(toast))
             return
         }
@@ -158,6 +163,11 @@ const CategorySettings = () => {
 
     return (
         <>
+            {loading &&
+                <div className="flex justify-center items-center w-full h-full">
+                    <i className="pi pi-spin pi-spinner text-4xl"></i>
+                </div>
+            }
             <div className="flex flex-col gap-4 w-full">
                 <h1 className="text-4xl mb-3">Kategori İşlemleri</h1>
                 <div className="w-full text-center">

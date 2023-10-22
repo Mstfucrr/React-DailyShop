@@ -8,20 +8,15 @@ import { useDispatch } from 'react-redux'
 import { emailRegex, passwordRegex } from '@/helper/regex'
 import { useNavigate } from 'react-router-dom'
 import { authService } from '@/services/auth/auth.service'
-import { IRegister } from '@/services/auth/types'
 import { SET_TOAST } from '@/store/Toast'
 
-import google from '@/assets/images/google.png'
-import facebook from '@/assets/images/facebook.png'
 import { IToast } from '@/store/Toast/type'
 import to from 'await-to-js'
-import { InputNumber } from 'primereact/inputnumber'
 import { InputMask } from 'primereact/inputmask'
 
 
-type Props = {}
 
-const RegisterForm = (props: Props) => {
+const RegisterForm = () => {
 
 
     const dispatch = useDispatch()
@@ -83,7 +78,7 @@ const RegisterForm = (props: Props) => {
             const [err, data] = await to(authService.register(values))
             if (err) {
                 const res = err as any
-                const errorMessage = res.response.data.message || err.message;
+                const errorMessage = res.response.data.Message || err.message;
                 const toast: IToast = { severity: 'error', summary: "Hata", detail: errorMessage, life: 3000 }
                 dispatch(SET_TOAST(toast))
                 setIsLoading(false)
@@ -92,7 +87,9 @@ const RegisterForm = (props: Props) => {
             setIsLoading(false)
             const toast: IToast = { severity: 'success', summary: "Başarılı", detail: data.message, life: 3000 }
             dispatch(SET_TOAST(toast))
-            // navigate('/login')
+            setTimeout(() => {
+                navigate('/login')
+            }, 2000);
         }
 
     })
@@ -120,8 +117,8 @@ const RegisterForm = (props: Props) => {
             <div className="flex md:flex-row flex-col justify-between">
 
                 <div className="flex flex-col w-full mr-2">
-                    <label htmlFor="name" className='text-primary text-xl font-medium'>Name</label>
-                    <InputText placeholder="Name" name='name' id='name'
+                    <label htmlFor="name" className='text-primary text-xl font-medium'>Ad</label>
+                    <InputText placeholder="Ad" name='name' id='name'
                         value={formik.values.name}
                         onChange={formik.handleChange}
                         className={inputClassName(formik.errors.name)}
@@ -130,8 +127,8 @@ const RegisterForm = (props: Props) => {
 
                 </div>
                 <div className="flex flex-col w-full">
-                    <label htmlFor="surname" className='text-primary text-xl font-medium'>Surname</label>
-                    <InputText placeholder="Surname" name='surname' id='surname'
+                    <label htmlFor="surname" className='text-primary text-xl font-medium'>Soyad</label>
+                    <InputText placeholder="Soyad" name='surname' id='surname'
                         value={formik.values.surname}
                         onChange={formik.handleChange}
                         className={inputClassName(formik.errors.surname)}
@@ -142,8 +139,8 @@ const RegisterForm = (props: Props) => {
             </div>
             {/* email */}
             <div className="flex flex-col">
-                <label htmlFor="email" className='text-primary text-xl font-medium'>Email</label>
-                <InputText placeholder="Email" name='email' id='email'
+                <label htmlFor="email" className='text-primary text-xl font-medium'>E-Posta</label>
+                <InputText placeholder="E-Posta" name='email' id='email'
                     value={formik.values.email}
                     onChange={formik.handleChange}
                     className={inputClassName(formik.errors.email)}
@@ -153,8 +150,8 @@ const RegisterForm = (props: Props) => {
 
             {/* phone */}
             <div className="flex flex-col">
-                <label htmlFor="PhoneNumber" className='text-primary text-xl font-medium'>Phone Number</label>
-                <InputMask placeholder='Phone Number' name='PhoneNumber' id='PhoneNumber'
+                <label htmlFor="PhoneNumber" className='text-primary text-xl font-medium'>Telefon Numarası</label>
+                <InputMask placeholder='Telefon Numarası' name='PhoneNumber' id='PhoneNumber'
                     value={formik.values.PhoneNumber}
                     onChange={formik.handleChange}
                     mask="(999) 999-9999"
@@ -168,8 +165,8 @@ const RegisterForm = (props: Props) => {
             <div className="flex sm:flex-row flex-col justify-between">
 
                 <div className="flex flex-col sm:w-1/2 mr-2">
-                    <label htmlFor="password" className='text-primary text-xl font-medium'>Password</label>
-                    <Password placeholder="Password" name='password' id='password' toggleMask
+                    <label htmlFor="password" className='text-primary text-xl font-medium'>Parola</label>
+                    <Password placeholder="Parola" name='password' id='password' toggleMask
                         pt={{
                             "input": { className: "w-full" },
                             "showIcon": { className: "relative flex -top-1" },
@@ -183,8 +180,8 @@ const RegisterForm = (props: Props) => {
                     {errorTemplate(formik.errors.password)}
                 </div>
                 <div className="flex flex-col sm:w-1/2">
-                    <label htmlFor="confirmPassword" className='text-primary text-xl font-medium'>Confirm Password</label>
-                    <Password placeholder="Confirm Password" name='confirmPassword' id='confirmPassword' toggleMask
+                    <label htmlFor="confirmPassword" className='text-primary text-xl font-medium'>Parola Onayla</label>
+                    <Password placeholder="Parola Onayla" name='confirmPassword' id='confirmPassword' toggleMask
                         pt={{
                             "input": { className: "w-full" },
                             "showIcon": { className: "relative flex -top-1" },
@@ -211,33 +208,11 @@ const RegisterForm = (props: Props) => {
                         (<div className="flex justify-center items-center w-full">
                             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
                         </div>)
-                        : <div>Register</div>
+                        : <div>Kayıt Ol</div>
                     }
 
                 </button>
             </div>
-
-            {/* -- or -- */}
-            <div className="flex flex-col mt-4">
-                <div className="flex justify-center items-center">
-                    <div className="w-full h-px bg-gray-300"></div>
-                    <div className="mx-4 text-gray-400">OR</div>
-                    <div className="w-full h-px bg-gray-300"></div>
-                </div>
-            </div>
-
-            {/* google facebook register */}
-
-            <div className="flex flex-row mt-4 flex-1 justify-center gap-6 items-center">
-                <img src={google} alt="google" className="h-auto w-12 cursor-pointer rounded-full
-                active:scale-90 hover:opacity-80 transition duration-300 ease-in-out"
-
-                />
-                <img src={facebook} alt="facebook" className="h-auto w-12 cursor-pointer
-                active:scale-90 hover:opacity-80 transition duration-300 ease-in-out" />
-
-            </div>
-
 
 
         </form>

@@ -1,8 +1,6 @@
 import { IUser } from "@/services/auth/types"
-import { IToast } from "@/store/Toast/type"
 import { AnimatePresence } from "framer-motion"
 import { useEffect, useRef, useState } from "react"
-import { userEx } from "./example.user"
 import UserInformation from "./userInformation"
 import { Messages } from 'primereact/messages';
 import { useSelector } from "react-redux"
@@ -15,7 +13,7 @@ const Account = () => {
 
     const [user, setUser] = useState<IUser | null>(null)
     const msgs = useRef<Messages>(null);
-    const { auth, token, isAuthorized } = useSelector(authSelector)
+    const { auth, isAuthorized } = useSelector(authSelector)
 
     useEffect(() => {
         if (isAuthorized && auth) {

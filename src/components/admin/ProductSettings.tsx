@@ -6,13 +6,12 @@ import { InputText } from 'primereact/inputtext';
 import { TriStateCheckbox, TriStateCheckboxChangeEvent } from 'primereact/tristatecheckbox';
 import adminService from '@/services/admin/admin.service';
 import to from 'await-to-js';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { authSelector } from '@/store/auth';
-import { ICategory, IProduct } from '@/shared/types';
-import { TreeSelect } from 'primereact/treeselect';
-import { convertCategoriesToTreeSelectModel, findCategoryByKeyInTreeSelectModel } from '../shop/example.products';
-import { Button } from 'primereact/button';
+import { IProduct } from '@/shared/types';
 import CategorySettings from './CategorySettings';
+import { SET_TOAST } from '@/store/Toast';
+import { IToast } from '@/store/Toast/type';
 
 
 const ProductSettings = () => {
@@ -32,15 +31,20 @@ const ProductSettings = () => {
 
 
     const { token } = useSelector(authSelector)
-
-
+    const dispatch = useDispatch()
 
 
     useEffect(() => {
 
         const getAllProducts = async () => {
             const [err, data] = await to(adminService.getAllProducts(token));
-            // if (err) return console.log(err);
+            if (err) {
+                const res = err as any
+                const errorMessage = res.response.data.Message || err.message;
+                const toast: IToast = { severity: 'error', summary: "Hata", detail: errorMessage, life: 3000 }
+                dispatch(SET_TOAST(toast))
+                return
+            }
             if (data)
                 setProducts(data);
             setLoading(false);
