@@ -65,6 +65,7 @@ const LoginForm = () => {
                     dispatch(SET_ADMIN_AUTH())
                     navigate("/admin")
                 }
+                navigate("/")
             }
         },
     })
