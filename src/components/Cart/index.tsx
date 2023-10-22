@@ -46,7 +46,12 @@ const Cart = () => {
         else {
             msgs.current?.clear()
             msgs.current?.show([
-                { sticky: true, severity: 'error', summary: 'Sistematik', detail: "Sepetinizi görmek için giriş yapmalısınız." }
+                { sticky: true, severity: 'error', summary: 'Hata', detail: 
+                <>
+                    <p>Öncelikle giriş yapmalısınız.</p>
+                    <Link to="/login" className="text-primary">Giriş Yap</Link>
+                </>
+            }
             ]);
         }
         
