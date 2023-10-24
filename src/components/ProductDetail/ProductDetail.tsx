@@ -24,11 +24,10 @@ import { addToCart } from "@/services/order/order.service";
 import { IaddToCartRequest } from "@/services/order/types";
 import { InputNumber } from "primereact/inputnumber";
 import to from "await-to-js";
-import { products } from "../shop/example.products";
 
 
 const ProductDetail = () => {
-    const [images, setImages] = useState<{ source: File; }[] | undefined | string>(undefined);
+    const [images, setImages] = useState<{ source: File; }[] | string | undefined>(undefined)
     const { id } = useParams()
     const [product, setProduct] = useState<IProduct | null>(null)
     const [selectSize, setSelectSize] = useState<string | undefined>(undefined)
@@ -72,21 +71,21 @@ const ProductDetail = () => {
         if (!id) return
         const fetchData = async () => {
             const [err, data] = await to(getProductById(parseInt(id)))
-            // if (err) {
-            //     const res = err as any
-            //     const errorMessage = res?.response?.data?.message || err.message;
-            //     msgs.current?.clear()
-            //     msgs.current?.show([
-            //         { sticky: true, severity: 'error', summary: 'Hata', detail: errorMessage, closable: false }
-            //     ]);
-            //     return
-            // }
+            if (err) {
+                const res = err as any
+                const errorMessage = res?.response?.data?.message || err.message;
+                msgs.current?.clear()
+                msgs.current?.show([
+                    { sticky: true, severity: 'error', summary: 'Hata', detail: errorMessage, closable: false }
+                ]);
+                return
+            }
             if (true) {
-                setProduct(products[0])
-                setSizes(products[0].sizes?.map((size: string) => ({ name: size, key: size })))
-                setColors(products[0].colors?.map((color: string) => ({ name: color, key: color })))
-                setImages(products[0].images?.map((image: string) => ({ source: image })) as any)
-                setReviews(products[0].reviews)
+                setProduct(data.data)
+                setSizes(data.data.sizes?.map((size: string) => ({ name: size, key: size })))
+                setColors(data.data.colors?.map((color: string) => ({ name: color, key: color })))
+                setImages(data.data.images?.map((image: File) => ({ source: image })))
+                setReviews(data.data.reviews)
             }
 
         }
@@ -204,24 +203,17 @@ const ProductDetail = () => {
 
         if (!product) return
 
-        await deleteReviewFromProduct(product?.id, rewId, token)
-            .then(res => {
-                if (res.status == 200) {
-                    const toast: IToast = { severity: 'success', summary: 'Başarılı', detail: res.message, life: 3000 }
-                    dispatch(SET_TOAST(toast))
-                    setReviews(res.data)
-                }
-                else {
-                    const toast: IToast = { severity: 'error', summary: 'Hata', detail: res.message, life: 3000 }
-                    dispatch(SET_TOAST(toast))
-
-                }
-            })
-            .catch(err => {
-                const toast: IToast = { severity: 'error', summary: 'Sistemsel Hata', detail: err.message, life: 3000 }
-                dispatch(SET_TOAST(toast))
-            }
-            )
+        const [err, data] = await to(deleteReviewFromProduct(product.id, rewId, token))
+        if(err) {
+            const res = err as any
+            const errorMessage = res.response.data.Message || err.message;
+            const toast: IToast = { severity: 'error', summary: "Hata", detail: errorMessage, life: 3000 }
+            dispatch(SET_TOAST(toast))
+            return
+        }
+        if(data.data != null) {
+            setReviews(data.data)
+        }
     }
 
     const addToCartSuccessTemplete = () => {
