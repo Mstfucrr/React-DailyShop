@@ -7,10 +7,8 @@ export const reviews = [
         date : new Date("2021-06-01T00:00:00"),
         productId : 1,
         rating : 3,
-        review : "Diam amet duo labore stet elitr ea clita ipsum, tempor labore accusam ipsum et no at. Kasd diam tempor rebum magna dolores sed sed eirmod ipsum.",
-        name : "userEx.name",
-        avatar : "https://bootdey.com/img/Content/avatar/avatar1.png",
-        email : "userEx.email",
+        comment : "Diam amet duo labore stet elitr ea clita ipsum, tempor labore accusam ipsum et no at. Kasd diam tempor rebum magna dolores sed sed eirmod ipsum.",
+        namil : "userEx.email",
         status : "new",
         
     },
@@ -19,10 +17,7 @@ export const reviews = [
         date : new Date("2021-06-01T00:00:00"),
         productId : 1,
         rating : 4,
-        name : "John Doe",
-        email : "jhondoe@example.com",
-        review : "Diam amet duo labore stet elitr ea clita ipsum, tempor labore accusam ipsum et no at. Kasd diam tempor rebum magna dolores sed sed eirmod ipsum.",
-        avatar : "https://bootdey.com/img/Content/avatar/avatar2.png",
+        comment : "Diam amet duo labore stet elitr ea clita ipsum, tempor labore accusam ipsum et no at. Kasd diam tempor rebum magna dolores sed sed eirmod ipsum.",
         status : "approved"
     }
 ] as IReview[]
