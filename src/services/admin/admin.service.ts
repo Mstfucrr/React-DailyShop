@@ -131,10 +131,10 @@ const blockUser = async (id: number, token: string) =>
 const getAllProducts = async (token: string) => 
     await makeRequest<any>(`admin/products`, "GET", null, token);
 
-const getAllCategories = async (token: string) => 
-    await makeRequest<any>(`admin/categories`, "GET", null, token);
+const getAllCategories = async () => 
+    await makeRequest<any>(`Categories/GetList`, "GET", null);
 
-const addCategory = async (token: string, val : any) => 
+const addCategory = async (val : any,token: string) => 
     await makeRequest<any>(`admin/categories`, "POST", val, token);
 
 const updateCategoryById = async (id: number, val: any, token: string) => 
