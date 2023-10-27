@@ -1,4 +1,4 @@
-import { IUser, IUserAddress } from '@/services/auth/types';
+import { IUser } from '@/services/auth/types';
 import { motion } from 'framer-motion'
 import { Fieldset } from 'primereact/fieldset';
 import { useEffect, useState } from 'react';
@@ -7,16 +7,18 @@ import { InputText } from 'primereact/inputtext';
 import { InputMask } from 'primereact/inputmask';
 import * as Yup from 'yup'
 import { useFormik } from 'formik'
-import { confirmDialog } from "primereact/confirmdialog";
+import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 
 import RenderAddressFields from './renderAddressFields';
 import { useDispatch, useSelector } from 'react-redux';
-import { authSelector, SET_AUTH } from '@/store/auth';
+import { authSelector, SET_AUTH, SET_LOGOUT } from '@/store/auth';
 import { authService } from '@/services/auth/auth.service';
 import to from 'await-to-js';
 import { SET_TOAST } from '@/store/Toast';
 import { IToast } from '@/store/Toast/type';
+import { useNavigate } from 'react-router-dom';
 
 
 const UserInformation = (
@@ -26,8 +28,10 @@ const UserInformation = (
 
     const [userState, setUserState] = useState<IUser>(user)
     const [addressesState, setAddressesState] = useState(user.addresses)
+    const [loading, setLoading] = useState(false)
     const { token } = useSelector(authSelector)
     const dispatch = useDispatch()
+    const navigate = useNavigate()
 
     useEffect(() => {
         setUserState(user)
@@ -40,21 +44,19 @@ const UserInformation = (
         const reader = new FileReader()
         reader.readAsDataURL(file)
         reader.onloadend = () => {
-            setUserState({ ...userState, profileImage: reader.result as string })
+            formik.setFieldValue('profileImage', reader.result as string)
         }
     }
 
     const handleAddressAdd = () => {
         const address = {
-            id: 0,
             title: '',
             address: '',
             description: '',
-            isMain: false,
             city: '',
             country: '',
             zipCode: 0,
-        } as IUserAddress;
+        } as any;
 
         // Ekleme işlemi formik.values.addresses'e eklemek yerine setAddressesState ile states'i güncelleyin
         setAddressesState([...addressesState, address]);
@@ -71,7 +73,18 @@ const UserInformation = (
             email: userState.email,
             phone: userState.phone,
             profileImage: userState.profileImage,
-            addresses: userState.addresses
+            addresses: userState.addresses.map((address: any) => {
+                return {
+                    title: address.title,
+                    address: address.address,
+                    description: address.description,
+                    city: address.city,
+                    country: address.country,
+                    zipCode: address.zipCode,
+                }
+            }
+            )
+
         },
 
         validationSchema: Yup.object({
@@ -88,32 +101,60 @@ const UserInformation = (
                     description: Yup.string().required('Açıklama alanı zorunludur'),
                     city: Yup.string().required('Şehir alanı zorunludur'),
                     country: Yup.string().required('Ülke alanı zorunludur'),
-                    zipCode: Yup.string().required('Posta kodu alanı zorunludur'),
+                    zipCode: Yup.number().required('Posta kodu alanı zorunludur'),
 
                 })
             )
         }),
-        onSubmit: async () => {
-
-            const [err, data] = await to(authService.updateAccount(user, token))
-
+        onSubmit: async (values) => {
+            setLoading(true)
+            const [err, res] = await to(authService.updateAccount(values, token))
+            console.log(values)
             if (err) {
                 const res = err as any
                 const errorMessage = res.response.data.Message || err.message;
                 const toast: IToast = { severity: 'error', summary: "Hata", detail: errorMessage, life: 3000 }
                 dispatch(SET_TOAST(toast))
+                formik.resetForm()
+                setLoading(false)
                 return
             }
-            const toast: IToast = { severity: 'success', summary: "Başarılı", detail: data.message, life: 3000 }
-            dispatch(SET_TOAST(toast))
-            dispatch(SET_AUTH(
-                {
-                    user: data.user,
-                    token: token
-                }
-            ))
+            if (res) {
+
+                const toast: IToast = { severity: 'success', summary: "Başarılı", detail: res.message, life: 3000 }
+                dispatch(SET_TOAST(toast))
+                dispatch(SET_AUTH(
+                    {
+                        user: { ...userState, name: res.data.name, surname: res.data.surname, email: res.data.email, phone: res.data.phone, profileImage: res.data.profileImage, addresses: res.data.addresses },
+                        token: token
+                    }
+                ))
+                setLoading(false)
+                setTimeout(() => {
+                    window.location.reload()
+                }, 1000);
+            }
         }
     })
+
+    const handleAccountDelete = async () => {
+        const [err, data] = await to(authService.deleteAccount(token))
+        if (err) {
+            const res = err as any
+            const errorMessage = res.response.data.Message || err.message;
+            const toast: IToast = { severity: 'error', summary: "Hata", detail: errorMessage, life: 3000 }
+            dispatch(SET_TOAST(toast))
+            return
+        }
+        const toast: IToast = { severity: 'success', summary: "Başarılı", detail: data.message, life: 3000 }
+        dispatch(SET_TOAST(toast))
+        dispatch(SET_LOGOUT())
+        navigate('/')
+
+    }
+
+    // bu formik yapısını 3 ayrı formik yapısına ayır ( base, iletişim, adres bilgileri şeklinde)
+
 
     const errorTemplate = (frm: any) => {
         return (
@@ -126,6 +167,16 @@ const UserInformation = (
     const inputClassName = (frm: any) => {
         return 'w-full !my-2 p-inputtext-sm ' +
             (frm ? 'p-invalid' : '')
+    }
+
+    const buttonsLoadingTemplete = () => {
+        return (
+            <>
+                <div className="flex w-full">
+                    <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="8" fill="var(--surface-ground)" animationDuration=".5s" />
+                </div>
+            </>
+        )
     }
 
     return (
@@ -151,7 +202,7 @@ const UserInformation = (
                 className="mb-4"
             >
                 <div className="flex flex-col items-center">
-                    <img src={userState.profileImage} alt="profile" className="lg:w-1/3 w-1/2 max-w-[250px] max-h-[250px] object-cover rounded-full" />
+                    <img src={formik.values.profileImage} alt="profile" className="lg:w-1/3 w-1/2 max-w-[250px] max-h-[250px] object-cover rounded-full" />
                     <form method='post' encType='multipart/form-data' className="flex flex-col items-center"
                     >
                         <input type="file" name="profileImage" id="profileImage" className="hidden"
@@ -162,16 +213,22 @@ const UserInformation = (
                         </label>
                     </form>
                     {
-                        userState.profileImage !== user.profileImage && (
+                        formik.values.profileImage !== user.profileImage && (
                             <div className="flex flex-wrap justify-content-end gap-2 my-4">
-                                <Button label="Save" icon="pi pi-check" type='submit'
-                                    onClick={() => {
-                                        setUser({ ...user, profileImage: userState.profileImage })
-                                        formik.handleSubmit()
-                                    }}
-                                />
-                                <Button label="Cancel" icon="pi pi-times" className="p-button-outlined p-button-secondary"
-                                    onClick={() => { setUserState(user) }}/>
+                                {loading ? buttonsLoadingTemplete()
+
+                                    : <>
+                                        <Button label="Save" icon="pi pi-check" type='submit'
+                                            onClick={() => {
+                                                formik.handleSubmit()
+                                            }}
+                                        />
+                                        <Button label="Cancel" icon="pi pi-times" className="p-button-outlined p-button-secondary"
+                                            onClick={() => {
+                                                formik.setFieldValue('profileImage', userState.profileImage)
+                                            }} />
+                                    </>
+                                }
                             </div>
                         )
                     }
@@ -224,20 +281,23 @@ const UserInformation = (
 
                     {(user.name !== formik.values.name || user.surname !== formik.values.surname) ? (
                         <div className="flex flex-wrap justify-content-end gap-2 my-4">
-                            {!formik.errors.name && !formik.errors.surname && (
+                            {loading ? buttonsLoadingTemplete()
 
-                                <Button label="Save" icon="pi pi-check"  type='submit'
-                                    onClick={() => {
-                                        setUser({ ...user, name: formik.values.name, surname: formik.values.surname })
-                                        formik.handleSubmit()
-                                    }}
-                                />
-                            )}
+                                : !formik.errors.name && !formik.errors.surname && (
+
+                                    <Button label="Save" icon="pi pi-check" type='submit'
+                                        onClick={() => {
+                                            formik.handleSubmit()
+                                        }}
+                                    />
+                                )}
                             <Button label="Cancel" icon="pi pi-times" className="p-button-outlined p-button-secondary"
                                 onClick={() => {
                                     formik.setFieldValue('name', user.name)
                                     formik.setFieldValue('surname', user.surname)
                                 }} />
+
+
                         </div>
                     ) : null
                     }
@@ -288,11 +348,9 @@ const UserInformation = (
                     {(user.email !== formik.values.email || user.phone !== formik.values.phone) ? (
                         <div className="flex flex-wrap justify-content-end gap-2 my-4">
                             {!formik.errors.phone && !formik.errors.email && (
-                                <Button label="Save" icon="pi pi-check"  type='submit'
+                                <Button label="Save" icon="pi pi-check" type='submit'
                                     onClick={() => {
-                                        setUser({ ...user, email: formik.values.email, phone: formik.values.phone })
                                         formik.handleSubmit()
-                                        console.log(formik)
                                     }}
                                 />
                             )}
@@ -320,49 +378,48 @@ const UserInformation = (
 
                     {formik.values.addresses
 
-                        ? formik.values.addresses.map((address, index) => (
+                        ? formik.values.addresses.map((address: any, index: number) => (
                             <RenderAddressFields key={index} index={index} address={address} formik={formik} />
                         )
-                        ) : null }
+                        ) : null}
 
-                    {user.addresses !== formik.values.addresses ? (
+                    {user.addresses !== formik.values.addresses && formik.values.addresses.length > 0 ? (
                         <div className="flex flex-wrap justify-content-end gap-2 my-4">
-                            {!formik.errors.addresses ? (
-                                <>
+                            {loading ? buttonsLoadingTemplete() :
+                                !formik.errors.addresses ? (
+                                    <>
+                                        <Button
+                                            label="Save"
+                                            icon="pi pi-check"
+                                            type='submit'
+                                            onClick={() => {
+                                                formik.handleSubmit()
+                                            }}
+                                        />
+                                        <Button
+                                            label="Cancel"
+                                            icon="pi pi-times"
+                                            className="p-button-outlined p-button-secondary"
+                                            onClick={() => {
+                                                console.log(user.addresses)
+                                                console.log(formik.values.addresses)
+                                                formik.setFieldValue('addresses', user.addresses);
+                                            }}
+                                        />
+                                    </>
+                                ) : (
                                     <Button
-                                        label="Save"
-                                        icon="pi pi-check" 
-                                        type='submit'
-                                        onClick={() => {
-                                            setUser({...user , addresses: formik.values.addresses})
-                                            setAddressesState(formik.values.addresses)
-                                            formik.handleSubmit()                                            
-                                        }}
-                                    />
-                                    <Button
-                                        label="Cancel"
+                                        label="Cancels"
                                         icon="pi pi-times"
                                         className="p-button-outlined p-button-secondary"
                                         onClick={() => {
-                                            console.log(user.addresses)
+                                            formik.setFieldValue('addresses', user.addresses)
 
-                                            formik.setFieldValue('addresses', user.addresses);
                                         }}
                                     />
-                                </>
-                            ) : (
-                                <Button
-                                    label="Cancels"
-                                    icon="pi pi-times"
-                                    className="p-button-outlined p-button-secondary"
-                                    onClick={() => {
-                                        console.log(!formik.errors.addresses)
-                                        console.log(user.addresses.length)
-                                        formik.setFieldValue('addresses', user.addresses)
-                                            .then(() => console.log(formik.values.addresses))
-                                    }}
-                                />
-                            )}
+                                )
+                            }
+
                         </div>
                     ) : null}
 
@@ -385,7 +442,7 @@ const UserInformation = (
             } className="mb-4" toggleable >
                 <div className="flex flex-col">
                     <div className="flex flex-col w-full">
-
+                        <ConfirmDialog />
                         <Button
                             onClick={() => {
                                 const dia = confirmDialog({
@@ -394,9 +451,7 @@ const UserInformation = (
                                     icon: 'pi pi-exclamation-triangle',
                                     acceptClassName: 'p-button-danger',
                                     accept: () => {
-                                        // deleteUser(user.id)
-                                        localStorage.removeItem('user')
-                                        // history.push('/')
+                                        handleAccountDelete()
                                         dia.hide()
 
                                     },
