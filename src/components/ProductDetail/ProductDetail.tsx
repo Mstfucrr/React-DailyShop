@@ -86,6 +86,13 @@ const ProductDetail = () => {
                 setColors(data.data.colors?.map((color: string) => ({ name: color, key: color })))
                 setImages(data.data.images?.map((image: File) => ({ source: image })))
                 setReviews(data.data.reviews)
+                if (product && !product.isApproved) {
+                    msgs.current?.clear()
+                    msgs.current?.show([
+                        { sticky: true, severity: "warn", summary: "Uyarı", detail : "Ürün mevcut fakat henüz yönetici tarafından onaylanmadı! ", closable: false}
+                    ])
+                    return 
+                }
             }
 
         }
@@ -204,14 +211,14 @@ const ProductDetail = () => {
         if (!product) return
 
         const [err, data] = await to(deleteReviewFromProduct(product.id, rewId, token))
-        if(err) {
+        if (err) {
             const res = err as any
             const errorMessage = res.response.data.Message || err.message;
             const toast: IToast = { severity: 'error', summary: "Hata", detail: errorMessage, life: 3000 }
             dispatch(SET_TOAST(toast))
             return
         }
-        if(data.data != null) {
+        if (data.data != null) {
             setReviews(data.data)
         }
     }
@@ -240,7 +247,7 @@ const ProductDetail = () => {
     return (
 
         <>
-            {product
+            {product && product.isApproved 
 
                 ? <div className="lg:px-20">
                     {/* image and info */}
@@ -496,7 +503,7 @@ const ProductDetail = () => {
 
                                                     </div>
                                                 </>
-                                                : 
+                                                :
                                                 // arka plan blurlu Giriş yap kısmı link li
                                                 <>
                                                     <div className="flex flex-col items-center justify-center w-full h-32 bg-gray-100 bg-opacity-50 rounded-xl">
