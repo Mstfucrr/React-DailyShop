@@ -7,7 +7,7 @@ import { InputText } from 'primereact/inputtext'
 import { TreeSelect } from 'primereact/treeselect'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { findCategoryByKeyInTreeSelectModel, convertCategoriesToTreeSelectModel } from '../shop/example.products'
+import { findCategoryByKeyInTreeSelectModel, convertCategoriesToTreeSelectModel, categoriesEx } from '../shop/example.products'
 import * as Yup from 'yup'
 import { useFormik } from 'formik'
 import { IToast } from '@/store/Toast/type'
@@ -34,18 +34,7 @@ const CategorySettings = () => {
     useEffect(() => {
 
         const getAllCategories = async () => {
-            const [err, data] = await to(adminService.getAllCategories(token));
-            if (err) {
-                const errMessage = err as any;
-                const toast: IToast = { severity: 'error', summary: 'Kategori Eklenemedi', detail: errMessage.response.data.message || errMessage.message, life: 5000 }
-                dispatch(SET_TOAST(toast))
-                setLoading(false);
-                return
-            }
-            if (data) {
-                setTreeNodes(convertCategoriesToTreeSelectModel(data));
-                setLoading(false);
-            }
+            await handleGetAllCategories();
         }
         getAllCategories();
     }, []);
@@ -59,7 +48,7 @@ const CategorySettings = () => {
     })
 
     const handleAddCategory = async (val: any) => {
-        const [err, data] = await to(adminService.addCategory(token, val));
+        const [err, data] = await to(adminService.addCategory(val,token));
         if (err) {
             const errMessage = err as any;
             const toast: IToast = { severity: 'error', summary: 'Kategori Eklenemedi', detail: errMessage.response.data.message || errMessage.message, life: 5000 }
@@ -71,7 +60,7 @@ const CategorySettings = () => {
     }
 
     const handleGetAllCategories = async () => {
-        const [err, data] = await to(adminService.getAllCategories(token));
+        const [err, data] = await to(adminService.getAllCategories());
         if (err) {
             const res = err as any
             const errorMessage = res.response.data.Message || err.message;
@@ -205,7 +194,10 @@ const CategorySettings = () => {
                                             className="md:w-1/2 w-full"
 
                                         />
-                                        <Button onClick={() => setSelectedNodeKey(null)} icon="pi pi-times" className="p-button-danger"
+                                        <Button onClick={() => {
+                                            setSelectedCategory(undefined)
+                                            setSelectedNodeKey(null)
+                                        }} icon="pi pi-times" className="p-button-danger"
                                             disabled={!selectedNodeKey}
                                         />
                                         {/* <Button className='p-button-rounded p-button-danger' label='Seçili Kategoriyi Sil' icon="pi pi-trash" /> */}
