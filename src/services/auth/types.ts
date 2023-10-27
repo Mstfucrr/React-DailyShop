@@ -30,7 +30,6 @@ export interface IUserAddress {
     id: number;
     title : string;
     description : string;
-    isMain : boolean;
     address: string;
     city: string;
     state: string;
