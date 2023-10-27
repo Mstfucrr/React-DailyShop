@@ -11,17 +11,21 @@ const register = async (input: IRegister) =>
     await makeRequest<any>("Auths/Register", "POST", input);
 
 
-const updateAccount = async (input: IUser, token: string) =>
-    await makeRequest<any>("Auths/UpdateAccount", "PUT", input, token);
+const updateAccount = async (input: any, token: string) =>
+    await makeRequest<any>("Profiles/Update", "PUT", input, token);
 
 
 const logout = async (token: string) =>
     await makeRequest<any>("Auths/Logout", "POST", null, token);
+
+const deleteAccount = async (token: string) =>
+    await makeRequest<any>("Profiles/Delete", "DELETE", null, token);
 
 
 export const authService = {
     login,
     register,
     logout,
-    updateAccount
+    updateAccount,
+    deleteAccount
 }
