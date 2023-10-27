@@ -1,12 +1,10 @@
 import { IUserAddress } from "@/services/auth/types";
-import { SET_TOAST } from "@/store/Toast";
 import { Button } from "primereact/button";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import { Fieldset } from "primereact/fieldset";
 import { InputNumber } from "primereact/inputnumber";
 import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
-import { useDispatch } from "react-redux";
 
 type Props = {
     address: IUserAddress
@@ -36,10 +34,6 @@ const RenderAddressFields = ({ index, address, formik }: Props) => {
     }
 
     
-    const dispatch = useDispatch()
-
-
-
     return (
         <Fieldset legend={
             <div>
@@ -165,13 +159,8 @@ const RenderAddressFields = ({ index, address, formik }: Props) => {
                             acceptClassName: 'p-button-danger',
                             accept: () => {
                                 formik.setFieldValue('addresses', formik.values.addresses.filter((_: any, i: number) => i !== index))
+                                formik.handleSubmit()
                                 dia.hide()
-                                dispatch(SET_TOAST({
-                                    severity: 'success',
-                                    summary: 'Başarılı',
-                                    detail: 'Adres başarıyla silindi',
-                                    life: 3000
-                                }))
                             },
                             reject: () => dia.hide()
                         })
