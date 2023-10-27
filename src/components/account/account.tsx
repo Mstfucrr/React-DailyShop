@@ -26,7 +26,9 @@ const Account = () => {
                 summary: 'Hata',
                 detail: <>
                     <div className="flex gap-6 text-lg">
-                        <p className="">Giriş yapmalısınız</p>
+                        <p className="">
+                            Lütfen giriş yapın.
+                        </p>
                         <Link to={"/login"} className="text-black underline">Giriş Yap</Link> veya <Link to={"/register"} className="text-black underline">Kayıt Ol</Link>
                     </div>
 
