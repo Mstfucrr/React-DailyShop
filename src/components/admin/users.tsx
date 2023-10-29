@@ -31,7 +31,7 @@ const UserSettings = () => {
 
     const showErrorMessage = (err: any) => {
         const res = err as any
-        const errorMessage = res.response.data.Message || err.message;
+        const errorMessage = res?.response?.data?.Message || err.message;
         const toast: IToast = { severity: 'error', summary: "Hata", detail: errorMessage, life: 3000 }
         dispatch(SET_TOAST(toast))
     }
@@ -40,22 +40,24 @@ const UserSettings = () => {
         dispatch(SET_TOAST(toast))
     }
 
+    const fetchUsers = async () => {
+        setLoading(true)
+        const [err, data] = await to(adminService.fetchUsers(token))
+        if (err) {
+            showErrorMessage(err)
+            setLoading(false)
+            return
+        }
+        if (data) {
+            setUsers(data)
+            showSuccess(data.message)
+            setLoading(false)
+        }
+    }
+
 
     useEffect(() => {
-        const fetchUsers = async () => {
-            setLoading(true)
-            const [err, data] = await to(adminService.fetchUsers(token))
-            if (err) {
-                showErrorMessage(err)
-                setLoading(false)
-                return
-            }
-            if (data) {
-                setUsers(data)
-                showSuccess(data.message)
-                setLoading(false)
-            }
-        }
+
         fetchUsers()
     }, [])
 
@@ -119,6 +121,7 @@ const UserSettings = () => {
         }
         if (data) {
             showSuccess(data.message)
+            fetchUsers()
         }
     }
 
@@ -136,14 +139,19 @@ const UserSettings = () => {
                     <Column field="surname" header="Soyisim" />
                     <Column field="email" header="E-posta" />
                     <Column field="role" header="Rol" />
-                    <Column header="Engelle" body={(data: any) => {
+                    <Column header="Engelle" body={(data: IUser) => {
                         return (
-                            <Button label="Engelle" className="p-button-danger !p-2 !text-sm"
-                                onClick={() => {
-                                    handleBlockUser(data.id)
-                                }} />
+                            <>
+                                {data.status ? (
+                                    <Button onClick={() => { handleBlockUser(data.id) }} icon="pi pi-ban" className="p-button-danger p-button-outlined" label="Engelle" size='small' />
+                                ) : (
+                                    <Button onClick={() => { handleBlockUser(data.id) }} icon="pi pi-check" className="p-button-success p-button-outlined" label="Engeli kaldır" size='small' />
+                                )
+                                }
+                            </>
                         )
-                    }}></Column>
+                    }
+                    }></Column>
                 </DataTable>
 
 
