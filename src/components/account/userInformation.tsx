@@ -109,14 +109,13 @@ const UserInformation = (
         onSubmit: async (values) => {
             setLoading(true)
             const [err, res] = await to(authService.updateAccount(values, token))
-            console.log(values)
             if (err) {
+                setLoading(false)
                 const res = err as any
-                const errorMessage = res.response.data.Message || err.message;
+                const errorMessage = res?.response?.data?.Message || err.message;
                 const toast: IToast = { severity: 'error', summary: "Hata", detail: errorMessage, life: 3000 }
                 dispatch(SET_TOAST(toast))
                 formik.resetForm()
-                setLoading(false)
                 return
             }
             if (res) {
@@ -141,7 +140,7 @@ const UserInformation = (
         const [err, data] = await to(authService.deleteAccount(token))
         if (err) {
             const res = err as any
-            const errorMessage = res.response.data.Message || err.message;
+            const errorMessage = res?.response?.data?.Message || err.message;
             const toast: IToast = { severity: 'error', summary: "Hata", detail: errorMessage, life: 3000 }
             dispatch(SET_TOAST(toast))
             return
@@ -172,7 +171,7 @@ const UserInformation = (
     const buttonsLoadingTemplete = () => {
         return (
             <>
-                <div className="flex w-full">
+                <div className="flex w-1/4">
                     <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="8" fill="var(--surface-ground)" animationDuration=".5s" />
                 </div>
             </>
@@ -347,14 +346,15 @@ const UserInformation = (
 
                     {(user.email !== formik.values.email || user.phone !== formik.values.phone) ? (
                         <div className="flex flex-wrap justify-content-end gap-2 my-4">
-                            {!formik.errors.phone && !formik.errors.email && (
-                                <Button label="Save" icon="pi pi-check" type='submit'
-                                    onClick={() => {
-                                        formik.handleSubmit()
-                                    }}
-                                />
-                            )}
-                            <Button label="Cancel" icon="pi pi-times" className="p-button-outlined p-button-secondary"
+                            {loading ? buttonsLoadingTemplete()
+                                : !formik.errors.phone && !formik.errors.email && (
+                                    <Button label="Save" icon="pi pi-check" type='submit'
+                                        onClick={() => {
+                                            formik.handleSubmit()
+                                        }}
+                                    />
+                                )}
+                            < Button label="Cancel" icon="pi pi-times" className="p-button-outlined p-button-secondary"
                                 onClick={() => {
                                     formik.setFieldValue('email', user.email)
                                     formik.setFieldValue('phone', user.phone)
