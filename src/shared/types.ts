@@ -23,7 +23,7 @@ export interface IProduct {
 export interface ICategory {
     id: number
     name: string
-    parrentCategoryId: number | undefined
+    parentCategoryId: number | undefined
     subCategories: ICategory[] | null
 
 }
