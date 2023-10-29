@@ -2,25 +2,16 @@ import axios from "axios";
 import { makeRequest } from "../base/base";
 
 // tek fetch fonksiyonu ile çek
-const fetchSettings = async (token: string) => {
-    const { data } = await axios.get('/admin/settings', {
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-        },
-    });
-    return data;
-}
+const fetchSettings = async (token: string) => 
+    await makeRequest<any>(`Admin/SiteSettings`, "GET", null, token);
 
-const fetchUsers = async (token: string) => {
-    const { data } = await axios.get('/admin/users', {
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-        },
-    });
-    return data;
-}
+const saveSettings = async (val: any, token: string) =>
+    await makeRequest<any>(`Admin/SiteSettings`, "PUT", val, token);
+
+
+
+const fetchUsers = async (token: string) =>
+    await makeRequest<any>(`Admin/UserSettings/Index`, "GET", null, token);
 
 const fetchAddressByUserId = async (id: number, token: string) => {
     const { data } = await axios.get(`/admin/users/${id}/addresses`, {
@@ -44,59 +35,6 @@ const fetchReviewsByUserId = async (id: number, token: string) => {
     return data;
 }
 
-
-
-const saveAbout = async (input: string, token: string) => {
-
-    const { data } = await axios.post('/admin/about', input, {
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-        },
-    });
-    return data;
-
-
-}
-
-const saveContact = async (email: string, phone: string, token: string) => {
-
-    const { data } = await axios.post('/admin/contact', { email, phone }, {
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-
-        },
-    });
-    return data
-
-}
-
-const saveAddress = async (input: string, token: string) => {
-
-    const { data } = await axios.post('/admin/address', input, {
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-
-        },
-    });
-    return data
-
-}
-
-const saveSiteIcon = async (input: File, token: string) => {
-
-    const { data } = await axios.post('/admin/site-icon', input, {
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-
-        },
-    });
-    return data
-
-}
 
 const updateReviewStatus = async (id: number, status: string, token: string) => {
 
@@ -125,27 +63,27 @@ const fetchPaddingProductByUserId = async (id: number, token: string) => {
 const updateProductApprovalStatus = async (id: number, status: boolean, token: string) =>
     await makeRequest<any>(`admin/products/${id}`, "PUT", { status }, token);
 
-const blockUser = async (id: number, token: string) => 
-    await makeRequest<any>(`admin/users/${id}`, "PUT", null, token);
+const blockUser = async (id: number, token: string) =>
+    await makeRequest<any>(`Admin/UserSettings/${id}`, "PUT", null, token);
 
-const getAllProducts = async (token: string) => 
+const getAllProducts = async (token: string) =>
     await makeRequest<any>(`admin/products`, "GET", null, token);
 
-const getAllCategories = async () => 
+const getAllCategories = async () =>
     await makeRequest<any>(`Categories/GetList`, "GET", null);
 
-const addCategory = async (val : any,token: string) => 
-    await makeRequest<any>(`admin/categories`, "POST", val, token);
+const addCategory = async (val: any, token: string) =>
+    await makeRequest<any>(`Admin/Categories/Add`, "POST", val, token);
 
-const updateCategoryById = async (id: number, val: any, token: string) => 
-    await makeRequest<any>(`admin/categories/${id}`, "PUT", val, token);
+const updateCategoryById = async (id: number, val: any, token: string) =>
+    await makeRequest<any>(`Admin/Categories/${id}`, "PUT", val, token);
+
+const deleteCategoryById = async (id: number, token: string) =>
+    await makeRequest<any>(`Admin/Categories/${id}`, "DELETE", null, token);
 
 export default {
-    saveAbout,
-    saveContact,
-    saveAddress,
-    saveSiteIcon,
     fetchSettings,
+    saveSettings,
     fetchUsers,
     fetchAddressByUserId,
     fetchReviewsByUserId,
@@ -156,5 +94,6 @@ export default {
     getAllProducts,
     getAllCategories,
     addCategory,
-    updateCategoryById
+    updateCategoryById,
+    deleteCategoryById
 }
