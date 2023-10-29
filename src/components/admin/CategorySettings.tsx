@@ -48,7 +48,7 @@ const CategorySettings = () => {
     })
 
     const handleAddCategory = async (val: any) => {
-        const [err, data] = await to(adminService.addCategory(val,token));
+        const [err, data] = await to(adminService.addCategory(val, token));
         if (err) {
             const errMessage = err as any;
             const toast: IToast = { severity: 'error', summary: 'Kategori Eklenemedi', detail: errMessage.response.data.message || errMessage.message, life: 5000 }
@@ -62,6 +62,7 @@ const CategorySettings = () => {
     const handleGetAllCategories = async () => {
         const [err, data] = await to(adminService.getAllCategories());
         if (err) {
+            setTreeNodes(convertCategoriesToTreeSelectModel(categoriesEx));
             const res = err as any
             const errorMessage = res.response.data.Message || err.message;
             const toast: IToast = { severity: 'error', summary: "Hata", detail: errorMessage, life: 3000 }
@@ -111,8 +112,17 @@ const CategorySettings = () => {
             dispatch(SET_TOAST(toast))
             return
         }
-        const toast: IToast = { severity: 'success', summary: 'Kategori Güncellendi', detail: data.message, life: 5000 }
-        dispatch(SET_TOAST(toast))
+        else if (data) {
+
+            const toast: IToast = { severity: 'success', summary: data.message, detail: data.message, life: 5000 }
+            dispatch(SET_TOAST(toast))
+            handleGetAllCategories()
+            setSelectedNodeKey(null)
+            setSelectedCategory(undefined)
+            setUpdateCategory(null)
+            updateCategoryFormik.resetForm()
+
+        }
     }
 
 
@@ -136,15 +146,6 @@ const CategorySettings = () => {
             }
             if (updateCategory)
                 await handleUpdateCategory(updateCategory?.id, val)
-                    .then(() => {
-                        handleGetAllCategories()
-                    })
-                    .then(() => {
-                        setSelectedNodeKey(null)
-                        setSelectedCategory(undefined)
-                        setUpdateCategory(null)
-                        updateCategoryFormik.resetForm()
-                    })
             setLoading(false);
         }
     })
@@ -246,18 +247,7 @@ const CategorySettings = () => {
                                 onDragDrop={(e) => {
                                     setLoading(true);
                                     handleUpdateCategory(e.dragNode.data.id, { parrentCategoryId: e.dropNode.data.id })
-                                        .then(() => {
-                                            handleGetAllCategories()
-                                        })
-                                        .then(() => {
-                                            setSelectedNodeKey(null)
-                                            setSelectedCategory(undefined)
-                                            setUpdateCategory(null)
-                                            updateCategoryFormik.resetForm()
-                                        })
                                     setLoading(false);
-
-
                                 }}
                                 nodeTemplate={(node) => {
                                     return (
