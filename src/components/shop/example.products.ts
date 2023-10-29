@@ -372,24 +372,24 @@ export const categoriesEx = [
     {
         id: 1,
         name: "Elektronik",
-        parrentCategoryId: undefined,
+        parentCategoryId: undefined,
         subCategories: [
             {
                 id: 2,
                 name: "Telefon",
-                parrentCategoryId: 1,
+                parentCategoryId: 1,
                 subCategories: null
             },
             {
                 id: 3,
                 name: "Bilgisayar",
-                parrentCategoryId: 1,
+                parentCategoryId: 1,
                 subCategories: null
             },
             {
                 id: 4,
                 name: "Kamera",
-                parrentCategoryId: 1,
+                parentCategoryId: 1,
                 subCategories: null
             }
         ]
@@ -397,24 +397,24 @@ export const categoriesEx = [
     {
         id: 5,
         name: "Giyim",
-        parrentCategoryId: undefined,
+        parentCategoryId: undefined,
         subCategories: [
             {
                 id: 6,
                 name: "Erkek",
-                parrentCategoryId: 5,
+                parentCategoryId: 5,
                 subCategories: null
             },
             {
                 id: 7,
                 name: "Kadın",
-                parrentCategoryId: 5,
+                parentCategoryId: 5,
                 subCategories: null
             },
             {
                 id: 8,
                 name: "Çocuk",
-                parrentCategoryId: 5,
+                parentCategoryId: 5,
                 subCategories: null
             }
         ]
