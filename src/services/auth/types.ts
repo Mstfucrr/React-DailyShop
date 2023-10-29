@@ -24,6 +24,7 @@ export interface IUser {
     phone: string;
     addresses: IUserAddress[];
     reviews : IReview[] | undefined;
+    status: boolean;
 }
 
 export interface IUserAddress {
