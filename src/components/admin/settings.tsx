@@ -1,4 +1,5 @@
 import adminService from "@/services/admin/admin.service"
+import { ISiteSettings } from "@/services/admin/types"
 import { SET_TOAST } from "@/store/Toast"
 import { IToast } from "@/store/Toast/type"
 import { authSelector } from "@/store/auth"
@@ -15,10 +16,11 @@ import { useDispatch, useSelector } from "react-redux"
 const Settings = () => {
 
     // hakkımızda, iletişim bilgileri , adres bilgileri ve site icon ayarları
-    const [about, setAbout] = useState<string>('')
-    const [email, setEmail] = useState<string>('')
-    const [phone, setPhone] = useState<string>('')
-    const [address, setAddress] = useState<string>('')
+    const [about, setAbout] = useState<string | undefined>('')
+    const [email, setEmail] = useState<string | undefined>('')
+    const [phone, setPhone] = useState<string | undefined>('')
+    const [address, setAddress] = useState<string | undefined>('')
+    const [siteSettings, setSiteSettings] = useState<ISiteSettings | null>()
     const [siteIcon, setSiteIcon] = useState<File>()
 
     const { token } = useSelector(authSelector)
@@ -30,34 +32,49 @@ const Settings = () => {
         const toast: IToast = { severity: 'error', summary: "Hata", detail: errorMessage, life: 3000 }
         dispatch(SET_TOAST(toast))
     }
-    const showSuccess = (message : string) => {
+    const showSuccess = (message: string) => {
         const toast: IToast = { severity: 'success', summary: "Başarılı", detail: message, life: 3000 }
         dispatch(SET_TOAST(toast))
     }
 
-    useEffect(() => {
+    const fetchDatas = async () => {
 
-        const fetchDatas = async () => {
-
-            const [err, data] = await to(adminService.fetchSettings(token))
-            if (err) {
-                showErrorMessage(err)
-                return
-            }
-            if (data) {
-                console.log(data)
-                setAbout(data.data.about)
-                setEmail(data.data.email)
-                setPhone(data.data.phone)
-                setAddress(data.data.address)
-            }
-
+        const [err, data] = await to(adminService.fetchSettings(token))
+        if (err) {
+            showErrorMessage(err)
+            return
+        }
+        if (data) {
+            setSiteSettings(data.data)
         }
 
-        fetchDatas()
+    }
 
+
+    useEffect(() => {
+        fetchDatas()
     }, [])
 
+    const SaveSettings = async () => {
+
+        const val: ISiteSettings = {
+            id: siteSettings?.id,
+            about: about,
+            email: email,
+            phone: phone,
+            address: address,
+            siteIcon: siteIcon
+        }
+        const [err, data] = await to(adminService.saveSettings(val, token))
+        if (err) {
+            showErrorMessage(err)
+            return
+        }
+        if (data) {
+            showSuccess(data.message)
+            fetchDatas()
+        }
+    }
 
 
     const ItemTemplate = (inFile: object) => {
@@ -74,8 +91,6 @@ const Settings = () => {
     };
 
     const emptyTemplate = () => {
-
-
         return (
             <>
                 {siteIcon ?
@@ -99,61 +114,16 @@ const Settings = () => {
             </>
         );
     };
+
     useEffect(() => {
-
-        console.log(siteIcon)
-    }, [siteIcon])
-
-    const saveAbout = async () => {
-
-        const [err, data] = await to(adminService.saveAbout(about, token))
-        if (err) {
-            showErrorMessage(err)
-            return
+        if (siteSettings) {
+            setAbout(siteSettings.about)
+            setEmail(siteSettings.email)
+            setPhone(siteSettings.phone)
+            setAddress(siteSettings.address)
         }
-        if (data) {
-            showSuccess(data.message)
-        }
-    }
+    }, [siteSettings])
 
-    const saveContact = async () => {
-
-        const [err, data] = await to(adminService.saveContact(email, phone, token))
-        if (err) {
-            showErrorMessage(err)
-            return
-        }
-        if (data) {
-            showSuccess(data.message)
-        }
-
-    }
-
-    const saveAddress = async () => {
-
-        const [err, data] = await to(adminService.saveAddress(address, token))
-        if (err) {
-            showErrorMessage(err)
-            return
-        }
-        if (data) {
-            showSuccess(data.message)
-        }
-
-    }
-
-    const saveSiteIcon = async () => {
-
-        const [err, data] = await to(adminService.saveSiteIcon(siteIcon as File, token))
-        if (err) {
-            showErrorMessage(err)
-            return
-        }
-        if (data) {
-            showSuccess(data.message)
-        }
-
-    }
 
     return (
         <>
@@ -162,8 +132,13 @@ const Settings = () => {
                 {/* Hakkımızda */}
                 <div className="flex flex-col gap-y-6">
                     <h3 className="text-2xl" >Hakkımızda</h3>
-                    <Editor style={{ height: '320px' }} />
-                    <Button label="Kaydet" className="w-1/6" onClick={saveAbout} />
+                    <Editor style={{ height: '320px' }} value={about} onTextChange={(e) => setAbout(e.htmlValue as any)} />
+                </div>
+                {/* test show about */}
+                <div className="flex flex-col gap-y-6">
+                    <h3 className="text-2xl" >Hakkımızda</h3>
+                    <div className="ql-editor"
+                     dangerouslySetInnerHTML={{ __html: about as string }} />
                 </div>
 
                 {/* İletişim Bilgileri */}
@@ -182,14 +157,12 @@ const Settings = () => {
                             </div>
                         </div>
                     </div>
-                    <Button label="Kaydet" className="w-1/6" onClick={saveContact} />
                 </div>
 
                 {/* Adres Bilgileri */}
                 <div className="flex flex-col gap-y-6">
                     <h3 className="text-2xl" >Adres Bilgileri</h3>
                     <InputTextarea value={address} onChange={(e) => setAddress(e.target.value)} />
-                    <Button label="Kaydet" className="w-1/6" onClick={saveAddress} />
                 </div>
 
                 {/* Site Icon */}
@@ -202,9 +175,13 @@ const Settings = () => {
                         name="demo[]" customUpload
                         onUpload={(e) => setSiteIcon(e.files[0])}
                     />
-                    <Button label="Kaydet" className="w-1/6" onClick={saveSiteIcon} />
                 </div>
-
+            
+                    {/* Kaydet ve iptal Butonu */}   
+                <div className="flex justify-end gap-3">
+                    <Button label="Kaydet" onClick={SaveSettings} severity="success" />
+                    <Button label="İptal" className="ml-3" severity="danger" />
+                </div>
 
             </div>
         </>

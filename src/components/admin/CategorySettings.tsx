@@ -39,6 +39,17 @@ const CategorySettings = () => {
         getAllCategories();
     }, []);
 
+    const showErrorMessage = (err: any) => {
+        const res = err as any
+        const errorMessage = res?.response?.data?.Message || err.message;
+        const toast: IToast = { severity: 'error', summary: "Hata", detail: errorMessage, life: 3000 }
+        dispatch(SET_TOAST(toast))
+    }
+    const showSuccess = (message: string) => {
+        const toast: IToast = { severity: 'success', summary: "Başarılı", detail: message, life: 3000 }
+        dispatch(SET_TOAST(toast))
+    }
+
 
     const validationSchema = Yup.object({
         categoryName: Yup.string()
@@ -50,26 +61,29 @@ const CategorySettings = () => {
     const handleAddCategory = async (val: any) => {
         const [err, data] = await to(adminService.addCategory(val, token));
         if (err) {
-            const errMessage = err as any;
-            const toast: IToast = { severity: 'error', summary: 'Kategori Eklenemedi', detail: errMessage.response.data.message || errMessage.message, life: 5000 }
-            dispatch(SET_TOAST(toast))
+            showErrorMessage(err)
             return
         }
-        const toast: IToast = { severity: 'success', summary: 'Kategori Eklendi', detail: data.message, life: 5000 }
-        dispatch(SET_TOAST(toast))
+        else if (data) {
+            showSuccess(data.message)
+            handleGetAllCategories()
+            formik.resetForm()
+
+        }
     }
 
     const handleGetAllCategories = async () => {
         const [err, data] = await to(adminService.getAllCategories());
+        console.log(data)
         if (err) {
-            setTreeNodes(convertCategoriesToTreeSelectModel(categoriesEx));
-            const res = err as any
-            const errorMessage = res.response.data.Message || err.message;
-            const toast: IToast = { severity: 'error', summary: "Hata", detail: errorMessage, life: 3000 }
-            dispatch(SET_TOAST(toast))
+            showErrorMessage(err)
             return
+
         }
         if (data) {
+            setSelectedNodeKey(null)
+            setSelectedCategory(undefined)
+            setUpdateCategory(null)
             setTreeNodes(convertCategoriesToTreeSelectModel(data));
         }
     }
@@ -84,17 +98,9 @@ const CategorySettings = () => {
             setLoading(true);
             const val = {
                 name: values.categoryName,
-                parrentCategoryId: selectedCategory?.id || null
+                parentCategoryId: selectedCategory?.id || null
             }
             await handleAddCategory(val)
-                .then(async () => {
-                    await handleGetAllCategories()
-                })
-                .then(() => {
-                    setSelectedNodeKey(null)
-                    setSelectedCategory(undefined)
-                    formik.resetForm()
-                })
             setLoading(false);
         },
     })
@@ -104,22 +110,15 @@ const CategorySettings = () => {
     // update selec category
 
     const handleUpdateCategory = async (id: number, val: any) => {
+        console.log(val)
         const [err, data] = await to(adminService.updateCategoryById(id, val, token));
         if (err) {
-            const res = err as any
-            const errorMessage = res.response.data.Message || err.message;
-            const toast: IToast = { severity: 'error', summary: "Hata", detail: errorMessage, life: 3000 }
-            dispatch(SET_TOAST(toast))
+            showErrorMessage(err)
             return
         }
         else if (data) {
-
-            const toast: IToast = { severity: 'success', summary: data.message, detail: data.message, life: 5000 }
-            dispatch(SET_TOAST(toast))
+            showSuccess(data.message)
             handleGetAllCategories()
-            setSelectedNodeKey(null)
-            setSelectedCategory(undefined)
-            setUpdateCategory(null)
             updateCategoryFormik.resetForm()
 
         }
@@ -142,13 +141,29 @@ const CategorySettings = () => {
 
             setLoading(true);
             const val = {
-                name: values.categoryName
+                name: values.categoryName,
+                parentCategoryId: updateCategory?.parentCategoryId || null
             }
             if (updateCategory)
                 await handleUpdateCategory(updateCategory?.id, val)
             setLoading(false);
         }
     })
+
+    const handleDeleteCategory = async (id: number) => {
+        const [err, data] = await to(adminService.deleteCategoryById(id, token));
+        if (err) {
+            showErrorMessage(err);
+            return
+        }
+
+        else if (data) {
+            showSuccess(data.message)
+            handleGetAllCategories()
+            updateCategoryFormik.resetForm()
+            setLoading(false);
+        }
+    }
 
 
     return (
@@ -246,7 +261,7 @@ const CategorySettings = () => {
                                 dragdropScope='demo'
                                 onDragDrop={(e) => {
                                     setLoading(true);
-                                    handleUpdateCategory(e.dragNode.data.id, { parrentCategoryId: e.dropNode.data.id })
+                                    handleUpdateCategory(e.dragNode.data.id, { name: e.dragNode.data.name, parentCategoryId: e.dropNode?.data.id || null })
                                     setLoading(false);
                                 }}
                                 nodeTemplate={(node) => {
@@ -257,7 +272,9 @@ const CategorySettings = () => {
                                                 <Button className='p-button-rounded p-button-info' icon="pi pi-pencil"
                                                     onClick={() => { setUpdateCategory(node.data) }}
                                                 />
-                                                <Button className='p-button-rounded p-button-danger' icon="pi pi-trash" />
+                                                <Button className='p-button-rounded p-button-danger' icon="pi pi-trash"
+                                                    onClick={() => { handleDeleteCategory(node.data.id) }}
+                                                />
                                             </div>
 
                                         </div>
