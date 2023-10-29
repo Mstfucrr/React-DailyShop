@@ -112,7 +112,7 @@ const RenderAddressFields = ({ index, address, formik }: Props) => {
             </div>
             <div className="flex lg:flex-row flex-col gap-9 items-center">
                 <div className="flex flex-col w-full">
-                    <label htmlFor="country" className="text-primary">Şehir</label>
+                    <label htmlFor="country" className="text-primary">Ülke</label>
                     <InputText
                         id='country'
                         name='country'
