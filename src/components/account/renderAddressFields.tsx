@@ -133,7 +133,7 @@ const RenderAddressFields = ({ index, address, formik }: Props) => {
                         name='zipCode'
                         value={formik.values.addresses[index].zipCode}
                         onChange={(e) => {
-                            formik.setFieldValue(`addresses[${index}].zipCode`, e.value)
+                            formik.setFieldValue(`addresses[${index}].zipCode`, e.value?.toString())
                         }}
                         useGrouping={false}
 
