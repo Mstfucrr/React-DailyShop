@@ -1,5 +1,5 @@
 import useMediaQuery from '@/hooks/useMedia';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import {
   IoIosArrowDown, IoIosMenu
@@ -13,11 +13,15 @@ import { authSelector, SET_LOGOUT } from '@/store/auth';
 import { useDispatch, useSelector } from 'react-redux';
 import { SET_TOAST } from '@/store/Toast';
 import { IToast } from '@/store/Toast/type';
+import categoryService from '@/services/category/category.service';
+import to from 'await-to-js';
+import { ICategory } from '@/shared/types';
 
 
 const Navbar = () => {
   const navigate = useNavigate()
 
+  const [categories, setCategories] = useState([] as ICategory[])
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const isAboveMediumScreen = useMediaQuery("(min-width: 1060px)");
@@ -40,6 +44,26 @@ const Navbar = () => {
     navigate('/')
   }
 
+  const getCategories = async () => {
+    const [err, data] = await to(categoryService.fetchCategories())
+    if (err) return console.log(err)
+    setCategories(data)
+  }
+
+  const renderCategory = (category: ICategory) => (
+    <div key={category.id}>
+      <Link to={`/shop/${category.id}`} className={navItemsStyle + " py-[8px] px-[30px]"}>{category.name}</Link>
+      {category.subCategories && (
+        <div className="pl-[20px]">
+          {category.subCategories.map((subcategory) => renderCategory(subcategory))}
+        </div>
+      )}
+    </div>
+  );
+
+  useEffect(() => {
+    getCategories()
+  }, [])
 
   return (
     <>
@@ -56,7 +80,7 @@ const Navbar = () => {
                 () => setIsCategoryMenuOpen(!isCategoryMenuOpen)
               }>
               <h6 className="m-0 font-medium">
-                Categories
+                Kategoriler
               </h6>
               <IoIosArrowDown className="h-5 w-5" />
             </a>
@@ -64,7 +88,7 @@ const Navbar = () => {
             < nav className="lg:absolute w-full relative z-10 focus:outline-none items-start p-0 border border-y-0 border-solid border-secondary">
               <AnimatePresence>
                 {!isCategoryMenuOpen && (
-                  <motion.div className="bg-white overflow-hidden w-full flex flex-col pl-0 mb-0 list-none"
+                  <motion.div className="bg-white overflow-y-auto w-full max-h-96 flex flex-col pl-0 mb-0 list-none"
                     initial="hidden"
                     animate="visible"
                     exit="hidden"
@@ -73,15 +97,8 @@ const Navbar = () => {
                       visible: { opacity: 1, height: 'auto' }
                     }}
                   >
-                    <a href="" className={navItemsStyle + " py-[8px] px-[30px]"}>Gömlekler </a>
-                    <a href="" className={navItemsStyle + " py-[8px] px-[30px]"}>Kot Pantolon </a>
-                    <a href="" className={navItemsStyle + " py-[8px] px-[30px]"}>Tişörtler</a>
-                    <a href="" className={navItemsStyle + " py-[8px] px-[30px]"}>Elbiseler </a>
-                    <a href="" className={navItemsStyle + " py-[8px] px-[30px]"}>En İyiler</a>
-                    <a href="" className={navItemsStyle + " py-[8px] px-[30px]"}>Etekler</a>
-                    <a href="" className={navItemsStyle + " py-[8px] px-[30px]"}>Ayakkabılar</a>
-                    <a href="" className={navItemsStyle + " py-[8px] px-[30px]"}>Çantalar</a>
-                    <a href="" className={navItemsStyle + " py-[8px] px-[30px]"}>Aksesuarlar</a>
+                    {categories.map((category) => renderCategory(category))}
+
                   </motion.div>
                 )}
               </AnimatePresence>
