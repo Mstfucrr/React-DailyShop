@@ -101,7 +101,7 @@ const UserInformation = (
                     description: Yup.string().required('Açıklama alanı zorunludur'),
                     city: Yup.string().required('Şehir alanı zorunludur'),
                     country: Yup.string().required('Ülke alanı zorunludur'),
-                    zipCode: Yup.number().required('Posta kodu alanı zorunludur'),
+                    zipCode: Yup.string().required('Posta kodu alanı zorunludur'),
 
                 })
             )
