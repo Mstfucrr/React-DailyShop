@@ -1,16 +1,27 @@
 
 export interface IProductRequest {
-    data: {
-        name: string,
-        price: number,
-        image: File,
-        images: File[],
-        categoryId: number,
-        description: string,
-        status: string,
-        stock: number
-        colors: string[],
-        sizes: string[] | undefined,
-    }
+    name: string,
+    price: number,
+    coverImage: string,
+    images: string[],
+    categoryId: number,
+    description: string,
+    status: string,
+    stock: number
+    colors: string[] | undefined,
+    sizes: string[] | undefined,
 
+}
+
+export interface IProductInfo {
+    name: string,
+    price: number,
+    stock: number,
+    description: string,
+    status: string,
+    categoryId: number,
+    colors: string[] | undefined,
+    sizes: string[] | undefined,
+    coverImage: string,
+    images: string[],
 }
