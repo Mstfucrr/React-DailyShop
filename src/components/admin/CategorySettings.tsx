@@ -13,6 +13,7 @@ import { useFormik } from 'formik'
 import { IToast } from '@/store/Toast/type'
 import { SET_TOAST } from '@/store/Toast'
 import { Tree } from 'primereact/tree';
+import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog'
 
 const CategorySettings = () => {
 
@@ -177,9 +178,9 @@ const CategorySettings = () => {
                 <h1 className="text-4xl mb-3">Kategori İşlemleri</h1>
                 <div className="w-full text-center">
 
-                    <Button className='p-button-rounded p-button-info w-64' icon="pi pi-pencil"
+                    <Button className='p-button-rounded p-button-info sm:w-64 w-full' icon="pi pi-pencil"
                         onClick={() => { setUpdateCategoryActive(!updateCategoryActive) }}
-                        label={updateCategoryActive ? 'İptal' : 'Kategorileri Düzenle'}
+                        label={updateCategoryActive ? 'Düzenlemeyi Kapat' : 'Kategorileri Düzenle'}
                     />
                 </div>
                 {!updateCategoryActive && (
@@ -266,14 +267,32 @@ const CategorySettings = () => {
                                 }}
                                 nodeTemplate={(node) => {
                                     return (
-                                        <div className="flex flex-row justify-between items-center w-full">
+                                        <div className="flex flex-row justify-between items-center w-full flex-wrap">
                                             <span className="p-2">{node.label}</span>
                                             <div className='flex gap-x-3'>
                                                 <Button className='p-button-rounded p-button-info' icon="pi pi-pencil"
                                                     onClick={() => { setUpdateCategory(node.data) }}
                                                 />
+
                                                 <Button className='p-button-rounded p-button-danger' icon="pi pi-trash"
-                                                    onClick={() => { handleDeleteCategory(node.data.id) }}
+                                                    onClick={() => {
+                                                        var co = confirmDialog({
+                                                            message: <div className='flex items-center gap-2 flex-wrap'>
+                                                                <h4 className="font-bold text-lg"> {node.data.name} </h4>
+                                                                <span className="text-sm text-gray-500"> Kategoriyi silmek istediğinize emin misiniz? </span>
+                                                            </div>,
+                                                            header: "Kategori Silme",
+                                                            icon: "pi pi-exclamation-triangle",
+                                                            acceptLabel: "Sil",
+                                                            acceptIcon: "pi pi-trash",
+                                                            acceptClassName: "p-button-danger",
+                                                            closable: false,
+                                                            rejectLabel: "iptal",
+                                                            rejectIcon: "pi pi-times",
+                                                            accept: () => handleDeleteCategory(node.data.id),
+                                                            reject: () => co.hide()
+                                                        })
+                                                    }}
                                                 />
                                             </div>
 
@@ -281,7 +300,7 @@ const CategorySettings = () => {
                                     )
                                 }}
                             />
-
+                            <ConfirmDialog />
                             {updateCategory &&
                                 <div className="flex flex-col gap-3">
                                     <h3 className="text-2xl font-semibold">
