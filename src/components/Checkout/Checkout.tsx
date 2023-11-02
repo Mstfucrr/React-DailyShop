@@ -22,6 +22,9 @@ const Checkout = () => {
     const { isAuthorized, auth, token } = useSelector(authSelector)
     const [user, setUser] = useState(auth)
 
+    useEffect(() => {
+        setUser(auth)
+    },[])
 
     useEffect(() => {
         const fetchCart = async () => {
@@ -127,7 +130,7 @@ const Checkout = () => {
                             {user && (
                                 user.addresses.map((address, index) => (
                                     <>
-                                        <Button key={index} label={address.address} className="w-max" severity="help" onClick={() => useMyAddress(address)} />
+                                        <Button key={index} label={address.title} className="w-max" severity="help" onClick={() => useMyAddress(address)} />
                                     </>
                                 ))
 
