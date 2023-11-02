@@ -70,7 +70,7 @@ const RegisterForm = () => {
             setIsLoading(true)
             if (values.password !== values.confirmPassword) {
                 setIsLoading(false)
-                const toast: IToast = { severity: 'warning', summary: "Uyarı", detail: "Parola ve Parola Doğrulama aynı değil", life: 3000 }
+                const toast: IToast = { severity: 'warn', summary: "Uyarı", detail: "Parola ve Parola Doğrulama aynı değil", life: 3000 }
                 dispatch(SET_TOAST(toast))
                 return
             }
@@ -78,7 +78,7 @@ const RegisterForm = () => {
             const [err, data] = await to(authService.register(values))
             if (err) {
                 const res = err as any
-                const errorMessage = res.response.data.Message || err.message;
+                const errorMessage = res?.response?.data?.message || err.message;
                 const toast: IToast = { severity: 'error', summary: "Hata", detail: errorMessage, life: 3000 }
                 dispatch(SET_TOAST(toast))
                 setIsLoading(false)
@@ -151,8 +151,8 @@ const RegisterForm = () => {
             {/* phone */}
             <div className="flex flex-col">
                 <label htmlFor="PhoneNumber" className='text-primary text-xl font-medium'>Telefon Numarası</label>
-                <InputMask placeholder='Telefon Numarası' name='PhoneNumber' id='PhoneNumber'
-                    value={formik.values.PhoneNumber}
+                <InputMask placeholder='(555) 555-5555' name='PhoneNumber' id='PhoneNumber'
+                    value={formik.values.PhoneNumber || undefined}
                     onChange={formik.handleChange}
                     mask="(999) 999-9999"
                     slotChar="_"

@@ -28,7 +28,7 @@ const Settings = () => {
 
     const showErrorMessage = (err: any) => {
         const res = err as any
-        const errorMessage = res.response.data.Message || err.message;
+        const errorMessage = res?.response?.data?.message || err.message;
         const toast: IToast = { severity: 'error', summary: "Hata", detail: errorMessage, life: 3000 }
         dispatch(SET_TOAST(toast))
     }

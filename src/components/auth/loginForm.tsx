@@ -49,7 +49,7 @@ const LoginForm = () => {
             if (err) {
                 const res = err as any
                 console.log(res)
-                const errorMessage = res.response.data.Message || err.message;
+                const errorMessage = res?.response?.data?.message || err.message;
                 const toast: IToast = { severity: 'error', summary: "Hata", detail: errorMessage, life: 3000 }
                 dispatch(SET_TOAST(toast))
                 setIsLoading(false)
