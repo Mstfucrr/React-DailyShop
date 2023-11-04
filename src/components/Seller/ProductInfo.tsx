@@ -3,94 +3,31 @@ import { TreeSelect, TreeSelectChangeEvent } from 'primereact/treeselect';
 import { InputNumber } from 'primereact/inputnumber';
 import { InputText } from 'primereact/inputtext';
 import { useEffect, useState } from 'react';
-import { categoriesEx, convertCategoriesToTreeSelectModel, findCategoryByKeyInTreeSelectModel } from '../shop/example.products';
+import { convertCategoriesToTreeSelectModel, findCategoryByKeyInTreeSelectModel } from '../shop/example.products';
 import { TreeNode } from "primereact/treenode";
 import { MultiSelect } from 'primereact/multiselect';
 import { Editor, EditorTextChangeEvent } from "primereact/editor";
 import { Button } from 'primereact/button';
-import * as Yup from 'yup'
-import { useFormik } from 'formik'
 import { ICategory } from '@/shared/types';
+import categoryService from '@/services/category/category.service';
+import to from 'await-to-js';
+import { IProductInfo } from '@/services/product/types';
 
 type Props = {
-    setProductInfo: React.Dispatch<React.SetStateAction<{
-        name: string;
-        price: number;
-        stock: number;
-        description: string;
-        status: string;
-        categoryId: number;
-        colors: string[];
-    }>>
-
+    productInfo: IProductInfo
+    setProductInfo: React.Dispatch<React.SetStateAction<IProductInfo>>
+    formik: any,
 }
 
 const ProductInfo = (
-    props: Props
+    { formik, setProductInfo, productInfo }: Props
 ) => {
 
-    const exampleCategories = categoriesEx
-
     const [TreeNodes, setTreeNodes] = useState<TreeNode[] | undefined>(undefined)
+    const [selectedCategory, setSelectedCategory] = useState<ICategory>()
     const [selectedNodeKey, setSelectedNodeKey] = useState<string | undefined>(undefined);
-    const [selectedCategory, setSelectedCategory] = useState<ICategory | undefined>(undefined)
-    const [selectedColors, setSelectedColors] = useState<string[]>([])
-    const [selectedSizes, setSelectedSizes] = useState<string[]>([])
-
-    const validationSchema = Yup.object().shape({
-        productName: Yup.string()
-            .required('Ürün adı gereklidir')
-            .min(3, 'Ürün adı çok kısa')
-            .max(50, 'Ürün adı çok uzun'),
-        price: Yup.number()
-            .required('Fiyat gereklidir')
-            .min(2, 'Fiyat 2 dan küçük olamaz'),
-        stock: Yup.number()
-            .required('Stok gereklidir')
-            .min(0, 'Stok 0 dan küçük olamaz'),
-        description: Yup.string()
-            .required('Açıklama gereklidir')
-            .min(40, 'Açıklama çok kısa')
-            .max(1000, 'Açıklama çok uzun'),
-        status: Yup.string()
-            .required('Durum gereklidir'),
-
-    })
-
-    const formik = useFormik({
-        initialValues: {
-            productName: '',
-            price: 0,
-            stock: 0,
-            description: '',
-            status: '',
-            category: '',
-        },
-        validationSchema: validationSchema,
-        validate: (data) => {
-            let errors = {}
-            if (!data.category) {
-                errors = { ...errors, category: 'Kategori seçiniz' }
-            }
-            return errors
-        },
-        onSubmit: async (values) => {
-
-            props.setProductInfo(
-                {
-                    categoryId: selectedCategory?.id!,
-                    colors: selectedColors,
-                    description: values.description,
-                    name: values.productName,
-                    price: values.price,
-                    status: values.status,
-                    stock: values.stock
-                }
-            )
-
-        }
-    })
-
+    const [selectedColors, setSelectedColors] = useState<string[] | undefined>([])
+    const [selectedSizes, setSelectedSizes] = useState<string[] | undefined>([])
 
     const colorTemplete = (option: any) => {
         return (
@@ -101,9 +38,15 @@ const ProductInfo = (
         );
     };
 
+    const getCategories = async () => {
+        const [err, data] = await to(categoryService.fetchCategories())
+        if (err) return console.log(err)
+        if (data)
+            setTreeNodes(convertCategoriesToTreeSelectModel(data))
+    }
 
     useEffect(() => {
-        setTreeNodes(convertCategoriesToTreeSelectModel(exampleCategories));
+        getCategories()
     }, [])
 
     useEffect(() => {
@@ -115,6 +58,8 @@ const ProductInfo = (
     const showFormErrorMessage = (err: string) => {
         return <small className="p-error block h-0 mb-6"> {err} </small>;
     };
+
+
 
 
     return (
@@ -289,7 +234,26 @@ const ProductInfo = (
 
                     <Button className='!bg-primary !border-primary text-white !mt-7
                         hover:!bg-primaryDark w-1/2
-                    ' label='Kaydet' type='submit' />
+                    ' label='Kaydet' type='submit'
+                        onClick={
+                            () => {
+                                setProductInfo(
+                                    {
+                                        ...productInfo,
+                                        price: formik.values.price,
+                                        stock: formik.values.stock,
+                                        status: formik.values.status,
+                                        description: formik.values.description,
+                                        colors: selectedColors,
+                                        sizes: selectedSizes,
+                                        categoryId: selectedCategory?.id!,
+                                        name: formik.values.productName,
+                                    }
+                                )
+                            }
+                        }
+                    />
+
                 </form>
 
             </div>

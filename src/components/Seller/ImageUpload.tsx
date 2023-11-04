@@ -8,16 +8,13 @@ import { Tag } from 'primereact/tag';
 type Props = {
     setcoverImage: React.Dispatch<React.SetStateAction<File | null>>
     setImages: React.Dispatch<React.SetStateAction<File[]>>
-    images: File[]
 }
 
 const ImageUpload = (
-    { setcoverImage, setImages }
-        : Props) => {
+    { setcoverImage, setImages }: Props) => {
     const fileUploadRef = useRef(null);
     const [totalSize, setTotalSize] = useState(0);
 
-    const chooseOptions = { icon: 'pi pi-fw pi-images', iconOnly: true, className: 'custom-choose-btn p-button-rounded p-button-outlined' };
     const emptyTemplate = () => {
         return (
             <div className="flex items-center flex-col">
@@ -40,17 +37,22 @@ const ImageUpload = (
 
     const onTemplateClear = () => {
         setTotalSize(0);
-        setcoverImage(null)
     };
 
-    const coverItemTemplate = (inFile: object) => {
+    const coverItemTemplate = (inFile: object, props: ItemTemplateOptions) => {
         const file = inFile as any;
         setcoverImage(file as File)
-
         return (
             <div className="flex items-center flex-wrap w-full">
-                <div className="flex items-center w-full">
-                    <img alt={file.name} role="presentation" src={file.objectURL} />
+                <div className="flex items-center w-full gap-4">
+                    <div>
+                        <img alt={file.name} role="presentation" src={file.objectURL} />
+                    </div>
+                    <div>
+                        <Button type="button" icon="pi pi-times" className="p-button-outlined p-button-rounded p-button-danger ml-auto"
+                            onClick={() => {setcoverImage(null); onTemplateRemove(file, props.onRemove)} } />
+                    </div>
+
                 </div>
             </div>
         );
@@ -71,7 +73,7 @@ const ImageUpload = (
 
                     <Tag value={props.formatSize} severity="warning" className="px-3 py-2" />
                     <Button type="button" icon="pi pi-times" className="p-button-outlined p-button-rounded p-button-danger ml-auto"
-                        onClick={() => onTemplateRemove(file, props.onRemove)} />
+                        onClick={() =>{ setImages((prev) => { return prev.filter((item) => item !== file)}) ;onTemplateRemove(file, props.onRemove)}} />
                 </div>
             </div>
         );
@@ -82,19 +84,11 @@ const ImageUpload = (
         callback();
     };
 
-    const customBase64Uploader = async (event: FileUploadHandlerEvent) => {
-        // convert file to base64 encoded
-        const file = event.files[0] as any;
-        const reader = new FileReader();
-        let blob = await fetch(file.objectURL).then((r) => r.blob()); //blob:url
-        reader.readAsDataURL(blob);
-        setImages(event.files)
+    const customBase64Uploader = async (event: FileUploadHandlerEvent) => setImages(event.files)
 
-    };
-
-    const cancelOptions = { icon: 'pi pi-fw pi-times', iconOnly: true, className: 'custom-cancel-btn p-button-danger p-button-rounded p-button-outlined' };
+    const chooseOptions = { icon: 'pi pi-fw pi-images', className: 'custom-choose-btn p-button-rounded p-button-outlined' };
+    const cancelOptions = { icon: 'pi pi-fw pi-times', className: 'custom-cancel-btn p-button-danger p-button-rounded p-button-outlined' };
     const ImagesUploadOptions = { icon: 'pi pi-fw pi-cloud-upload', iconOnly: false, className: 'custom-upload-btn p-button-success p-button-rounded p-button-outlined' };
-    const CoverUploadOptions = { icon: '', iconOnly: true, className: '!hidden' };
     return (
         <>
             <Tooltip target=".custom-choose-btn" content="Choose" position="bottom" />
@@ -105,14 +99,15 @@ const ImageUpload = (
                     className="w-full"
                     ref={fileUploadRef}
                     emptyTemplate={emptyTemplate}
-                    onSelect={() => { onTemplateSelect }}
+                    onSelect={() => onTemplateSelect}
                     maxFileSize={10000000}
                     itemTemplate={coverItemTemplate}
                     name="demo[]" url="/api/upload" accept="image/*" customUpload
                     onClear={() => { onTemplateClear }}
-                    cancelOptions={cancelOptions}
-                    uploadOptions={CoverUploadOptions}
+                    cancelOptions={{className: "!hidden"}}
+                    uploadOptions={{className: "!hidden"}}
                     chooseOptions={chooseOptions}
+                    chooseLabel= "Seç"
                     multiple={false}
                 />
 
@@ -133,6 +128,8 @@ const ImageUpload = (
                     contentClassName="w-full"
                     customUpload
                     uploadLabel="Yükle"
+                    chooseLabel= "Seç"
+                    cancelLabel= "Temizle"
                 />
 
             </div>
