@@ -81,11 +81,12 @@ const ProductDetail = () => {
                 return
             }
             if (true) {
-                setProduct(data.data)
-                setSizes(data.data.sizes?.map((size: string) => ({ name: size, key: size })))
-                setColors(data.data.colors?.map((color: string) => ({ name: color, key: color })))
-                setImages(data.data.images?.map((image: File) => ({ source: image })))
-                setReviews(data.data.reviews)
+                var fetchedProduct = await data.data as IProduct;
+                setProduct(fetchedProduct)
+                setSizes(fetchedProduct.sizes?.map((size: string) => ({ name: size, key: size })))
+                setColors(fetchedProduct.colors?.map((color: string) => ({ name: color, key: color })))
+                setImages(fetchedProduct.images?.map((image: File) => ({ source: image })))
+                setReviews(fetchedProduct.reviews)
                 if (product && !product.isApproved) {
                     msgs.current?.clear()
                     msgs.current?.show([
