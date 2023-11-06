@@ -21,20 +21,18 @@ const Checkout = () => {
     const [cartTotal, setCartTotal] = useState(0)
     const { isAuthorized, auth, token } = useSelector(authSelector)
     const [user, setUser] = useState(auth)
-
+    const [selectAddress, setSelectAddress] = useState<IUserAddress>()
     useEffect(() => {
         setUser(auth)
-    },[])
+    }, [])
 
     useEffect(() => {
         const fetchCart = async () => {
             const [err, data] = await to(getCart(token))
             if (err) {
                 msgs.current?.clear()
-                const res = err as any
-                const errorMessage = res?.response?.data?.message || err.message;
                 msgs.current?.show([
-                    { sticky: true, severity: 'error', summary: 'Sistematik Hata', detail: errorMessage }
+                    { sticky: true, severity: 'error', summary: 'Sistematik Hata', detail: err.message }
                 ]);
                 return
             }
@@ -104,25 +102,21 @@ const Checkout = () => {
         }
     }
 
-    const useMyAddress = (selectAddress: IUserAddress) => {
-        if (isAuthorized) {
-            if (selectAddress) {
-                const { city, country, address, zipCode } = selectAddress
-                formik.setValues({ ...formik.values, city, country, address })
-                formik.setFieldValue('zipCode', zipCode)
-                console.log(formik.values)
-            }
+    useEffect(() => {
+        if (selectAddress) {
+            const { city, country, address, zipCode } = selectAddress
+            formik.setValues({ ...formik.values, city, country, address })
+            formik.setFieldValue('zipCode', zipCode)
         }
-    }
+    }, [selectAddress])
+
 
     return (
         <>
             <div className="flex lg:flex-row flex-col xl:px-10 px-3 gap-3 mt-20">
                 <div className="flex flex-col basis-8/12 gap-y-3">
                     <h3 className="text-3xl font-semibold text-primaryDark  ">Sipariş Adresi</h3>
-                    <Button label="Kendi bilgilerimi kullan" className="w-max" onClick={() => {
-                        useMyInfos()
-                    }} />
+                    <Button label="Kendi bilgilerimi kullan" className="w-max" onClick={useMyInfos} />
                     <div className="border border-solid border-secondary p-2 gap-2 flex flex-col">
 
                         <h4 className="text-xl font-semibold text-primaryDark">Kayıtlı Adreslerim</h4>
@@ -130,7 +124,7 @@ const Checkout = () => {
                             {user && (
                                 user.addresses.map((address, index) => (
                                     <>
-                                        <Button key={index} label={address.title} className="w-max" severity="help" onClick={() => useMyAddress(address)} />
+                                        <Button key={index} label={address.title} className="w-max" severity="help" onClick={() => setSelectAddress(address)} />
                                     </>
                                 ))
 
