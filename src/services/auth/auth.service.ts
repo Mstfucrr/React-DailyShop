@@ -1,6 +1,4 @@
-import {
-    ILogin, IRegister, IUser
-} from "./types";
+import { ILogin, IRegister } from "./types";
 import { makeRequest } from "../base/base";
 
 
