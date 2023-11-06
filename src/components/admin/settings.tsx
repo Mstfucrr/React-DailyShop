@@ -26,10 +26,8 @@ const Settings = () => {
     const { token } = useSelector(authSelector)
     const dispatch = useDispatch();
 
-    const showErrorMessage = (err: any) => {
-        const res = err as any
-        const errorMessage = res?.response?.data?.message || err.message;
-        const toast: IToast = { severity: 'error', summary: "Hata", detail: errorMessage, life: 3000 }
+    const showErrorMessage = (err: Error) => {
+        const toast: IToast = { severity: 'error', summary: "Hata", detail: err.message, life: 3000 }
         dispatch(SET_TOAST(toast))
     }
     const showSuccess = (message: string) => {
@@ -40,14 +38,8 @@ const Settings = () => {
     const fetchDatas = async () => {
 
         const [err, data] = await to(adminService.fetchSettings(token))
-        if (err) {
-            showErrorMessage(err)
-            return
-        }
-        if (data) {
-            setSiteSettings(data.data)
-        }
-
+        if (err) return showErrorMessage(err)
+        setSiteSettings(data.data)
     }
 
 
@@ -66,14 +58,9 @@ const Settings = () => {
             siteIcon: siteIcon
         }
         const [err, data] = await to(adminService.saveSettings(val, token))
-        if (err) {
-            showErrorMessage(err)
-            return
-        }
-        if (data) {
-            showSuccess(data.message)
-            fetchDatas()
-        }
+        if (err) return showErrorMessage(err)
+        showSuccess(data.message)
+        fetchDatas()
     }
 
 
@@ -138,7 +125,7 @@ const Settings = () => {
                 <div className="flex flex-col gap-y-6">
                     <h3 className="text-2xl" >Hakkımızda</h3>
                     <div className="ql-editor"
-                     dangerouslySetInnerHTML={{ __html: about as string }} />
+                        dangerouslySetInnerHTML={{ __html: about as string }} />
                 </div>
 
                 {/* İletişim Bilgileri */}
@@ -176,8 +163,8 @@ const Settings = () => {
                         onUpload={(e) => setSiteIcon(e.files[0])}
                     />
                 </div>
-            
-                    {/* Kaydet ve iptal Butonu */}   
+
+                {/* Kaydet ve iptal Butonu */}
                 <div className="flex justify-end gap-3">
                     <Button label="Kaydet" onClick={SaveSettings} severity="success" />
                     <Button label="İptal" className="ml-3" severity="danger" />

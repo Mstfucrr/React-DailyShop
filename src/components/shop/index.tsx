@@ -71,13 +71,11 @@ const Shop = () => {
     if (id) {
       const [err, data] = await to(getProductsByCategoryId(parseInt(id), isDelProductShow))
       if (err) {
-        const res = err as any
-        const errorMessage = res?.response?.data?.message || err.message;
         msgs.current?.clear()
         msgs.current?.show({
           severity: 'error',
           summary: 'Hata',
-          detail: errorMessage,
+          detail: err.message,
           sticky: true
         })
         return

@@ -110,10 +110,8 @@ const UserInformation = (
             setLoading(true)
             const [err, res] = await to(authService.updateAccount(values, token))
             if (err) {
+                const toast: IToast = { severity: 'error', summary: "Hata", detail: err.message, life: 3000 }
                 setLoading(false)
-                const res = err as any
-                const errorMessage = res?.response?.data?.Message || err.message;
-                const toast: IToast = { severity: 'error', summary: "Hata", detail: errorMessage, life: 3000 }
                 dispatch(SET_TOAST(toast))
                 formik.resetForm()
                 return
@@ -139,9 +137,7 @@ const UserInformation = (
     const handleAccountDelete = async () => {
         const [err, data] = await to(authService.deleteAccount(token))
         if (err) {
-            const res = err as any
-            const errorMessage = res?.response?.data?.Message || err.message;
-            const toast: IToast = { severity: 'error', summary: "Hata", detail: errorMessage, life: 3000 }
+            const toast: IToast = { severity: 'error', summary: "Hata", detail: err.message, life: 3000 }
             dispatch(SET_TOAST(toast))
             return
         }

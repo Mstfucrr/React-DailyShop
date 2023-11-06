@@ -12,6 +12,9 @@ import { ICategory } from '@/shared/types';
 import categoryService from '@/services/category/category.service';
 import to from 'await-to-js';
 import { IProductInfo } from '@/services/product/types';
+import { IToast } from '@/store/Toast/type';
+import { useDispatch } from 'react-redux';
+import { SET_TOAST } from '@/store/Toast';
 
 type Props = {
     productInfo: IProductInfo
@@ -28,7 +31,7 @@ const ProductInfo = (
     const [selectedNodeKey, setSelectedNodeKey] = useState<string | undefined>(undefined);
     const [selectedColors, setSelectedColors] = useState<string[] | undefined>([])
     const [selectedSizes, setSelectedSizes] = useState<string[] | undefined>([])
-
+    const dispatch = useDispatch()
     const colorTemplete = (option: any) => {
         return (
             <div className="flex align-items-center">
@@ -38,9 +41,14 @@ const ProductInfo = (
         );
     };
 
+    const showErrorMessage = (err: Error) => {
+        const toast: IToast = { severity: 'error', summary: "Hata", detail: err.message, life: 3000 }
+        dispatch(SET_TOAST(toast))
+    }
+
     const getCategories = async () => {
         const [err, data] = await to(categoryService.fetchCategories())
-        if (err) return console.log(err)
+        if (err) return showErrorMessage(err)
         if (data)
             setTreeNodes(convertCategoriesToTreeSelectModel(data))
     }
@@ -58,9 +66,6 @@ const ProductInfo = (
     const showFormErrorMessage = (err: string) => {
         return <small className="p-error block h-0 mb-6"> {err} </small>;
     };
-
-
-
 
     return (
         <>

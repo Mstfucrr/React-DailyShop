@@ -7,7 +7,7 @@ import { InputText } from 'primereact/inputtext'
 import { TreeSelect } from 'primereact/treeselect'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { findCategoryByKeyInTreeSelectModel, convertCategoriesToTreeSelectModel, categoriesEx } from '../shop/example.products'
+import { findCategoryByKeyInTreeSelectModel, convertCategoriesToTreeSelectModel } from '../shop/example.products'
 import * as Yup from 'yup'
 import { useFormik } from 'formik'
 import { IToast } from '@/store/Toast/type'
@@ -40,10 +40,8 @@ const CategorySettings = () => {
         getAllCategories();
     }, []);
 
-    const showErrorMessage = (err: any) => {
-        const res = err as any
-        const errorMessage = res?.response?.data?.Message || err.message;
-        const toast: IToast = { severity: 'error', summary: "Hata", detail: errorMessage, life: 3000 }
+    const showErrorMessage = (err: Error) => {
+        const toast: IToast = { severity: 'error', summary: "Hata", detail: err.message, life: 3000 }
         dispatch(SET_TOAST(toast))
     }
     const showSuccess = (message: string) => {
@@ -61,32 +59,22 @@ const CategorySettings = () => {
 
     const handleAddCategory = async (val: any) => {
         const [err, data] = await to(adminService.addCategory(val, token));
-        if (err) {
-            showErrorMessage(err)
-            return
-        }
-        else if (data) {
-            showSuccess(data.message)
-            handleGetAllCategories()
-            formik.resetForm()
+        if (err) return showErrorMessage(err)
+        showSuccess(data.message)
+        handleGetAllCategories()
+        formik.resetForm()
 
-        }
     }
 
     const handleGetAllCategories = async () => {
         const [err, data] = await to(adminService.getAllCategories());
         console.log(data)
-        if (err) {
-            showErrorMessage(err)
-            return
+        if (err) return showErrorMessage(err)
+        setSelectedNodeKey(null)
+        setSelectedCategory(undefined)
+        setUpdateCategory(null)
+        setTreeNodes(convertCategoriesToTreeSelectModel(data));
 
-        }
-        if (data) {
-            setSelectedNodeKey(null)
-            setSelectedCategory(undefined)
-            setUpdateCategory(null)
-            setTreeNodes(convertCategoriesToTreeSelectModel(data));
-        }
     }
 
 
@@ -113,16 +101,11 @@ const CategorySettings = () => {
     const handleUpdateCategory = async (id: number, val: any) => {
         console.log(val)
         const [err, data] = await to(adminService.updateCategoryById(id, val, token));
-        if (err) {
-            showErrorMessage(err)
-            return
-        }
-        else if (data) {
-            showSuccess(data.message)
-            handleGetAllCategories()
-            updateCategoryFormik.resetForm()
+        if (err) return showErrorMessage(err)
+        showSuccess(data.message)
+        handleGetAllCategories()
+        updateCategoryFormik.resetForm()
 
-        }
     }
 
 
@@ -153,17 +136,12 @@ const CategorySettings = () => {
 
     const handleDeleteCategory = async (id: number) => {
         const [err, data] = await to(adminService.deleteCategoryById(id, token));
-        if (err) {
-            showErrorMessage(err);
-            return
-        }
+        if (err) return showErrorMessage(err);
+        showSuccess(data.message)
+        handleGetAllCategories()
+        updateCategoryFormik.resetForm()
+        setLoading(false);
 
-        else if (data) {
-            showSuccess(data.message)
-            handleGetAllCategories()
-            updateCategoryFormik.resetForm()
-            setLoading(false);
-        }
     }
 
 

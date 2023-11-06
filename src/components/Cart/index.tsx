@@ -23,10 +23,8 @@ const Cart = () => {
             const [err, data] = await to(getCart(token))
             if (err) {
                 msgs.current?.clear()
-                const res = err as any
-                const errorMessage = res?.response?.data?.message || err.message;
                 msgs.current?.show([
-                    { sticky: true, severity: 'error', summary: 'Sistematik Hata', detail: errorMessage }
+                    { sticky: true, severity: 'error', summary: 'Sistematik Hata', detail: err.message }
                 ]);
                 return
             }

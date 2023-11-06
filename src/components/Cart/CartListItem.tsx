@@ -35,9 +35,7 @@ const CartListItem = (
     
     const [err, data] = await to(removeFromCart(id, token))
     if (err) {
-      const res = err as any
-      const errorMessage = res?.response?.data?.message || err.message;
-      const toast : IToast = { severity : 'error', summary : 'Sistematik Hata', detail : errorMessage, life : 5000 }
+      const toast: IToast = { severity: 'error', summary: "Hata", detail: err.message, life: 3000 }
       dispatch(SET_TOAST(toast))
       return
     }

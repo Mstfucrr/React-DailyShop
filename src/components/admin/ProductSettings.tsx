@@ -39,9 +39,7 @@ const ProductSettings = () => {
         const getAllProducts = async () => {
             const [err, data] = await to(adminService.getAllProducts(token));
             if (err) {
-                const res = err as any
-                const errorMessage = res?.response?.data?.message || err.message;
-                const toast: IToast = { severity: 'error', summary: "Hata", detail: errorMessage, life: 3000 }
+                const toast: IToast = { severity: 'error', summary: "Hata", detail: err.message, life: 3000 }
                 dispatch(SET_TOAST(toast))
                 return
             }

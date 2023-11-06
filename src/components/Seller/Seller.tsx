@@ -117,9 +117,7 @@ const Seller = () => {
                 console.log("input : ", input)
                 const [err, data] = await to(addProduct(input, token))
                 if (err) {
-                    const res = err as any
-                    const errorMessage = res?.response?.data?.message || err.message;
-                    const toast: IToast = { severity: "error", summary: "Sistematik Hata", detail: errorMessage, life: 3000 } // service çalışmadı 
+                    const toast: IToast = { severity: 'error', summary: "Hata", detail: err.message, life: 3000 } // service çalışmadı 
                     dispatch(SET_TOAST(toast))
                     return
                 }

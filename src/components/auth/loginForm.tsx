@@ -47,10 +47,7 @@ const LoginForm = () => {
             setIsLoading(true)
             const [err, data] = await to(authService.login(values))
             if (err) {
-                const res = err as any
-                console.log(res)
-                const errorMessage = res?.response?.data?.message || err.message;
-                const toast: IToast = { severity: 'error', summary: "Hata", detail: errorMessage, life: 3000 }
+                const toast: IToast = { severity: 'error', summary: "Hata", detail: err.message, life: 3000 }
                 dispatch(SET_TOAST(toast))
                 setIsLoading(false)
                 return
@@ -98,8 +95,7 @@ const LoginForm = () => {
                 </div>
                 <div className="flex flex-col mt-4">
                     <label htmlFor="password" className='text-primary text-xl font-medium'>Parola</label>
-                    <Password placeholder="Parola" name='password' id='password' feedback={true}
-
+                    <Password placeholder="Parola" name='password' id='password' feedback={false}
                         pt={{
                             "input": {
                                 className: "w-full"
@@ -118,6 +114,7 @@ const LoginForm = () => {
                         }
                         value={formik.values.password}
                         onChange={formik.handleChange} toggleMask
+                        
 
                     />
                     {formik.errors.password && formik.touched.password ? (

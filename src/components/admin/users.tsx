@@ -29,100 +29,73 @@ const UserSettings = () => {
     const [loading, setLoading] = useState<boolean>(false)
     const dispatch = useDispatch()
 
-    const showErrorMessage = (err: any) => {
-        const res = err as any
-        const errorMessage = res?.response?.data?.Message || err.message;
-        const toast: IToast = { severity: 'error', summary: "Hata", detail: errorMessage, life: 3000 }
+    const showErrorMessage = (err: Error) => {
+        const toast: IToast = { severity: 'error', summary: "Hata", detail: err.message, life: 3000 }
+        setLoading(false)
         dispatch(SET_TOAST(toast))
     }
     const showSuccess = (message: string) => {
         const toast: IToast = { severity: 'success', summary: "Başarılı", detail: message, life: 3000 }
+        setLoading(false)
         dispatch(SET_TOAST(toast))
     }
 
     const fetchUsers = async () => {
-        setLoading(true)
         const [err, data] = await to(adminService.fetchUsers(token))
-        if (err) {
-            showErrorMessage(err)
-            setLoading(false)
-            return
-        }
-        if (data) {
-            setUsers(data)
-            showSuccess(data.message)
-            setLoading(false)
-        }
+        if (err) return showErrorMessage(err)
+        setUsers(data)
+        showSuccess(data.message)
+        setLoading(false)
     }
 
 
     useEffect(() => {
-
+        setLoading(true)
         fetchUsers()
     }, [])
 
     useEffect(() => {
-        {/* rolü adminse seçilemesin */ }
-
-        const fetchUserAddressAndReviews = async () => {
-            if (selectedUser) {
-                const [err, data] = await to(adminService.fetchAddressByUserId(selectedUser.id, token))
-                if (data)
-                    setSelectedUserAddress(data)
-
-                const [err2, data2] = await adminService.fetchReviewsByUserId(selectedUser.id, token)
-                if (data2)
-                    setSelectedUserReviews([data2])
-
-                const [err3, data3] = await adminService.fetchPaddingProductByUserId(selectedUser.id, token)
-                if (data3)
-                    setSelectedUserPaddingProduct(data3)
-
-                if (err || err2 || err3) {
-                    showErrorMessage(err)
-                    showErrorMessage(err2)
-                    showErrorMessage(err3)
-                    return
-                }
-
-            }
-
+        const fetchUserAddress = async () => {
+            const [err, data] = await to(adminService.fetchAddressByUserId(selectedUser?.id!, token))
+            if (err) return showErrorMessage(err)
+            setSelectedUserAddress(data)
         }
-        fetchUserAddressAndReviews()
+        const fetchUserReviews = async () => {
+            const [err, data] = await to(adminService.fetchReviewsByUserId(selectedUser?.id!, token))
+            if (err) return showErrorMessage(err)
+            setSelectedUserReviews(data)
+        }
+        const fetchUserPaddingProduct = async () => {
+            const [err, data] = await to(adminService.fetchPaddingProductByUserId(selectedUser?.id!, token))
+            if (err) return showErrorMessage(err)
+            setSelectedUserPaddingProduct(data)
+        }
+
+        if (selectedUser) {
+            fetchUserAddress()
+            fetchUserReviews()
+            fetchUserPaddingProduct()
+        }
     }, [selectedUser])
 
     const handleReviewStatusChange = async (data: IReview, status: string) => {
         const [err, data2] = await to(adminService.updateReviewStatus(data.id, status, token))
-        if (err) {
-            showErrorMessage(err)
-            return
-        }
-        if (data2) {
-            showSuccess(data2.message)
-        }
+        if (err) return showErrorMessage(err)
+        showSuccess(data2.message)
     }
 
     const handleProductApprovalStatusChange = async (data: IProduct, status: boolean) => {
         const [err, data2] = await to(adminService.updateProductApprovalStatus(data.id, status, token))
-        if (err) {
-            showErrorMessage(err)
-            return
-        }
-        if (data2) {
-            showSuccess(data2.message)
-        }
+        if (err) return showErrorMessage(err)
+        showSuccess(data2.message)
     }
 
     const handleBlockUser = async (id: number) => {
         const [err, data] = await to(adminService.blockUser(id, token))
-        if (err) {
-            showErrorMessage(err)
-            return
-        }
-        if (data) {
-            showSuccess(data.message)
-            fetchUsers()
-        }
+        if (err) return showErrorMessage(err)
+        showSuccess(data.message)
+        fetchUsers()
+
     }
 
 
