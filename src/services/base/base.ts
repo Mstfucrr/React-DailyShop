@@ -7,13 +7,11 @@ export const makeRequest = async <T>(url: string, method: Method, data?: any, to
     // eğer datanın içinde file varsa multipart/form-data olarak gönderiyoruz yoksa application/json olarak gönderiyoruz
     const headers: Record<string, string> = {
         "Content-Type": hasFile
-            ? `multipart/form-data; boundary=${generateBoundary()}`
+            ? `multipart/form-data;`
             : "application/json",
     }
-
     if (token)
         headers.Authorization = `Bearer ${token}`;
-
 
     const api = axios.create({
         baseURL: apiBaseUrl,
@@ -32,15 +30,3 @@ export const makeRequest = async <T>(url: string, method: Method, data?: any, to
         throw new Error(axios.isAxiosError(error) ? (error.response?.data?.Message || error.message) : error); // Throw an error
     }
 };
-
-function generateBoundary() {
-    let boundary = "--------------------------"; // Örnek bir başlangıç değeri
-
-    for (let i = 0; i < 24; i++) {
-        // 24 karakterlik rastgele bir dize oluşturun
-        const randomChar = Math.floor(Math.random() * 36).toString(36);
-        boundary += randomChar;
-    }
-
-    return boundary;
-}
