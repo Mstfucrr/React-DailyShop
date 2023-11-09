@@ -122,12 +122,9 @@ const Checkout = () => {
                         <h4 className="text-xl font-semibold text-primaryDark">Kayıtlı Adreslerim</h4>
                         <div className="flex flex-wrap gap-5">
                             {user && (
-                                user.addresses.map((address, index) => (
-                                    <>
-                                        <Button key={index} label={address.title} className="w-max" severity="help" onClick={() => setSelectAddress(address)} />
-                                    </>
+                                user.addresses.map((address) => (
+                                    <Button key={"address-" + address.id} label={address.title} className="w-max" severity="help" onClick={() => setSelectAddress(address)} />
                                 ))
-
                             )}
                         </div>
                     </div>
