@@ -11,6 +11,7 @@ import { useParams } from 'react-router-dom';
 import { InputSwitch } from "primereact/inputswitch";
 import to from 'await-to-js';
 import { Messages } from 'primereact/messages';
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 const Shop = () => {
 
@@ -20,6 +21,7 @@ const Shop = () => {
   const [products, setProducts] = useState<IProduct[]>([]); // tüm ürünlerin listesi
   const [first, setFirst] = useState(0);
   const [rows, setRows] = useState(6)
+  const [loading, setLoading] = useState<boolean>(false)
   const [isDelProductShow, setIsDelProductShow] = useState<boolean>(true);
   const { id } = useParams<{ id: string }>();
   const msgs = useRef<Messages>(null);
@@ -71,6 +73,7 @@ const Shop = () => {
     if (id) {
       const [err, data] = await to(getProductsByCategoryId(parseInt(id), isDelProductShow))
       if (err) {
+        console.log(err)
         msgs.current?.clear()
         msgs.current?.show({
           severity: 'error',
@@ -80,14 +83,18 @@ const Shop = () => {
         })
         return
       }
-      setFilteredProducts(data.data);
-      setProducts(data.data.slice(first, first + rows))
-      setResponseData(data)
+      if (data) {
+        setFilteredProducts(data.data);
+        setProducts(data.data.slice(first, first + rows))
+        setResponseData(data)
+        console.log(data)
+      }
     }
 
   };
   useEffect(() => {
-    fetchData(); // async işlemi başlat
+    setLoading(true)
+    fetchData().then(() => setLoading(false))
   }, [isDelProductShow])
 
   // gelen datalar pagnition ile listelencek
@@ -106,108 +113,113 @@ const Shop = () => {
 
   return (
     <div className='pt-16 px-14 gap-x-10'>
-      {responseData?.data ?
+      {loading ? <div className="flex w-full mx-auto"> <ProgressSpinner /> </div> :
         <>
-          <div className="grid md:grid-cols-4 gap-x-10">
-            {/* SideBar */}
-            {responseData?.data &&
-              <SideBar data={responseData.data} setData={setFilteredProducts} />
-            }
-            {/* Shop Product */}
-            <div className="row-span-4 md:row-span-1 md:col-span-3 col-span-1">
-              <div className="flex md:flex-row flex-col justify-between items-start gap-y-2">
-                {/* search and sortby */}
-                <div className="flex flex-row flex-wrap items-center gap-x-9 gap-y-4">
+          {responseData?.data ?
+            <>
+              <div className="grid md:grid-cols-4 gap-x-10">
+                {/* SideBar */}
+                {responseData?.data &&
+                  <SideBar data={responseData.data} setData={setFilteredProducts} />
+                }
+                {/* Shop Product */}
+                <div className="row-span-4 md:row-span-1 md:col-span-3 col-span-1">
+                  <div className="flex md:flex-row flex-col justify-between items-start gap-y-2">
+                    {/* search and sortby */}
+                    <div className="flex flex-row flex-wrap items-center gap-x-9 gap-y-4">
 
-                  <span className="p-input-icon-right">
-                    <i className="pi pi-search" />
-                    <InputText placeholder="Search" />
-                  </span>
-                  {/* show deleted products switch */}
-                  <div className="flex gap-4">
+                      <span className="p-input-icon-right">
+                        <i className="pi pi-search" />
+                        <InputText placeholder="Search" />
+                      </span>
+                      {/* show deleted products switch */}
+                      <div className="flex gap-4">
 
-                    <InputSwitch
-                      checked={isDelProductShow}
-                      onChange={(e) => setIsDelProductShow(e.value as boolean)}
+                        <InputSwitch
+                          checked={isDelProductShow}
+                          onChange={(e) => setIsDelProductShow(e.value as boolean)}
 
-                    />
-                    <span className={isDelProductShow ? "text-gray-900" : "text-gray-400"}>Show Deleted Products</span>
+                        />
+                        <span className={isDelProductShow ? "text-gray-900" : "text-gray-400"}>Show Deleted Products</span>
+                      </div>
+
+                    </div>
+
+
+                    <div className="flex items-center">
+                      <Dropdown value={selectSortBy}
+                        onChange={(e: DropdownChangeEvent) => {
+                          setSelectSortBy(e.value.code)
+                          console.log(e.value.code)
+                        }
+                        }
+                        options={sortBy} optionLabel="name"
+                        placeholder={selectSortBy ? selectSortBy : "Sort By"}
+                        className="mr-2" />
+                    </div>
                   </div>
 
-                </div>
-
-
-                <div className="flex items-center">
-                  <Dropdown value={selectSortBy}
-                    onChange={(e: DropdownChangeEvent) => {
-                      setSelectSortBy(e.value.code)
-                      console.log(e.value.code)
-                    }
-                    }
-                    options={sortBy} optionLabel="name"
-                    placeholder={selectSortBy ? selectSortBy : "Sort By"}
-                    className="mr-2" />
-                </div>
-              </div>
-
-              <div className="grid lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-5 py-10 ">
-                {products.map((product) => (
-                  <div className="flex pb-4 w-full" key={product.id}>
-                    <Card
-                      className="w-full"
-                      header={
-                        <div className="relative">
-                          <div className="border border-gray-200 rounded-md overflow-hidden">
-                            <img
-                              src={product.image?.toString()}
-                              alt={product.name}
-                              className="w-full h-auto object-cover transition-transform duration-500 hover:scale-125"
-                            />
-                          </div>
-                          <div className="absolute top-0 left-0 w-full h-full border -z-10 border-gray-200 opacity-0 transition-opacity duration-500 hover:opacity-100"></div>
-                        </div>
-
-                      }
-                      footer={
-                        <div className="flex justify-between flex-col">
-                          <div className="flex flex-col">
-                            <h6 className="text-truncate mb-3 font-bold text-center pt-3">{product.name}</h6>
-                            <div className="flex justify-center py-2">
-                              <h6> <b>${product.price}</b></h6><h6 className="text-muted ml-2"><del>${product.price}</del></h6>
+                  <div className="grid lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-5 py-10 ">
+                    {products.map((product) => (
+                      <div className="flex pb-4 w-full" key={product.id}>
+                        <Card
+                          className="w-full"
+                          header={
+                            <div className="relative">
+                              <div className="border border-gray-200 rounded-md overflow-hidden">
+                                <img
+                                  src={product.image?.toString()}
+                                  alt={product.name}
+                                  className="w-full h-auto object-cover transition-transform duration-500 hover:scale-125"
+                                />
+                              </div>
+                              <div className="absolute top-0 left-0 w-full h-full border -z-10 border-gray-200 opacity-0 transition-opacity duration-500 hover:opacity-100"></div>
                             </div>
 
-                          </div>
-                          <div className="flex flex-row justify-between border-t-[1px] pt-2">
-                            <a href={`/productDetail/${product.id}`} 
-                            className="flex items-center"><FaEye className='text-primary mr-2' />Detaylı gör</a>
-                            {/* <button className="flex items-center"><FaShoppingCart className='text-primary mr-2' />Sepete Ekle</button> */}
+                          }
+                          footer={
+                            <div className="flex justify-between flex-col">
+                              <div className="flex flex-col">
+                                <h6 className="text-truncate mb-3 font-bold text-center pt-3">{product.name}</h6>
+                                <div className="flex justify-center py-2">
+                                  <h6> <b>${product.price}</b></h6><h6 className="text-muted ml-2"><del>${product.price}</del></h6>
+                                </div>
 
-                          </div>
+                              </div>
+                              <div className="flex flex-row justify-between border-t-[1px] pt-2">
+                                <a href={`/productDetail/${product.id}`}
+                                  className="flex items-center"><FaEye className='text-primary mr-2' />Detaylı gör</a>
+                                {/* <button className="flex items-center"><FaShoppingCart className='text-primary mr-2' />Sepete Ekle</button> */}
 
-                        </div>
-                      }
-                    >
-                    </Card>
+                              </div>
+
+                            </div>
+                          }
+                        >
+                        </Card>
+                      </div>
+                    ))}
                   </div>
-                ))}
+
+                </div>
               </div>
 
-            </div>
-          </div>
-
-          {/* pagnition */}
-          <div className="card">
-            <Paginator
-              first={first}
-              rows={rows}
-              totalRecords={
-                filteredProducts.length
-              }
-              onPageChange={onPageChange} />
-          </div>
+              {/* pagnition */}
+              <div className="card">
+                <Paginator
+                  first={first}
+                  rows={rows}
+                  totalRecords={
+                    filteredProducts.length
+                  }
+                  onPageChange={onPageChange} />
+              </div>
+            </>
+            : <Messages ref={msgs} className="sm:w-3/4 w-full mx-auto " />
+          }
         </>
-        : <Messages ref={msgs} className="sm:w-3/4 w-full mx-auto " />
       }
+
     </div>
   )
 }

@@ -81,13 +81,11 @@ const SideBar = (
             <div className="borde-b-2 border-solid mb-4 pb-4 relative">
                 <h5 className="font-semibold mb-4 text-3xl">Renk</h5>
                 <div className="flex flex-row flex-wrap gap-7">
-                    {colors.map((color) => (
+                    {colors.map((color, index) => (
                         <button className={`w-12 h-9 rounded-2xl border-2 border-solid block cursor-pointer
-                        ${activeColors.includes(color) && 'border-purple-700 before:content-["✓"] before:absolute before:text-white before:bg-opacity-30 before:rounded-full before:bg-purple-900 before:transform before:-translate-x-1/2 before:-translate-y-1/2 before:w-6 before:h-6 before:z-10'}
-                            
-                        `}
+                        ${activeColors.includes(color) && 'border-purple-700 before:content-["✓"] before:absolute before:text-white before:bg-opacity-30 before:rounded-full before:bg-purple-900 before:transform before:-translate-x-1/2 before:-translate-y-1/2 before:w-6 before:h-6 before:z-10'}`}
                             style={{ backgroundColor: color }}
-                            key={color}
+                            key={index + "-" + color}
                             onClick={() => toggleActiveColor(color)}
                         ></button>
                     ))}
