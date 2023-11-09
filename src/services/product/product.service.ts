@@ -1,8 +1,7 @@
-import { IProductRequest } from "./types";
 import { makeRequest } from "../base/base";
 
-export const addProduct = async (input: IProductRequest, token: string) => 
-    await makeRequest<any>("Products", "POST", input, token);
+export const addProduct = async (input: any, token: string) => 
+    await makeRequest<any>("Products", "POST", input, token, true);
 
 export const getProductById = async (id: number) =>
     await makeRequest<any>(`Products/${id}`, "GET");
