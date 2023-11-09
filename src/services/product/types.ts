@@ -22,6 +22,4 @@ export interface IProductInfo {
     categoryId: number,
     colors: string[] | undefined,
     sizes: string[] | undefined,
-    coverImage: string,
-    images: string[],
 }
