@@ -1,5 +1,5 @@
 import { addProduct } from "@/services/product/product.service"
-import { IProductInfo, IProductRequest } from "@/services/product/types"
+import { IProductInfo } from "@/services/product/types"
 import { authSelector } from "@/store/auth"
 import { SET_TOAST } from "@/store/Toast"
 import { IToast } from "@/store/Toast/type"
@@ -19,8 +19,10 @@ const Seller = () => {
     const [coverImage, setcoverImage] = useState<File | null>(null)
     const [images, setImages] = useState<File[] | null>([])
     const [loading, setLoading] = useState<boolean>(false)
-
     const { isAuthorized, token } = useSelector(authSelector)
+    const navigate = useNavigate()
+    const dispatch = useDispatch()
+
     const [productInfo, setProductInfo] = useState<IProductInfo>({
         name: "",
         price: 0,
@@ -30,8 +32,6 @@ const Seller = () => {
         categoryId: 0 as number,
         colors: [] as string[] | undefined,
         sizes: [] as string[] | undefined,
-        coverImage: "" as string,
-        images: [] as string[],
     })
 
     useEffect(() => {
@@ -42,21 +42,6 @@ const Seller = () => {
             return
         }
     }, [])
-
-    async function imageUpdate(file: File | null): Promise<string> {
-        if (!file) return '';
-
-        return new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onloadend = () => resolve(reader.result as string);
-        });
-    }
-
-    const dispatch = useDispatch()
-
-    const navigate = useNavigate()
-
 
     const validationSchema = Yup.object().shape({
         productName: Yup.string()
@@ -104,32 +89,22 @@ const Seller = () => {
 
     const handleAddProduct = async () => {
 
-        if (coverImage !== null && images?.length !== 0 && images && productInfo.name.length > 2) {
-            setProductInfo({ ...productInfo, coverImage: "", images: [] })
-            const addData = async () => {
-                const input: IProductRequest = {
-                    ...productInfo,
-                    coverImage: await imageUpdate(coverImage),
-                    images: await Promise.all(images.map(async (image) => {
-                        return await imageUpdate(image)
-                    }))
-                }
-                console.log("input : ", input)
-                const [err, data] = await to(addProduct(input, token))
-                if (err) {
-                    const toast: IToast = { severity: 'error', summary: "Hata", detail: err.message, life: 3000 } // service çalışmadı 
-                    dispatch(SET_TOAST(toast))
-                    return
-                }
-
-                if (data.data) {
-                    const toast: IToast = { severity: "success", summary: "Başarılı", detail: data?.message, life: 3000 }
-                    dispatch(SET_TOAST(toast))
-                    // navigate("/productDetail/" + data?.data?.id)
-                }
+        if (coverImage !== null && images && images?.length !== 0) {
+            const productInfoJSON = JSON.stringify(productInfo);
+            const formData = new FormData();
+            formData.append("productInfo", productInfoJSON)
+            formData.append("coverImage", coverImage, coverImage.name)
+            images.map(async (image) => {
+                formData.append(`images`, image, image.name)
+            })
+            const [err, res] = await to(addProduct(formData, token))
+            if (err) {
+                const toast: IToast = { severity: 'error', summary: "Hata", detail: err.message, life: 3000 } // service çalışmadı 
+                dispatch(SET_TOAST(toast))
+                return
             }
-
-            await addData()
+            const toast: IToast = { severity: "success", summary: "Başarılı", detail: res?.message, life: 3000 }
+            dispatch(SET_TOAST(toast))
         }
         else {
             console.log(coverImage, " \n", images, " \n", productInfo.name)
@@ -145,7 +120,7 @@ const Seller = () => {
             <>
                 <div className="w-screen h-screen fixed top-0 left-0 flex flex-col gap-4 justify-center items-center bg-opacity-50 bg-black z-50">
                     <ProgressSpinner className="!w-24" strokeWidth="10" animationDuration=".8s" fill="white" />
-                        <span className="animate-bounce font-bold tracking-wider text-5xl text-primaryDark absolute bottom-1/2"> D </span>
+                    <span className="animate-bounce font-bold tracking-wider text-5xl text-primaryDark absolute bottom-1/2"> D </span>
                     <Button severity="warning" label="İptal et" className="w-1/3" onClick={() => setLoading(false)} />
 
                 </div>
