@@ -7,7 +7,7 @@ import { FaEye } from 'react-icons/fa';
 import { IProduct, IShopResponse } from '@/shared/types';
 import { Paginator, PaginatorPageChangeEvent } from 'primereact/paginator';
 import { getProductsByCategoryId } from '@/services/shop/shop.service';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { InputSwitch } from "primereact/inputswitch";
 import to from 'await-to-js';
 import { Messages } from 'primereact/messages';
@@ -167,11 +167,13 @@ const Shop = () => {
                           header={
                             <div className="relative">
                               <div className="border border-gray-200 rounded-md overflow-hidden">
+                                <Link to={`/product/${product.id}`}>
                                 <img
                                   src={product.image?.toString()}
                                   alt={product.name}
                                   className="w-full h-auto object-cover transition-transform duration-500 hover:scale-125"
                                 />
+                                </Link>
                               </div>
                               <div className="absolute top-0 left-0 w-full h-full border -z-10 border-gray-200 opacity-0 transition-opacity duration-500 hover:opacity-100"></div>
                             </div>

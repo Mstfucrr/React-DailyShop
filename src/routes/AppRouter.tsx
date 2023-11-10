@@ -16,7 +16,7 @@ const AppRouter: React.FC = () => {
         <Routes>
             <Route path="/" Component={Home} />
             <Route path="/shop/:id" Component={Shop} />
-            <Route path="/productDetail/:id" Component={ProductDetailPage} /> {/* Updated path */}
+            <Route path="/product/:id" Component={ProductDetailPage} /> {/* Updated path */}
             <Route path="/login" Component={Login} />
             <Route path="/register" Component={Register} />
             <Route path="/cart" Component={Cart} />
