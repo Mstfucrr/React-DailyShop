@@ -86,8 +86,6 @@ const ProductInfo = (
                                 setSelectedNodeKey(e.value as string)
                             }}
                             filter
-
-
                         />
                         <label htmlFor="ts-category">
                             Bir Kategori Seç
@@ -145,7 +143,7 @@ const ProductInfo = (
                     <div className="flex flex-row flex-wrap gap-x-5 w-full">
                         <div className="w-full md:w-1/3">
                             <label htmlFor="dd-colors" className="font-bold block mb-2">Renkler</label>
-                            <MultiSelect id="dd-colors" name="dd-colors" className="w-full " multiple
+                            <MultiSelect id="dd-colors" name="dd-colors" multiple
                                 options={[
                                     { label: 'Mavi', value: 'blue' },
                                     { label: 'Kırmızı', value: 'red' },
@@ -156,11 +154,14 @@ const ProductInfo = (
                                     { label: 'Beyaz', value: 'white' },
                                     { label: 'Siyah', value: 'black' },
                                 ]}
-                                value={selectedColors}
-                                onChange={(e: DropdownChangeEvent) => setSelectedColors(e.value as any)}
+                                value={formik.values.colors}
+                                onChange={(e: DropdownChangeEvent) => formik.setFieldValue('colors', e.value as any)}
                                 itemTemplate={colorTemplete}
-
+                                className={`w-full ${formik.touched.colors && formik.errors.colors ? 'p-invalid' : ''}`}
                             />
+                            {formik.touched.colors &&
+                                showFormErrorMessage(formik.errors.colors!)
+                            }
                         </div>
                         <div className="w-full md:w-1/3">
                             <label htmlFor="dd-sizes" className="font-bold block mb-2">Bedenler</label>
@@ -176,6 +177,7 @@ const ProductInfo = (
                                 ]}
                                 value={selectedSizes}
                                 onChange={(e: DropdownChangeEvent) => setSelectedSizes(e.value as any)}
+
                             />
 
                         </div>
@@ -249,7 +251,7 @@ const ProductInfo = (
                                         stock: formik.values.stock,
                                         status: formik.values.status,
                                         description: formik.values.description,
-                                        colors: selectedColors,
+                                        colors: formik.values.colors,
                                         sizes: selectedSizes,
                                         categoryId: selectedCategory?.id!,
                                         name: formik.values.productName,

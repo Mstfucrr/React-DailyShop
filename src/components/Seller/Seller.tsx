@@ -18,7 +18,8 @@ const Seller = () => {
 
     const [coverImage, setcoverImage] = useState<File | null>(null)
     const [images, setImages] = useState<File[] | null>([])
-    const [loading, setLoading] = useState<boolean>(false)
+    const [loading, setLoading] = useState<boolean>(true)
+    const [isProductAdded, setProductAdded] = useState<boolean | undefined>(undefined);
     const { isAuthorized, token } = useSelector(authSelector)
     const navigate = useNavigate()
     const dispatch = useDispatch()
@@ -60,7 +61,10 @@ const Seller = () => {
             .max(1000, 'Açıklama çok uzun'),
         status: Yup.string()
             .required('Durum gereklidir'),
-
+        colors: Yup.array()
+            .min(1, 'En az bir renk seçiniz'),
+        category: Yup.string()
+            .required('Kategori seçiniz'),
     })
 
     const formik = useFormik({
@@ -71,18 +75,16 @@ const Seller = () => {
             description: '',
             status: '',
             category: '',
+            colors: [],
         },
-        validationSchema: validationSchema,
-        validate: (data) => {
-            let errors = {}
-            if (!data.category) {
-                errors = { ...errors, category: 'Kategori seçiniz' }
-            }
-            return errors
-        },
+        // validationSchema: validationSchema,
         onSubmit: async () => {
             setLoading(true)
-            await handleAddProduct().then(() => setLoading(false))
+
+            // await handleAddProduct().then(() => setLoading(false))
+            // setTimeout(() => {
+            //     setLoading(false)
+            // }, 3000);
         }
     })
 
@@ -90,12 +92,17 @@ const Seller = () => {
     const handleAddProduct = async () => {
 
         if (coverImage !== null && images && images?.length !== 0) {
-            const productInfoJSON = JSON.stringify(productInfo);
             const formData = new FormData();
-            formData.append("productInfo", productInfoJSON)
-            formData.append("coverImage", coverImage, coverImage.name)
+
+            Object.entries(productInfo).forEach(([key, value]) => {
+                if (key === "colors" || key === "sizes") return
+                formData.append(key, value)
+            })
+            productInfo.colors?.forEach((color) => formData.append("Colors", color))
+            productInfo.sizes?.forEach((size) => formData.append("Sizes", size))
+            formData.append("BodyImage", coverImage, coverImage.name)
             images.map(async (image) => {
-                formData.append(`images`, image, image.name)
+                formData.append(`ProductImages`, image, image.name)
             })
             const [err, res] = await to(addProduct(formData, token))
             if (err) {
@@ -117,14 +124,24 @@ const Seller = () => {
     const LoadingTemplete = () => {
         // tüm sayfayı kapsayacak şekilde spinner göster
         return (
-            <>
-                <div className="w-screen h-screen fixed top-0 left-0 flex flex-col gap-4 justify-center items-center bg-opacity-50 bg-black z-50">
-                    <ProgressSpinner className="!w-24" strokeWidth="10" animationDuration=".8s" fill="white" />
-                    <span className="animate-bounce font-bold tracking-wider text-5xl text-primaryDark absolute bottom-1/2"> D </span>
-                    <Button severity="warning" label="İptal et" className="w-1/3" onClick={() => setLoading(false)} />
+            <div className="w-screen h-screen fixed top-0 left-0 flex flex-col gap-4 justify-center items-center bg-opacity-50 bg-black z-50">
 
-                </div>
-            </>
+                {/* ürün eklendi mi  */}
+                {isProductAdded !== undefined ?
+                    isProductAdded === true ?
+                        // ürün eklendiyse
+                        <div className=""></div>
+                        :
+                        // ürün eklenmediyse
+                        <div className="">asd</div>
+                    :
+                    <>
+                        <ProgressSpinner className="!w-24" strokeWidth="5" animationDuration=".8s" fill="white" />
+                        <span className="animate-bounce font-bold tracking-wider text-5xl text-primaryDark absolute bottom-1/2"> D </span>
+                        <Button severity="warning" label="İptal et" className="w-1/5 !text-xl" onClick={() => setLoading(false)} />
+                    </>
+                }
+            </div>
         )
     }
 
