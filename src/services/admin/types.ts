@@ -6,3 +6,8 @@ export interface ISiteSettings {
     email: string | undefined;
     phone: string | undefined;
 }
+
+export interface ICategoryRequest {
+    name: string,
+    parentCategoryId: number | null
+}

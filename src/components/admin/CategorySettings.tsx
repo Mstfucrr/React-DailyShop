@@ -14,6 +14,7 @@ import { IToast } from '@/store/Toast/type'
 import { SET_TOAST } from '@/store/Toast'
 import { Tree } from 'primereact/tree';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog'
+import { ICategoryRequest } from '@/services/admin/types'
 
 const CategorySettings = () => {
 
@@ -57,7 +58,7 @@ const CategorySettings = () => {
             .max(50, 'Kategori adı en fazla 50 karakter olmalıdır'),
     })
 
-    const handleAddCategory = async (val: any) => {
+    const handleAddCategory = async (val: ICategoryRequest) => {
         const [err, data] = await to(adminService.addCategory(val, token));
         if (err) return showErrorMessage(err)
         showSuccess(data.message)
@@ -74,6 +75,7 @@ const CategorySettings = () => {
         setSelectedCategory(undefined)
         setUpdateCategory(null)
         setTreeNodes(convertCategoriesToTreeSelectModel(data));
+        setLoading(false);
 
     }
 
@@ -85,7 +87,7 @@ const CategorySettings = () => {
         validationSchema: validationSchema,
         onSubmit: async (values) => {
             setLoading(true);
-            const val = {
+            const val: ICategoryRequest = {
                 name: values.categoryName,
                 parentCategoryId: selectedCategory?.id || null
             }
@@ -124,7 +126,7 @@ const CategorySettings = () => {
         onSubmit: async (values) => {
 
             setLoading(true);
-            const val = {
+            const val: ICategoryRequest = {
                 name: values.categoryName,
                 parentCategoryId: updateCategory?.parentCategoryId || null
             }

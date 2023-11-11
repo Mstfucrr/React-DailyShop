@@ -33,7 +33,6 @@ export interface IReview {
     date: Date,
     rating: number,
     productId: number,
-    product: IProduct | undefined,
     comment: string,
     user: IUser | undefined,
     status: string | undefined,
@@ -46,11 +45,6 @@ export interface IShopResponse {
     message: string;
     data: IProduct[];
     total: number;
-}
-
-export interface Iinfo {
-    count: number,
-    pages: number,
 }
 
 export interface ICartItem {

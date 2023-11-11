@@ -71,6 +71,7 @@ const ProductDetail = () => {
         if (!id) return
         const fetchData = async () => {
             const [err, data] = await to(getProductById(parseInt(id)))
+            console.log(err)
             if (err) {
                 msgs.current?.clear()
                 msgs.current?.show([
@@ -78,22 +79,12 @@ const ProductDetail = () => {
                 ]);
                 return
             }
-            if (true) {
-                var fetchedProduct = await data.data as IProduct;
-                setProduct(fetchedProduct)
-                setSizes(fetchedProduct.sizes?.map((size: string) => ({ name: size, key: size })))
-                setColors(fetchedProduct.colors?.map((color: string) => ({ name: color, key: color })))
-                setImages(fetchedProduct.images?.map((image: File) => ({ source: image })))
-                setReviews(fetchedProduct.reviews)
-                if (product && !product.isApproved) {
-                    msgs.current?.clear()
-                    msgs.current?.show([
-                        { sticky: true, severity: "warn", summary: "Uyarı", detail : "Ürün mevcut fakat henüz yönetici tarafından onaylanmadı! ", closable: false}
-                    ])
-                    return 
-                }
-            }
-
+            var fetchedProduct = await data.data as IProduct;
+            setProduct(fetchedProduct)
+            setSizes(fetchedProduct.sizes?.map((size: string) => ({ name: size, key: size })))
+            setColors(fetchedProduct.colors?.map((color: string) => ({ name: color, key: color })))
+            setImages(fetchedProduct.images?.map((image: File) => ({ source: image })))
+            setReviews(fetchedProduct.reviews)
         }
 
         fetchData()
@@ -184,7 +175,6 @@ const ProductDetail = () => {
             size: selectSize,
             color: selectColor,
             productId: product.id,
-            userId: auth.id
         }
 
         const [err, data] = await to(addToCart(cartAdd, token))
@@ -240,7 +230,7 @@ const ProductDetail = () => {
     return (
 
         <>
-            {product && product.isApproved 
+            {product && product.isApproved
 
                 ? <div className="lg:px-20">
                     {/* image and info */}

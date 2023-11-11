@@ -43,9 +43,10 @@ const ProductSettings = () => {
                 dispatch(SET_TOAST(toast))
                 return
             }
-            if (data)
-                setProducts(data);
-            setLoading(false);
+            if (data) {
+                setProducts(data.data)
+                setLoading(false);
+            }
         }
         getAllProducts();
     }, []);
@@ -101,7 +102,7 @@ const ProductSettings = () => {
                         loading={loading} emptyMessage="Ürün Bulunamadı" globalFilter={globalFilterValue}
                         filterDisplay="row"
                         globalFilterFields={["name", "category.name", "stock", "price", "status"]}
-                        paginator rows={10} rowsPerPageOptions={[5, 10, 25]}
+                        paginator rows={10} rowsPerPageOptions={[1,5, 10, 25]}
                         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                         currentPageReportTemplate="Toplam {totalRecords} ürün arasından {first} - {last} arası gösteriliyor"
                         paginatorLeft={null} paginatorRight={null} >
@@ -122,7 +123,7 @@ const ProductSettings = () => {
                 {/* Kategori ekle kaldır güncelle */}
 
                 <CategorySettings />
-                
+
 
             </div>
 

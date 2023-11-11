@@ -18,7 +18,7 @@ const Seller = () => {
 
     const [coverImage, setcoverImage] = useState<File | null>(null)
     const [images, setImages] = useState<File[] | null>([])
-    const [loading, setLoading] = useState<boolean>(true)
+    const [loading, setLoading] = useState<boolean>(false)
     const [isProductAdded, setProductAdded] = useState<boolean | undefined>(undefined);
     const { isAuthorized, token } = useSelector(authSelector)
     const navigate = useNavigate()
@@ -77,11 +77,11 @@ const Seller = () => {
             category: '',
             colors: [],
         },
-        // validationSchema: validationSchema,
+        validationSchema: validationSchema,
         onSubmit: async () => {
             setLoading(true)
 
-            // await handleAddProduct().then(() => setLoading(false))
+            await handleAddProduct().then(() => setLoading(false))
             // setTimeout(() => {
             //     setLoading(false)
             // }, 3000);
