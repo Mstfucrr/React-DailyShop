@@ -50,7 +50,7 @@ const ImageUpload = (
                     </div>
                     <div>
                         <Button type="button" icon="pi pi-times" className="p-button-outlined p-button-rounded p-button-danger ml-auto"
-                            onClick={() => {setcoverImage(null); onTemplateRemove(file, props.onRemove)} } />
+                            onClick={() => { setcoverImage(null); onTemplateRemove(file, props.onRemove) }} />
                     </div>
 
                 </div>
@@ -73,7 +73,7 @@ const ImageUpload = (
 
                     <Tag value={props.formatSize} severity="warning" className="px-3 py-2" />
                     <Button type="button" icon="pi pi-times" className="p-button-outlined p-button-rounded p-button-danger ml-auto"
-                        onClick={() =>{ setImages((prev) => { return prev.filter((item) => item !== file)}) ;onTemplateRemove(file, props.onRemove)}} />
+                        onClick={() => { setImages((prev) => { return prev.filter((item) => item !== file) }); onTemplateRemove(file, props.onRemove) }} />
                 </div>
             </div>
         );
@@ -103,11 +103,11 @@ const ImageUpload = (
                     maxFileSize={10000000}
                     itemTemplate={coverItemTemplate}
                     name="demo[]" url="/api/upload" accept="image/*" customUpload
-                    onClear={() => { onTemplateClear }}
-                    cancelOptions={{className: "!hidden"}}
-                    uploadOptions={{className: "!hidden"}}
+                    onClear={() => onTemplateClear}
+                    cancelOptions={{ className: "!hidden" }}
+                    uploadOptions={{ className: "!hidden" }}
                     chooseOptions={chooseOptions}
-                    chooseLabel= "Seç"
+                    chooseLabel="Seç"
                     multiple={false}
                 />
 
@@ -116,11 +116,11 @@ const ImageUpload = (
                 <FileUpload
                     className="w-full"
                     ref={fileUploadRef}
-                    onSelect={() => { onTemplateSelect }}
+                    onSelect={() => onTemplateSelect}
                     maxFileSize={10000000}
                     itemTemplate={itemTemplate}
                     name="demo[]" accept="image/*" uploadHandler={customBase64Uploader}
-                    onClear={() => { onTemplateClear }}
+                    onClear={() => onTemplateClear}
                     cancelOptions={cancelOptions}
                     uploadOptions={ImagesUploadOptions}
                     chooseOptions={chooseOptions}
@@ -128,8 +128,8 @@ const ImageUpload = (
                     contentClassName="w-full"
                     customUpload
                     uploadLabel="Yükle"
-                    chooseLabel= "Seç"
-                    cancelLabel= "Temizle"
+                    chooseLabel="Seç"
+                    cancelLabel="Temizle"
                 />
 
             </div>
