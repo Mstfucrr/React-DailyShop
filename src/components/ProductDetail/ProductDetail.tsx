@@ -79,12 +79,14 @@ const ProductDetail = () => {
                 ]);
                 return
             }
-            var fetchedProduct = await data.data as IProduct;
-            setProduct(fetchedProduct)
-            setSizes(fetchedProduct.sizes?.map((size: string) => ({ name: size, key: size })))
-            setColors(fetchedProduct.colors?.map((color: string) => ({ name: color, key: color })))
-            setImages(fetchedProduct.images?.map((image: File) => ({ source: image })))
-            setReviews(fetchedProduct.reviews)
+            if (data.data) {
+                const fetchedProduct = await data.data as IProduct;
+                setProduct(fetchedProduct)
+                setSizes(fetchedProduct.sizes?.map((size: string) => ({ name: size, key: size })))
+                setColors(fetchedProduct.colors?.map((color: string) => ({ name: color, key: color })))
+                setImages(fetchedProduct.images?.map((image: File) => ({ source: image })))
+                setReviews(fetchedProduct.reviews)
+            }
         }
 
         fetchData()
@@ -230,7 +232,7 @@ const ProductDetail = () => {
     return (
 
         <>
-            {product && product.isApproved
+            {product != null
 
                 ? <div className="lg:px-20">
                     {/* image and info */}
@@ -253,7 +255,7 @@ const ProductDetail = () => {
                                 <Rating value={product.rating} readOnly cancel={false} pt={{
                                     onIcon: { className: '!text-primary' }
                                 }} />
-                                ( {product.reviews.length} İzlenim )
+                                ( {reviews?.length} İzlenim )
                             </div>
                             {/* price */}
                             <h2 className="font-semibold text-3xl text-black my-2">
@@ -264,7 +266,7 @@ const ProductDetail = () => {
                                 {product.description.substring(0, 300) + "..."}
                             </p>
                             {/* sizes */}
-                            {product.sizes && product.sizes?.length > 0 && (
+                            {sizes && sizes.length > 0 && (
 
                                 <div className="flex flex-row flex-wrap gap-x-5 items-center">
                                     <h2 className="text-lg font-semibold">
@@ -281,7 +283,7 @@ const ProductDetail = () => {
                                 </div>
                             )}
                             {/* colors */}
-                            {product.colors && product.colors.length > 0 && (
+                            {colors && colors.length > 0 && (
                                 <div className="flex flex-row flex-wrap gap-x-5 items-center mt-3">
 
                                     <h2 className="text-lg font-semibold">
@@ -361,7 +363,13 @@ const ProductDetail = () => {
                                         Tanım
                                     </div>
                                 }>
-                                    <p className="mt-5 px-2">{product.description}</p>
+                                    <h2 className="text-2xl font-semibold">{product.name}</h2>
+
+                                    <div className="ql-snow">
+                                        <div className="ql-editor">
+                                            <p dangerouslySetInnerHTML={{ __html: product.description }}></p>
+                                        </div>
+                                    </div>
                                 </TabPanel>
                                 <TabPanel header={
                                     <div className="text-primary">
@@ -381,19 +389,16 @@ const ProductDetail = () => {
                                 </TabPanel>
                                 <TabPanel header={
                                     <div className="text-primary">
-                                        <FaCommentAlt className="inline mr-2" />
-                                        Yorumlar
-
+                                        <FaCommentAlt className="inline mr-2" />Yorumlar
                                     </div>
-                                }
-                                >
+                                }>
                                     <div className="flex flex-col lg:flex-row w-full px-5 gap-x-3 gap-y-4 mt-6">
                                         <div className="w-full flex flex-col">
                                             <h1 className="text-3xl">
-                                                "{product.name}" için {product.reviews.length} Yorum
+                                                "{product.name}" için {reviews?.length} Yorum
                                             </h1>
                                             <div className="flex flex-col w-full">
-                                                {reviews.map((review: IReview, index: number) => (
+                                                {reviews && reviews.map((review: IReview, index: number) => (
                                                     <div className="flex items-start mx-4 my-2" key={index}>
                                                         <Avatar image={review.user?.profileImage} size={"large"}
                                                             className="m-2"
@@ -498,8 +503,6 @@ const ProductDetail = () => {
 
                                         </div>
                                     </div>
-
-
                                 </TabPanel>
 
                             </TabView>
