@@ -3,7 +3,8 @@ import ReactDOM from 'react-dom/client'
 import App from './App'
 import './index.css'
 //theme
-import "primereact/resources/themes/lara-light-indigo/theme.css";
+import "primereact/resources/themes/lara-light-blue/theme.css";
+
 // icons
 import 'primeicons/primeicons.css';
 
