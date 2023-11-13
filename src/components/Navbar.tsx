@@ -26,7 +26,7 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const isAboveMediumScreen = useMediaQuery("(min-width: 1060px)");
 
-  const navItemsStyle = 'border-b-[1px] border-solid border-secondary text-black outline-none block';
+  const navItemsStyle = 'border-b-[1px] border-solid border-secondary text-black outline-none block py-[10px] lx:py-[20px] px-[10px]';
 
   const isHomePage = location.pathname === '/'; // Assuming the home page path is '/'
 
@@ -136,32 +136,30 @@ const Navbar = () => {
 
                   >
                     <div className="lg:flex-row mr-auto py-0 flex flex-col pl-0 mb-0 mt-4">
-                      <a href="/" className={navItemsStyle + " py-[10px] lx:py-[20px] px-[10px]"}>Home</a>
-                      <a href="/shop" className={navItemsStyle + " py-[10px] lx:py-[20px] px-[10px]"}>Shop</a>
-                      <a href="" className={navItemsStyle + " py-[10px] lx:py-[20px] px-[10px]"}>Shop Detail</a>
-                      <a href="" className={navItemsStyle + " py-[10px] lx:py-[20px] px-[10px]"}>Pages</a>
-                      <a href="" className={navItemsStyle + " py-[10px] lx:py-[20px] px-[10px]"}>Contact</a>
+                      <a href="/" className={navItemsStyle}>Home</a>
+                      <a href="/shop" className={navItemsStyle}>Shop</a>
+                      <a href="" className={navItemsStyle}>Shop Detail</a>
+                      <a href="" className={navItemsStyle}>Pages</a>
+                      <a href="" className={navItemsStyle}>Contact</a>
                     </div>
-                    <div className="lg:flex-row ml-auto py-0 flex flex-col pl-0 mb-0">
+                    <div className="lg:flex-row ml-auto py-0 flex flex-col pl-0 mb-0 gap-5 m-5">
                       {/* login register links */}
 
                       {/* logout */}
                       {isAuthorized ?
                         <>
-                          <Link to="/account" className={navItemsStyle + " py-[10px] lx:py-[20px] px-[10px] mr-4"}>Hesap</Link>
-                          <a className={navItemsStyle + " py-[10px] lx:py-[20px] px-[10px] mr-4 cursor-pointer text-primary"}
-                            onClick={handleLogout}
-                          >Çıkış Yap</a>
+                          <Link to="/account"><Button text={location.pathname !== '/account'} severity='info' >Hesap</Button></Link>
+                          <Link to="/seller"><Button text={location.pathname !== '/seller'} severity='warning' >Satış Yap </Button></Link>
+                          <Button text severity='danger' onClick={handleLogout} >Çıkış Yap</Button>
                         </>
                         :
                         <>
-                          <Link to="/login" className={navItemsStyle + " py-[10px] lx:py-[20px] px-[10px]"}>Giriş Yap</Link>
-                          <Link to="/register" className={navItemsStyle + " py-[10px] lx:py-[20px] px-[10px]"}>Kayıt Ol</Link>
+                          <Link to="/login"><Button text={location.pathname !== '/login'} severity='info' >Giriş Yap</Button></Link>
+                          <Link to="/register"><Button text={location.pathname !== '/register'} severity='warning' >Kayıt Ol </Button></Link>
                         </>
                       }
 
-                      <Button severity="warning" className=" py-[10px] lx:py-[20px] px-[10px] !text-black hover:!text-white duration-300"
-                        onClick={() => { navigate('/seller') }}> Satış Yap </Button>
+
                     </div>
                   </motion.div>
                 )}
