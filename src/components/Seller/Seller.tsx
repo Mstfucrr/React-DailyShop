@@ -57,8 +57,7 @@ const Seller = () => {
             .min(0, 'Stok 0 dan küçük olamaz'),
         description: Yup.string()
             .required('Açıklama gereklidir')
-            .min(40, 'Açıklama çok kısa')
-            .max(1000, 'Açıklama çok uzun'),
+            .min(40, 'Açıklama çok kısa'),
         status: Yup.string()
             .required('Durum gereklidir'),
         colors: Yup.array()
