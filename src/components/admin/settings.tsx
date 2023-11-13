@@ -1,4 +1,4 @@
-import adminService from "@/services/admin/admin.service"
+import { settingsService } from "@/services/admin/admin.service"
 import { ISiteSettings } from "@/services/admin/types"
 import { SET_TOAST } from "@/store/Toast"
 import { IToast } from "@/store/Toast/type"
@@ -37,7 +37,7 @@ const Settings = () => {
 
     const fetchDatas = async () => {
 
-        const [err, data] = await to(adminService.fetchSettings(token))
+        const [err, data] = await to(settingsService.fetchSettings(token))
         if (err) return showErrorMessage(err)
         setSiteSettings(data.data)
     }
@@ -57,7 +57,7 @@ const Settings = () => {
             address: address,
             siteIcon: siteIcon
         }
-        const [err, data] = await to(adminService.saveSettings(val, token))
+        const [err, data] = await to(settingsService.saveSettings(val, token))
         if (err) return showErrorMessage(err)
         showSuccess(data.message)
         fetchDatas()

@@ -1,4 +1,4 @@
-import adminService from '@/services/admin/admin.service'
+import { categoryService } from '@/services/admin/admin.service'
 import { ICategory } from '@/shared/types'
 import { authSelector } from '@/store/auth'
 import to from 'await-to-js'
@@ -13,8 +13,10 @@ import { useFormik } from 'formik'
 import { IToast } from '@/store/Toast/type'
 import { SET_TOAST } from '@/store/Toast'
 import { Tree } from 'primereact/tree';
-import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog'
+import { ConfirmDialog } from 'primereact/confirmdialog'
 import { ICategoryRequest } from '@/services/admin/types'
+import NodeTemplate from './NodeTemplate'
+
 
 const CategorySettings = () => {
 
@@ -59,7 +61,7 @@ const CategorySettings = () => {
     })
 
     const handleAddCategory = async (val: ICategoryRequest) => {
-        const [err, data] = await to(adminService.addCategory(val, token));
+        const [err, data] = await to(categoryService.addCategory(val, token));
         if (err) return showErrorMessage(err)
         showSuccess(data.message)
         handleGetAllCategories()
@@ -68,7 +70,7 @@ const CategorySettings = () => {
     }
 
     const handleGetAllCategories = async () => {
-        const [err, data] = await to(adminService.getAllCategories());
+        const [err, data] = await to(categoryService.getAllCategories());
         console.log(data)
         if (err) return showErrorMessage(err)
         setSelectedNodeKey(null)
@@ -102,7 +104,7 @@ const CategorySettings = () => {
 
     const handleUpdateCategory = async (id: number, val: any) => {
         console.log(val)
-        const [err, data] = await to(adminService.updateCategoryById(id, val, token));
+        const [err, data] = await to(categoryService.updateCategoryById(id, val, token));
         if (err) return showErrorMessage(err)
         showSuccess(data.message)
         handleGetAllCategories()
@@ -137,7 +139,7 @@ const CategorySettings = () => {
     })
 
     const handleDeleteCategory = async (id: number) => {
-        const [err, data] = await to(adminService.deleteCategoryById(id, token));
+        const [err, data] = await to(categoryService.deleteCategoryById(id, token));
         if (err) return showErrorMessage(err);
         showSuccess(data.message)
         handleGetAllCategories()
@@ -146,6 +148,13 @@ const CategorySettings = () => {
 
     }
 
+    const renderNodeTemplate = (node: any) => (
+        <NodeTemplate
+          node={node}
+          setUpdateCategory={setUpdateCategory}
+          handleDeleteCategory={handleDeleteCategory}
+        />
+      );
 
     return (
         <>
@@ -245,40 +254,7 @@ const CategorySettings = () => {
                                     handleUpdateCategory(e.dragNode.data.id, { name: e.dragNode.data.name, parentCategoryId: e.dropNode?.data.id || null })
                                     setLoading(false);
                                 }}
-                                nodeTemplate={(node) => {
-                                    return (
-                                        <div className="flex flex-row justify-between items-center w-full flex-wrap">
-                                            <span className="p-2">{node.label}</span>
-                                            <div className='flex gap-x-3'>
-                                                <Button className='p-button-rounded p-button-info' icon="pi pi-pencil"
-                                                    onClick={() => { setUpdateCategory(node.data) }}
-                                                />
-
-                                                <Button className='p-button-rounded p-button-danger' icon="pi pi-trash"
-                                                    onClick={() => {
-                                                        var co = confirmDialog({
-                                                            message: <div className='flex items-center gap-2 flex-wrap'>
-                                                                <h4 className="font-bold text-lg"> {node.data.name} </h4>
-                                                                <span className="text-sm text-gray-500"> Kategoriyi silmek istediğinize emin misiniz? </span>
-                                                            </div>,
-                                                            header: "Kategori Silme",
-                                                            icon: "pi pi-exclamation-triangle",
-                                                            acceptLabel: "Sil",
-                                                            acceptIcon: "pi pi-trash",
-                                                            acceptClassName: "p-button-danger",
-                                                            closable: false,
-                                                            rejectLabel: "iptal",
-                                                            rejectIcon: "pi pi-times",
-                                                            accept: () => handleDeleteCategory(node.data.id),
-                                                            reject: () => co.hide()
-                                                        })
-                                                    }}
-                                                />
-                                            </div>
-
-                                        </div>
-                                    )
-                                }}
+                                nodeTemplate={renderNodeTemplate}
                             />
                             <ConfirmDialog />
                             {updateCategory &&

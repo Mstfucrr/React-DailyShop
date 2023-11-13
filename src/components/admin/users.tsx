@@ -1,4 +1,4 @@
-import adminService from '@/services/admin/admin.service'
+import { userService } from '@/services/admin/admin.service'
 import { authSelector } from '@/store/auth'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -15,6 +15,7 @@ import { IToast } from '@/store/Toast/type';
 import { Fieldset } from 'primereact/fieldset';
 import { Link } from 'react-router-dom';
 import { DataView } from 'primereact/dataview';
+import { getProductById } from '@/services/product/product.service';
 
 
 const UserSettings = () => {
@@ -41,7 +42,7 @@ const UserSettings = () => {
     }
 
     const fetchUsers = async () => {
-        const [err, data] = await to(adminService.fetchUsers(token))
+        const [err, data] = await to(userService.fetchUsers(token))
         if (err) return showErrorMessage(err)
         setUsers(data)
         showSuccess(data.message)
@@ -56,17 +57,22 @@ const UserSettings = () => {
 
     useEffect(() => {
         const fetchUserAddress = async () => {
-            const [err, data] = await to(adminService.fetchAddressByUserId(selectedUser?.id!, token))
+            const [err, data] = await to(userService.fetchAddressByUserId(selectedUser?.id!, token))
             if (err) return showErrorMessage(err)
             setSelectedUserAddress(data)
         }
         const fetchUserReviews = async () => {
-            const [err, data] = await to(adminService.fetchReviewsByUserId(selectedUser?.id!, token))
+            const [err, data] = await to(userService.fetchReviewsByUserId(selectedUser?.id!, token))
             if (err) return showErrorMessage(err)
+            data.map(async (item: IReview) => {
+                const [err, rewProductResponse] = await to(getProductById(item.productId))
+                if (err) return showErrorMessage(err)
+                item.product = rewProductResponse
+            })
             setSelectedUserReviews(data)
         }
         const fetchUserPaddingProduct = async () => {
-            const [err, data] = await to(adminService.fetchPaddingProductByUserId(selectedUser?.id!, token))
+            const [err, data] = await to(userService.fetchPaddingProductByUserId(selectedUser?.id!, token))
             if (err) return showErrorMessage(err)
             setSelectedUserPaddingProduct(data)
         }
@@ -79,19 +85,19 @@ const UserSettings = () => {
     }, [selectedUser])
 
     const handleReviewStatusChange = async (data: IReview, status: string) => {
-        const [err, data2] = await to(adminService.updateReviewStatus(data.id, status, token))
+        const [err, data2] = await to(userService.updateReviewStatus(data.id, status, token))
         if (err) return showErrorMessage(err)
         showSuccess(data2.message)
     }
 
     const handleProductApprovalStatusChange = async (data: IProduct, status: boolean) => {
-        const [err, data2] = await to(adminService.updateProductApprovalStatus(data.id, status, token))
+        const [err, data2] = await to(userService.updateProductApprovalStatus(data.id, status, token))
         if (err) return showErrorMessage(err)
         showSuccess(data2.message)
     }
 
     const handleBlockUser = async (id: number) => {
-        const [err, data] = await to(adminService.blockUser(id, token))
+        const [err, data] = await to(userService.blockUser(id, token))
         if (err) return showErrorMessage(err)
         showSuccess(data.message)
         fetchUsers()

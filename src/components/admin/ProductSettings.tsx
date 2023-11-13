@@ -4,7 +4,7 @@ import { DataTable, DataTableFilterMeta } from 'primereact/datatable';
 import { Column, ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { InputText } from 'primereact/inputtext';
 import { TriStateCheckbox, TriStateCheckboxChangeEvent } from 'primereact/tristatecheckbox';
-import adminService from '@/services/admin/admin.service';
+import { productService } from '@/services/admin/admin.service';
 import to from 'await-to-js';
 import { useDispatch, useSelector } from 'react-redux';
 import { authSelector } from '@/store/auth';
@@ -37,7 +37,7 @@ const ProductSettings = () => {
     useEffect(() => {
 
         const getAllProducts = async () => {
-            const [err, data] = await to(adminService.getAllProducts(token));
+            const [err, data] = await to(productService.getAllProducts(token));
             if (err) {
                 const toast: IToast = { severity: 'error', summary: "Hata", detail: err.message, life: 3000 }
                 dispatch(SET_TOAST(toast))
@@ -102,7 +102,7 @@ const ProductSettings = () => {
                         loading={loading} emptyMessage="Ürün Bulunamadı" globalFilter={globalFilterValue}
                         filterDisplay="row"
                         globalFilterFields={["name", "category.name", "stock", "price", "status"]}
-                        paginator rows={10} rowsPerPageOptions={[1,5, 10, 25]}
+                        paginator rows={10} rowsPerPageOptions={[1, 5, 10, 25]}
                         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                         currentPageReportTemplate="Toplam {totalRecords} ürün arasından {first} - {last} arası gösteriliyor"
                         paginatorLeft={null} paginatorRight={null} >
