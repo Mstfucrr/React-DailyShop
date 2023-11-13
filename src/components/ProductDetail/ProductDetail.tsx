@@ -137,14 +137,14 @@ const ProductDetail = () => {
         validationSchema,
         onSubmit: async (values) => {
             if (!product) return
-            const r = {
+            const review = {
                 rating: values.rating,
                 review: values.comment,
                 productId: product.id,
-                userId: auth ? auth.id : undefined
+                userId: auth.id
             }
 
-            const [err, data] = await to(addReviewToProduct(product.id, r, token))
+            const [err, data] = await to(addReviewToProduct(product.id, review, token))
             if (err) {
                 const toast: IToast = { severity: 'error', summary: "Hata", detail: err.message, life: 3000 }
                 dispatch(SET_TOAST(toast))
@@ -272,9 +272,8 @@ const ProductDetail = () => {
                                     <h2 className="text-lg font-semibold">
                                         Beden :
                                     </h2>
-                                    {sizes && sizes.map((size: any, index: number) => (
-
-                                        <div className="flex align-items-center" key={index}>
+                                    {sizes && sizes.map((size: any) => (
+                                        <div className="flex align-items-center" key={size}>
                                             <RadioButton inputId={`size-${size.name}`} name="size" value={size} onChange={(e) => setSelectSize(e.value.name as string)} checked={selectSize === size.name} />
                                             <label htmlFor={size.key} className="ml-2">{size.name}</label>
                                         </div>
@@ -289,8 +288,8 @@ const ProductDetail = () => {
                                     <h2 className="text-lg font-semibold">
                                         Renkler :
                                     </h2>
-                                    {colors && colors.map((color: any, index: number) => (
-                                        <div className="flex align-items-center" key={index}>
+                                    {colors && colors.map((color: any) => (
+                                        <div className="flex align-items-center" key={color}>
 
                                             <RadioButton inputId={`color-${color.name}`} name="color" value={color} onChange={(e) => setSelectColor(e.value.name as string)} checked={selectColor === color.name}
                                                 pt={{
@@ -398,8 +397,8 @@ const ProductDetail = () => {
                                                 "{product.name}" için {reviews?.length} Yorum
                                             </h1>
                                             <div className="flex flex-col w-full">
-                                                {reviews && reviews.map((review: IReview, index: number) => (
-                                                    <div className="flex items-start mx-4 my-2" key={index}>
+                                                {reviews && reviews.map((review: IReview) => (
+                                                    <div className="flex items-start mx-4 my-2" key={review.user?.name + "-" + review.date.toISOString()}>
                                                         <Avatar image={review.user?.profileImage} size={"large"}
                                                             className="m-2"
                                                         />
@@ -416,7 +415,7 @@ const ProductDetail = () => {
 
                                                         </div>
                                                         {
-                                                            auth.id && review.user?.id == auth.id &&
+                                                            review.user?.id == auth.id &&
                                                             <div className="">
                                                                 <button className="text-primary hover:text-primaryDark transition-all duration-300 ease-in-out"
                                                                     onClick={() => handleDeleteReview(review.id)}
@@ -465,7 +464,7 @@ const ProductDetail = () => {
                                                                 <label htmlFor="review" className="text-lg text-[#6F6F6F] mb-1">Yorumunuz * :</label>
                                                                 <InputTextarea id="review" rows={5} cols={30} autoResize className={`${formik.errors.comment && formik.touched.comment && "!border-red-500"}`}
                                                                     value={formik.values.comment}
-                                                                    onChange={formik.handleChange}
+                                                                    onChange={(e) => formik.setFieldValue("comment", e.target.value)}
                                                                 />
                                                                 {formik.errors.comment && formik.touched.comment ? (
                                                                     <div className="text-red-500 text-sm">{formik.errors.comment}</div>

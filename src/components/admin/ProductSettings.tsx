@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { FilterMatchMode } from 'primereact/api';
 import { DataTable, DataTableFilterMeta } from 'primereact/datatable';
 import { Column, ColumnFilterElementTemplateOptions } from 'primereact/column';
@@ -91,6 +91,8 @@ const ProductSettings = () => {
     }
 
 
+    const renderStatusFilter = useCallback((props: any) => <InputText type="text" onChange={(e) => props.onChange(e.target.value)} />, []);
+
     const header = renderHeader();
 
     return (
@@ -107,13 +109,11 @@ const ProductSettings = () => {
                         currentPageReportTemplate="Toplam {totalRecords} ürün arasından {first} - {last} arası gösteriliyor"
                         paginatorLeft={null} paginatorRight={null} >
 
-                        <Column field="id" header="ID" sortable></Column>
-                        <Column field="name" header="Ürün Adı" sortable filterPlaceholder="Ara" filterMatchMode="contains"
-                            filter
-                        ></Column>
-                        <Column field="stock" header="Stok" sortable></Column>
-                        <Column field="price" header="Fiyat" sortable></Column>
-                        <Column field="status" header="Durum" sortable body={statusBodyTemplate} filterPlaceholder="Ara" filterMatchMode="contains" filterElement={(props: any) => <InputText type="text" onChange={(e) => props.onChange(e.target.value)} />} />
+                        <Column field="id" header="ID" sortable />
+                        <Column field="name" header="Ürün Adı" sortable filterPlaceholder="Ara" filterMatchMode="contains" filter />
+                        <Column field="stock" header="Stok" sortable />
+                        <Column field="price" header="Fiyat" sortable />
+                        <Column field="status" header="Durum" sortable body={statusBodyTemplate} filterPlaceholder="Ara" filterMatchMode="contains" filterElement={renderStatusFilter} />
                         <Column field="isApproved" header="Onay" sortable body={approvedBodyTemplate} filter filterMatchMode="contains" filterElement={approvedRowFilterTemplate} />
 
                     </DataTable>

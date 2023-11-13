@@ -10,7 +10,7 @@ import { FileUpload } from "primereact/fileupload"
 import { InputMask } from "primereact/inputmask"
 import { InputText } from "primereact/inputtext"
 import { InputTextarea } from "primereact/inputtextarea"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { useDispatch, useSelector } from "react-redux"
 
 const Settings = () => {
@@ -63,20 +63,6 @@ const Settings = () => {
         fetchDatas()
     }
 
-
-    const ItemTemplate = (inFile: object) => {
-        const file = inFile as any;
-        setSiteIcon(file as File)
-        return (
-            <div className="flex items-center flex-wrap w-full">
-                <div className="flex items-center w-full">
-                    {/* @ts-ignore */}
-                    <img alt={siteIcon?.name} role="presentation" src={siteIcon?.objectURL as string} />
-                </div>
-            </div>
-        );
-    };
-
     const emptyTemplate = () => {
         return (
             <>
@@ -101,6 +87,20 @@ const Settings = () => {
             </>
         );
     };
+
+    const renderItemTemplate = useCallback((inFile: object) => {
+        const file = inFile as any;
+        setSiteIcon(file as File);
+
+        return (
+        <div className="flex items-center flex-wrap w-full">
+            <div className="flex items-center w-full">
+                <img alt={file?.name} role="presentation" src={file?.objectURL as string} className="max-h-96" />
+            </div>
+        </div>
+
+
+    )}, [setSiteIcon]);
 
     useEffect(() => {
         if (siteSettings) {
@@ -157,7 +157,7 @@ const Settings = () => {
                 <div className="flex flex-col gap-y-6">
                     <h3 className="text-2xl" >Site Icon</h3>
                     <FileUpload accept="image/*" maxFileSize={1000000}
-                        itemTemplate={ItemTemplate}
+                        itemTemplate={renderItemTemplate}
                         emptyTemplate={emptyTemplate}
                         name="demo[]" customUpload
                         onUpload={(e) => setSiteIcon(e.files[0])}
