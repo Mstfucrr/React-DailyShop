@@ -10,11 +10,11 @@ export const blockUser = async (id: number, token: string) =>
 
 // USER ADDRESS
 export const fetchAddressByUserId = async (id: number, token: string) =>
-    await makeRequest(`/admin/users/${id}/addresses`, "GET", null, token);
+    await makeRequest(`Profiles/GetListAddressByUserId?id=${id}`, "GET", null, token);
 
 // USER REVIEWS (FETH AND UPDATE)
 export const fetchReviewsByUserId = async (id: number, token: string) =>
-    await makeRequest(`/admin/users/${id}/rewies`, "GET", { status }, token);
+    await makeRequest(`/Reviews/GetListByUserId?UserId=${id}`, "GET", { status }, token);
 
 export const updateReviewStatus = async (id: number, status: string, token: string) =>
     await makeRequest(`/admin/users/${id}/rewies`, "PUT", { status }, token);
