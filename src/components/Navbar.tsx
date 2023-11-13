@@ -52,7 +52,7 @@ const Navbar = () => {
 
   const renderCategory = (category: ICategory) => (
     <div key={category.id}>
-      <Link to={`/shop/${category.id}`} className={navItemsStyle + " py-[8px] px-[30px]"}>{category.name}</Link>
+      <a href={`/shop/${category.id}`} className={navItemsStyle + " py-[8px] px-[30px]"}>{category.name}</a>
       {category.subCategories && (
         <div className="pl-[20px]">
           {category.subCategories.map((subcategory) => renderCategory(subcategory))}
