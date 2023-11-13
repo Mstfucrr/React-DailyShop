@@ -71,7 +71,6 @@ const Shop = () => {
   }, [selectSortBy])
 
   const fetchData = async () => {
-    let url = "http://localhost:5025/shop"
     if (id) {
       const [err, data] = await to(getProductsByCategoryId(parseInt(id), isDelProductShow))
       if (err) {
