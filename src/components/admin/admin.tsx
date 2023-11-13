@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { Menubar } from 'primereact/menubar';
-import { MenuItem } from 'primereact/menuitem';
+import React, { useEffect, useState } from 'react';
 import Settings from './settings';
 import UserSettings from './users';
 import ProductSettings from './ProductSettings';
+import { useNavigate } from 'react-router-dom';
+import { Button } from 'primereact/button';
 
 enum AdminPage {
     Settings = 'settings',
@@ -14,23 +14,54 @@ enum AdminPage {
 const Admin: React.FC = () => {
     const [selectedPage, setSelectedPage] = useState<AdminPage>(AdminPage.Settings);
 
-    const items: MenuItem[] = [
+    const navigate = useNavigate()
+
+    useEffect(() => {
+        switch (window.location.pathname) {
+            case '/admin/settings':
+                setSelectedPage(AdminPage.Settings);
+                break;
+            case '/admin/users':
+                setSelectedPage(AdminPage.Users);
+                break;
+            case '/admin/products':
+                setSelectedPage(AdminPage.Products);
+                break;
+            default:
+                setSelectedPage(AdminPage.Settings);
+                break;
+        }
+
+    }, []);
+
+    const items = [
         {
             label: 'Site Ayarları',
             icon: 'pi pi-fw pi-home',
-            command: () => setSelectedPage(AdminPage.Settings),
-
+            command: () => {
+                setSelectedPage(AdminPage.Settings);
+                navigate('/admin/settings'); // Navigate to /admin/settings
+            },
+            className: `${selectedPage === AdminPage.Settings ? '!bg-primary' : ''}`
         },
         {
             label: 'Kullanıcı Ayarları',
             icon: 'pi pi-fw pi-users',
-            command: () => setSelectedPage(AdminPage.Users),
+            command: () => {
+                setSelectedPage(AdminPage.Users);
+                navigate('/admin/users'); // Navigate to /admin/users
+            },
+            className: `${selectedPage === AdminPage.Users ? '!bg-primary' : ''}`,
+
         },
         {
             label: 'Ürün Ayarları',
             icon: 'pi pi-fw pi-shopping-cart',
-            command: () => setSelectedPage(AdminPage.Products),
-
+            command: () => {
+                setSelectedPage(AdminPage.Products);
+                navigate('/admin/products'); // Navigate to /admin/products
+            },
+            className: `${selectedPage === AdminPage.Products ? '!bg-primary' : ''}`
         },
     ];
 
@@ -59,14 +90,17 @@ const Admin: React.FC = () => {
             </div>
 
             <div className="mx-auto flex w-full flex-wrap gap-y-6">
-                <div className="md:w-1/5 w-full ">
-                    <Menubar model={items} className='w-full'
-                        pt={{
-                            menuitem: {
-                                className: "text-xl w-full text-center"
-                            }
-                        }}
-                    />
+                <div className="md:w-1/5 w-full gap-3 flex flex-col">
+                    {items.map((item) => (
+                        <Button
+                            key={item.label}
+                            label={item.label}
+                            icon={item.icon}
+                            className={item.className}
+                            onClick={item.command}
+                            severity="secondary"
+                        />
+                    ))}
 
                 </div>
                 <div className="flex w-full md:w-4/5 pl-6">
