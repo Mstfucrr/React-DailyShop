@@ -12,7 +12,6 @@ import { InputSwitch } from "primereact/inputswitch";
 import to from 'await-to-js';
 import { Messages } from 'primereact/messages';
 import { ProgressSpinner } from 'primereact/progressspinner';
-import { Button } from 'primereact/button';
 
 const Shop = () => {
 
