@@ -33,6 +33,7 @@ export interface IReview {
     date: Date,
     rating: number,
     productId: number,
+    product: IProduct | undefined,
     comment: string,
     user: IUser | undefined,
     status: string | undefined,
