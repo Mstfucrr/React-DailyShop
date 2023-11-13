@@ -108,10 +108,10 @@ const Shop = () => {
       setProducts([...filteredProducts].filter((product) => product.name.toLowerCase().includes(search.toLowerCase())))
     }
     else if (search.length === 0) {
-       setProducts([...filteredProducts].slice(first, first + rows))
+      setProducts([...filteredProducts].slice(first, first + rows))
     }
 
-  },[search])
+  }, [search])
 
   const onPageChange = (event: PaginatorPageChangeEvent) => {
     setFirst(event.first);
@@ -140,10 +140,7 @@ const Shop = () => {
 
                       <span className="p-input-icon-right">
                         <InputText placeholder="Ara.." onChange={(e) => setSearch(e.target.value)} value={search} />
-                        {search
-                          ? <i className="pi pi-times !text-red-600" onClick={() => setSearch('')} />
-                          : <i className="pi pi-search" />
-                        }
+                        <i className="pi pi-search" />
                       </span>
 
                       {/* show deleted products switch */}
