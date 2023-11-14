@@ -39,20 +39,8 @@ const Cart = () => {
             }
 
         }
-        if (isAuthorized)
-            fetchCart()
-        else {
-            msgs.current?.clear()
-            msgs.current?.show([
-                { sticky: true, severity: 'error', summary: 'Hata', detail: 
-                <>
-                    <p>Öncelikle giriş yapmalısınız.</p>
-                    <Link to="/login" className="text-primary">Giriş Yap</Link>
-                </>
-            }
-            ]);
-        }
         
+        fetchCart()
 
     }, [])
 

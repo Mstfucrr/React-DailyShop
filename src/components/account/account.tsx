@@ -1,42 +1,18 @@
 import { IUser } from "@/services/auth/types"
 import { AnimatePresence } from "framer-motion"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import UserInformation from "./userInformation"
-import { Messages } from 'primereact/messages';
 import { useSelector } from "react-redux"
 import { authSelector } from "@/store/auth"
-import { Link } from "react-router-dom"
 
 
 const Account = () => {
-
-
     const [user, setUser] = useState<IUser | null>(null)
-    const msgs = useRef<Messages>(null);
-    const { auth, isAuthorized } = useSelector(authSelector)
+    const { auth } = useSelector(authSelector)
 
     useEffect(() => {
-        if (isAuthorized && auth) {
+        if (auth)
             setUser(auth)
-        }
-        else {
-            msgs.current?.clear()
-            msgs.current?.show({
-                severity: 'error',
-                summary: 'Hata',
-                detail: <>
-                    <div className="flex gap-6 text-lg">
-                        <p className="">
-                            Lütfen giriş yapın.
-                        </p>
-                        <Link to={"/login"} className="text-black underline">Giriş Yap</Link> veya <Link to={"/register"} className="text-black underline">Kayıt Ol</Link>
-                    </div>
-
-                </>,
-                closable: false,
-                sticky: true
-            });
-        }
     }, [])
 
     return (
@@ -59,10 +35,7 @@ const Account = () => {
                         </div>
                         <div className="md:w-2/3 w-full">
                             <AnimatePresence>
-                                {isAuthorized && user
-                                    ? <UserInformation user={user} setUser={setUser} />
-                                    : <Messages ref={msgs} />
-                                }
+                                {user && <UserInformation user={user} setUser={setUser} />}
                             </AnimatePresence>
                         </div>
 

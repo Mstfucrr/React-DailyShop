@@ -62,7 +62,9 @@ const LoginForm = () => {
                     dispatch(SET_ADMIN_AUTH())
                     navigate("/admin")
                 }
-                navigate("/")
+                const from = localStorage.getItem('from') || '/'
+                localStorage.removeItem('from')
+                navigate(from);
             }
         },
     })
@@ -114,7 +116,7 @@ const LoginForm = () => {
                         }
                         value={formik.values.password}
                         onChange={formik.handleChange} toggleMask
-                        
+
 
                     />
                     {formik.errors.password && formik.touched.password ? (
