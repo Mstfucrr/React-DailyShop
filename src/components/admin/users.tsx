@@ -26,7 +26,7 @@ const UserSettings = () => {
     const [selectedUser, setSelectedUser] = useState<IUser>()
     const [selectedUserAddress, setSelectedUserAddress] = useState<IUserAddress[]>([])
     const [selectedUserReviews, setSelectedUserReviews] = useState<IReview[]>([])
-    const [selectedUserPaddingProduct, setSelectedUserPaddingProduct] = useState<IProduct>()
+    const [selectedUserPaddingProduct, setSelectedUserPaddingProduct] = useState<IProduct[]>()
     const [loading, setLoading] = useState<boolean>(false)
     const dispatch = useDispatch()
 
@@ -74,7 +74,7 @@ const UserSettings = () => {
         const fetchUserPaddingProduct = async () => {
             const [err, data] = await to(userService.fetchPaddingProductByUserId(selectedUser?.id!, token))
             if (err) return showErrorMessage(err)
-            setSelectedUserPaddingProduct(data)
+            setSelectedUserPaddingProduct(data.data)
         }
 
         if (selectedUser) {
@@ -139,6 +139,18 @@ const UserSettings = () => {
         </>
     ), [handleBlockUser]);
 
+    const renderIsApproved = useCallback((data: IProduct) => {
+        if (data.isApproved === null)
+            return <>
+                <Button onClick={() => (handleProductApprovalStatusChange(data, true))} icon="pi pi-check" label="Onayla" className="p-button-success p-button-outlined" size='small' />
+                <Button onClick={() => { handleProductApprovalStatusChange(data, false) }} icon="pi pi-times" className="p-button-danger p-button-outlined" label="Reddet" size='small' />
+            </>
+        else if (data.isApproved)
+            return <span className="font-semibold text-green-500">Onaylandı</span>
+        else
+            return <span className="font-semibold text-red-400">Reddedildi</span>
+    }, [handleProductApprovalStatusChange]);
+
     const renderSelectedUserPaddingProduct = useCallback((data: IProduct) => (
         <div className="flex items-center w-full">
             <div className="flex flex-row items-center w-full justify-evenly gap-2 ml-2">
@@ -147,16 +159,15 @@ const UserSettings = () => {
                 ) : (
                     <span>Resim yok</span>
                 )}
-                <span className="text-xl font-semibold">{data.name}</span>
-                <span className="text-xl font-semibold">{data.price} ₺</span>
-                <span className="text-xl font-semibold"> {data.stock} adet</span>
+                <span className="font-semibold">{data.name}</span>
+                <span className="font-semibold">{data.price} ₺</span>
+                <span className="font-semibold"> {data.stock} adet</span>
                 {/* yeni onayla reddet */}
-                <Link to={`/productDetail/${selectedUserPaddingProduct?.id}`}>
+                <Link to={`/product/${data.id}`}>
                     <Button label="Ürünü görüntüle" className="p-button-info p-button-outlined" size="small" />
                 </Link>
                 <div className="card flex flex-wrap gap-2 justify-content-center">
-                    <Button onClick={() => (handleProductApprovalStatusChange(data, true))} icon="pi pi-check" label="Onayla" className="p-button-success p-button-outlined" size='small' />
-                    <Button onClick={() => { handleProductApprovalStatusChange(data, false) }} icon="pi pi-times" className="p-button-danger p-button-outlined" label="Reddet" size='small' />
+                    {renderIsApproved(data)}
                 </div>
 
             </div>
@@ -272,7 +283,7 @@ const UserSettings = () => {
                             toggleable
                         >
                             {selectedUserPaddingProduct
-                                ? <DataView value={[selectedUserPaddingProduct]} itemTemplate={renderSelectedUserPaddingProduct} className='w-full' />
+                                ? <DataView value={selectedUserPaddingProduct} itemTemplate={renderSelectedUserPaddingProduct} className='w-full' />
                                 :
                                 <div className="flex flex-col justify-center items-center">
                                     <span className="text-xl font-semibold">Satışta bekleyen ürünü yok</span>
