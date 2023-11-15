@@ -5,9 +5,8 @@ import { SET_TOAST } from "@/store/Toast"
 import { IToast } from "@/store/Toast/type"
 import to from "await-to-js"
 import { useFormik } from "formik"
-import { useEffect, useState } from "react"
+import { useCallback, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
-import { useNavigate } from "react-router-dom"
 import ImageUpload from "./ImageUpload"
 import ProductInfo from "./ProductInfo"
 import * as Yup from 'yup'
@@ -19,9 +18,7 @@ const Seller = () => {
     const [coverImage, setcoverImage] = useState<File | null>(null)
     const [images, setImages] = useState<File[] | null>([])
     const [loading, setLoading] = useState<boolean>(false)
-    const [isProductAdded, setProductAdded] = useState<boolean | undefined>(undefined);
-    const { isAuthorized, token } = useSelector(authSelector)
-    const navigate = useNavigate()
+    const { token } = useSelector(authSelector)
     const dispatch = useDispatch()
 
     const [productInfo, setProductInfo] = useState<IProductInfo>({
@@ -34,15 +31,6 @@ const Seller = () => {
         colors: [] as string[] | undefined,
         sizes: [] as string[] | undefined,
     })
-
-    useEffect(() => {
-        if (!isAuthorized) {
-            const toast: IToast = { severity: "warn", summary: "Uyarı", detail: "Bu sayfaya erişim yetkiniz bulunmamaktadır.", life: 3000 } // service çalışmadı
-            dispatch(SET_TOAST(toast))
-            navigate("/login")
-            return
-        }
-    }, [])
 
     const validationSchema = Yup.object().shape({
         productName: Yup.string()
@@ -81,9 +69,6 @@ const Seller = () => {
             setLoading(true)
 
             await handleAddProduct().then(() => setLoading(false))
-            // setTimeout(() => {
-            //     setLoading(false)
-            // }, 3000);
         }
     })
 
@@ -100,7 +85,8 @@ const Seller = () => {
             productInfo.colors?.forEach((color) => formData.append("Colors", color))
             productInfo.sizes?.forEach((size) => formData.append("Sizes", size))
             formData.append("BodyImage", coverImage, coverImage.name)
-            images.map(async (image) => {
+            images.forEach(async (image) => {
+
                 formData.append(`ProductImages`, image, image.name)
             })
             const [err, res] = await to(addProduct(formData, token))
@@ -120,29 +106,17 @@ const Seller = () => {
 
     }
 
-    const LoadingTemplete = () => {
+    const LoadingTemplete = useCallback(() => {
         // tüm sayfayı kapsayacak şekilde spinner göster
         return (
             <div className="w-screen h-screen fixed top-0 left-0 flex flex-col gap-4 justify-center items-center bg-opacity-50 bg-black z-50">
-
                 {/* ürün eklendi mi  */}
-                {isProductAdded !== undefined ?
-                    isProductAdded === true ?
-                        // ürün eklendiyse
-                        <div className=""></div>
-                        :
-                        // ürün eklenmediyse
-                        <div className="">asd</div>
-                    :
-                    <>
-                        <ProgressSpinner className="!w-24" strokeWidth="5" animationDuration=".8s" fill="white" />
-                        <span className="animate-bounce font-bold tracking-wider text-5xl text-primaryDark absolute bottom-1/2"> D </span>
-                        <Button severity="warning" label="İptal et" className="w-1/5 !text-xl" onClick={() => setLoading(false)} />
-                    </>
-                }
+                <ProgressSpinner className="!w-24" strokeWidth="5" animationDuration=".8s" fill="white" />
+                <span className="animate-bounce font-bold tracking-wider text-5xl text-primaryDark absolute bottom-1/2"> D </span>
+                <Button severity="warning" label="İptal et" className="w-1/5 !text-xl" onClick={() => setLoading(false)} />
             </div>
         )
-    }
+    }, [])
 
     return (
         <>
@@ -156,7 +130,7 @@ const Seller = () => {
                     </div>
                     {/* product informations */}
                     <div className="basis-3/5 h-full w-full">
-                        <ProductInfo formik={formik} setProductInfo={setProductInfo as any} productInfo={productInfo} />
+                        <ProductInfo formik={formik} setProductInfo={setProductInfo as any} productInfo={productInfo} loading={loading} />
                     </div>
                 </div>
             </section>

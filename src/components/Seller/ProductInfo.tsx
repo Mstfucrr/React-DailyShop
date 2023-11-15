@@ -15,21 +15,22 @@ import { IProductInfo } from '@/services/product/types';
 import { IToast } from '@/store/Toast/type';
 import { useDispatch } from 'react-redux';
 import { SET_TOAST } from '@/store/Toast';
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 type Props = {
     productInfo: IProductInfo
     setProductInfo: React.Dispatch<React.SetStateAction<IProductInfo>>
     formik: any,
+    loading: boolean
 }
 
 const ProductInfo = (
-    { formik, setProductInfo, productInfo }: Props
+    { formik, setProductInfo, productInfo, loading }: Props
 ) => {
 
     const [TreeNodes, setTreeNodes] = useState<TreeNode[] | undefined>(undefined)
     const [selectedCategory, setSelectedCategory] = useState<ICategory>()
     const [selectedNodeKey, setSelectedNodeKey] = useState<string | undefined>(undefined);
-    const [selectedColors, setSelectedColors] = useState<string[] | undefined>([])
     const [selectedSizes, setSelectedSizes] = useState<string[] | undefined>([])
     const dispatch = useDispatch()
     const colorTemplete = (option: any) => {
@@ -155,7 +156,7 @@ const ProductInfo = (
                                     { label: 'Siyah', value: 'black' },
                                 ]}
                                 value={formik.values.colors}
-                                onChange={(e: DropdownChangeEvent) => formik.setFieldValue('colors', e.value as any)}
+                                onChange={(e: DropdownChangeEvent) => formik.setFieldValue('colors', e.value )}
                                 itemTemplate={colorTemplete}
                                 className={`w-full ${formik.touched.colors && formik.errors.colors ? 'p-invalid' : ''}`}
                             />
@@ -176,7 +177,7 @@ const ProductInfo = (
                                     { label: '3XL', value: '3xl' }
                                 ]}
                                 value={selectedSizes}
-                                onChange={(e: DropdownChangeEvent) => setSelectedSizes(e.value as any)}
+                                onChange={(e: DropdownChangeEvent) => setSelectedSizes(e.value )}
 
                             />
 
@@ -197,7 +198,7 @@ const ProductInfo = (
                                     { label: 'Kötü', value: 'bad' },
                                 ]}
                                 onChange={(e: DropdownChangeEvent) => {
-                                    formik.setFieldValue('status', e.value as any);
+                                    formik.setFieldValue('status', e.value );
                                 }}
                                 value={formik.values.status}
                                 className={`w-full ${formik.touched.status && formik.errors.status ? 'p-invalid' : ''}`}
@@ -223,7 +224,7 @@ const ProductInfo = (
                     <div className="flex w-full mt-5 ">
                         <div className="w-full card mx-auto">
                             <label htmlFor="ed-description" className="font-bold block mb-2">Açıklama</label>
-                            <Editor value={formik.values.description}
+                            <Editor value={formik.values.description} 
                                 onTextChange={(e: EditorTextChangeEvent) => formik.setFieldValue('description', e.htmlValue as any)}
                                 style={{ height: '300px' }}
                                 id="ed-description" name="ed-description"
@@ -239,9 +240,8 @@ const ProductInfo = (
 
                     {/* SUBMİT */}
 
-                    <Button className='!bg-primary !border-primary text-white !mt-7
-                        hover:!bg-primaryDark w-1/2
-                    ' label='Kaydet' type='submit'
+                    <Button className='text-white !mt-7 w-1/3' type='submit' disabled={loading} text={loading}
+                    severity="help"
                         onClick={
                             () => {
                                 setProductInfo(
@@ -259,7 +259,17 @@ const ProductInfo = (
                                 )
                             }
                         }
-                    />
+                    >
+                        {loading ?
+                            <div className="flex items-center w-1/2 gap-x-2 max-h-10">
+                                <ProgressSpinner className='!w-16' strokeWidth='3.5' />
+                                <span>Kaydediliyor...</span>
+                            </div>
+                            :
+                            <span className='w-full text-center'>Kaydet</span>
+                        }
+
+                    </Button>
 
                 </form>
 
