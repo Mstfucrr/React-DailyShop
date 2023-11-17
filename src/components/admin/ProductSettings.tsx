@@ -93,6 +93,8 @@ const ProductSettings = () => {
 
     const renderStatusFilter = useCallback((props: any) => <InputText type="text" onChange={(e) => props.onChange(e.target.value)} />, []);
 
+    const renderImage = useCallback((rowData: any) => <img src={rowData.image} alt={rowData.name} className="w-20 h-20" />, []);
+
     const header = renderHeader();
 
     return (
@@ -110,6 +112,7 @@ const ProductSettings = () => {
                         paginatorLeft={null} paginatorRight={null} >
 
                         <Column field="id" header="ID" sortable />
+                        <Column field='image' header="Resim" body={renderImage} filter={false} />
                         <Column field="name" header="Ürün Adı" sortable filterPlaceholder="Ara" filterMatchMode="contains" filter />
                         <Column field="stock" header="Stok" sortable />
                         <Column field="price" header="Fiyat" sortable />
