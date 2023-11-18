@@ -45,7 +45,7 @@ const CartListItem = (
   return (
     <tr className='bg-white'>
       <td className='p-3 border border-solid border-secondary align-middle'>
-        <img src={cartItem.product.image as string} width={50} alt=""
+        <img src={cartItem?.product?.image as string} width={50} alt=""
           className='inline-block object-cover w-12 h-12 rounded-md'
         />
         <span className='ml-3'>{cartItem.product.name}</span>
