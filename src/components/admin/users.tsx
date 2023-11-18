@@ -106,9 +106,9 @@ const UserSettings = () => {
 
 
     const renderProductImage = useCallback((data: IReview) => (
-        <a href={`/productDetail/${data.productId}`} className="flex justify-center items-center">
+        <a href={`/product/${data.productId}`} className="flex justify-center items-center">
             {data.product?.image ? (
-                <img src={typeof data.product.image === 'string' ? data.product.image : URL.createObjectURL(data.product.image)} alt="" className="w-20 h-20" />
+                <img src={data.product?.image as string} alt="" className="w-20 h-20" />
             ) : (
                 <span>Resim yok</span>
             )}
@@ -155,7 +155,7 @@ const UserSettings = () => {
         <div className="flex items-center w-full">
             <div className="flex flex-row items-center w-full justify-evenly gap-2 ml-2">
                 {data.image ? (
-                    <img src={typeof data.image === 'string' ? data.image : URL.createObjectURL(data.image)} alt="" className="w-20 h-20" />
+                    <img src={data.image as string} alt="" className="w-20 h-20" />
                 ) : (
                     <span>Resim yok</span>
                 )}
