@@ -1,10 +1,9 @@
 import { IUser } from "@/services/auth/types"
 import { AnimatePresence } from "framer-motion"
-import { useCallback, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import UserInformation from "./userInformation"
 import { useSelector } from "react-redux"
 import { authSelector } from "@/store/auth"
-import { Button } from "primereact/button"
 
 
 const Account = () => {
@@ -61,7 +60,7 @@ const Account = () => {
                         </div>
                         <div className=" w-full">
                             <AnimatePresence>
-                                {user && activeTab == AccountTabs.USER_INFO && <UserInformation user={user} setUser={setUser} />}
+                                {user && activeTab == AccountTabs.USER_INFO && <UserInformation user={user} />}
                             </AnimatePresence>
                         </div>
                     </div>

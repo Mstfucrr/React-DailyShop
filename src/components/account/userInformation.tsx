@@ -21,10 +21,7 @@ import { IToast } from '@/store/Toast/type';
 import { useNavigate } from 'react-router-dom';
 
 
-const UserInformation = (
-    { user, setUser }: { user: IUser, setUser: (user: IUser) => void }
-
-) => {
+const UserInformation = ({ user }: { user: IUser }) => {
 
     const [userState, setUserState] = useState<IUser>(user)
     const [addressesState, setAddressesState] = useState(user.addresses)
@@ -151,17 +148,23 @@ const UserInformation = (
     // bu formik yapısını 3 ayrı formik yapısına ayır ( base, iletişim, adres bilgileri şeklinde)
 
 
-    const errorTemplate = (frm: any) => {
+    const errors = formik.errors as any;
+
+    const errorTemplate = (name: any) => {
         return (
             <>
-                {frm ? (<small className="text-red-500 "> {frm} </small>) : null}
+                {errors && errors[name] ? (
+                    <small className="text-red-500 ">
+                        {errors[name]}
+                    </small>
+                ) : null}
             </>
         )
     }
 
-    const inputClassName = (frm: any) => {
-        return 'w-full !my-2 p-inputtext-sm ' +
-            (frm ? 'p-invalid' : '')
+    const inputClassName = (fieldName: any) => {
+       return 'w-full !my-2 p-inputtext-sm ' +  
+            (errors && errors[fieldName] ? 'p-invalid' : '')
     }
 
     const buttonsLoadingTemplete = () => {
@@ -253,9 +256,9 @@ const UserInformation = (
                                         e.target.value
                                     )
                                 }
-                                className={inputClassName(formik.errors.name)}
+                                className={inputClassName("name")}
                             />
-                            {errorTemplate(formik.errors.name)}
+                            {errorTemplate("name")}
                         </div>
 
 
@@ -267,9 +270,9 @@ const UserInformation = (
                                 value={formik.values.surname}
                                 onChange={(e) =>
                                     formik.setFieldValue('surname', e.target.value)}
-                                className={inputClassName(formik.errors.surname)}
+                                className={inputClassName("surname")}
                             />
-                            {errorTemplate(formik.errors.surname)}
+                            {errorTemplate("surname")}
 
                         </div>
                     </div>
@@ -320,9 +323,9 @@ const UserInformation = (
                                 value={formik.values.email}
                                 onChange={(e) =>
                                     formik.setFieldValue('email', e.target.value)}
-                                className={inputClassName(formik.errors.email)}
+                                className={inputClassName("email")}
                             />
-                            {errorTemplate(formik.errors.email)}
+                            {errorTemplate("email")}
                         </div>
                         <div className="flex flex-col w-full">
                             <label htmlFor="phone" className="text-primary">Telefon</label>
@@ -333,9 +336,9 @@ const UserInformation = (
                                 onChange={(e) =>
                                     formik.setFieldValue('phone', e.target.value)}
                                 mask="(999) 999-9999"
-                                className={inputClassName(formik.errors.phone)}
+                                className={inputClassName("phone")}
                             />
-                            {errorTemplate(formik.errors.phone)}
+                            {errorTemplate("phone")}
 
                         </div>
                     </div>
@@ -375,46 +378,46 @@ const UserInformation = (
                     {formik.values.addresses
 
                         ? formik.values.addresses.map((address: any, index: number) => (
-                            <RenderAddressFields key={index} index={index} address={address} formik={formik} />
+                            <RenderAddressFields key={address.title} index={index} address={address} formik={formik} />
                         )
                         ) : null}
 
                     {user.addresses !== formik.values.addresses && formik.values.addresses.length > 0 ? (
                         <div className="flex flex-wrap justify-content-end gap-2 my-4">
-                            {loading ? buttonsLoadingTemplete() :
-                                !formik.errors.addresses ? (
-                                    <>
-                                        <Button
-                                            label="Save"
-                                            icon="pi pi-check"
-                                            type='submit'
-                                            onClick={() => {
-                                                formik.handleSubmit()
-                                            }}
-                                        />
-                                        <Button
-                                            label="Cancel"
-                                            icon="pi pi-times"
-                                            className="p-button-outlined p-button-secondary"
-                                            onClick={() => {
-                                                console.log(user.addresses)
-                                                console.log(formik.values.addresses)
-                                                formik.setFieldValue('addresses', user.addresses);
-                                            }}
-                                        />
-                                    </>
-                                ) : (
+                            {loading && buttonsLoadingTemplete()}
+                            {!loading && !formik.errors.addresses ? (
+                                <>
                                     <Button
-                                        label="Cancels"
+                                        label="Save"
+                                        icon="pi pi-check"
+                                        type='submit'
+                                        onClick={() => {
+                                            formik.handleSubmit()
+                                        }}
+                                    />
+                                    <Button
+                                        label="Cancel"
                                         icon="pi pi-times"
                                         className="p-button-outlined p-button-secondary"
                                         onClick={() => {
-                                            formik.setFieldValue('addresses', user.addresses)
-
+                                            console.log(user.addresses)
+                                            console.log(formik.values.addresses)
+                                            formik.setFieldValue('addresses', user.addresses);
                                         }}
                                     />
-                                )
-                            }
+                                </>
+                            ) : (
+                                <Button
+                                    label="Cancels"
+                                    icon="pi pi-times"
+                                    className="p-button-outlined p-button-secondary"
+                                    onClick={() => {
+                                        formik.setFieldValue('addresses', user.addresses)
+
+                                    }}
+                                />
+                            )}
+
 
                         </div>
                     ) : null}
