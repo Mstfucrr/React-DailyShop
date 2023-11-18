@@ -27,7 +27,7 @@ import to from "await-to-js";
 
 
 const ProductDetail = () => {
-    const [images, setImages] = useState<{ source: File; }[] | string | undefined>(undefined)
+    const [images, setImages] = useState<{ source: string; }[] | string | undefined>(undefined)
     const { id } = useParams()
     const [product, setProduct] = useState<IProduct | null>(null)
     const [selectSize, setSelectSize] = useState<string | undefined>(undefined)
@@ -84,7 +84,13 @@ const ProductDetail = () => {
                 setProduct(fetchedProduct)
                 setSizes(fetchedProduct.sizes?.map((size: string) => ({ name: size, key: size })))
                 setColors(fetchedProduct.colors?.map((color: string) => ({ name: color, key: color })))
-                setImages(fetchedProduct.images?.map((image: File) => ({ source: image })))
+                const imagesSources = []
+                fetchedProduct.images?.forEach((image: string) => {
+                    imagesSources.push(image)
+                })
+                if (fetchedProduct.image)
+                    imagesSources.push(fetchedProduct.image)
+                setImages(imagesSources.map((source: string) => ({ source: source })))
                 setReviews(fetchedProduct.reviews)
             }
         }
@@ -176,10 +182,9 @@ const ProductDetail = () => {
             quantity: quantity,
             size: selectSize,
             color: selectColor,
-            productId: product.id,
         }
 
-        const [err, data] = await to(addToCart(cartAdd, token))
+        const [err, data] = await to(addToCart(product.id,{'quantity' : quantity}, token))
         if (err) {
             const toast: IToast = { severity: 'error', summary: "Hata", detail: err.message, life: 3000 }
             dispatch(SET_TOAST(toast))
