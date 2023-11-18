@@ -3,7 +3,7 @@ import { TreeSelect, TreeSelectChangeEvent } from 'primereact/treeselect';
 import { InputNumber } from 'primereact/inputnumber';
 import { InputText } from 'primereact/inputtext';
 import { useEffect, useState } from 'react';
-import { convertCategoriesToTreeSelectModel, findCategoryByKeyInTreeSelectModel } from '../shop/example.products';
+import { convertCategoriesToTreeSelectModel, findCategoryByKeyInTreeSelectModel } from '../../utils/categoryTreeModel';
 import { TreeNode } from "primereact/treenode";
 import { MultiSelect } from 'primereact/multiselect';
 import { Editor, EditorTextChangeEvent } from "primereact/editor";

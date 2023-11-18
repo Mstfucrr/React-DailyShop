@@ -6,7 +6,6 @@ import { Messages } from "primereact/messages"
 import { useEffect, useRef, useState } from "react"
 import { useSelector } from "react-redux"
 import { Link } from "react-router-dom"
-import { cartItemsExample } from "../shop/example.products"
 import { InputText } from "primereact/inputtext"
 import { useFormik } from "formik"
 import { Button } from "primereact/button"
@@ -17,7 +16,7 @@ import { InputTextarea } from "primereact/inputtextarea"
 
 const Checkout = () => {
     const msgs = useRef<Messages>(null)
-    const [cartItems, setCartItems] = useState<[] | ICartItem[]>(cartItemsExample)
+    const [cartItems, setCartItems] = useState<[] | ICartItem[]>([])
     const [cartTotal, setCartTotal] = useState(0)
     const { isAuthorized, auth, token } = useSelector(authSelector)
     const [user, setUser] = useState(auth)
@@ -245,8 +244,8 @@ const Checkout = () => {
                                 <h5 className="text-2xl font-semibold mb-2">Ürünler</h5>
                                 <div className="flex flex-col gay-4">
 
-                                    {cartItems.map((cartItem, index) => (
-                                        <div className="flex justify-between" key={index}>
+                                    {cartItems.map((cartItem) => (
+                                        <div className="flex justify-between" key={cartItem.product.id + "-" + cartItem.product.name}>
                                             <div className="">
                                                 {cartItem.product.name} x {cartItem.quantity}
                                             </div>
