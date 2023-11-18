@@ -174,7 +174,7 @@ const Shop = () => {
 
                   <div className="grid lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-5 py-10 ">
                     {products.map((product) => (
-                      <div className="flex pb-4 w-full" key={product.id}>
+                      <div className="flex pb-4 w-full max-w-[400px]" key={product.id}>
                         <Card
                           className="w-full"
                           header={
