@@ -14,7 +14,7 @@ const Cart = () => {
     const [cartTotal, setCartTotal] = useState(0)
     const msgs = useRef<Messages>(null)
 
-    const { isAuthorized, token } = useSelector(authSelector)
+    const { token } = useSelector(authSelector)
 
     useEffect(() => {
 
