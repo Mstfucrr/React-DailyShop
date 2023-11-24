@@ -184,7 +184,7 @@ const ProductDetail = () => {
             color: selectColor,
         }
 
-        const [err, data] = await to(addToCart(product.id,{'quantity' : quantity}, token))
+        const [err, data] = await to(addToCart(product.id,cartAdd, token))
         if (err) {
             const toast: IToast = { severity: 'error', summary: "Hata", detail: err.message, life: 3000 }
             dispatch(SET_TOAST(toast))
