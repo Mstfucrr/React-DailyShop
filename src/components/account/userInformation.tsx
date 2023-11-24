@@ -153,7 +153,7 @@ const UserInformation = ({ user }: { user: IUser }) => {
     const errorTemplate = (name: any) => {
         return (
             <>
-                {errors && errors[name] ? (
+                {errors?.[name] ? (
                     <small className="text-red-500 ">
                         {errors[name]}
                     </small>
@@ -163,17 +163,15 @@ const UserInformation = ({ user }: { user: IUser }) => {
     }
 
     const inputClassName = (fieldName: any) => {
-       return 'w-full !my-2 p-inputtext-sm ' +  
-            (errors && errors[fieldName] ? 'p-invalid' : '')
+        return 'w-full !my-2 p-inputtext-sm ' +
+            (errors?.[fieldName] ? 'p-invalid' : '')
     }
 
     const buttonsLoadingTemplete = () => {
         return (
-            <>
-                <div className="flex w-1/4">
-                    <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="8" fill="var(--surface-ground)" animationDuration=".5s" />
-                </div>
-            </>
+            <div className="flex w-1/4">
+                <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="8" fill="var(--surface-ground)" animationDuration=".5s" />
+            </div>
         )
     }
 
