@@ -28,7 +28,6 @@ const CartListItem = (
       newCartItems[index].quantity = quantity
       return newCartItems
     })
-    console.log("q")
   }, [quantity])
 
   const handleRemoveItem = async (id: number) => {
@@ -44,7 +43,7 @@ const CartListItem = (
 
   return (
     <tr className='bg-white'>
-      <td className='p-3 border border-solid border-secondary align-middle'>
+      <td className='p-3 border border-solid border-secondary text-left pl-10'>
         <img src={cartItem?.product?.image as string} width={50} alt=""
           className='inline-block object-cover w-12 h-12 rounded-md'
         />
