@@ -1,4 +1,4 @@
-import { IProduct } from "@/shared/types"
+import { IProduct, IReview } from "@/shared/types"
 import { Galleria } from 'primereact/galleria';
 import { useEffect, useRef, useState } from "react";
 import { Rating } from "primereact/rating";
@@ -7,10 +7,8 @@ import { FaCommentAlt, FaInfoCircle, FaMinus, FaPlus, FaShoppingCart, FaTrashAlt
 import { MdDescription } from "react-icons/md";
 import { TabView, TabPanel } from 'primereact/tabview';
 import { Avatar } from 'primereact/avatar';
-import { IReview } from "@/shared/types";
 import * as Yup from 'yup'
 import { useFormik } from 'formik'
-import { emailRegex } from "@/helper/regex";
 import { InputTextarea } from "primereact/inputtextarea";
 import { Messages } from "primereact/messages";
 import { Link, useParams } from "react-router-dom";
@@ -71,7 +69,6 @@ const ProductDetail = () => {
         if (!id) return
         const fetchData = async () => {
             const [err, data] = await to(getProductById(parseInt(id)))
-            console.log(err)
             if (err) {
                 msgs.current?.clear()
                 msgs.current?.show([
@@ -114,26 +111,12 @@ const ProductDetail = () => {
 
     // validate for review
     const validationSchema = Yup.object().shape({
-        review: Yup.string()
+        comment: Yup.string()
             .required('Yorum alanı boş bırakılamaz')
             .max(500, 'Yorumunuz çok uzun')
             .min(4, 'Yorumunuz çok kısa'),
-
-        name: Yup.string()
-            .required('İsim alanı boş bırakılamaz')
-            .max(50, 'İsim çok uzun')
-            .min(2, 'İsim çok kısa'),
-
-        email: Yup.string()
-            .email('Email geçersiz')
-            .required('Email alanı boş bırakılamaz')
-            .max(50, 'Email çok uzun')
-            .min(2, 'Email çok kısa')
-            .matches(emailRegex(), 'Email geçersiz'),
-
         rating: Yup.number()
             .min(1, "Rating alanı boş bırakılamaz"),
-
     })
     const formik = useFormik({
         initialValues: {
@@ -145,21 +128,18 @@ const ProductDetail = () => {
             if (!product) return
             const review = {
                 rating: values.rating,
-                review: values.comment,
-                productId: product.id,
-                userId: auth.id
+                comment: values.comment,
             }
-
             const [err, data] = await to(addReviewToProduct(product.id, review, token))
             if (err) {
                 const toast: IToast = { severity: 'error', summary: "Hata", detail: err.message, life: 3000 }
                 dispatch(SET_TOAST(toast))
                 return
             }
-            if (data.data != null) {
-                setReviews(data.data)
+            if (data) {
+                const toast: IToast = { severity: 'success', summary: "Başarılı", detail: data.message, life: 3000 }
+                dispatch(SET_TOAST(toast))
             }
-
             formik.resetForm()
         }
     })
@@ -184,16 +164,14 @@ const ProductDetail = () => {
             color: selectColor,
         }
 
-        const [err, data] = await to(addToCart(product.id,cartAdd, token))
+        const [err, data] = await to(addToCart(product.id, cartAdd, token))
         if (err) {
             const toast: IToast = { severity: 'error', summary: "Hata", detail: err.message, life: 3000 }
             dispatch(SET_TOAST(toast))
             return
         }
-        if (data.data != null) {
-            const toast: IToast = { severity: 'success', summary: 'Başarılı', detail: addToCartSuccessTemplete(), life: 5000 }
-            dispatch(SET_TOAST(toast))
-        }
+        const toast: IToast = { severity: 'success', summary: 'Başarılı', detail: addToCartSuccessTemplete(), life: 5000 }
+        dispatch(SET_TOAST(toast))
 
 
     }
@@ -480,7 +458,8 @@ const ProductDetail = () => {
                                                                 <button className='md:w-1/3 w-full h-12 bg-primary text-white text-xl font-bold rounded-xl  
                                                                     hover:text-primary hover:bg-white hover:border-primary border border-solid border-primary
                                                                     transition duration-300 ease-in-out'
-                                                                    type="submit"
+                                                                    type="submit" disabled={formik.isSubmitting}
+                                                                    onClick={() => formik.handleSubmit()}
                                                                 >
                                                                     Yorum Yap
 
