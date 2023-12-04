@@ -16,6 +16,7 @@ import { Fieldset } from 'primereact/fieldset';
 import { Link } from 'react-router-dom';
 import { DataView } from 'primereact/dataview';
 import { getProductById } from '@/services/product/product.service';
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 
 const UserSettings = () => {
@@ -28,6 +29,7 @@ const UserSettings = () => {
     const [selectedUserReviews, setSelectedUserReviews] = useState<IReview[]>([])
     const [selectedUserPaddingProduct, setSelectedUserPaddingProduct] = useState<IProduct[]>()
     const [loading, setLoading] = useState<boolean>(false)
+    const [productLoading, setProductLoading] = useState<boolean>(false)
     const dispatch = useDispatch()
 
     const showErrorMessage = (err: Error) => {
@@ -69,12 +71,15 @@ const UserSettings = () => {
                 if (err) return showErrorMessage(err)
                 item.product = rewProductResponse
             })
+            console.log(data)
             setSelectedUserReviews(data)
         }
         const fetchUserPaddingProduct = async () => {
+            setProductLoading(true)
             const [err, data] = await to(userService.fetchPaddingProductByUserId(selectedUser?.id!, token))
             if (err) return showErrorMessage(err)
             setSelectedUserPaddingProduct(data.data)
+            setProductLoading(false)
         }
 
         if (selectedUser) {
@@ -106,13 +111,13 @@ const UserSettings = () => {
 
 
     const renderProductImage = useCallback((data: IReview) => (
-        <a href={`/product/${data.productId}`} className="flex justify-center items-center">
+        <Link to={`/product/${data?.product?.id}`} className="flex justify-center items-center">
             {data.product?.image ? (
-                <img src={data.product?.image as string} alt="" className="w-20 h-20" />
+                    <img src={data.product?.image} alt="" className="w-20 h-20" />
             ) : (
                 <span>Resim yok</span>
             )}
-        </a>
+        </Link>
     ), []);
 
     const renderRating = useCallback((data: any) => (
@@ -266,9 +271,9 @@ const UserSettings = () => {
                                 <DataTable value={selectedUserReviews} scrollable scrollHeight="400px"
                                     emptyMessage="Yorum bulunamadı" >
                                     <Column field="id" header="ID" />
-                                    <Column field="review" header="Yorum" />
-                                    <Column header="Ürün bağlantılı imagesi" body={renderProductImage}></Column>
-                                    <Column header="Puan" body={renderRating}></Column>
+                                    <Column field="comment" header="Yorum" />
+                                    <Column header="Ürün Bağlantılı Resmi" body={renderProductImage}></Column>
+                                    <Column field='rating' header="Puan" body={renderRating}></Column>
                                     {/* yeni onayla reddet Dropdown */}
                                     <Column header="Durum" body={renderStatusDropdown}></Column>
                                 </DataTable>
@@ -283,11 +288,14 @@ const UserSettings = () => {
                             toggleable
                         >
                             {selectedUserPaddingProduct
+
                                 ? <DataView value={selectedUserPaddingProduct} itemTemplate={renderSelectedUserPaddingProduct} className='w-full' />
-                                :
-                                <div className="flex flex-col justify-center items-center">
-                                    <span className="text-xl font-semibold">Satışta bekleyen ürünü yok</span>
-                                </div>
+                                : productLoading ?
+                                    <ProgressSpinner className='w-full' />
+                                    :
+                                    <div className="flex flex-col justify-center items-center">
+                                        <span className="text-xl font-semibold">Satışta bekleyen ürünü yok</span>
+                                    </div>
                             }
                         </Fieldset>
 
