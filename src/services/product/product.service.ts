@@ -8,7 +8,7 @@ export const getProductById = async (id: number) =>
 
 
 export const addReviewToProduct = async (id: number, input: any, token: string) =>
-    await makeRequest<any>(`Products/AddReviewToProduct/${id}`, "POST", input, token);
+    await makeRequest<any>(`/Reviews/AddReviewToProduct/${id}`, "POST", input, token);
 
 export const deleteReviewFromProduct = async (productId: number, reviewId: number, token: string) =>
     await makeRequest<any>(`Products/DeleteReviewFromProduct/${productId}/${reviewId}`, "DELETE", null, token);
