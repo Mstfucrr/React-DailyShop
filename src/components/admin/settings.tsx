@@ -57,7 +57,14 @@ const Settings = () => {
             address: address,
             siteIcon: siteIcon
         }
-        const [err, data] = await to(settingsService.saveSettings(val, token))
+
+        const formData = new FormData();
+        formData.append("about", val.about || "")
+        formData.append("email", val.email || "")
+        formData.append("phone", val.phone || "")
+        formData.append("address", val.address || "")
+        formData.append("siteIcon", val.siteIcon || "")
+        const [err, data] = await to(settingsService.saveSettings(formData, token))
         if (err) return showErrorMessage(err)
         showSuccess(data.message)
         fetchDatas()
