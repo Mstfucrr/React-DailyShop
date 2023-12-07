@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { FaMinus, FaPlus, FaTimes } from 'react-icons/fa'
+import { FaMinus, FaPlus, FaTimes, FaTrash } from 'react-icons/fa'
 import { ICartItem } from '@/shared/types'
-import { removeFromCart } from '@/services/order/order.service'
+import { removeFromCart, updateCart } from '@/services/order/order.service'
 import to from 'await-to-js'
 import { authSelector } from '@/store/auth'
 import { useDispatch, useSelector } from 'react-redux'
@@ -12,8 +12,9 @@ import { IToast } from '@/store/Toast/type'
 
 
 const CartListItem = (
-  { cartItem, setCartItems }: { cartItem: ICartItem, setCartItems: React.Dispatch<React.SetStateAction<ICartItem[]>> }
+  { cartItem, setCartItems, fetchCart }: { cartItem: ICartItem, setCartItems: React.Dispatch<React.SetStateAction<ICartItem[]>>, fetchCart: () => void }
 ) => {
+
   const [quantity, setQuantity] = useState(cartItem.quantity)
   const [total, setTotal] = useState(0)
 
@@ -21,24 +22,32 @@ const CartListItem = (
   const dispatch = useDispatch()
 
   useEffect(() => {
-    setTotal((quantity * cartItem.product.price))
-    setCartItems((prev) => {
-      const index = prev.findIndex((item) => item.id === cartItem.id)
-      const newCartItems = [...prev]
-      newCartItems[index].quantity = quantity
-      return newCartItems
-    })
-  }, [quantity])
+    setTotal(cartItem.product.price * quantity)
+  }, [quantity, cartItem])
 
-  const handleRemoveItem = async (id: number) => {
-    
-    const [err, data] = await to(removeFromCart(id, token))
+
+  const handleUpdateItem = async (quantity: number) => {
+    setQuantity(quantity)
+    const [err, data] = await to(updateCart(cartItem.id, { "quantity": quantity }, token))
     if (err) {
       const toast: IToast = { severity: 'error', summary: "Hata", detail: err.message, life: 3000 }
       dispatch(SET_TOAST(toast))
-      return
     }
-    setCartItems(data.data)
+    fetchCart()
+    const toast: IToast = { severity: 'success', summary: "Başarılı", detail: data.message, life: 3000 }
+    dispatch(SET_TOAST(toast))
+  }
+
+  const handleRemoveItem = async () => {
+
+    const [err, data] = await to(removeFromCart(cartItem.id, token))
+    if (err) {
+      const toast: IToast = { severity: 'error', summary: "Hata", detail: err.message, life: 3000 }
+      dispatch(SET_TOAST(toast))
+    }
+    fetchCart()
+    const toast: IToast = { severity: 'success', summary: "Başarılı", detail: data.message, life: 3000 }
+    dispatch(SET_TOAST(toast))
   }
 
   return (
@@ -47,10 +56,10 @@ const CartListItem = (
         <img src={cartItem?.product?.image as string} width={50} alt=""
           className='inline-block object-cover w-12 h-12 rounded-md'
         />
-        <span className='ml-3'>{cartItem.product.name}</span>
+        <span className='ml-3'>{cartItem?.product?.name}</span>
       </td>
       <td className='p-3 border border-solid border-secondary align-middle'>
-        {cartItem.product.price}
+        {cartItem?.product?.price}
       </td>
       <td className='p-3 border border-solid border-secondary align-middle'>
         <div className="relative flex flex-nowrap justify-center items-stretch mx-auto max-w-[100px]">
@@ -59,26 +68,29 @@ const CartListItem = (
             <button className='inline-block bg-primary text-[#212529] border-primary py-2 px-2 leading-6 
                   hover:text-white hover:bg-primaryDark transition-all
                   duration-300 ease-in-out'
-              onClick={() => setQuantity(quantity - 1)}
-              disabled={quantity === 1}
-
+              onClick={() => {
+                if (quantity > 1)
+                  handleUpdateItem(quantity - 1)
+                else
+                  handleRemoveItem()
+              }}
             >
-              <FaMinus className='' />
+              {quantity === 1 ? <FaTrash /> : <FaMinus />}
             </button>
           </div>
 
-          <input type="text" className='relative w-[1%] flex-[1_1_auto] text-center bg-secondary py-1 px-2
+          <p className='relative w-[1%] flex-[1_1_auto] text-center bg-secondary py-1 px-2
                 outline-none text-sm'
-            value={quantity}
-            onChange={(e) => setQuantity(parseInt(e.target.value))}
-            min={1}
-          />
+          >
+            {quantity}
+          </p>
           <div>
             <button className='inline-block bg-primary text-[#212529] border-primary py-2 px-2 leading-6 
                   hover:text-white hover:bg-primaryDark transition-all
                   duration-300 ease-in-out'
-              onClick={() => setQuantity(quantity + 1)}
-
+              onClick={() => {
+                handleUpdateItem(quantity + 1)
+              }}
             >
               <FaPlus className='' />
             </button>
@@ -93,7 +105,7 @@ const CartListItem = (
         <button className='inline-block bg-primary text-[#212529] border-primary py-2 px-2 leading-6
               hover:text-white hover:bg-primaryDark transition-all
               duration-300 ease-in-out'
-          onClick={() => { handleRemoveItem(cartItem.id) }}
+          onClick={handleRemoveItem}
         >
           <FaTimes className='' />
         </button>

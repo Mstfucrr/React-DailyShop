@@ -15,42 +15,34 @@ const Cart = () => {
     const msgs = useRef<Messages>(null)
 
     const { token } = useSelector(authSelector)
-
-    useEffect(() => {
-
-        const fetchCart = async () => {
-
-            const [err, data] = await to(getCart(token))
-            if (err) {
-                msgs.current?.clear()
-                msgs.current?.show([
-                    { sticky: true, severity: 'error', summary: 'Sistematik Hata', detail: err.message }
-                ]);
-                return
-            }
-            setCartItems(data.data)
-
-            if (cartItems && cartItems.length > 0) {
-                let total = 0
-                cartItems.map((item: ICartItem) => {
-                    total += item.product.price * item.quantity
-                })
-                setCartTotal(total)
-            }
-            else {
-                setCartTotal(0)
-                msgs.current?.clear()
-                msgs.current?.show([
-                    { sticky: true, severity: 'info', summary: 'Sepetiniz Boş', detail: 'Sepetinizde ürün bulunmamaktadır.', closable: false}
-                ]);
-
-            }
-
+    const fetchCart = async () => {
+        const [err, data] = await to(getCart(token))
+        if (err) {
+            msgs.current?.clear()
+            msgs.current?.show([
+                { sticky: true, severity: 'error', summary: 'Sistematik Hata', detail: err.message }
+            ]);
+            return
         }
+        setCartItems(data.data)
+        console.log(data.data)
+        if (data.data && data.data.length > 0) {
+            let total = 0
+            data.data.map((item: ICartItem) => {
+                total += item.product.price * item.quantity
+            })
+            setCartTotal(total)
+        }
+        else {
+            setCartTotal(0)
+            msgs.current?.clear()
+            msgs.current?.show([
+                { sticky: true, severity: 'info', summary: 'Sepetiniz Boş', detail: 'Sepetinizde ürün bulunmamaktadır.', closable: false}
+            ]);
+        }
+    }
 
-        fetchCart()
-
-    }, [])
+    useEffect(() => {fetchCart()}, [])
 
 
     return (
@@ -71,7 +63,7 @@ const Cart = () => {
                             <tbody className='align-middle'>
 
                                 {cartItems.map((cartItem) => (
-                                    <CartListItem key={cartItem.id} cartItem={cartItem} setCartItems={setCartItems} />
+                                    <CartListItem key={cartItem.id} cartItem={cartItem} setCartItems={setCartItems} fetchCart={fetchCart} />
                                 ))
                                 }
 
