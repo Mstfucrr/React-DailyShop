@@ -61,17 +61,12 @@ const UserSettings = () => {
         const fetchUserAddress = async () => {
             const [err, data] = await to(userService.fetchAddressByUserId(selectedUser?.id!, token))
             if (err) return showErrorMessage(err)
+            console.log("address data: ", data)
             setSelectedUserAddress(data)
         }
         const fetchUserReviews = async () => {
             const [err, data] = await to(userService.fetchReviewsByUserId(selectedUser?.id!, token))
             if (err) return showErrorMessage(err)
-            data.map(async (item: IReview) => {
-                const [err, rewProductResponse] = await to(getProductById(item.productId))
-                if (err) return showErrorMessage(err)
-                item.product = rewProductResponse
-            })
-            console.log(data)
             setSelectedUserReviews(data)
         }
         const fetchUserPaddingProduct = async () => {
@@ -86,6 +81,7 @@ const UserSettings = () => {
             fetchUserAddress()
             fetchUserReviews()
             fetchUserPaddingProduct()
+            console.log("selected user: ", selectedUser)
         }
     }, [selectedUser])
 
@@ -160,7 +156,7 @@ const UserSettings = () => {
         <div className="flex items-center w-full">
             <div className="flex flex-row items-center w-full justify-evenly gap-2 ml-2">
                 {data.image ? (
-                    <img src={data.image as string} alt="" className="w-20 h-20" />
+                    <img src={data.image} alt="" className="w-20 h-20" />
                 ) : (
                     <span>Resim yok</span>
                 )}
