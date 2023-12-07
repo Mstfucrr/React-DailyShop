@@ -183,8 +183,7 @@ const UserInformation = ({ user }: { user: IUser }) => {
             transition={{ duration: 0.4 }}
             className="w-full px-[15px] relative"
         >
-            <h3 className="text-4xl my-4 text-primaryDark
-                                            ">
+            <h3 className="text-4xl my-4 text-primaryDark">
                 Kullanıcı Bilgilerim
             </h3>
             {/* resim */}
@@ -193,14 +192,10 @@ const UserInformation = ({ user }: { user: IUser }) => {
                     <span className="pi pi-user mr-2"></span>
                     <span className="font-bold text-lg">Profil Resmi</span>
                 </div>
-            }
-
-                className="mb-4"
-            >
+            } className="mb-4" >
                 <div className="flex flex-col items-center">
                     <img src={formik.values.profileImage} alt="profile" className="lg:w-1/3 w-1/2 max-w-[250px] max-h-[250px] object-cover rounded-full" />
-                    <form method='post' encType='multipart/form-data' className="flex flex-col items-center"
-                    >
+                    <form method='post' encType='multipart/form-data' className="flex flex-col items-center">
                         <input type="file" name="profileImage" id="profileImage" className="hidden"
                             onInput={(e: any) => { handleProfileImageChange(e) }}
                         />

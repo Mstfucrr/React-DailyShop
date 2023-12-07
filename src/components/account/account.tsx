@@ -4,11 +4,14 @@ import { useEffect, useState } from "react"
 import UserInformation from "./userInformation"
 import { useSelector } from "react-redux"
 import { authSelector } from "@/store/auth"
+import UserProducts from "./userProducts"
+import UserOrders from "./userOrders"
+import { Link, useParams } from "react-router-dom"
 
 
 const Account = () => {
-    //         { label : "Kullanıcı Bilgilerim", value : "USER_INFO"},
 
+    const { tab } = useParams()
     enum AccountTabs {
         USER_INFO = "Kullanıcı Bilgilerim",
         USER_ORDERS = "Siparişlerim",
@@ -24,19 +27,33 @@ const Account = () => {
             setUser(auth)
     }, [])
 
-    const handleTabChange = (tab: AccountTabs) => {
-        setActiveTab(tab)
-    }
+    useEffect(() => {
+        if (tab) {
+            switch (tab) {
+                case AccountTabs.USER_INFO:
+                    setActiveTab(AccountTabs.USER_INFO)
+                    break;
+                case AccountTabs.USER_ORDERS:
+                    setActiveTab(AccountTabs.USER_ORDERS)
+                    break;
+                case AccountTabs.USER_PRODUCTS:
+                    setActiveTab(AccountTabs.USER_PRODUCTS)
+                    break;
+                default:
+                    break;
+            }
+        }
+    }, [tab])
 
     const renderTabsButtons = (label: string, value: AccountTabs) => (
-        <button className={`py-[10px] border border-solid rounded-2xl text-lg font-medium
+        <Link to={`/account/${value}`} className={`text-center py-[15px] border border-solid rounded-2xl text-lg font-medium
                                     ${activeTab == value ? "bg-primary text-white" : "bg-white text-primaryDark"}
                                     ${activeTab == value ? "border-[#ddd]" : "border-primary"}
                                     
                                     hover:border-primary hover:bg-primary hover:text-white transition-all duration-300
-                                    bg-primary`} onClick={() => handleTabChange(value)}>
+                                    bg-primary`}>
             {label}
-        </button>
+        </Link>
     )
 
 
@@ -61,6 +78,8 @@ const Account = () => {
                         <div className=" w-full">
                             <AnimatePresence>
                                 {user && activeTab == AccountTabs.USER_INFO && <UserInformation user={user} />}
+                                {user && activeTab == AccountTabs.USER_ORDERS && <UserOrders />}
+                                {user && activeTab == AccountTabs.USER_PRODUCTS && <UserProducts />}
                             </AnimatePresence>
                         </div>
                     </div>
