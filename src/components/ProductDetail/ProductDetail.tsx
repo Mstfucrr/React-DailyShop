@@ -68,7 +68,7 @@ const ProductDetail = () => {
     useEffect(() => {
         if (!id) return
         const fetchData = async () => {
-            const [err, data] = await to(getProductById(parseInt(id)))
+            const [err, data] = await to(getProductById(parseInt(id),token))
             if (err) {
                 msgs.current?.clear()
                 msgs.current?.show([
