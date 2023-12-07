@@ -8,7 +8,7 @@ export const addToCart = async (productId: number,input: IaddToCartRequest, toke
     await makeRequest<any>(`Carts?productId=${productId}`, "POST", input, token);
 
 export const updateCart = async (id: number, input: any, token: string) =>
-    await makeRequest<any>(`Cart/${id}`, "PUT", input, token);
+    await makeRequest<any>(`Carts/Update/${id}`, "PUT", input, token);
 
 export const removeFromCart = async (id: number, token: string) => 
-    await makeRequest<any>(`Cart/${id}`, "DELETE", null, token);
+    await makeRequest<any>(`Carts/Delete/${id}`, "DELETE", null, token);
