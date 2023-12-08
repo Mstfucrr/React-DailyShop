@@ -67,7 +67,7 @@ const UserSettings = () => {
         const fetchUserReviews = async () => {
             const [err, data] = await to(userService.fetchReviewsByUserId(selectedUser?.id!, token))
             if (err) return showErrorMessage(err)
-            setSelectedUserReviews(data)
+            setSelectedUserReviews(data.data)
         }
         const fetchUserPaddingProduct = async () => {
             setProductLoading(true)
@@ -108,11 +108,10 @@ const UserSettings = () => {
 
     const renderProductImage = useCallback((data: IReview) => (
         <Link to={`/product/${data?.product?.id}`} className="flex justify-center items-center">
-            {data.product?.image ? (
-                    <img src={data.product?.image} alt="" className="w-20 h-20" />
-            ) : (
-                <span>Resim yok</span>
-            )}
+            {data.product?.image
+                ? <img src={data.product?.image} alt="" className="w-20 h-20" />
+                : <span>Resim Yok</span>
+            }
         </Link>
     ), []);
 
@@ -123,7 +122,7 @@ const UserSettings = () => {
     const renderStatusDropdown = useCallback((data: IReview) => (
         <Dropdown
             options={[{ label: 'Yeni', value: 'new' }, { label: 'Onayla', value: 'approved' }, { label: 'Reddet', value: 'reject' }]}
-            value={data.status}
+            value={data.status || 'new'}
             onChange={(e) => {
                 handleReviewStatusChange(data, e.value)
             }}
@@ -179,25 +178,30 @@ const UserSettings = () => {
 
     return (
         <>
-            <div className="flex flex-col gap-10     w-full">
-                <DataTable value={users} loading={loading} selection={selectedUser} onSelectionChange={(e) => setSelectedUser(e.value as IUser)}
-                    scrollable scrollHeight="400px"
-                >
-                    <Column selectionMode="single" headerStyle={{ width: '3rem' }}></Column>
-                    <Column field="id" header="ID" />
-                    <Column field="name" header="İsim" />
-                    <Column field="surname" header="Soyisim" />
-                    <Column field="email" header="E-posta" />
-                    <Column field="role" header="Rol" />
-                    <Column header="Engelle" body={renderUserBlockButton}></Column>
-                </DataTable>
+            <div className="flex flex-col gap-10 w-full">
 
+                {/* Kullanıcı listesi */}
+                {users && <h1 className="text-2xl font-semibold text-primary uppercase">Kullanıcılar</h1>}
+                {users &&
 
+                    <DataTable value={users} loading={loading} selection={selectedUser} onSelectionChange={(e) => setSelectedUser(e.value as IUser)}
+                        scrollable scrollHeight="400px"
+                    >
+                        <Column selectionMode="single" headerStyle={{ width: '3rem' }}></Column>
+                        <Column field="id" header="ID" />
+                        <Column field="name" header="İsim" />
+                        <Column field="surname" header="Soyisim" />
+                        <Column field="email" header="E-posta" />
+                        <Column field="role" header="Rol" />
+                        <Column header="Engelle" body={renderUserBlockButton}></Column>
+                    </DataTable>
+
+                }
                 {/* Seçilen kişinin detaylı bilgileri ( yaptığı yorumları denetimden geçirme, status(yeni, onayla, reddet)) , satış yapacağı ürünü denetleyip onaylama */}
 
                 {selectedUser &&
                     <div className="flex flex-col gap-5">
-                        <h1 className="text-2xl font-semibold">Kullanıcı Bilgileri</h1>
+                        <h1 className="text-2xl font-semibold text-primary uppercase">Kullanıcı Bilgileri</h1>
                         <div className="flex w-full justify-evenly flex-wrap gap-6">
 
                             <div className="flex flex-wrap gap-2">
@@ -217,7 +221,7 @@ const UserSettings = () => {
 
                         <div className="mt-5">
                             <div className="flex flex-col">
-                                <h3 className="text-xl font-semibold text-center">Adresler</h3>
+                                <h3 className="text-xl font-semibold text-center text-primary uppercase">Adresler</h3>
                                 <br />
                                 <div className="flex flex-wrap justify-around gap-4">
 
@@ -262,25 +266,40 @@ const UserSettings = () => {
                         {/* Yorumlar */}
                         <div className="mt-5">
                             <div className="flex flex-col">
-                                <h3 className="text-xl font-semibold text-center">Yorumlar</h3>
-                                <br />
-                                <DataTable value={selectedUserReviews} scrollable scrollHeight="400px"
-                                    emptyMessage="Yorum bulunamadı" >
-                                    <Column field="id" header="ID" />
-                                    <Column field="comment" header="Yorum" />
-                                    <Column header="Ürün Bağlantılı Resmi" body={renderProductImage}></Column>
-                                    <Column field='rating' header="Puan" body={renderRating}></Column>
-                                    {/* yeni onayla reddet Dropdown */}
-                                    <Column header="Durum" body={renderStatusDropdown}></Column>
-                                </DataTable>
+                                <Fieldset
+                                    legend={
+                                        <h3 className="text-xl font-semibold text-center text-primary uppercase">Kullanıcı Yorumları</h3>
+                                    }
+                                    toggleable
+                                >
+                                    {/* Yorumlar tablosu */}
+                                    {selectedUserReviews && selectedUserReviews.length > 0 &&
+                                        <DataTable value={selectedUserReviews} scrollable scrollHeight="400px"
+                                            emptyMessage="Yorum bulunamadı" >
+                                            <Column field="id" header="ID" />
+                                            <Column field="comment" header="Yorum" maxConstraints={20} />
+                                            <Column header="Ürün Bağlantılı Resmi" body={renderProductImage}></Column>
+                                            <Column field='rating' header="Puan" body={renderRating}></Column>
+                                            <Column header="Durum" body={renderStatusDropdown}></Column>
+                                        </DataTable>
 
-
+                                    }
+                                    {/* Yorum yoksa */}
+                                    {selectedUserReviews && selectedUserReviews.length === 0 &&
+                                        <div className="flex flex-col justify-center items-center">
+                                            <span className="text-xl font-semibold">Yorum bulunamadı</span>
+                                        </div>
+                                    }
+                                </Fieldset>
                             </div>
+
+
                         </div>
 
-                        {/* Satışta ürünü varsa ( onay bekleyen ) */}
                         <Fieldset
-                            legend="Satışta bekleyen ürünü ( onay bekleyen )"
+                            legend={
+                                <h3 className="text-xl font-semibold text-center text-primary uppercase">Kullanıcı ürünleri</h3>
+                            }
                             toggleable
                         >
                             {selectedUserPaddingProduct
