@@ -57,26 +57,26 @@ const UserSettings = () => {
         fetchUsers()
     }, [])
 
+    const fetchUserAddress = async () => {
+        const [err, data] = await to(userService.fetchAddressByUserId(selectedUser?.id!, token))
+        if (err) return showErrorMessage(err)
+        console.log("address data: ", data)
+        setSelectedUserAddress(data)
+    }
+    const fetchUserReviews = async () => {
+        const [err, data] = await to(userService.fetchReviewsByUserId(selectedUser?.id!, token))
+        if (err) return showErrorMessage(err)
+        setSelectedUserReviews(data.data)
+    }
+    const fetchUserPaddingProduct = async () => {
+        setProductLoading(true)
+        setSelectedUserPaddingProduct([])
+        const [err, data] = await to(userService.fetchPaddingProductByUserId(selectedUser?.id!, token))
+        if (err) return showErrorMessage(err)
+        setSelectedUserPaddingProduct(data.data)
+        setProductLoading(false)
+    }
     useEffect(() => {
-        const fetchUserAddress = async () => {
-            const [err, data] = await to(userService.fetchAddressByUserId(selectedUser?.id!, token))
-            if (err) return showErrorMessage(err)
-            console.log("address data: ", data)
-            setSelectedUserAddress(data)
-        }
-        const fetchUserReviews = async () => {
-            const [err, data] = await to(userService.fetchReviewsByUserId(selectedUser?.id!, token))
-            if (err) return showErrorMessage(err)
-            setSelectedUserReviews(data.data)
-        }
-        const fetchUserPaddingProduct = async () => {
-            setProductLoading(true)
-            const [err, data] = await to(userService.fetchPaddingProductByUserId(selectedUser?.id!, token))
-            if (err) return showErrorMessage(err)
-            setSelectedUserPaddingProduct(data.data)
-            setProductLoading(false)
-        }
-
         if (selectedUser) {
             fetchUserAddress()
             fetchUserReviews()
@@ -92,9 +92,11 @@ const UserSettings = () => {
     }
 
     const handleProductApprovalStatusChange = async (data: IProduct, status: boolean) => {
+        console.log("status: ", status)
         const [err, data2] = await to(userService.updateProductApprovalStatus(data.id, status, token))
         if (err) return showErrorMessage(err)
         showSuccess(data2.message)
+        fetchUserPaddingProduct()
     }
 
     const handleBlockUser = async (id: number) => {
@@ -301,8 +303,16 @@ const UserSettings = () => {
                                 <h3 className="text-xl font-semibold text-center text-primary uppercase">Kullanıcı ürünleri</h3>
                             }
                             toggleable
+
                         >
-                            {selectedUserPaddingProduct
+
+                            {/* // yenile butonu */}
+                            <div className="flex justify-end">
+                                <Button label="Yenile" icon="pi pi-refresh" className="p-button-raised p-button-rounded p-button-text" onClick={fetchUserPaddingProduct} />
+                            </div>
+                            {/* // ürünler tablosu */}
+
+                            {selectedUserPaddingProduct && selectedUserPaddingProduct.length > 0
 
                                 ? <DataView value={selectedUserPaddingProduct} itemTemplate={renderSelectedUserPaddingProduct} className='w-full' />
                                 : productLoading ?
