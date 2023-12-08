@@ -21,7 +21,7 @@ export const updateReviewStatus = async (id: number, status: string, token: stri
 
 // USER PRODUCTS (FETH AND UPDATE)
 export const fetchPaddingProductByUserId = async (id: number, token: string) =>
-    await makeRequest(`/Users/${id}/Products`, "GET", null, token);
+    await makeRequest(`/admin/Users/${id}/Products`, "GET", null, token);
 
-export const updateProductApprovalStatus = async (id: number, status: boolean, token: string) =>
-    await makeRequest<any>(`admin/products/${id}`, "PUT", { status }, token);
+export const updateProductApprovalStatus = async (id: number, IsApproved: boolean, token: string) =>
+    await makeRequest<any>(`/Admin/Products/UpdateStatus/${id}?IsApproved=${IsApproved}`, "PUT", null, token);
