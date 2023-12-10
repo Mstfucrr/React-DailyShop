@@ -16,6 +16,7 @@ import { IToast } from '@/store/Toast/type';
 import { useDispatch } from 'react-redux';
 import { SET_TOAST } from '@/store/Toast';
 import { ProgressSpinner } from 'primereact/progressspinner';
+import { colors, sizes } from '@/shared/sizes_and_colors';
 
 type Props = {
     productInfo: IProductInfo
@@ -145,16 +146,7 @@ const ProductInfo = (
                         <div className="w-full md:w-1/3">
                             <label htmlFor="dd-colors" className="font-bold block mb-2">Renkler</label>
                             <MultiSelect id="dd-colors" name="dd-colors" multiple
-                                options={[
-                                    { label: 'Mavi', value: 'blue' },
-                                    { label: 'Kırmızı', value: 'red' },
-                                    { label: 'Sarı', value: 'yellow' },
-                                    { label: 'Yeşil', value: 'green' },
-                                    { label: 'Mor', value: 'purple' },
-                                    { label: 'Turuncu', value: 'orange' },
-                                    { label: 'Beyaz', value: 'white' },
-                                    { label: 'Siyah', value: 'black' },
-                                ]}
+                                options={colors}
                                 value={formik.values.colors}
                                 onChange={(e: DropdownChangeEvent) => formik.setFieldValue('colors', e.value )}
                                 itemTemplate={colorTemplete}
@@ -167,15 +159,7 @@ const ProductInfo = (
                         <div className="w-full md:w-1/3">
                             <label htmlFor="dd-sizes" className="font-bold block mb-2">Bedenler</label>
                             <MultiSelect id="dd-sizes" name="dd-sizes" className="w-full " multiple
-                                options={[
-                                    { label: 'XS', value: 'xs' },
-                                    { label: 'S', value: 's' },
-                                    { label: 'M', value: 'm' },
-                                    { label: 'L', value: 'l' },
-                                    { label: 'XL', value: 'xl' },
-                                    { label: '2XL', value: '2xl' },
-                                    { label: '3XL', value: '3xl' }
-                                ]}
+                                options={sizes}
                                 value={selectedSizes}
                                 onChange={(e: DropdownChangeEvent) => setSelectedSizes(e.value )}
 
