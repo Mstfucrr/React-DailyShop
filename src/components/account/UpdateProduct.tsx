@@ -1,5 +1,5 @@
 import { getProductById } from "@/services/product/product.service";
-import { colors, sizes } from "@/shared/sizes_and_colors";
+import { colors, sizes } from "@/shared/constants";
 import { IProduct } from "@/shared/types"
 import { authSelector } from "@/store/auth";
 import { SET_TOAST } from "@/store/Toast";

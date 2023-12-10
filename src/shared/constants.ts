@@ -18,3 +18,9 @@ export const colors = [
     { label: 'Beyaz', value: 'white' },
     { label: 'Siyah', value: 'black' },
 ];
+
+export const reviewStatus = [
+    { label: 'Yeni', value: 'new' },
+    { label: 'Onayla', value: 'approved' },
+    { label: 'Reddet', value: 'reject' }
+];

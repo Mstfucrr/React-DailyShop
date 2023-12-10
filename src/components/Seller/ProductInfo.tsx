@@ -16,7 +16,7 @@ import { IToast } from '@/store/Toast/type';
 import { useDispatch } from 'react-redux';
 import { SET_TOAST } from '@/store/Toast';
 import { ProgressSpinner } from 'primereact/progressspinner';
-import { colors, sizes } from '@/shared/sizes_and_colors';
+import { colors, sizes } from '@/shared/constants';
 
 type Props = {
     productInfo: IProductInfo
