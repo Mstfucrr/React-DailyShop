@@ -1,6 +1,8 @@
 import { IProduct } from "@/shared/types"
 import { Button } from "primereact/button"
 import { Card } from "primereact/card"
+import { useCallback } from "react"
+import { Link } from "react-router-dom"
 
 type Props = {
     product: IProduct,
@@ -9,6 +11,29 @@ type Props = {
 
 const ProductCard = ({ product, setUpdateProductId }: Props) => {
 
+    const isApprovedRender = useCallback(() => {
+        if (product.isApproved == null)
+            return <p className="text-yellow-400">Onay Bekliyor</p>
+        else if (product.isApproved)
+            return <div className="flex flex-row flex-wrap gap-7 items-center h-auto">
+                <p className="text-green-400">Onaylandı</p>
+                <Link to={`/product/${product.id}`} target="_blank">
+                    <Button label="Ürünü Görüntüle" className="w-56" rounded
+                        severity="help"
+                        icon="pi pi-eye"
+                    >
+                        {/* yeni sayfada ürünü göster */}
+
+
+                    </Button>
+                </Link>
+            </div>
+        else
+            return <p className="text-red-400">Onaylanmadı</p>
+
+    }, [product.isApproved])
+
+
     return (
         <Card
             title={
@@ -16,7 +41,7 @@ const ProductCard = ({ product, setUpdateProductId }: Props) => {
                     <h3 className="text-2xl">{product.name}</h3>
                     <div className="flex flex-row gap-4">
                         <Button label="Düzenle" rounded severity="warning" icon="pi pi-pencil"
-                            onClick={() => setUpdateProductId(product?.id)} 
+                            onClick={() => setUpdateProductId(product?.id)}
                         />
                         <Button label="Sil" rounded severity="danger" icon="pi pi-trash" />
                     </div>
@@ -27,13 +52,7 @@ const ProductCard = ({ product, setUpdateProductId }: Props) => {
 
         >
             <div className="flex flex-col gap-1 my-4">
-                <p
-                    className={`${product.isApproved == null
-                        ? "text-yellow-400"
-                        : product.isApproved == true
-                            ? "text-green-400"
-                            : "text-red-400"}`}>
-                    {product.isApproved == null ? "Onay Bekliyor" : product.isApproved ? "Onaylandı" : "Onaylanmadı"}</p>
+                {isApprovedRender()}
                 <p className="text-primaryDark">Stok: {product.stock}</p>
             </div>
 
