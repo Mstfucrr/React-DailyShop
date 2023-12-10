@@ -15,8 +15,8 @@ import { IToast } from '@/store/Toast/type';
 import { Fieldset } from 'primereact/fieldset';
 import { Link } from 'react-router-dom';
 import { DataView } from 'primereact/dataview';
-import { getProductById } from '@/services/product/product.service';
 import { ProgressSpinner } from 'primereact/progressspinner';
+import { reviewStatus } from '@/shared/constants';
 
 
 const UserSettings = () => {
@@ -123,7 +123,7 @@ const UserSettings = () => {
 
     const renderStatusDropdown = useCallback((data: IReview) => (
         <Dropdown
-            options={[{ label: 'Yeni', value: 'new' }, { label: 'Onayla', value: 'approved' }, { label: 'Reddet', value: 'reject' }]}
+            options={reviewStatus}
             value={data.status || 'new'}
             onChange={(e) => {
                 handleReviewStatusChange(data, e.value)
@@ -177,6 +177,14 @@ const UserSettings = () => {
 
         </div>
     ), [handleProductApprovalStatusChange, selectedUserPaddingProduct]);
+
+
+    const refreshButton = useCallback((refreshFunction: () => void) => (
+        <div className="flex justify-end my-3">
+            <Button label="Yenile" icon="pi pi-refresh" className="p-button-raised p-button-rounded p-button-text" onClick={refreshFunction} />
+        </div>
+    ), [fetchUsers]);
+
 
     return (
         <>
@@ -274,10 +282,15 @@ const UserSettings = () => {
                                     }
                                     toggleable
                                 >
+                                    {/* Yenile */}
+                                    {refreshButton(fetchUserReviews)}
+
                                     {/* Yorumlar tablosu */}
                                     {selectedUserReviews && selectedUserReviews.length > 0 &&
                                         <DataTable value={selectedUserReviews} scrollable scrollHeight="400px"
-                                            emptyMessage="Yorum bulunamadı" >
+                                            emptyMessage="Yorum bulunamadı"
+                                            filterIcon="pi pi-search"
+                                        >
                                             <Column field="id" header="ID" />
                                             <Column field="comment" header="Yorum" maxConstraints={20} />
                                             <Column header="Ürün Bağlantılı Resmi" body={renderProductImage}></Column>
@@ -306,10 +319,7 @@ const UserSettings = () => {
 
                         >
 
-                            {/* // yenile butonu */}
-                            <div className="flex justify-end">
-                                <Button label="Yenile" icon="pi pi-refresh" className="p-button-raised p-button-rounded p-button-text" onClick={fetchUserPaddingProduct} />
-                            </div>
+                            {refreshButton(fetchUserPaddingProduct)}
                             {/* // ürünler tablosu */}
 
                             {selectedUserPaddingProduct && selectedUserPaddingProduct.length > 0
