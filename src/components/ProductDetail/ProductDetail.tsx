@@ -3,7 +3,7 @@ import { Galleria } from 'primereact/galleria';
 import { useEffect, useRef, useState } from "react";
 import { Rating } from "primereact/rating";
 import { RadioButton } from "primereact/radiobutton";
-import { FaCommentAlt, FaInfoCircle, FaMinus, FaPlus, FaShoppingCart, FaTrashAlt } from "react-icons/fa";
+import { FaCommentAlt, FaInfoCircle, FaMinus, FaPlus, FaShoppingCart, FaSpinner, FaTrashAlt } from "react-icons/fa";
 import { MdDescription } from "react-icons/md";
 import { TabView, TabPanel } from 'primereact/tabview';
 import { Avatar } from 'primereact/avatar';
@@ -22,11 +22,15 @@ import { addToCart } from "@/services/order/order.service";
 import { IaddToCartRequest } from "@/services/order/types";
 import { InputNumber } from "primereact/inputnumber";
 import to from "await-to-js";
+import { ProgressSpinner } from "primereact/progressspinner";
 
 
 const ProductDetail = () => {
     const [images, setImages] = useState<{ source: string; }[] | string | undefined>(undefined)
     const { id } = useParams()
+    const [productLoading, setProductLoading] = useState<boolean>(false)
+    const [addCartLoading, setAddCartLoading] = useState<boolean>(false)
+    const [addReviewLoading, setAddReviewLoading] = useState<boolean>(false)
     const [product, setProduct] = useState<IProduct | null>(null)
     const [selectSize, setSelectSize] = useState<string | undefined>(undefined)
     const [selectColor, setSelectColor] = useState<string | undefined>(undefined)
@@ -68,12 +72,14 @@ const ProductDetail = () => {
     useEffect(() => {
         if (!id) return
         const fetchData = async () => {
-            const [err, data] = await to(getProductById(parseInt(id),token))
+            setProductLoading(true)
+            const [err, data] = await to(getProductById(parseInt(id), token))
             if (err) {
                 msgs.current?.clear()
                 msgs.current?.show([
                     { sticky: true, severity: 'error', summary: 'Hata', detail: err.message, closable: false }
                 ]);
+                setProductLoading(false)
                 return
             }
             if (data.data) {
@@ -90,6 +96,7 @@ const ProductDetail = () => {
                 setImages(imagesSources.map((source: string) => ({ source: source })))
                 setReviews(fetchedProduct.reviews)
             }
+            setProductLoading(false)
         }
 
         fetchData()
@@ -130,16 +137,19 @@ const ProductDetail = () => {
                 rating: values.rating,
                 comment: values.comment,
             }
+            setAddReviewLoading(true)
             const [err, data] = await to(addReviewToProduct(product.id, review, token))
             if (err) {
                 const toast: IToast = { severity: 'error', summary: "Hata", detail: err.message, life: 3000 }
                 dispatch(SET_TOAST(toast))
+                setAddReviewLoading(false)
                 return
             }
             if (data) {
                 const toast: IToast = { severity: 'success', summary: "Başarılı", detail: data.message, life: 3000 }
                 dispatch(SET_TOAST(toast))
             }
+            setAddReviewLoading(false)
             formik.resetForm()
         }
     })
@@ -163,16 +173,17 @@ const ProductDetail = () => {
             size: selectSize,
             color: selectColor,
         }
-
+        setAddCartLoading(true)
         const [err, data] = await to(addToCart(product.id, cartAdd, token))
         if (err) {
             const toast: IToast = { severity: 'error', summary: "Hata", detail: err.message, life: 3000 }
             dispatch(SET_TOAST(toast))
+            setAddCartLoading(false)
             return
         }
-        const toast: IToast = { severity: 'success', summary: 'Başarılı', detail: addToCartSuccessTemplete(), life: 5000 }
+        const toast: IToast = { severity: 'success', summary: 'Başarılı', detail: addToCartSuccessTemplete(data.message), life: 5000 }
         dispatch(SET_TOAST(toast))
-
+        setAddCartLoading(false)
 
     }
 
@@ -191,14 +202,14 @@ const ProductDetail = () => {
         }
     }
 
-    const addToCartSuccessTemplete = () => {
+    const addToCartSuccessTemplete = (message: string) => {
 
         return (
             <div className="flex flex-col justify-center">
                 <div className="flex">
                     <img src={product?.image as string} alt={product?.name} className="w-20 h-20 mx-auto" />
                     <div className="flex flex-col">
-                        <h2 className="text-xl font-semibold">Ürün sepete eklendi</h2>
+                        <h2 className="text-xl font-semibold">{message}</h2>
                         <h3 className="text-md font-semibold">{product?.name}</h3>
                         <h3 className="text-md font-semibold">{quantity} x {product?.price} TL</h3>
                     </div>
@@ -215,7 +226,11 @@ const ProductDetail = () => {
     return (
 
         <>
-            {product != null
+            {productLoading && <div className="w-full h-36 flex justify-center items-center">
+                <ProgressSpinner strokeWidth="5" animationDuration=".5s" />
+            </div>
+            }
+            {!productLoading && product != null
 
                 ? <div className="lg:px-20">
                     {/* image and info */}
@@ -321,9 +336,16 @@ const ProductDetail = () => {
                                 <div className="">
                                     <button className='inline-block bg-primary text-[#212529] border-primary py-2 px-3 leading-6 hover:text-white hover:bg-primaryDark transition-all duration-300 ease-in-out'
                                         onClick={() => handleAddToCart()}
+                                        disabled={addCartLoading}
                                     >
-                                        <FaShoppingCart className="inline mr-3" />
-                                        Sepete Ekle
+                                        {!addCartLoading ? <>
+                                            <FaShoppingCart className="inline mr-3" />
+                                            Sepete Ekle
+                                        </> :
+                                            <ProgressSpinner strokeWidth="5" animationDuration=".5s"
+                                                style={{ width: '20px', height: '20px' }}
+                                            />
+                                        }
                                     </button>
                                 </div>
 
@@ -458,10 +480,19 @@ const ProductDetail = () => {
                                                                 <button className='md:w-1/3 w-full h-12 bg-primary text-white text-xl font-bold rounded-xl  
                                                                     hover:text-primary hover:bg-white hover:border-primary border border-solid border-primary
                                                                     transition duration-300 ease-in-out'
-                                                                    type="submit" disabled={formik.isSubmitting}
+                                                                    type="submit" disabled={addReviewLoading}
                                                                     onClick={() => formik.handleSubmit()}
                                                                 >
-                                                                    Yorum Yap
+                                                                    {addReviewLoading ?
+                                                                        <div className="flex items-center justify-center">
+                                                                            <FaSpinner className="mr-2 animate-spin" />
+                                                                            Yorum Yapılıyor...
+                                                                        </div>
+                                                                        : <>
+                                                                            <FaCommentAlt className="inline mr-2" /> Yorum Yap
+                                                                        </>
+
+                                                                    }
 
                                                                 </button>
 
