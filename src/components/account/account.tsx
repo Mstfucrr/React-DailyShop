@@ -59,10 +59,10 @@ const Account = () => {
 
     return (
         <>
-            <div className="sm:mt-[130px] mt-12 w-full">
+            <div className="sm:mt-[130px] mt-12 w-full min-h-screen">
                 <div className="lg:w-9/12 md:w-11/12 w-full mx-auto">
                     <div className="w-full flex md:flex-row flex-col gap-x-7">
-                        <div className="basis-5/12 w-full px-[15px] relative my-10">
+                        <div className="basis-5/12 w-full px-[15px] my-10">
                             <h3 className="text-4xl my-4 text-primaryDark 
                                 ">
                                 Hesabım
