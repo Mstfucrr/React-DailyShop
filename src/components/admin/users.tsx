@@ -18,7 +18,6 @@ import { DataView } from 'primereact/dataview';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { reviewStatus } from '@/shared/constants';
 
-
 const UserSettings = () => {
 
     const { token } = useSelector(authSelector)
@@ -30,7 +29,19 @@ const UserSettings = () => {
     const [selectedUserPaddingProduct, setSelectedUserPaddingProduct] = useState<IProduct[]>()
     const [loading, setLoading] = useState<boolean>(false)
     const [productLoading, setProductLoading] = useState<boolean>(false)
+    const [reviewLoading, setReviewLoading] = useState<boolean>(false)
     const dispatch = useDispatch()
+
+    const params = new URLSearchParams(window.location.search);
+    const userId = params.get('userId');
+          
+    useEffect(() => {
+        if (userId && users.length > 0) {
+            const user = users.find(u => u.id === Number(userId))
+            setSelectedUser(user)
+        }
+    }, [userId, users])
+
 
     const showErrorMessage = (err: Error) => {
         const toast: IToast = { severity: 'error', summary: "Hata", detail: err.message, life: 3000 }
@@ -64,9 +75,12 @@ const UserSettings = () => {
         setSelectedUserAddress(data)
     }
     const fetchUserReviews = async () => {
+        setSelectedUserReviews([])
+        setReviewLoading(true)
         const [err, data] = await to(userService.fetchReviewsByUserId(selectedUser?.id!, token))
         if (err) return showErrorMessage(err)
         setSelectedUserReviews(data.data)
+        setReviewLoading(false)
     }
     const fetchUserPaddingProduct = async () => {
         setProductLoading(true)
@@ -81,7 +95,7 @@ const UserSettings = () => {
             fetchUserAddress()
             fetchUserReviews()
             fetchUserPaddingProduct()
-            console.log("selected user: ", selectedUser)
+            window.history.pushState({}, '', `/admin/users?userId=${selectedUser.id}`)
         }
     }, [selectedUser])
 
@@ -127,6 +141,7 @@ const UserSettings = () => {
             value={data.status || 'new'}
             onChange={(e) => {
                 handleReviewStatusChange(data, e.value)
+                    .then(fetchUserReviews)
             }}
         />
     ), [handleReviewStatusChange]);
@@ -148,9 +163,16 @@ const UserSettings = () => {
                 <Button onClick={() => { handleProductApprovalStatusChange(data, false) }} icon="pi pi-times" className="p-button-danger p-button-outlined" label="Reddet" size='small' />
             </>
         else if (data.isApproved)
-            return <span className="font-semibold text-green-500">Onaylandı</span>
+            return <div className='flex flex-wrap flex-row gap-4 items-center'>
+                <span className="font-semibold text-green-500">(Onaylandı)</span>
+                <Button onClick={() => { handleProductApprovalStatusChange(data, false) }} icon="pi pi-times" className="p-button-danger p-button-outlined" label="Reddet" size='small' />
+            </div>
         else
-            return <span className="font-semibold text-red-400">Reddedildi</span>
+            return <div className='flex flex-wrap flex-row gap-4 items-center'>
+                <Button onClick={() => (handleProductApprovalStatusChange(data, true))} icon="pi pi-check" label="Onayla" className="p-button-success p-button-outlined" size='small' />
+                <span className="font-semibold text-red-500">(Reddedildi)</span>
+            </div>
+
     }, [handleProductApprovalStatusChange]);
 
     const renderSelectedUserPaddingProduct = useCallback((data: IProduct) => (
@@ -286,24 +308,26 @@ const UserSettings = () => {
                                     {refreshButton(fetchUserReviews)}
 
                                     {/* Yorumlar tablosu */}
-                                    {selectedUserReviews && selectedUserReviews.length > 0 &&
-                                        <DataTable value={selectedUserReviews} scrollable scrollHeight="400px"
-                                            emptyMessage="Yorum bulunamadı"
-                                            filterIcon="pi pi-search"
-                                        >
-                                            <Column field="id" header="ID" />
-                                            <Column field="comment" header="Yorum" maxConstraints={20} />
-                                            <Column header="Ürün Bağlantılı Resmi" body={renderProductImage}></Column>
-                                            <Column field='rating' header="Puan" body={renderRating}></Column>
-                                            <Column header="Durum" body={renderStatusDropdown}></Column>
-                                        </DataTable>
-
-                                    }
-                                    {/* Yorum yoksa */}
-                                    {selectedUserReviews && selectedUserReviews.length === 0 &&
-                                        <div className="flex flex-col justify-center items-center">
-                                            <span className="text-xl font-semibold">Yorum bulunamadı</span>
-                                        </div>
+                                    {reviewLoading ?
+                                        <ProgressSpinner className='w-full' />
+                                        : <>
+                                            {selectedUserReviews && selectedUserReviews.length > 0 ?
+                                                <DataTable value={selectedUserReviews} scrollable scrollHeight="400px"
+                                                    emptyMessage="Yorum bulunamadı"
+                                                    filterIcon="pi pi-search"
+                                                >
+                                                    <Column field="id" header="ID" />
+                                                    <Column field="comment" header="Yorum" maxConstraints={20} />
+                                                    <Column header="Ürün Bağlantılı Resmi" body={renderProductImage}></Column>
+                                                    <Column field='rating' header="Puan" body={renderRating}></Column>
+                                                    <Column header="Durum" body={renderStatusDropdown}></Column>
+                                                </DataTable>
+                                                :   
+                                                <div className="flex flex-col justify-center items-center">
+                                                    <span className="text-xl font-semibold">Yorum bulunamadı</span>
+                                                </div>
+                                            }
+                                        </>
                                     }
                                 </Fieldset>
                             </div>
