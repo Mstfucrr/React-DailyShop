@@ -403,13 +403,13 @@ const ProductDetail = () => {
                                             </h1>
                                             <div className="flex flex-col w-full">
                                                 {reviews && reviews.map((review: IReview) => (
-                                                    <div className="flex items-start mx-4 my-2" key={review.user?.name + "-" + review.date.toISOString()}>
+                                                    <div className="flex items-start mx-4 my-2" key={review.date}>
                                                         <Avatar image={review.user?.profileImage} size={"large"}
                                                             className="m-2"
                                                         />
                                                         <div className="flex-1">
                                                             <h6 className="text-lg"> {review.user?.name} - <small><i>
-                                                                {review.date?.toLocaleDateString()}
+                                                                {review.date}
                                                             </i></small> </h6>
                                                             <Rating value={review.rating} readOnly cancel={false} className="my-2" pt={{
                                                                 onIcon: { className: '!text-primary' }

@@ -30,7 +30,7 @@ export interface ICategory {
 
 export interface IReview {
     id: number,
-    date: Date,
+    date: string,
     rating: number,
     productId: number,
     product: IProduct | undefined,
