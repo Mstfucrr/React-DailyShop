@@ -36,7 +36,7 @@ const Navbar = () => {
   });
 
   const dispatch = useDispatch()
-  const { isAuthorized } = useSelector(authSelector)
+  const { isAuthorized, isAdminAuthorized } = useSelector(authSelector)
   const handleLogout = () => {
     dispatch(SET_LOGOUT())
     const toast: IToast = { severity: "success", summary: "Başarılı", detail: "Başarıyla çıkış yaptınız.", life: 3000 }
@@ -148,6 +148,7 @@ const Navbar = () => {
                       {/* logout */}
                       {isAuthorized ?
                         <>
+                          {isAdminAuthorized && <Link to="/admin"><Button text={location.pathname !== '/admin'} severity='help' >Admin</Button></Link> }
                           <Link to="/account"><Button text={location.pathname !== '/account'} severity='info' >Hesap</Button></Link>
                           <Link to="/seller"><Button text={location.pathname !== '/seller'} severity='warning' >Satış Yap </Button></Link>
                           <Button text severity='danger' onClick={handleLogout} >Çıkış Yap</Button>
