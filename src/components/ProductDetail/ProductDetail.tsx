@@ -403,36 +403,41 @@ const ProductDetail = () => {
                                             </h1>
                                             <div className="flex flex-col w-full">
                                                 {reviews && reviews.map((review: IReview) => (
-                                                    <div className="flex items-start mx-4 my-2" key={review.date}>
-                                                        <Avatar image={review.user?.profileImage} size={"large"}
-                                                            className="m-2"
-                                                        />
-                                                        <div className="flex-1">
-                                                            <h6 className="text-lg"> {review.user?.name} - <small><i>
-                                                                {review.date}
-                                                            </i></small> </h6>
-                                                            <Rating value={review.rating} readOnly cancel={false} className="my-2" pt={{
-                                                                onIcon: { className: '!text-primary' }
-                                                            }} />
-                                                            <p>
-                                                                {review.comment}
-                                                            </p>
+                                                    <>
+                                                        {review.status == "approved" &&
+                                                            <div className="flex items-start mx-4 my-2" key={review.date}>
+                                                                <Avatar image={review.user?.profileImage} size={"large"}
+                                                                    className="m-2"
+                                                                />
+                                                                <div className="flex-1">
+                                                                    <h6 className="text-lg"> {review.user?.name} - <small><i>
+                                                                        {review.date}
+                                                                    </i></small> </h6>
+                                                                    <Rating value={review.rating} readOnly cancel={false} className="my-2" pt={{
+                                                                        onIcon: { className: '!text-primary' }
+                                                                    }} />
+                                                                    <p>
+                                                                        {review.comment}
+                                                                    </p>
 
-                                                        </div>
-                                                        {
-                                                            review.user?.id == auth.id &&
-                                                            <div className="">
-                                                                <button className="text-primary hover:text-primaryDark transition-all duration-300 ease-in-out"
-                                                                    onClick={() => handleDeleteReview(review.id)}
-                                                                >
-                                                                    <FaTrashAlt className="inline mr-2" />
-                                                                    Yorumu Sil
-                                                                </button>
+                                                                </div>
+                                                                {
+                                                                    review.user?.id == auth.id &&
+                                                                    <div className="">
+                                                                        <button className="text-primary hover:text-primaryDark transition-all duration-300 ease-in-out"
+                                                                            onClick={() => handleDeleteReview(review.id)}
+                                                                        >
+                                                                            <FaTrashAlt className="inline mr-2" />
+                                                                            Yorumu Sil
+                                                                        </button>
+
+                                                                    </div>
+                                                                }
 
                                                             </div>
                                                         }
+                                                    </>
 
-                                                    </div>
                                                 ))}
                                             </div>
                                         </div>
