@@ -12,6 +12,7 @@ import { IProduct } from '@/shared/types';
 import CategorySettings from './CategorySettings';
 import { SET_TOAST } from '@/store/Toast';
 import { IToast } from '@/store/Toast/type';
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 
 const ProductSettings = () => {
@@ -26,7 +27,7 @@ const ProductSettings = () => {
         isApproved: { value: null, matchMode: FilterMatchMode.EQUALS },
     });
 
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState<boolean>(false);
     const [globalFilterValue, setGlobalFilterValue] = useState('');
 
 
@@ -34,20 +35,21 @@ const ProductSettings = () => {
     const dispatch = useDispatch()
 
 
-    useEffect(() => {
-
-        const getAllProducts = async () => {
-            const [err, data] = await to(productService.getAllProducts(token));
-            if (err) {
-                const toast: IToast = { severity: 'error', summary: "Hata", detail: err.message, life: 3000 }
-                dispatch(SET_TOAST(toast))
-                return
-            }
-            if (data) {
-                setProducts(data.data)
-                setLoading(false);
-            }
+    const getAllProducts = async () => {
+        setLoading(true);
+        const [err, data] = await to(productService.getAllProducts(token));
+        if (err) {
+            const toast: IToast = { severity: 'error', summary: "Hata", detail: err.message, life: 3000 }
+            dispatch(SET_TOAST(toast))
+            setLoading(false);
+            return
         }
+        if (data)
+            setProducts(data.data)
+        setLoading(false);
+    }
+
+    useEffect(() => {
         getAllProducts();
     }, []);
 
@@ -101,10 +103,16 @@ const ProductSettings = () => {
         <>
             <div className="flex flex-col gap-12 w-full">
 
-                {products &&
+                {!loading &&
+                    <div className="w-full flex justify-center items-center">
+                        <ProgressSpinner strokeWidth="4" style={{ width: '50px', height: '50px' }} />
+                    </div>
+                }
+                {/* Ürünler */}
+                {loading && products &&
                     <DataTable value={products} header={header} className="p-datatable-customers w-full" dataKey="id"
-                        loading={loading} emptyMessage="Ürün Bulunamadı" globalFilter={globalFilterValue}
-                        filterDisplay="row"
+                        emptyMessage="Ürün Bulunamadı" globalFilter={globalFilterValue}
+                        filterDisplay="row" loading={false}
                         globalFilterFields={["name", "category.name", "stock", "price", "status"]}
                         paginator rows={10} rowsPerPageOptions={[1, 5, 10, 25]}
                         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
@@ -120,7 +128,6 @@ const ProductSettings = () => {
                         <Column field="isApproved" header="Onay" sortable body={approvedBodyTemplate} filter filterMatchMode="contains" filterElement={approvedRowFilterTemplate} />
 
                     </DataTable>
-
                 }
 
                 {/* Kategori ekle kaldır güncelle */}

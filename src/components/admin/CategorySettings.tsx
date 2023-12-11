@@ -16,6 +16,7 @@ import { Tree } from 'primereact/tree';
 import { ConfirmDialog } from 'primereact/confirmdialog'
 import { ICategoryRequest } from '@/services/admin/types'
 import NodeTemplate from './NodeTemplate'
+import { ProgressSpinner } from 'primereact/progressspinner'
 
 
 const CategorySettings = () => {
@@ -160,7 +161,7 @@ const CategorySettings = () => {
         <>
             {loading &&
                 <div className="flex justify-center items-center w-full h-full">
-                    <i className="pi pi-spin pi-spinner text-4xl"></i>
+                    <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="8" animationDuration=".9s" />
                 </div>
             }
             <div className="flex flex-col gap-4 w-full">
