@@ -43,7 +43,7 @@ const AppRouter: React.FC = () => {
             <Route path="/seller" element={<PrivateRoute path="/seller" element={<SellerPage />} />} />
             <Route path="/checkout" Component={CheckoutPage} />
             <Route path="/account/:tab?" element={<PrivateRoute path="/account" element={<Account />} />} />
-            <Route path="/admin/*" Component={Admin} />
+            <Route path="/admin/*" element={<PrivateRoute path="/admin" element={<Admin />} />} />
         </Routes>
     );
 };
