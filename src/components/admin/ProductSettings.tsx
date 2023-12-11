@@ -103,13 +103,13 @@ const ProductSettings = () => {
         <>
             <div className="flex flex-col gap-12 w-full">
 
-                {!loading &&
+                {loading &&
                     <div className="w-full flex justify-center items-center">
                         <ProgressSpinner strokeWidth="4" style={{ width: '50px', height: '50px' }} />
                     </div>
                 }
                 {/* Ürünler */}
-                {loading && products &&
+                {!loading && products &&
                     <DataTable value={products} header={header} className="p-datatable-customers w-full" dataKey="id"
                         emptyMessage="Ürün Bulunamadı" globalFilter={globalFilterValue}
                         filterDisplay="row" loading={false}
