@@ -63,7 +63,7 @@ const Cart = () => {
                             <tbody className='align-middle'>
 
                                 {cartItems.map((cartItem) => (
-                                    <CartListItem key={cartItem.id} cartItem={cartItem} setCartItems={setCartItems} fetchCart={fetchCart} />
+                                    <CartListItem key={cartItem.id} cartItem={cartItem} fetchCart={fetchCart} />
                                 ))
                                 }
 

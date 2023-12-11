@@ -12,7 +12,7 @@ import { IToast } from '@/store/Toast/type'
 
 
 const CartListItem = (
-  { cartItem, setCartItems, fetchCart }: { cartItem: ICartItem, setCartItems: React.Dispatch<React.SetStateAction<ICartItem[]>>, fetchCart: () => void }
+  { cartItem, fetchCart }: { cartItem: ICartItem, fetchCart: () => void }
 ) => {
 
   const [quantity, setQuantity] = useState(cartItem.quantity)
