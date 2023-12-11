@@ -163,6 +163,7 @@ const Settings = () => {
 
                 <div className="flex flex-col gap-y-6">
                     <h3 className="text-2xl" >Site Icon</h3>
+                    <img src={siteSettings?.siteIcon as string} alt="site icon" className="max-h-96" />
                     <FileUpload accept="image/*" maxFileSize={1000000}
                         itemTemplate={renderItemTemplate}
                         emptyTemplate={emptyTemplate}
