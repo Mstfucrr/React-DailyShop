@@ -14,10 +14,10 @@ export const fetchAddressByUserId = async (id: number, token: string) =>
 
 // USER REVIEWS (FETH AND UPDATE)
 export const fetchReviewsByUserId = async (id: number, token: string) =>
-    await makeRequest(`/Reviews/GetListByUserId?UserId=${id}`, "GET", { status }, token);
+    await makeRequest(`/Reviews/GetListByUserId?UserId=${id}`, "GET", token);
 
 export const updateReviewStatus = async (id: number, status: string, token: string) =>
-    await makeRequest(`/admin/users/${id}/rewies`, "PUT", { status }, token);
+    await makeRequest(`/admin/users/UpdateReviewStatus/${id}?status=${status}`, "PUT", null, token);
 
 // USER PRODUCTS (FETH AND UPDATE)
 export const fetchPaddingProductByUserId = async (id: number, token: string) =>
