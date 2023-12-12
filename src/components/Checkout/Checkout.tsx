@@ -10,7 +10,6 @@ import { InputText } from "primereact/inputtext"
 import { useFormik } from "formik"
 import { Button } from "primereact/button"
 import { IUserAddress } from "@/services/auth/types"
-import { InputMask } from "primereact/inputmask"
 import * as Yup from 'yup'
 import { InputTextarea } from "primereact/inputtextarea"
 
@@ -52,20 +51,12 @@ const Checkout = () => {
 
     const formik = useFormik({
         initialValues: {
-            name: '',
-            surname: '',
-            email: '',
-            phone: '',
             address: '',
             country: '',
             city: '',
             zipCode: '',
         },
         validationSchema: Yup.object({
-            name: Yup.string().required('Ad zorunludur'),
-            surname: Yup.string().required('Soyad zorunludur'),
-            email: Yup.string().email('Geçerli bir email adresi giriniz').required('Email zorunludur'),
-            phone: Yup.string().required('Telefon zorunludur'),
             address: Yup.string().required('Adres zorunludur'),
             country: Yup.string().required('Ülke zorunludur'),
             city: Yup.string().required('Şehir zorunludur'),
@@ -94,13 +85,6 @@ const Checkout = () => {
             (isTouched && frm ? 'p-invalid' : '')
     }
 
-    const useMyInfos = () => {
-        if (isAuthorized) {
-            const { name, surname, email, phone } = user
-            formik.setValues({ ...formik.values, name, surname, email, phone })
-        }
-    }
-
     useEffect(() => {
         if (selectAddress) {
             const { city, country, address, zipCode } = selectAddress
@@ -115,66 +99,20 @@ const Checkout = () => {
             <div className="flex lg:flex-row flex-col xl:px-10 px-3 gap-3 mt-20">
                 <div className="flex flex-col basis-8/12 gap-y-3">
                     <h3 className="text-3xl font-semibold text-primaryDark  ">Sipariş Adresi</h3>
-                    <Button label="Kendi bilgilerimi kullan" className="w-max" onClick={useMyInfos} />
                     <div className="border border-solid border-secondary p-2 gap-2 flex flex-col">
 
                         <h4 className="text-xl font-semibold text-primaryDark">Kayıtlı Adreslerim</h4>
                         <div className="flex flex-wrap gap-5">
                             {user && (
                                 user.addresses.map((address) => (
-                                    <Button key={"address-" + address.id} label={address.title} className="w-max" severity="help" onClick={() => setSelectAddress(address)} />
+                                    <Button key={"address-" + address.id} label={address.title} className="w-max" severity={selectAddress?.id === address.id ? 'success' : 'info'}
+                                     onClick={() => setSelectAddress(address)} />
                                 ))
                             )}
                         </div>
                     </div>
 
                     <div className="flex flex-wrap w-full items-start">
-                        {/* AD */}
-                        <div className="flex flex-col md:w-1/2 w-full p-2">
-                            {inputLabel('Ad')}
-                            <InputText
-                                name="name"
-                                className={inputClassName(formik.errors.name, formik.touched.name)}
-                                onChange={formik.handleChange}
-                                value={formik.values.name}
-                            />
-                            {errorTemplate(formik.errors.name, formik.touched.name)}
-                        </div>
-                        {/* SOYAD */}
-                        <div className="flex flex-col md:w-1/2 w-full p-2">
-                            {inputLabel('Soyad')}
-                            <InputText
-                                name="surname"
-                                className={inputClassName(formik.errors.surname, formik.touched.surname)}
-                                onChange={formik.handleChange}
-                                value={formik.values.surname}
-                            />
-                            {errorTemplate(formik.errors.surname, formik.touched.surname)}
-                        </div>
-                        {/* EMAIL */}
-                        <div className="flex flex-col md:w-1/2 w-full p-2">
-                            {inputLabel('Email')}
-                            <InputText
-                                name="email"
-                                className={inputClassName(formik.errors.email, formik.touched.email)}
-                                onChange={formik.handleChange}
-                                value={formik.values.email}
-                            />
-                            {errorTemplate(formik.errors.email, formik.touched.email)}
-                        </div>
-                        {/* TELEFON */}
-                        <div className="flex flex-col md:w-1/2 w-full p-2">
-                            {inputLabel('Telefon')}
-                            <InputMask
-                                name="phone"
-                                mask="(999) 999-9999"
-                                className={inputClassName(formik.errors.phone, formik.touched.phone)}
-                                onChange={formik.handleChange}
-                                placeholder="(555) 555-5555"
-                                value={formik.values.phone || undefined}
-                            />
-                            {errorTemplate(formik.errors.phone, formik.touched.phone)}
-                        </div>
                         {/* ADRES */}
                         <div className="flex flex-col md:w-1/2 w-full p-2">
                             {inputLabel('Adres')}
