@@ -13,6 +13,7 @@ import { useEffect, useState, useRef } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { ProgressSpinner } from "primereact/progressspinner"
 import { ConfirmPopup, confirmPopup } from "primereact/confirmpopup"
+import { Fieldset } from "primereact/fieldset"
 
 const Settings = () => {
 
@@ -144,12 +145,12 @@ const Settings = () => {
                         <Editor style={{ height: '320px' }} value={about} onTextChange={(e) => setAbout(e.htmlValue as any)} />
                     </div>
                     {/* test show about */}
+                    <Fieldset legend="Hakkımızda Önizleme" toggleable collapsed={true}>
                     <div className="flex flex-col gap-y-6">
-                        <h3 className="text-2xl" >Hakkımızda</h3>
                         <div className="ql-editor"
                             dangerouslySetInnerHTML={{ __html: about as string }} />
                     </div>
-
+                    </Fieldset>
                     {/* İletişim Bilgileri */}
                     <div className="flex flex-col gap-y-6">
                         <h3 className="text-2xl" >İletişim Bilgileri</h3>
