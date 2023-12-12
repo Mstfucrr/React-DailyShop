@@ -18,10 +18,10 @@ import { Fieldset } from "primereact/fieldset"
 const Settings = () => {
 
     // hakkımızda, iletişim bilgileri , adres bilgileri ve site icon ayarları
-    const [about, setAbout] = useState<string | undefined>('')
-    const [email, setEmail] = useState<string | undefined>('')
+    const [about, setAbout] = useState<string | undefined>(undefined)
+    const [email, setEmail] = useState<string | undefined>(undefined)
     const [phone, setPhone] = useState<string | undefined>(undefined)
-    const [address, setAddress] = useState<string | undefined>('')
+    const [address, setAddress] = useState<string | undefined>(undefined)
     const [siteSettings, setSiteSettings] = useState<ISiteSettings | null>()
     const [siteIcon, setSiteIcon] = useState<File | string | undefined>(undefined)
     const [loading, setLoading] = useState<boolean>(false)
@@ -142,14 +142,16 @@ const Settings = () => {
                     {/* Hakkımızda */}
                     <div className="flex flex-col gap-y-6">
                         <h3 className="text-2xl" >Hakkımızda</h3>
-                        <Editor style={{ height: '320px' }} value={about} onTextChange={(e) => setAbout(e.htmlValue as any)} />
+                        {about &&
+                            <Editor style={{ height: '320px' }} value={about as string} onTextChange={(e) => setAbout(e.htmlValue as any)} />
+                        }
                     </div>
                     {/* test show about */}
                     <Fieldset legend="Hakkımızda Önizleme" toggleable collapsed={true}>
-                    <div className="flex flex-col gap-y-6">
-                        <div className="ql-editor"
-                            dangerouslySetInnerHTML={{ __html: about as string }} />
-                    </div>
+                        <div className="flex flex-col gap-y-6">
+                            <div className="ql-editor"
+                                dangerouslySetInnerHTML={{ __html: about as string }} />
+                        </div>
                     </Fieldset>
                     {/* İletişim Bilgileri */}
                     <div className="flex flex-col gap-y-6">
