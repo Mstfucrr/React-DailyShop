@@ -140,7 +140,8 @@ const Navbar = () => {
                       <a href="/shop" className={navItemsStyle}>Shop</a>
                       <a href="" className={navItemsStyle}>Shop Detail</a>
                       <a href="" className={navItemsStyle}>Pages</a>
-                      <a href="" className={navItemsStyle}>Contact</a>
+                      <a href="" className={navItemsStyle}>İletişim</a>
+                      <a href="/about" className={navItemsStyle}>Hakkımızda</a>
                     </div>
                     <div className="lg:flex-row ml-auto py-0 flex flex-col pl-0 mb-0 gap-5 m-5">
                       {/* login register links */}
