@@ -51,12 +51,14 @@ const Checkout = () => {
 
     const formik = useFormik({
         initialValues: {
+            addressId: 0,
             address: '',
             country: '',
             city: '',
             zipCode: '',
         },
         validationSchema: Yup.object({
+            addressId: Yup.number().required('Adres seçimi zorunludur'),
             address: Yup.string().required('Adres zorunludur'),
             country: Yup.string().required('Ülke zorunludur'),
             city: Yup.string().required('Şehir zorunludur'),
@@ -66,13 +68,6 @@ const Checkout = () => {
             console.log(values)
         },
     })
-    const errorTemplate = (frm: any, isTouched?: boolean) => {
-        return (
-            <>
-                {isTouched && frm ? (<small className="text-red-500 "> {frm} </small>) : null}
-            </>
-        )
-    }
 
     const inputLabel = (text: string) => {
         return (
@@ -80,154 +75,140 @@ const Checkout = () => {
         )
     }
 
-    const inputClassName = (frm: any, isTouched?: boolean) => {
-        return 'w-full !my-2 p-inputtext-sm ' +
-            (isTouched && frm ? 'p-invalid' : '')
-    }
-
     useEffect(() => {
         if (selectAddress) {
-            const { city, country, address, zipCode } = selectAddress
-            formik.setValues({ ...formik.values, city, country, address })
+            const { id, city, country, address, zipCode } = selectAddress
+            formik.setValues({ ...formik.values, city, country, address, addressId: id })
             formik.setFieldValue('zipCode', zipCode)
         }
     }, [selectAddress])
 
 
     return (
-        <>
-            <div className="flex lg:flex-row flex-col xl:px-10 px-3 gap-3 mt-20">
-                <div className="flex flex-col basis-8/12 gap-y-3">
-                    <h3 className="text-3xl font-semibold text-primaryDark  ">Sipariş Adresi</h3>
-                    <div className="border border-solid border-secondary p-2 gap-2 flex flex-col">
 
-                        <h4 className="text-xl font-semibold text-primaryDark">Kayıtlı Adreslerim</h4>
-                        <div className="flex flex-wrap gap-5">
-                            {user && (
-                                user.addresses.map((address) => (
-                                    <Button key={"address-" + address.id} label={address.title} className="w-max" severity={selectAddress?.id === address.id ? 'success' : 'info'}
-                                     onClick={() => setSelectAddress(address)} />
-                                ))
-                            )}
-                        </div>
+        <div className="flex lg:flex-row flex-col xl:px-10 px-3 gap-3 mt-20">
+            <div className="flex flex-col basis-8/12 gap-y-3">
+                <h3 className="text-3xl font-semibold text-primaryDark  ">Sipariş Adresi</h3>
+                <div className="border border-solid border-secondary p-2 gap-2 flex flex-col">
+
+                    <h4 className="text-xl font-semibold text-primaryDark">Kayıtlı Adreslerim</h4>
+                    <div className="flex flex-wrap gap-5">
+                        {user?.addresses &&
+                            user.addresses.map((address) => (
+                                <Button key={"address-" + address.id} label={address.title} className="w-max" severity={selectAddress?.id === address.id ? 'success' : 'info'}
+                                    onClick={() => setSelectAddress(address)} />
+                            ))
+                        }
+                    </div>
+                </div>
+
+                <div className="flex flex-wrap w-full items-start">
+                    {/* ADRES */}
+                    <div className="flex flex-col md:w-1/2 w-full p-2">
+                        {inputLabel('Adres')}
+                        <InputTextarea
+                            name="address"
+                            value={formik.values.address}
+                            readOnly
+                        />
+                    </div>
+                    {/* ÜLKE */}
+                    <div className="flex flex-col md:w-1/2 w-full p-2">
+                        {inputLabel('Ülke')}
+                        <InputText
+                            name="country"
+                            value={formik.values.country}
+                            readOnly
+                        />
+                    </div>
+                    {/* ŞEHİR */}
+                    <div className="flex flex-col md:w-1/2 w-full p-2">
+                        {inputLabel('Şehir')}
+                        <InputText
+                            name="city"
+                            value={formik.values.city}
+                            readOnly
+                        />
+                    </div>
+                    {/* POSTA KODU */}
+                    <div className="flex flex-col md:w-1/2 w-full p-2">
+                        {inputLabel('Posta Kodu')}
+                        <InputText
+                            name="zipCode"
+                            value={formik.values.zipCode}
+                            readOnly
+                        />
                     </div>
 
-                    <div className="flex flex-wrap w-full items-start">
-                        {/* ADRES */}
-                        <div className="flex flex-col md:w-1/2 w-full p-2">
-                            {inputLabel('Adres')}
-                            <InputTextarea
-                                name="address"
-                                className={inputClassName(formik.errors.address, formik.touched.address)}
-                                onChange={formik.handleChange}
-                                value={formik.values.address}
-                            />
-                            {errorTemplate(formik.errors.address, formik.touched.address)}
-                        </div>
-                        {/* ÜLKE */}
-                        <div className="flex flex-col md:w-1/2 w-full p-2">
-                            {inputLabel('Ülke')}
-                            <InputText
-                                name="country"
-                                className={inputClassName(formik.errors.country, formik.touched.country)}
-                                onChange={formik.handleChange}
-                                value={formik.values.country}
-                            />
-                            {errorTemplate(formik.errors.country, formik.touched.country)}
-                        </div>
-                        {/* ŞEHİR */}
-                        <div className="flex flex-col md:w-1/2 w-full p-2">
-                            {inputLabel('Şehir')}
-                            <InputText
-                                name="city"
-                                className={inputClassName(formik.errors.city, formik.touched.city)}
-                                onChange={formik.handleChange}
-                                value={formik.values.city}
-                            />
-                            {errorTemplate(formik.errors.city, formik.touched.city)}
-                        </div>
-                        {/* POSTA KODU */}
-                        <div className="flex flex-col md:w-1/2 w-full p-2">
-                            {inputLabel('Posta Kodu')}
-                            <InputText
-                                name="zipCode"
-                                className={inputClassName(formik.errors.zipCode, formik.touched.zipCode)}
-                                onChange={formik.handleChange}
-                                value={formik.values.zipCode}
-                            />
-                            {errorTemplate(formik.errors.zipCode, formik.touched.zipCode)}
-                        </div>
+                </div>
 
-                    </div>
-
-                    <Button type="submit" label="Sipariçi Tamamla" className="w-max !bg-primary border border-solid border-transparent text-[#212529] py-4 px-3 mt-4
+                <Button type="submit" label="Sipariçi Tamamla" className="w-max !bg-primary border border-solid border-transparent text-[#212529] py-4 px-3 mt-4
                                 hover:!bg-primaryDark hover:!border-primaryDark hover:text-white
                                 transition duration-300 ease-in-out flex justify-center"
-                        onClick={() => formik.handleSubmit()}
-                    />
-
-                </div>
-                <div className="flex basis-4/12 p-2">
-                    <div className="w-full border border-solid border-secondary
-                        flex flex-col relative h-min">
-                        {/* card header */}
-                        <div className="py-3 px-5 bg-secondary">
-                            <h4 className="font-semibold text-2xl text-black">
-                                Sipariş Özeti
-                            </h4>
-                        </div>
-                        {/* card body */}
-                        <div className="flex-auto p-5">
-                            <div className="flex flex-col">
-                                <h5 className="text-2xl font-semibold mb-2">Ürünler</h5>
-                                <div className="flex flex-col gay-4">
-
-                                    {cartItems.map((cartItem) => (
-                                        <div className="flex justify-between" key={cartItem.product.id + "-" + cartItem.product.name}>
-                                            <div className="">
-                                                {cartItem.product.name} x {cartItem.quantity}
-                                            </div>
-                                            <div className="">
-                                                {cartItem.product.price * cartItem.quantity} ₺
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <hr className="my-4" />
-                            <div className="flex justify-between mb-4 pt-1">
-                                <h6 className="font-medium text-black">
-                                    Ara Toplam
-                                </h6>
-                                <h6 className="font-medium text-black">
-                                    {cartTotal} ₺
-                                </h6>
-                            </div>
-                        </div>
-                        {/* card footer */}
-                        <div className="border border-solid border-secondary py-3 px-5">
-                            <div className="flex justify-between mt-2 text-black">
-                                <h5 className="font-bold text-xl">
-                                    Toplam
-                                </h5>
-                                <h5 className="font-bold text-xl">
-                                    {cartTotal} ₺
-                                </h5>
-                            </div>
-                            <Link className="bg-primary border border-solid border-transparent text-[#212529] py-4 px-3 mt-4 w-full
-                                hover:bg-primaryDark hover:border-primaryDark hover:text-white
-                                transition duration-300 ease-in-out flex justify-center"
-                                to="/checkout"
-                            >
-                                Ödeme İşlemine Geçin
-                            </Link>
-                        </div>
-                    </div>
-                </div>
+                    onClick={() => formik.handleSubmit()}
+                />
 
             </div>
-        </>
+            <div className="flex basis-4/12 p-2">
+                <div className="w-full border border-solid border-secondary
+                        flex flex-col relative h-min">
+                    {/* card header */}
+                    <div className="py-3 px-5 bg-secondary">
+                        <h4 className="font-semibold text-2xl text-black">
+                            Sipariş Özeti
+                        </h4>
+                    </div>
+                    {/* card body */}
+                    <div className="flex-auto p-5">
+                        <div className="flex flex-col">
+                            <h5 className="text-2xl font-semibold mb-2">Ürünler</h5>
+                            <div className="flex flex-col gay-4">
+
+                                {cartItems.map((cartItem) => (
+                                    <div className="flex justify-between" key={cartItem.product.id + "-" + cartItem.product.name}>
+                                        <div className="">
+                                            {cartItem.product.name} x {cartItem.quantity}
+                                        </div>
+                                        <div className="">
+                                            {cartItem.product.price * cartItem.quantity} ₺
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <hr className="my-4" />
+                        <div className="flex justify-between mb-4 pt-1">
+                            <h6 className="font-medium text-black">
+                                Ara Toplam
+                            </h6>
+                            <h6 className="font-medium text-black">
+                                {cartTotal} ₺
+                            </h6>
+                        </div>
+                    </div>
+                    {/* card footer */}
+                    <div className="border border-solid border-secondary py-3 px-5">
+                        <div className="flex justify-between mt-2 text-black">
+                            <h5 className="font-bold text-xl">
+                                Toplam
+                            </h5>
+                            <h5 className="font-bold text-xl">
+                                {cartTotal} ₺
+                            </h5>
+                        </div>
+                        <Link className="bg-primary border border-solid border-transparent text-[#212529] py-4 px-3 mt-4 w-full
+                                hover:bg-primaryDark hover:border-primaryDark hover:text-white
+                                transition duration-300 ease-in-out flex justify-center"
+                            to="/checkout"
+                        >
+                            Ödeme İşlemine Geçin
+                        </Link>
+                    </div>
+                </div>
+            </div>
+
+        </div>
 
     )
 }
