@@ -52,6 +52,8 @@ export interface ICartItem {
     id: number,
     product: IProduct,
     quantity: number,
+    color: string,
+    size: string
 }
 
 // gelen datalar pagnition ile listelencek
