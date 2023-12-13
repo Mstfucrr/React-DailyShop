@@ -14,6 +14,8 @@ import { Messages } from 'primereact/messages';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { useSelector } from 'react-redux';
 import { authSelector } from '@/store/auth';
+import { sortBy } from '@/shared/constants';
+import { ProductsSortBy } from '@/services/shop/types';
 
 const Shop = () => {
 
@@ -31,39 +33,29 @@ const Shop = () => {
 
   const { token } = useSelector(authSelector);
 
-  const sortBy = [
-    { name: 'En Yeniler', code: 'newest' },
-    { name: 'Fiyat (Düşükten Yükseğe)', code: 'priceLowToHigh' },
-    { name: 'Fiyat (Yüksekten Düşüğe)', code: 'priceHighToLow' },
-    { name: 'İsim (A - Z)', code: 'nameAZ' },
-    { name: 'İsim (Z - A)', code: 'nameZA' },
-    { name: 'En İyi Puan Alanlar', code: 'topRated' },
-    { name: 'İnceleme', code: 'review' }
-  ];
-
   useEffect(() => {
 
 
     switch (selectSortBy.code) {
-      case 'newest':
+      case ProductsSortBy.Newest:
         setFilteredProducts([...filteredProducts].sort((a, b) => b.id - a.id))
         break;
-      case 'priceLowToHigh':
+      case ProductsSortBy.PriceLowToHigh:
         setFilteredProducts([...filteredProducts].sort((a, b) => a.price - b.price))
         break;
-      case 'priceHighToLow':
+      case ProductsSortBy.PriceHighToLow:
         setFilteredProducts([...filteredProducts].sort((a, b) => b.price - a.price))
         break;
-      case 'nameAZ':
+      case ProductsSortBy.NameAZ:
         setFilteredProducts([...filteredProducts].sort((a, b) => a.name.localeCompare(b.name)))
         break;
-      case 'nameZA':
+      case ProductsSortBy.NameZA:
         setFilteredProducts([...filteredProducts].sort((a, b) => b.name.localeCompare(a.name)))
         break;
-      case 'topRated':
+      case ProductsSortBy.TopRated:
         setFilteredProducts([...filteredProducts].sort((a, b) => b.rating - a.rating))
         break;
-      case 'review':
+      case ProductsSortBy.Review:
         setFilteredProducts([...filteredProducts].sort((a, b) => b.reviews.length - a.reviews.length))
         break;
       default:
