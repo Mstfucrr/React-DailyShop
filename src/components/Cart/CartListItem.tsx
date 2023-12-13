@@ -7,6 +7,7 @@ import { authSelector } from '@/store/auth'
 import { useDispatch, useSelector } from 'react-redux'
 import { SET_TOAST } from '@/store/Toast'
 import { IToast } from '@/store/Toast/type'
+import { Link } from 'react-router-dom'
 
 
 
@@ -33,7 +34,6 @@ const CartListItem = (
       const toast: IToast = { severity: 'error', summary: "Hata", detail: err.message, life: 3000 }
       dispatch(SET_TOAST(toast))
     }
-    fetchCart()
     const toast: IToast = { severity: 'success', summary: "Başarılı", detail: data.message, life: 3000 }
     dispatch(SET_TOAST(toast))
   }
@@ -45,18 +45,26 @@ const CartListItem = (
       const toast: IToast = { severity: 'error', summary: "Hata", detail: err.message, life: 3000 }
       dispatch(SET_TOAST(toast))
     }
-    fetchCart()
     const toast: IToast = { severity: 'success', summary: "Başarılı", detail: data.message, life: 3000 }
     dispatch(SET_TOAST(toast))
   }
 
   return (
     <tr className='bg-white'>
-      <td className='p-3 border border-solid border-secondary text-left pl-10'>
-        <img src={cartItem?.product?.image as string} width={50} alt=""
-          className='inline-block object-cover w-12 h-12 rounded-md'
-        />
-        <span className='ml-3'>{cartItem?.product?.name}</span>
+      <td className='p-3 border border-solid border-secondary text-left pl-10 '>
+        <div className="flex flex-row flex-wrap gap-6 items-center justify-between h-full">
+          <Link to={`/product/${cartItem?.product?.id}`} className='text-primary hover:text-red-800 hover:scale-105 transition-all duration-300 ease-in-out'>
+            <img src={cartItem?.product?.image as string} width={50} alt=""
+              className='inline-block object-cover w-16 h-auto rounded-md'
+            />
+            <span className='ml-3'>{cartItem?.product?.name}</span>
+          </Link>
+          <div className="">
+
+            <p className='block text-sm mt-2'>Renk: {cartItem?.color}</p>
+            <p className='block text-sm mt-2'>Beden: {cartItem?.size}</p>
+          </div>
+        </div>
       </td>
       <td className='p-3 border border-solid border-secondary align-middle'>
         {cartItem?.product?.price}
@@ -70,9 +78,9 @@ const CartListItem = (
                   duration-300 ease-in-out'
               onClick={() => {
                 if (quantity > 1)
-                  handleUpdateItem(quantity - 1)
+                  handleUpdateItem(quantity - 1).then(fetchCart)
                 else
-                  handleRemoveItem()
+                  handleRemoveItem().then(fetchCart)
               }}
             >
               {quantity === 1 ? <FaTrash /> : <FaMinus />}
@@ -89,7 +97,7 @@ const CartListItem = (
                   hover:text-white hover:bg-primaryDark transition-all
                   duration-300 ease-in-out'
               onClick={() => {
-                handleUpdateItem(quantity + 1)
+                handleUpdateItem(quantity + 1).then(fetchCart)
               }}
             >
               <FaPlus className='' />
@@ -105,7 +113,7 @@ const CartListItem = (
         <button className='inline-block bg-primary text-[#212529] border-primary py-2 px-2 leading-6
               hover:text-white hover:bg-primaryDark transition-all
               duration-300 ease-in-out'
-          onClick={handleRemoveItem}
+          onClick={() => { handleRemoveItem().then(fetchCart) }}
         >
           <FaTimes className='' />
         </button>
