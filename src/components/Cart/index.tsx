@@ -37,18 +37,18 @@ const Cart = () => {
             setCartTotal(0)
             msgs.current?.clear()
             msgs.current?.show([
-                { sticky: true, severity: 'info', summary: 'Sepetiniz Boş', detail: 'Sepetinizde ürün bulunmamaktadır.', closable: false}
+                { sticky: true, severity: 'info', summary: 'Sepetiniz Boş', detail: 'Sepetinizde ürün bulunmamaktadır.', closable: false }
             ]);
         }
     }
 
-    useEffect(() => {fetchCart()}, [])
+    useEffect(() => { fetchCart() }, [])
 
 
     return (
         <div className="grid lg:grid-rows-1 grid-rows-2 grid-flow-col lg:px-16 gap-9 my-24 px-[15px]">
             {cartItems && cartItems.length > 0
-                ? <>
+                && <>
                     <div className="grid lg:col-span-12 col-span-12">
                         <table className="w-100 text-[#6F6F6F] mb-0 text-center border-0 border-collapse">
                             <thead className="bg-secondary text-black">
@@ -121,15 +121,14 @@ const Cart = () => {
                                 transition duration-300 ease-in-out flex justify-center"
                                     to="/checkout"
                                 >
-                                    Ödeme İşlemine Geçin
+                                    Sepeti Onayla
                                 </Link>
                             </div>
                         </div>
                     </div>
                 </>
-
-                : <Messages ref={msgs} className="lg:w-2/3 w-full" />
             }
+            {msgs && <Messages ref={msgs} className="w-1/2 ml-24" />}
         </div >
     )
 }
