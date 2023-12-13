@@ -12,6 +12,8 @@ import { InputSwitch } from "primereact/inputswitch";
 import to from 'await-to-js';
 import { Messages } from 'primereact/messages';
 import { ProgressSpinner } from 'primereact/progressspinner';
+import { useSelector } from 'react-redux';
+import { authSelector } from '@/store/auth';
 
 const Shop = () => {
 
@@ -26,6 +28,8 @@ const Shop = () => {
   const [isDelProductShow, setIsDelProductShow] = useState<boolean>(true);
   const { id } = useParams<{ id: string }>();
   const msgs = useRef<Messages>(null);
+
+  const { token } = useSelector(authSelector);
 
   const sortBy = [
     { name: 'En Yeniler', code: 'newest' },
@@ -71,7 +75,7 @@ const Shop = () => {
 
   const fetchData = async () => {
     if (id) {
-      const [err, data] = await to(getProductsByCategoryId(parseInt(id), isDelProductShow))
+      const [err, data] = await to(getProductsByCategoryId(parseInt(id), isDelProductShow,token))
       if (err) {
         console.log(err)
         msgs.current?.clear()
