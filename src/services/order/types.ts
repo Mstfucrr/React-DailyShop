@@ -10,25 +10,34 @@ export interface IaddToCartRequest {
 export interface IOrder {
     id: number | undefined;
     address: IOrderAddress;
-    status : boolean | undefined;
+    status: Ordertatus;
     user: IUser;
-    totalPrice : number;
-    orderItems : IOrderItem[];
+    totalPrice: number;
+    orderItems: IOrderItem[];
     date: string;
+}
+
+export enum Ordertatus {
+    New = 'New',
+    Accepted = 'Accepted',
+    Preparing = 'Preparing',
+    OnShipping = 'OnShipping',
+    Completed = 'Completed',
+    Cancelled = 'Cancelled',
 }
 
 export interface IOrderItem {
     id: number | undefined;
-    product : IProduct;
-    price : number;
-    quantity : number;
-    size : string;
+    product: IProduct;
+    price: number;
+    quantity: number;
+    size: string;
     color: string;
 }
 
 export interface IOrderAddress {
     id: number;
-    title : string;
+    title: string;
     address: string;
     city: string;
     state: string;
