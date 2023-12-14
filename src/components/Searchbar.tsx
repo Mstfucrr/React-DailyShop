@@ -1,9 +1,32 @@
+import { getCart } from '@/services/order/order.service'
+import { SET_TOAST } from '@/store/Toast'
+import { IToast } from '@/store/Toast/type'
+import { authSelector } from '@/store/auth'
+import to from 'await-to-js'
+import { useEffect, useState } from 'react'
 import { FaHeart, FaSearch, FaShoppingCart } from 'react-icons/fa'
-import { useNavigate } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import { Link } from 'react-router-dom'
 
 const Searchbar = () => {
 
-    const navigate = useNavigate()
+
+    const { token } = useSelector(authSelector)
+    const [cartCount, setcartCount] = useState<number>(0)
+
+    const dispatch = useDispatch()
+    
+    const fetchCart = async () => {
+        const [err, data] = await to(getCart(token))
+        if (err) {
+            const toast : IToast = { severity: 'error', summary: 'Sistematik Hata', detail: err.message, life: 3000 }
+            dispatch(SET_TOAST(toast))
+            return
+        }
+        setcartCount(data.data?.length > 0 ? data.data.length : 0)
+    }
+    useEffect(() => { fetchCart() }, [])
+
     return (
         <div className="px-[15px] mx-auto w-full">
             <div className="grid grid-cols-12 items-center py-4 xl:px-12">
@@ -12,8 +35,7 @@ const Searchbar = () => {
                     {/* text-decoration-none */}
                     <a href="/" style={{ textDecoration: 'none' }}>
                         <h1 className="m-0 font-semibold text-4xl text-black">
-                            <span className="text-primary font-bold border px-3 mr-1">D</span>
-                            aily Shop
+                            <span className="text-primary font-bold border px-3 mr-1">D</span> aily Shop
 
                         </h1>
                     </a>
@@ -40,15 +62,15 @@ const Searchbar = () => {
                 {/* col-lg-3 col-6 text-right */}
                 <div className="lg:col-span-3 col-span-6 text-right">
                     <button className="border border-secondary inline-block text-center rounded-none select-none py-[.375rem] px-3 align-middle mr-1">
-                        <FaHeart className="h-4 w-4 inline-block text-primary" />
+                        <FaHeart className="w-6 h-auto inline-block text-primary" />
                         <span className="inline-block py-[.25em] px-[.6em] font-bold text-[75%] relative -top-[1px]">0</span>
                     </button>
-                    <button className="border border-secondary inline-block text-center rounded-none select-none py-[.375rem] px-3 align-middle"
-                        onClick={() => navigate('/cart')}
+                    <Link className="border border-secondary inline-block text-center rounded-none select-none py-[.375rem] px-3 align-middle"
+                        to={`/cart`}
                     >
-                        <FaShoppingCart className="h-4 w-4 inline-block text-primary" />
-                        <span className="inline-block py-[.25em] px-[.6em] font-bold text-[75%] relative -top-[1px]">0</span>
-                    </button>
+                        <FaShoppingCart className="w-6 h-auto inline-block text-primary" />
+                        <span className="inline-block py-[.25em] px-[.6em] font-bold text-[75%] relative -top-[1px]">{cartCount}</span>
+                    </Link>
                 </div>
             </div>
         </div>
