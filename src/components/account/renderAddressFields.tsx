@@ -1,46 +1,122 @@
+import { authService } from "@/services/auth/auth.service";
 import { IUserAddress } from "@/services/auth/types";
+import { SET_TOAST } from "@/store/Toast";
+import { IToast } from "@/store/Toast/type";
+import { SET_AUTH, authSelector } from "@/store/auth";
+import to from "await-to-js";
+import { useFormik } from "formik";
 import { Button } from "primereact/button";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import { Fieldset } from "primereact/fieldset";
 import { InputNumber } from "primereact/inputnumber";
 import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
+import { ProgressSpinner } from "primereact/progressspinner";
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import * as Yup from 'yup'
 
 type Props = {
     address: IUserAddress
-    index: number
-    formik: any
 }
 
-const RenderAddressFields = ({ index, address, formik }: Props) => {
+const RenderAddressFields = ({ address }: Props) => {
 
-    const errors = formik.errors.addresses && formik.errors.addresses[index];
+    const [loading, setLoading] = useState(false)
 
-    const errorTemplate = (name: any) => {
+    const { token, auth } = useSelector(authSelector)
+    const dispatch = useDispatch()
+
+
+    const addressValidationSchema = Yup.object().shape({
+        title: Yup.string().required('Başlık alanı zorunludur'),
+        address: Yup.string().required('Adres alanı zorunludur'),
+        description: Yup.string().required('Açıklama alanı zorunludur'),
+        city: Yup.string().required('Şehir alanı zorunludur'),
+        country: Yup.string().required('Ülke alanı zorunludur'),
+        zipCode: Yup.string().required('Posta kodu alanı zorunludur'),
+
+    })
+
+    const addressFormik = useFormik({
+        initialValues: {
+            id: address.id,
+            title: address.title,
+            address: address.address,
+            description: address.description,
+            city: address.city,
+            country: address.country,
+            zipCode: address.zipCode.toString()
+        },
+        validationSchema: addressValidationSchema,
+        onSubmit: async (values) => {
+
+            const [err, data] = await to(authService.updateAddress(values, token))
+            if (err) {
+                const toast: IToast = { severity: 'error', summary: 'Hata', detail: err.message, life: 3000 }
+                dispatch(SET_TOAST(toast))
+                return setLoading(false)
+            }
+            if (data.data) {
+                const updatedAddress = await data.data as IUserAddress
+                const toast: IToast = { severity: 'success', summary: 'Başarılı', detail: data.message, life: 3000 }
+                dispatch(SET_TOAST(toast))
+                dispatch(SET_AUTH(
+                    {
+                        user: {
+                            ...auth,
+                            addresses: auth.addresses.indexOf(address) > -1
+                                ? auth?.addresses?.map((address) => {
+                                    if (address.id === updatedAddress.id) {
+                                        console.log("updatedAddress")
+                                        return updatedAddress
+                                    }
+                                    return address
+                                })
+                                : [...auth?.addresses, updatedAddress]
+                        },
+                        token: token
+
+                    }
+                ))
+                setTimeout(() => {
+                    window.location.reload()
+                }, 1400);
+                setLoading(false)
+            }
+        }
+    })
+
+
+    const errorTemplate = (frm: any) => {
         return (
             <>
-                {errors && errors[name] ? (
-                    <small className="text-red-500 ">
-                        {errors[name]}
-                    </small>
-                ) : null}
+                {frm ? (<small className="p-error p-d-block "> {frm} </small>) : null}
             </>
         )
     }
 
-    const inputClassName = (fieldName: any) => {
-       return 'w-full !my-2 p-inputtext-sm ' +  
-            (errors && errors[fieldName] ? 'p-invalid' : '')
+    const inputClassName = (frm: any) => {
+        return 'w-full !my-2 p-inputtext-sm ' +
+            (frm ? 'p-invalid' : '')
     }
 
-    
+    const buttonsLoadingTemplete = () => {
+        return (
+            <div className="flex w-1/4">
+                <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="8" fill="var(--surface-ground)" animationDuration=".5s" />
+            </div>
+        )
+    }
+
+
     return (
         <Fieldset legend={
             <div>
-                {address.title} <br />
-                <span className="text-primary text-sm">{address.description}</span>
+                {addressFormik.values.title} <br />
+                <span className="text-primary text-sm">{addressFormik.values.description}</span>
             </div>
-        } key={index} className="mb-4" toggleable>
+        } key={`address-${address.id}`} className="mb-4" toggleable>
 
             <div className="flex lg:flex-row flex-col gap-9 items-center">
                 <div className="flex flex-col w-full">
@@ -48,14 +124,12 @@ const RenderAddressFields = ({ index, address, formik }: Props) => {
                     <InputText
                         id='title'
                         name='title'
-                        value={formik.values.addresses[index].title}
-                        onChange={(e) => {
-                            formik.setFieldValue(`addresses[${index}].title`, e.target.value)
-                        }}
-                        className={inputClassName("title")}
+                        value={addressFormik.values.title}
+                        onChange={addressFormik.handleChange}
+                        className={inputClassName(addressFormik.errors.title)}
                     />
 
-                    {errorTemplate("title")}
+                    {errorTemplate(addressFormik.errors.title)}
 
                 </div>
                 <div className="flex flex-col w-full">
@@ -63,14 +137,12 @@ const RenderAddressFields = ({ index, address, formik }: Props) => {
                     <InputText
                         id='description'
                         name='description'
-                        value={formik.values.addresses[index].description}
-                        onChange={(e) => {
-                            formik.setFieldValue(`addresses[${index}].description`, e.target.value)
-                        }}
-                        className={inputClassName("description")}
+                        value={addressFormik.values.description}
+                        onChange={addressFormik.handleChange}
+                        className={inputClassName(addressFormik.errors.description)}
                     />
 
-                    {errorTemplate("description")}
+                    {errorTemplate(addressFormik.errors.description)}
 
                 </div>
             </div>
@@ -80,14 +152,12 @@ const RenderAddressFields = ({ index, address, formik }: Props) => {
                     <InputTextarea
                         id='address'
                         name='address'
-                        value={formik.values.addresses[index].address}
-                        onChange={(e) => {
-                            formik.setFieldValue(`addresses[${index}].address`, e.target.value)
-                        }}
-                        className={inputClassName("address")}
+                        value={addressFormik.values.address}
+                        onChange={addressFormik.handleChange}
+                        className={inputClassName(addressFormik.errors.address)}
                     />
 
-                    {errorTemplate("address")}
+                    {errorTemplate(addressFormik.errors.address)}
 
 
                 </div>
@@ -97,15 +167,12 @@ const RenderAddressFields = ({ index, address, formik }: Props) => {
                     <InputText
                         id='city'
                         name='city'
-                        value={formik.values.addresses[index].city}
-                        onChange={(e) => {
-                            formik.setFieldValue(`addresses[${index}].city`, e.target.value)
-                        }}
-
-                        className={inputClassName("city")}
+                        value={addressFormik.values.city}
+                        onChange={addressFormik.handleChange}
+                        className={inputClassName(addressFormik.errors.city)}
                     />
 
-                    {errorTemplate("city")}
+                    {errorTemplate(addressFormik.errors.city)}
 
 
                 </div>
@@ -116,14 +183,12 @@ const RenderAddressFields = ({ index, address, formik }: Props) => {
                     <InputText
                         id='country'
                         name='country'
-                        value={formik.values.addresses[index].country}
-                        onChange={(e) => {
-                            formik.setFieldValue(`addresses[${index}].country`, e.target.value)
-                        }}
-                        className={inputClassName("country")}
+                        value={addressFormik.values.country}
+                        onChange={addressFormik.handleChange}
+                        className={inputClassName(addressFormik.errors.country)}
                     />
 
-                    {errorTemplate("country")}
+                    {errorTemplate(addressFormik.errors.country)}
                 </div>
 
                 <div className="flex flex-col w-full">
@@ -131,36 +196,37 @@ const RenderAddressFields = ({ index, address, formik }: Props) => {
                     <InputNumber
                         id='zipCode'
                         name='zipCode'
-                        value={formik.values.addresses[index].zipCode}
-                        onChange={(e) => {
-                            formik.setFieldValue(`addresses[${index}].zipCode`, e.value?.toString())
-                        }}
+                        value={addressFormik.values.zipCode as any}
+                        onChange={
+                            (e) => {
+                                addressFormik.setFieldValue('zipCode', e.value?.toString())
+                            }
+                        }
                         useGrouping={false}
 
-                        className={inputClassName("zipCode")}
+                        className={inputClassName(addressFormik.errors.zipCode)}
                     />
 
-                    {errorTemplate("zipCode")}
+                    {errorTemplate(addressFormik.errors.zipCode)}
                 </div>
             </div>
-            <ConfirmDialog />
             <div className="w-full flex justify-end">
                 <Button severity="danger"
                     className="!mt-6"
                     size="small"
                     label="Delete Address"
                     icon="pi pi-trash"
-                    key={index}
+                    key={address.id}
                     onClick={() => {
                         const dia = confirmDialog({
-                            message: 'Bu adresi silmek istediğinize emin misiniz?',
+                            message: `${address.title} adresini silmek istediğinize emin misiniz?`,
                             header: 'Silme Onayı',
                             icon: 'pi pi-info-circle',
                             acceptClassName: 'p-button-danger',
                             accept: () => {
-                                formik.setFieldValue('addresses', formik.values.addresses.filter((_: any, i: number) => i !== index))
-                                formik.handleSubmit()
+                                
                                 dia.hide()
+
                             },
                             reject: () => dia.hide()
                         })
@@ -169,6 +235,40 @@ const RenderAddressFields = ({ index, address, formik }: Props) => {
                 />
 
             </div>
+
+            {/* Kaydet */}
+            {addressFormik.dirty
+                ? <div className="flex flex-wrap justify-content-end gap-2 my-4">
+                    {loading && buttonsLoadingTemplete()}
+                    {!loading && addressFormik.isValid ? (
+                        <>
+                            <Button
+                                label="Save"
+                                icon="pi pi-check"
+                                type='submit'
+                                onClick={() => addressFormik.handleSubmit()}
+                            />
+                            <Button
+                                label="Cancel"
+                                icon="pi pi-times"
+                                className="p-button-outlined p-button-secondary"
+                                onClick={() => addressFormik.resetForm()}
+                            />
+                        </>
+                    ) : (
+                        <Button
+                            label="Cancels"
+                            icon="pi pi-times"
+                            className="p-button-outlined p-button-secondary"
+                            onClick={() => addressFormik.resetForm()}
+                        />
+                    )}
+
+
+                </div>
+                : null
+            }
+
 
         </Fieldset>
     )

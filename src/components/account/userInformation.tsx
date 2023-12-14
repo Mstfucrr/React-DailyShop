@@ -33,7 +33,6 @@ const UserInformation = ({ user }: { user: IUser }) => {
     useEffect(() => {
         setUserState(user)
         setAddressesState(user.addresses)
-
     }, [user])
 
     const handleProfileImageChange = (e: any) => {
@@ -47,21 +46,31 @@ const UserInformation = ({ user }: { user: IUser }) => {
 
     const handleAddressAdd = () => {
         const address = {
+            id: 0,
             title: '',
             address: '',
             description: '',
             city: '',
             country: '',
-            zipCode: 0,
+            zipCode: '',
         } as any;
 
-        // Ekleme işlemi formik.values.addresses'e eklemek yerine setAddressesState ile states'i güncelleyin
-        setAddressesState([...addressesState, address]);
-
-        // Formik'in form değerlerini güncelleyin, böylece Save butonu görünebilir
-        formik.setFieldValue('addresses', [...formik.values.addresses, address]);
+        const newAddresses = [...addressesState, address]
+        setAddressesState(newAddresses)        
     };
 
+
+
+
+    const validationSchema = Yup.object({
+        id: Yup.number().notRequired(),
+        name: Yup.string().required('Ad alanı zorunludur')
+            .min(2, 'Ad alanı en az 2 karakter olmalıdır'),
+        surname: Yup.string().required('Soyad alanı zorunludur'),
+        email: Yup.string().email('Geçerli bir email adresi giriniz').required('Email alanı zorunludur'),
+        phone: Yup.string().required('Telefon alanı zorunludur'),
+        profileImage: Yup.string().notRequired(),
+    });
 
     const formik = useFormik({
         initialValues: {
@@ -70,39 +79,9 @@ const UserInformation = ({ user }: { user: IUser }) => {
             email: userState.email,
             phone: userState.phone,
             profileImage: userState.profileImage,
-            addresses: userState.addresses.map((address: any) => {
-                return {
-                    title: address.title,
-                    address: address.address,
-                    description: address.description,
-                    city: address.city,
-                    country: address.country,
-                    zipCode: address.zipCode,
-                }
-            }
-            )
 
         },
-
-        validationSchema: Yup.object({
-            name: Yup.string().required('Ad alanı zorunludur')
-                .min(2, 'Ad alanı en az 2 karakter olmalıdır'),
-            surname: Yup.string().required('Soyad alanı zorunludur'),
-            email: Yup.string().email('Geçerli bir email adresi giriniz').required('Email alanı zorunludur'),
-            phone: Yup.string().required('Telefon alanı zorunludur'),
-            profileImage: Yup.string().notRequired(),
-            addresses: Yup.array().of(
-                Yup.object().shape({
-                    title: Yup.string().required('Başlık alanı zorunludur'),
-                    address: Yup.string().required('Adres alanı zorunludur'),
-                    description: Yup.string().required('Açıklama alanı zorunludur'),
-                    city: Yup.string().required('Şehir alanı zorunludur'),
-                    country: Yup.string().required('Ülke alanı zorunludur'),
-                    zipCode: Yup.string().required('Posta kodu alanı zorunludur'),
-
-                })
-            )
-        }),
+        validationSchema: validationSchema,
         onSubmit: async (values) => {
             setLoading(true)
             const [err, res] = await to(authService.updateAccount(values, token))
@@ -368,58 +347,16 @@ const UserInformation = ({ user }: { user: IUser }) => {
             } className="mb-4" toggleable >
                 <div className="flex flex-col">
 
-                    {formik.values.addresses
+                    {addressesState.map((address) =>
+                        <RenderAddressFields key={address.id} address={address} />
+                    )}
 
-                        ? formik.values.addresses.map((address: any, index: number) => (
-                            <RenderAddressFields key={address.title} index={index} address={address} formik={formik} />
-                        )
-                        ) : null}
-
-                    {user.addresses !== formik.values.addresses && formik.values.addresses.length > 0 ? (
-                        <div className="flex flex-wrap justify-content-end gap-2 my-4">
-                            {loading && buttonsLoadingTemplete()}
-                            {!loading && !formik.errors.addresses ? (
-                                <>
-                                    <Button
-                                        label="Save"
-                                        icon="pi pi-check"
-                                        type='submit'
-                                        onClick={() => {
-                                            formik.handleSubmit()
-                                        }}
-                                    />
-                                    <Button
-                                        label="Cancel"
-                                        icon="pi pi-times"
-                                        className="p-button-outlined p-button-secondary"
-                                        onClick={() => {
-                                            console.log(user.addresses)
-                                            console.log(formik.values.addresses)
-                                            formik.setFieldValue('addresses', user.addresses);
-                                        }}
-                                    />
-                                </>
-                            ) : (
-                                <Button
-                                    label="Cancels"
-                                    icon="pi pi-times"
-                                    className="p-button-outlined p-button-secondary"
-                                    onClick={() => {
-                                        formik.setFieldValue('addresses', user.addresses)
-
-                                    }}
-                                />
-                            )}
-
-
-                        </div>
-                    ) : null}
 
                     {/* address ekle  */}
 
                     <Button label="Ekle" severity="success"
                         className='md:w-1/2 w-full'
-                        onClick={() => handleAddressAdd()}
+                        onClick={handleAddressAdd}
                     />
                 </div>
 
