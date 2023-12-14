@@ -2,11 +2,11 @@ import { authService } from "@/services/auth/auth.service";
 import { IUserAddress } from "@/services/auth/types";
 import { SET_TOAST } from "@/store/Toast";
 import { IToast } from "@/store/Toast/type";
-import { SET_AUTH, authSelector } from "@/store/auth";
+import { authSelector } from "@/store/auth";
 import to from "await-to-js";
 import { useFormik } from "formik";
 import { Button } from "primereact/button";
-import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
+import { confirmDialog } from "primereact/confirmdialog";
 import { Fieldset } from "primereact/fieldset";
 import { InputNumber } from "primereact/inputnumber";
 import { InputText } from "primereact/inputtext";
@@ -24,7 +24,7 @@ const RenderAddressFields = ({ address }: Props) => {
 
     const [loading, setLoading] = useState(false)
 
-    const { token, auth } = useSelector(authSelector)
+    const { token } = useSelector(authSelector)
     const dispatch = useDispatch()
 
 
@@ -58,27 +58,8 @@ const RenderAddressFields = ({ address }: Props) => {
                 return setLoading(false)
             }
             if (data.data) {
-                const updatedAddress = await data.data as IUserAddress
                 const toast: IToast = { severity: 'success', summary: 'Başarılı', detail: data.message, life: 3000 }
                 dispatch(SET_TOAST(toast))
-                dispatch(SET_AUTH(
-                    {
-                        user: {
-                            ...auth,
-                            addresses: auth.addresses.indexOf(address) > -1
-                                ? auth?.addresses?.map((address) => {
-                                    if (address.id === updatedAddress.id) {
-                                        console.log("updatedAddress")
-                                        return updatedAddress
-                                    }
-                                    return address
-                                })
-                                : [...auth?.addresses, updatedAddress]
-                        },
-                        token: token
-
-                    }
-                ))
                 setTimeout(() => {
                     window.location.reload()
                 }, 1400);
@@ -86,7 +67,24 @@ const RenderAddressFields = ({ address }: Props) => {
             }
         }
     })
+    
 
+    const handleDeleteAddress = async () => {
+        setLoading(true)
+        const [err, data] = await to(authService.deleteAddress(address.id, token))
+        if (err) {
+            const toast: IToast = { severity: 'error', summary: 'Hata', detail: err.message, life: 3000 }
+            dispatch(SET_TOAST(toast))
+            return setLoading(false)
+        }
+        const toast: IToast = { severity: 'success', summary: 'Başarılı', detail: data.message, life: 3000 }
+        dispatch(SET_TOAST(toast))
+        setTimeout(() => {
+            window.location.reload()
+        }, 1400);
+        setLoading(false)
+
+    }
 
     const errorTemplate = (frm: any) => {
         return (
@@ -219,16 +217,23 @@ const RenderAddressFields = ({ address }: Props) => {
                     key={address.id}
                     onClick={() => {
                         const dia = confirmDialog({
-                            message: `${address.title} adresini silmek istediğinize emin misiniz?`,
+                            message: <>
+                                <span className="text-primary"> {address.title} </span> adresini silmek istediğinize emin misiniz ?
+                            </>
+                            ,
                             header: 'Silme Onayı',
                             icon: 'pi pi-info-circle',
                             acceptClassName: 'p-button-danger',
                             accept: () => {
-                                
                                 dia.hide()
-
+                                handleDeleteAddress()
                             },
-                            reject: () => dia.hide()
+                            reject: () => dia.hide(),
+                            acceptLabel: 'Evet',
+                            rejectLabel: 'Hayır',
+                            className: 'p-button-outlined p-button-secondary',
+                            baseZIndex: 1000,
+                            draggable: false,
                         })
 
                     }}

@@ -13,7 +13,7 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 
 import RenderAddressFields from './renderAddressFields';
 import { useDispatch, useSelector } from 'react-redux';
-import { authSelector, SET_AUTH, SET_LOGOUT } from '@/store/auth';
+import { authSelector, SET_LOGOUT } from '@/store/auth';
 import { authService } from '@/services/auth/auth.service';
 import to from 'await-to-js';
 import { SET_TOAST } from '@/store/Toast';
@@ -93,18 +93,11 @@ const UserInformation = ({ user }: { user: IUser }) => {
                 return
             }
             if (res) {
-
                 const toast: IToast = { severity: 'success', summary: "Başarılı", detail: res.message, life: 3000 }
                 dispatch(SET_TOAST(toast))
-                dispatch(SET_AUTH(
-                    {
-                        user: { ...userState, name: res.data.name, surname: res.data.surname, email: res.data.email, phone: res.data.phone, profileImage: res.data.profileImage, addresses: res.data.addresses },
-                        token: token
-                    }
-                ))
-                setLoading(false)
                 setTimeout(() => {
                     window.location.reload()
+                    setLoading(false)
                 }, 1000);
             }
         }
