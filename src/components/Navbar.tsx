@@ -66,24 +66,21 @@ const Navbar = () => {
   }, [])
 
   return (
-    <>
       <div className="w-full mx-auto px-4">
         <div className="grid-cols-12 grid xl:px-12 border-t border-solid border-secondary">
           <div className="lg:col-span-3 col-span-12 relative"
             ref={categoriesBox}
           >
-            <a href="#" data-toggle="collapse" role="button" id="categoriesBtn"
-
+            <Button data-toggle="collapse" id="categoriesBtn"
               className="flex items-center justify-between
-                  bg-primary text-black shadow-none 
-                  w-full h-[65px] -mt-[1] py-0 px-[30px]" onClick={
-                () => setIsCategoryMenuOpen(!isCategoryMenuOpen)
-              }>
+                  !bg-primary text-black !shadow-none !border-none 
+                  w-full h-[65px] -mt-[1] py-0 px-[30px]" 
+                  onClick={() => setIsCategoryMenuOpen(!isCategoryMenuOpen)}>
               <h6 className="m-0 font-medium">
                 Kategoriler
               </h6>
               <IoIosArrowDown className="h-5 w-5" />
-            </a>
+            </Button>
 
             < nav className="lg:absolute w-full relative z-10 focus:outline-none items-start p-0 border border-y-0 border-solid border-secondary">
               <AnimatePresence>
@@ -173,7 +170,6 @@ const Navbar = () => {
           </div>
         </div>
       </div>
-    </>
   );
 };
 
