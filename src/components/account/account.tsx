@@ -2,16 +2,22 @@ import { IUser } from "@/services/auth/types"
 import { AnimatePresence } from "framer-motion"
 import { useEffect, useState } from "react"
 import UserInformation from "./userInformation"
-import { useSelector } from "react-redux"
-import { authSelector } from "@/store/auth"
+import { useDispatch, useSelector } from "react-redux"
+import { SET_AUTH, authSelector } from "@/store/auth"
 import UserProducts from "./userProducts"
 import UserOrders from "./userOrders"
 import { Link, useParams } from "react-router-dom"
+import to from "await-to-js"
+import { authService } from "@/services/auth/auth.service"
+import { SET_TOAST } from "@/store/Toast"
+import { IToast } from "@/store/Toast/type"
+import { ProgressSpinner } from "primereact/progressspinner"
 
 
 const Account = () => {
 
     const { tab } = useParams()
+    const [loading, setLoading] = useState<boolean>(false)
     enum AccountTabs {
         USER_INFO = "Kullanıcı Bilgilerim",
         USER_ORDERS = "Siparişlerim",
@@ -20,11 +26,37 @@ const Account = () => {
     const [activeTab, setActiveTab] = useState<AccountTabs>(AccountTabs.USER_INFO)
 
     const [user, setUser] = useState<IUser | null>(null)
-    const { auth } = useSelector(authSelector)
+    const { isAuthorized, token } = useSelector(authSelector)
+    const dispatch = useDispatch()
+
+    const fetchUser = async () => {
+        setLoading(true)
+        const [err, data] = await to(authService.getAccount(token))
+        if (err) {
+            setLoading(false)
+            const toast: IToast = { severity: "error", summary: "Hata", detail: err.message, life: 5000 }
+            dispatch(SET_TOAST(toast))
+            return
+        }
+        setUser(data.data)
+        dispatch(
+            SET_AUTH({
+                user: data.data,
+                token: token,
+            })
+        )
+        setLoading(false)
+
+    }
 
     useEffect(() => {
-        if (auth)
-            setUser(auth)
+        if (isAuthorized)
+            fetchUser()
+        else {
+            const toast: IToast = { severity: "error", summary: "Hata", detail: "Giriş yapmalısınız", life: 5000 }
+            dispatch(SET_TOAST(toast))
+        }
+
     }, [])
 
     useEffect(() => {
@@ -74,9 +106,12 @@ const Account = () => {
                     </div>
                     <div className=" w-full">
                         <AnimatePresence>
-                            {user && activeTab == AccountTabs.USER_INFO && <UserInformation user={user} />}
-                            {user && activeTab == AccountTabs.USER_ORDERS && <UserOrders />}
-                            {user && activeTab == AccountTabs.USER_PRODUCTS && <UserProducts />}
+                            {loading && <div className="w-full h-full flex items-center justify-center">
+                                <ProgressSpinner />
+                            </div>}
+                            {!loading && user && activeTab == AccountTabs.USER_INFO && <UserInformation user={user} />}
+                            {!loading && user && activeTab == AccountTabs.USER_ORDERS && <UserOrders />}
+                            {!loading && user && activeTab == AccountTabs.USER_PRODUCTS && <UserProducts />}
                         </AnimatePresence>
                     </div>
                 </div>

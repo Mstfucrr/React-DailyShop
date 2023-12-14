@@ -8,6 +8,8 @@ const login = async (input: ILogin) =>
 const register = async (input: IRegister) =>
     await makeRequest<any>("Auths/Register", "POST", input);
 
+const getAccount = async (token: string) =>
+    await makeRequest<any>("Profiles/GetUser", "GET", null, token);
 
 const updateAccount = async (input: any, token: string) =>
     await makeRequest<any>("Profiles/Update", "PUT", input, token);
@@ -15,6 +17,9 @@ const updateAccount = async (input: any, token: string) =>
 const updateAddress = async (input: any, token: string) =>
     await makeRequest<any>("Profiles/UpdateAddress", "PUT", input, token);
 
+const deleteAddress = async (addressId: number, token: string) =>
+    await makeRequest<any>(`Profiles/DeleteAddress?addressId=${addressId}`, "DELETE", null, token);
+    
 const logout = async (token: string) =>
     await makeRequest<any>("Auths/Logout", "POST", null, token);
 
@@ -28,5 +33,7 @@ export const authService = {
     logout,
     updateAccount,
     deleteAccount,
-    updateAddress
+    updateAddress,
+    deleteAddress,
+    getAccount
 }
