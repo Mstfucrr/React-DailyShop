@@ -33,7 +33,7 @@ const SideBar = (
     }, [])
 
     const hanldeFilter = () => {
-        
+
         const filteredPro = data.filter((product) => {
             const isPriceInRange = product.price >= min && product.price <= max
             const isColorIncluded = activeColors.length === 0 || activeColors.some((activeColor) => product.colors?.includes(activeColor))
@@ -66,9 +66,6 @@ const SideBar = (
                             className="" inputClassName="w-full"
                         />
                     </div>
-                    <Button icon="pi pi-check" className="min-w-[45px]"
-                        onClick={hanldeFilter}
-                    />
 
                 </div>
 
@@ -78,7 +75,7 @@ const SideBar = (
 
             </div>
             {/* color */}
-            <div className="borde-b-2 border-solid mb-4 pb-4 relative">
+            <div className="border-b-2 border-solid mb-4 pb-10 relative">
                 <h5 className="font-semibold mb-4 text-3xl">Renk</h5>
                 <div className="flex flex-row flex-wrap gap-7">
                     {colors.map((color) => (
@@ -91,13 +88,20 @@ const SideBar = (
                     ))}
 
                 </div>
-                <div className="flex items-center lg:justify-around justify-between lg:p-5 pt-4">
 
-                    <Button label="reset" icon="pi pi-times" className="w-auto" onClick={() => setActiveColors([])} />
-                    <Button icon="pi pi-check" className="min-w-min"
-                        onClick={hanldeFilter}
-                    />
-                </div>
+            </div>
+            <div className="flex items-center justify-between lg:p-5 pt-4 gap-7">
+                <Button label="reset" icon="pi pi-times" className="min-w-min" onClick={() => {
+                    setActiveColors([])
+                    setMinMax([minProductPrice, maxProductPrice])
+                }} />
+
+                <Button icon="pi pi-check"
+                    className="w-full absolute bottom-0 left-0
+                        !bg-primaryDark !outline-none !border-none
+                        !shadow-none hover:!bg-primary duration-500 ease-in-out transition" label="Filtrele"
+                    onClick={hanldeFilter}
+                />
             </div>
 
             {/* size */}
