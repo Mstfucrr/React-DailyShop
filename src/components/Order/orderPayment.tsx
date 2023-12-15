@@ -10,7 +10,7 @@ type Props = {
     IsAddressSelectionconfirmed: boolean,
     cardValues: {
         cardNumber: string,
-        cardHolder: string,
+        cardOwner: string,
         LastDate: string,
         cvv: string,
     },
@@ -22,7 +22,7 @@ const OrderPayment = ({ IsAddressSelectionconfirmed, cardValues, setcardValues, 
 
     const validationSchema = Yup.object({
         cardNumber: Yup.string().min(16, "Kart numarası 16 haneli olmalıdır").required("Kart numarası zorunludur"),
-        cardHolder: Yup.string().required("Kart üzerindeki isim zorunludur"),
+        cardOwner: Yup.string().required("Kart üzerindeki isim zorunludur"),
         cvv: Yup.string().required("CVV zorunludur").min(3, "CVV 3 haneli olmalıdır").max(3, "CVV 3 haneli olmalıdır"),
         LastDate: Yup.date().required("Son kullanma tarihi zorunludur")
     })
@@ -90,8 +90,8 @@ const OrderPayment = ({ IsAddressSelectionconfirmed, cardValues, setcardValues, 
                             <div className="flex flex-col gap-y-4">
                                 <label className="text-lg font-semibold text-primaryDark">Kart Üzerindeki İsim</label>
                                 <InputText
-                                    name="cardHolder"
-                                    value={values.cardHolder}
+                                    name="cardOwner"
+                                    value={values.cardOwner}
                                     onChange={
                                         (e) => {
                                             handleChange(e)
@@ -101,8 +101,8 @@ const OrderPayment = ({ IsAddressSelectionconfirmed, cardValues, setcardValues, 
                                     onBlur={handleBlur}
                                     className="w-full"
                                 />
-                                {errors.cardHolder && touched.cardHolder && (
-                                    <div className="text-red-500">{errors.cardHolder}</div>
+                                {errors.cardOwner && touched.cardOwner && (
+                                    <div className="text-red-500">{errors.cardOwner}</div>
                                 )}
                             </div>
                             <div className="flex gap-x-4">

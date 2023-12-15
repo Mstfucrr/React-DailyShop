@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 
 type Props = {
     values: {
-        cardHolder: string,
+        cardOwner: string,
         cardNumber: string,
         LastDate: string,
         cvv: string,
@@ -46,7 +46,7 @@ const Card = ({ values }: Props) => {
                             Kart Sahibi
                         </p>
                         <p className="font-medium tracking-widest">
-                            {values.cardHolder ? values.cardHolder : '--------'}
+                            {values.cardOwner ? values.cardOwner : '--------'}
 
                         </p>
                     </div>
