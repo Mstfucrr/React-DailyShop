@@ -11,21 +11,24 @@ import { Link } from 'react-router-dom'
 const Searchbar = () => {
 
 
-    const { token } = useSelector(authSelector)
-    const [cartCount, setcartCount] = useState<number>(0)
+    const { token, isAuthorized } = useSelector(authSelector)
+    const [cartCount, setCartCount] = useState<number>(0)
 
     const dispatch = useDispatch()
-    
+
     const fetchCart = async () => {
         const [err, data] = await to(getCart(token))
         if (err) {
-            const toast : IToast = { severity: 'error', summary: 'Sistematik Hata', detail: err.message, life: 3000 }
+            const toast: IToast = { severity: 'error', summary: 'Hata', detail: err.message, life: 3000 }
             dispatch(SET_TOAST(toast))
             return
         }
-        setcartCount(data.data?.length > 0 ? data.data.length : 0)
+        setCartCount(data.data?.length > 0 ? data.data.length : 0)
     }
-    useEffect(() => { fetchCart() }, [])
+    useEffect(() => {
+        if (isAuthorized)
+            fetchCart()
+    }, [])
 
     return (
         <div className="px-[15px] mx-auto w-full">
