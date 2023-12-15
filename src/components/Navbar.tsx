@@ -51,7 +51,7 @@ const Navbar = () => {
   }
 
   const renderCategory = (category: ICategory) => (
-    <div key={category.id}>
+    <div key={"category-" + category.id}>
       <a href={`/shop/${category.id}`} className={navItemsStyle + " py-[8px] px-[30px]"}>{category.name}</a>
       {category.subCategories && (
         <div className="pl-[20px]">

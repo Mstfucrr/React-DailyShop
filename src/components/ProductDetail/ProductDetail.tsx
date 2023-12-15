@@ -270,13 +270,12 @@ const ProductDetail = () => {
                                     <h2 className="text-lg font-semibold">
                                         Beden :
                                     </h2>
-                                    {sizes && sizes.map((size: any) => (
-                                        <div className="flex align-items-center" key={size}>
+                                    {sizes.map((size: any) => (
+                                        <div className="flex align-items-center" key={"size-" + size}>
                                             <RadioButton inputId={`size-${size.name}`} name="size" value={size} onChange={(e) => setSelectSize(e.value.name as string)} checked={selectSize === size.name} />
                                             <label htmlFor={size.key} className="ml-2">{size.name}</label>
                                         </div>
-                                    ))
-                                    }
+                                    ))}
                                 </div>
                             )}
                             {/* colors */}
@@ -286,14 +285,12 @@ const ProductDetail = () => {
                                     <h2 className="text-lg font-semibold">
                                         Renkler :
                                     </h2>
-                                    {colors && colors.map((color: any) => (
+                                    {colors.map((color: any) => (
                                         <div className="flex align-items-center" key={color}>
-
                                             <RadioButton inputId={`color-${color.name}`} name="color" value={color} onChange={(e) => setSelectColor(e.value.name as string)} checked={selectColor === color.name}
                                                 pt={{
                                                     input: { className: selectColor == color.name ? '!bg-primary !border-primary' : '' },
                                                 }}
-
                                             />
                                             <label htmlFor={color.key} className="ml-2" style={{ color: color.name }}>{color.name}</label>
                                         </div>
@@ -402,7 +399,7 @@ const ProductDetail = () => {
                                                 "{product.name}" için {reviews?.length} Yorum
                                             </h1>
                                             <div className="flex flex-col w-full">
-                                                {reviews && reviews.map((review: IReview) => (
+                                                {reviews?.map((review: IReview) => (
                                                     <>
                                                         {review.status == "approved" &&
                                                             <div className="flex items-start mx-4 my-2" key={review.date}>
@@ -512,12 +509,10 @@ const ProductDetail = () => {
                                                 </>
                                                 :
                                                 // arka plan blurlu Giriş yap kısmı link li
-                                                <>
-                                                    <div className="flex flex-col items-center justify-center w-full h-32 bg-gray-100 bg-opacity-50 rounded-xl">
-                                                        <h1 className="text-2xl text-center">Yorum yapabilmek için giriş yapmalısınız</h1>
-                                                        <Link to="/login" className="text-primary hover:text-primaryDark transition-all duration-300 ease-in-out text-xl">Giriş Yap</Link>
-                                                    </div>
-                                                </>
+                                                <div className="flex flex-col items-center justify-center w-full h-32 bg-gray-100 bg-opacity-50 rounded-xl">
+                                                    <h1 className="text-2xl text-center">Yorum yapabilmek için giriş yapmalısınız</h1>
+                                                    <Link to="/login" className="text-primary hover:text-primaryDark transition-all duration-300 ease-in-out text-xl">Giriş Yap</Link>
+                                                </div>
                                             }
 
                                         </div>
