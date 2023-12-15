@@ -27,7 +27,7 @@ export enum Ordertatus {
 }
 
 export interface IOrderItem {
-    id: number | undefined;
+    id: number | null;
     product: IProduct;
     price: number;
     quantity: number;
@@ -40,6 +40,14 @@ export interface IOrderAddress {
     title: string;
     address: string;
     city: string;
-    state: string;
     country: string;
+    zipCode: number;
+}
+
+export interface ICreditCard {
+    id: number | undefined;
+    cardNumber: string,
+    cardOwner: string,
+    LastDate: string,
+    cvv: string
 }
