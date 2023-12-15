@@ -1,4 +1,5 @@
 import { IUserAddress } from '@/services/auth/types'
+import { IOrderAddress } from '@/services/order/types'
 import { useFormik } from 'formik'
 import { motion } from 'framer-motion'
 import { Button } from 'primereact/button'
@@ -8,10 +9,10 @@ import { useEffect } from 'react'
 import * as Yup from 'yup'
 
 type Props = {
-    addresses: IUserAddress[],
+    addresses: IOrderAddress[],
     IsAddressSelectionconfirmed: boolean,
-    selectAddress: IUserAddress,
-    setSelectAddress: (address: IUserAddress) => void
+    selectAddress: IOrderAddress,
+    setSelectAddress: (address: IOrderAddress) => void
 }
 
 

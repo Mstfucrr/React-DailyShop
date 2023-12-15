@@ -10,16 +10,17 @@ import { Button } from "primereact/button"
 import { AnimatePresence } from "framer-motion"
 import OrderPayment from "./orderPayment"
 import { IUserAddress } from "@/services/auth/types"
+import { IOrderAddress } from "@/services/order/types"
 
 const Order = () => {
     const msgs = useRef<Messages>(null)
     const [cartItems, setCartItems] = useState<[] | ICartItem[]>([])
     const [cartTotal, setCartTotal] = useState(0)
-    const [selectAddress, setSelectAddress] = useState<IUserAddress>()
+    const [selectAddress, setSelectAddress] = useState<IOrderAddress>()
     const [IsAddressSelectionconfirmed, setIsAddressSelectionconfirmed] = useState(false)
     const [cardValues, setCardValues] = useState({
         cardNumber: "",
-        cardHolder: "",
+        cardOwner: "",
         LastDate: "",
         cvv: ""
     })
