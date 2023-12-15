@@ -33,7 +33,6 @@ export interface IUserAddress {
     description : string;
     address: string;
     city: string;
-    state: string;
     country: string;
     zipCode: number;
 }
