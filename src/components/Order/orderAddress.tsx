@@ -4,13 +4,19 @@ import { motion } from 'framer-motion'
 import { Button } from 'primereact/button'
 import { InputText } from 'primereact/inputtext'
 import { InputTextarea } from 'primereact/inputtextarea'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import * as Yup from 'yup'
 
-const OrderAddress = ({ addresses }: { addresses: IUserAddress[] }) => {
+type Props = {
+    addresses: IUserAddress[],
+    IsAddressSelectionconfirmed: boolean,
+    selectAddress: IUserAddress,
+    setSelectAddress: (address: IUserAddress) => void
+}
 
 
-    const [selectAddress, setSelectAddress] = useState<IUserAddress>()
+const OrderAddress = ({ addresses, IsAddressSelectionconfirmed, selectAddress, setSelectAddress }: Props) => {
+
 
     const formik = useFormik({
         initialValues: {
@@ -44,17 +50,24 @@ const OrderAddress = ({ addresses }: { addresses: IUserAddress[] }) => {
             formik.setValues({ ...formik.values, city, country, address, addressId: id })
             formik.setFieldValue('zipCode', zipCode)
         }
-        
+
     }, [selectAddress])
 
 
     return (
         <motion.div className="flex flex-col basis-8/12 gap-y-3"
-            initial={{ opacity: 0, x: -100 }}
-            animate={{ opacity: 1 , x: 0}}
-            exit={{ opacity: 0 , x: -100}}
-            transition={{ duration: .4 }}
-        
+            animate={{
+                y: IsAddressSelectionconfirmed ? -500 : 0,
+                opacity: IsAddressSelectionconfirmed ? 0 : 1,
+                display: IsAddressSelectionconfirmed ? 'none' : 'flex',
+            }}
+            initial={{
+                y: -500,
+                opacity: 1,
+            }}
+            transition={{
+                duration: 0.5
+            }}
         >
             <h3 className="text-3xl font-semibold text-primaryDark  ">Sipariş Adresi</h3>
             <div className="border border-solid border-secondary p-2 gap-2 flex flex-col">
@@ -109,7 +122,7 @@ const OrderAddress = ({ addresses }: { addresses: IUserAddress[] }) => {
 
             </div>
 
-            
+
 
         </motion.div>
     )

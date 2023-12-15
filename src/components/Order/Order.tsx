@@ -5,15 +5,24 @@ import to from "await-to-js"
 import { Messages } from "primereact/messages"
 import { useEffect, useRef, useState } from "react"
 import { useSelector } from "react-redux"
-import { Link } from "react-router-dom"
 import OrderAddress from "./orderAddress"
 import { Button } from "primereact/button"
 import { AnimatePresence } from "framer-motion"
+import OrderPayment from "./orderPayment"
+import { IUserAddress } from "@/services/auth/types"
 
 const Order = () => {
     const msgs = useRef<Messages>(null)
     const [cartItems, setCartItems] = useState<[] | ICartItem[]>([])
     const [cartTotal, setCartTotal] = useState(0)
+    const [selectAddress, setSelectAddress] = useState<IUserAddress>()
+    const [IsAddressSelectionconfirmed, setIsAddressSelectionconfirmed] = useState(false)
+    const [cardValues, setCardValues] = useState({
+        cardNumber: "",
+        cardHolder: "",
+        LastDate: "",
+        cvv: ""
+    })
     const { isAuthorized, auth, token } = useSelector(authSelector)
     const [user, setUser] = useState(auth)
     useEffect(() => {
@@ -29,11 +38,10 @@ const Order = () => {
             ]);
             return
         }
-        setCartItems(data.data)
-
-        if (cartItems) {
+        if (data.data) {
+            setCartItems(data.data)
             let total = 0
-            cartItems.map((item: ICartItem) => {
+            data.data.map((item: ICartItem) => {
                 total += item.product.price * item.quantity
             })
             setCartTotal(total)
@@ -46,7 +54,12 @@ const Order = () => {
             fetchCart()
     }, [])
 
-
+    const handleSubmitOrder = () => {
+        console.log(selectAddress)
+        console.log(cardValues)
+        console.log(cartItems)
+        console.log(cartTotal)
+    }
 
 
     return (
@@ -54,8 +67,8 @@ const Order = () => {
         <div className="flex lg:flex-row flex-col xl:px-10 px-3 gap-3 mt-20">
 
             <AnimatePresence>
-                <OrderAddress addresses={user?.addresses} />
-                
+                <OrderAddress key={"orderAddress"} addresses={user?.addresses} IsAddressSelectionconfirmed={IsAddressSelectionconfirmed} selectAddress={selectAddress as IUserAddress} setSelectAddress={setSelectAddress} />
+                <OrderPayment key={"orderPayment"} IsAddressSelectionconfirmed={IsAddressSelectionconfirmed} cardValues={cardValues} setcardValues={setCardValues} handleSubmitOrder={handleSubmitOrder} />
             </AnimatePresence>
 
 
@@ -75,7 +88,7 @@ const Order = () => {
                             <div className="flex flex-col gay-4">
 
                                 {cartItems.map((cartItem) => (
-                                    <div className="flex justify-between" key={cartItem.product.id + "-" + cartItem.product.name}>
+                                    <div className="flex justify-between" key={"cartItem-" + cartItem.id}>
                                         <div className="">
                                             {cartItem.product.name} x {cartItem.quantity}
                                         </div>
@@ -87,18 +100,10 @@ const Order = () => {
                             </div>
                         </div>
 
-                        <hr className="my-4" />
-                        <div className="flex justify-between mb-4 pt-1">
-                            <h6 className="font-medium text-black">
-                                Ara Toplam
-                            </h6>
-                            <h6 className="font-medium text-black">
-                                {cartTotal} ₺
-                            </h6>
-                        </div>
+
                     </div>
                     {/* card footer */}
-                    <div className="border border-solid border-secondary py-3 px-5">
+                    <div className="border border-solid border-secondary py-3 px-5 gap-10 flex flex-col">
                         <div className="flex justify-between mt-2 text-black">
                             <h5 className="font-bold text-xl">
                                 Toplam
@@ -107,22 +112,26 @@ const Order = () => {
                                 {cartTotal} ₺
                             </h5>
                         </div>
-                        <Link className="bg-primary border border-solid border-transparent text-[#212529] py-4 px-3 mt-4 w-full
-                                hover:bg-primaryDark hover:border-primaryDark hover:text-white
-                                transition duration-300 ease-in-out flex justify-center"
-                            to="/checkout"
-                        >
-                            Ödeme İşlemine Geçin
-                        </Link>
+
+                        {!IsAddressSelectionconfirmed ?
+                            <Button className="!bg-primary border border-solid border-transparent text-[#212529] py-4 px-3 w-full
+                            hover:!bg-primaryDark hover:!border-primaryDark hover:text-white
+                            transition duration-300 ease-in-out flex justify-center"
+                                disabled={cartItems.length === 0 || !selectAddress}
+                                onClick={() => setIsAddressSelectionconfirmed(true)}
+                            >
+                                Ödeme İşlemine Geçin
+                            </Button>
+                            :
+                            <Button className="border border-solid border-transparent text-[#212529] py-4 px-3 w-full hover:text-white flex justify-center"
+                                onClick={() => setIsAddressSelectionconfirmed(false)}
+                                severity="secondary" icon="pi pi-arrow-left" iconPos="left" label="Adres Seçimine Dön"
+                            />
+                        }
                     </div>
                 </div>
             </div>
 
-            <Button type="submit" label="Sipariçi Tamamla" className="w-max !bg-primary border border-solid border-transparent text-[#212529] py-4 px-3 mt-4
-                    hover:!bg-primaryDark hover:!border-primaryDark hover:text-white
-                    transition duration-300 ease-in-out flex justify-center"
-                onClick={() => console.log(cartItems)}
-            />
 
         </div>
 
