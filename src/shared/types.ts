@@ -18,6 +18,7 @@ export interface IProduct {
     reviews: IReview[],
     isDeleted: boolean | undefined | null,
     isApproved: boolean | undefined | null,
+    userId: number,
 }
 
 export interface ICategory {
