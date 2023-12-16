@@ -3,7 +3,8 @@ import { SET_TOAST } from '@/store/Toast'
 import { IToast } from '@/store/Toast/type'
 import { authSelector } from '@/store/auth'
 import to from 'await-to-js'
-import { useEffect, useState } from 'react'
+import { OverlayPanel } from 'primereact/overlaypanel'
+import { useEffect, useRef, useState } from 'react'
 import { FaHeart, FaSearch, FaShoppingCart } from 'react-icons/fa'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
@@ -29,6 +30,8 @@ const Searchbar = () => {
         if (isAuthorized)
             fetchCart()
     }, [])
+
+    const op = useRef(null);
 
     return (
         <div className="px-[15px] mx-auto w-full">
@@ -64,10 +67,40 @@ const Searchbar = () => {
                 </div>
                 {/* col-lg-3 col-6 text-right */}
                 <div className="lg:col-span-3 col-span-6 text-right">
-                    <button className="border border-secondary inline-block text-center rounded-none select-none py-[.375rem] px-3 align-middle mr-1">
+                    <button className="border border-secondary inline-block text-center rounded-none select-none py-[.375rem] px-3 align-middle mr-1"
+                        onClick={(e) => op?.current?.toggle(e)}
+                    >
                         <FaHeart className="w-6 h-auto inline-block text-primary" />
                         <span className="inline-block py-[.25em] px-[.6em] font-bold text-[75%] relative -top-[1px]">0</span>
                     </button>
+                    {/* Favoriler (ürünImage , isim ve kalp) */}
+                    <OverlayPanel ref={op} className="w-[300px]">
+                        <div className="flex flex-col gap-6">
+                            <div className="flex flex-row justify-between items-center">
+                                <h1 className="text-2xl font-bold">Favoriler</h1>
+                            </div>
+                            <div className="flex flex-col gap-4">
+                                {/* Favori ürünlerin listesi */}
+                                
+                                <div className="flex flex-row items-center justify-between">
+                                    <Link to={`/product/1`} className="rounded-md overflow-hidden flex flex-row items-center justify-between gap-8">
+                                        <img src="https://picsum.photos/200/300" alt="" className="w-[50px] h-[50px] rounded-md" />
+                                        <div className="flex flex-col">
+                                            <h1 className="text-lg font-semibold">Ürün İsmi</h1>
+                                        </div>
+                                    </Link>
+                                    <button className="text-primary">
+                                        <FaHeart className="w-6 h-auto inline-block text-primary" />
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+
+
+                        </div>
+                    </OverlayPanel>
                     <Link className="border border-secondary inline-block text-center rounded-none select-none py-[.375rem] px-3 align-middle"
                         to={`/cart`}
                     >
