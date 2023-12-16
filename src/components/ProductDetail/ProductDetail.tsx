@@ -3,7 +3,7 @@ import { Galleria } from 'primereact/galleria';
 import { useEffect, useRef, useState } from "react";
 import { Rating } from "primereact/rating";
 import { RadioButton } from "primereact/radiobutton";
-import { FaCommentAlt, FaInfoCircle, FaMinus, FaPlus, FaShoppingCart, FaSpinner, FaTrashAlt } from "react-icons/fa";
+import { FaCommentAlt, FaInfoCircle, FaMinus, FaPencilAlt, FaPlus, FaShoppingCart, FaSpinner, FaTrashAlt } from "react-icons/fa";
 import { MdDescription } from "react-icons/md";
 import { TabView, TabPanel } from 'primereact/tabview';
 import { Avatar } from 'primereact/avatar';
@@ -23,6 +23,7 @@ import { IaddToCartRequest } from "@/services/order/types";
 import { InputNumber } from "primereact/inputnumber";
 import to from "await-to-js";
 import { ProgressSpinner } from "primereact/progressspinner";
+import UpdateProduct from "../account/userProducts/UpdateProduct";
 
 
 const ProductDetail = () => {
@@ -41,6 +42,7 @@ const ProductDetail = () => {
     const [sizes, setSizes] = useState<{ name: string; key: string; }[] | undefined>(undefined)
     const [colors, setColors] = useState<{ name: string; key: string; }[] | undefined>(undefined)
     const dispatch = useDispatch()
+    const [isUpdate, setIsUpdate] = useState<boolean>(false)
 
 
     // kullanıcı giriş yapmış mı konrol et ve hangi üründe ne kadar gezindiğini cooki ye kaydet
@@ -245,9 +247,22 @@ const ProductDetail = () => {
                         </div>
                         <div className="basis-3/5 flex flex-col px-10">
                             {/* name */}
-                            <h2 className="font-semibold text-3xl text-black mb-2">
-                                {product.name}
-                            </h2>
+                            <div className="flex gap-9 w-full justify-between">
+
+                                <h2 className="font-semibold text-3xl text-black mb-2">
+                                    {product.name}
+                                </h2>
+                                {isAuthorized && auth.id == product?.userId && <>
+                                    <UpdateProduct productUpdateId={product.id} isUpdate={isUpdate} setIsUpdate={setIsUpdate} />
+                                    <button className="text-primary hover:text-primaryDark transition-all duration-300 ease-in-out"
+                                        onClick={() => setIsUpdate(true)}
+                                    >
+                                        <FaPencilAlt className="inline mr-2" />
+                                        Ürünü Düzenle
+                                    </button>
+                                </>
+                                }
+                            </div>
                             {/* rating */}
                             <div className="flex flex-row gap-x-4 my-2">
                                 <Rating value={product.rating} readOnly cancel={false} pt={{
@@ -271,7 +286,7 @@ const ProductDetail = () => {
                                         Beden :
                                     </h2>
                                     {sizes.map((size: any) => (
-                                        <div className="flex align-items-center" key={"size-" + size}>
+                                        <div className="flex align-items-center" key={"size-" + size.name}>
                                             <RadioButton inputId={`size-${size.name}`} name="size" value={size} onChange={(e) => setSelectSize(e.value.name as string)} checked={selectSize === size.name} />
                                             <label htmlFor={size.key} className="ml-2">{size.name}</label>
                                         </div>
@@ -286,7 +301,7 @@ const ProductDetail = () => {
                                         Renkler :
                                     </h2>
                                     {colors.map((color: any) => (
-                                        <div className="flex align-items-center" key={color}>
+                                        <div className="flex align-items-center" key={"color-" + color.name}>
                                             <RadioButton inputId={`color-${color.name}`} name="color" value={color} onChange={(e) => setSelectColor(e.value.name as string)} checked={selectColor === color.name}
                                                 pt={{
                                                     input: { className: selectColor == color.name ? '!bg-primary !border-primary' : '' },
