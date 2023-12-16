@@ -44,10 +44,27 @@ export interface IOrderAddress {
     zipCode: number;
 }
 
-export interface ICreditCard {
-    id: number | undefined;
+export interface ICreditCardRequest {
     cardNumber: string,
     cardOwner: string,
     LastDate: string,
     cvv: string
 }
+
+export interface ICreditCard extends ICreditCardRequest {
+    id: number;
+}
+
+export interface IOrderRequest {
+    addressId: number;
+    creditCard: ICreditCardRequest;
+    orderItems: IOrderItemRequest[];
+}
+
+export interface IOrderItemRequest {
+    productId: number;
+    quantity: number;
+    size: string;
+    color: string;
+}
+

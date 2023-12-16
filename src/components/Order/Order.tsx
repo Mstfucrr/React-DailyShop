@@ -10,7 +10,7 @@ import { Button } from "primereact/button"
 import { AnimatePresence } from "framer-motion"
 import OrderPayment from "./orderPayment"
 import { IUserAddress } from "@/services/auth/types"
-import { IOrderAddress } from "@/services/order/types"
+import { ICreditCard, IOrderAddress, IOrderRequest } from "@/services/order/types"
 
 const Order = () => {
     const msgs = useRef<Messages>(null)
@@ -60,6 +60,25 @@ const Order = () => {
         console.log(cardValues)
         console.log(cartItems)
         console.log(cartTotal)
+        if (!selectAddress) return 
+        const orderReq: IOrderRequest = {
+            addressId: selectAddress?.id,
+            creditCard: {
+                cardNumber: cardValues.cardNumber,
+                cardOwner: cardValues.cardOwner,
+                cvv: cardValues.cvv,
+                LastDate: cardValues.LastDate,
+            },
+            orderItems: cartItems.map((item) => {
+                return {
+                    productId: item.product.id,
+                    quantity: item.quantity,
+                    color: item.color,
+                    size: item.size
+                }
+            }),
+        }            
+        console.log("orderReq", orderReq)
     }
 
 
