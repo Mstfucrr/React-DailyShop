@@ -16,6 +16,7 @@ const UserProducts = () => {
     const [products, setProducts] = useState<any[]>([])
     const [loading, setLoading] = useState<boolean>(false)
     const [updateProductId, setUpdateProductId] = useState<number | null>(null)
+    const [isUpdate, setIsUpdate] = useState<boolean>(false)
     const { token } = useSelector(authSelector)
     const msgs = useRef<Messages>(null)
 
@@ -49,7 +50,7 @@ const UserProducts = () => {
             transition={{ duration: 0.4 }}
             className="w-full px-[15px]"
         >
-            <UpdateProduct productUpdateId={updateProductId} setUpdateProductId={setUpdateProductId} />
+            <UpdateProduct productUpdateId={updateProductId} isUpdate={isUpdate} setIsUpdate={setIsUpdate} />
             <h3 className="text-4xl my-4 text-primaryDark">
                 Ürünlerim
             </h3>
@@ -66,7 +67,7 @@ const UserProducts = () => {
             {!loading && products.length > 0 &&
                 <div className="flex flex-col gap-6">
                     {products.map((product: IProduct) => (
-                        <ProductCard key={`product-${product.name} - ${product.id}`} product={product} setUpdateProductId={setUpdateProductId} />
+                        <ProductCard key={`product-${product.name} - ${product.id}`} product={product} setUpdateProductId={setUpdateProductId} setIsUpdate={setIsUpdate} />
                     ))}
                 </div>
             }

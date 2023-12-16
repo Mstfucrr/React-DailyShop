@@ -17,17 +17,15 @@ import { useDispatch, useSelector } from "react-redux";
 
 type Props = {
     productUpdateId: number | null,
-    setUpdateProductId: (productUpdateId: number | null) => void
+    isUpdate: boolean,
+    setIsUpdate: (isUpdate: boolean) => void
 }
 
-const UpdateProduct = ({ productUpdateId, setUpdateProductId }: Props) => {
+const UpdateProduct = ({ productUpdateId, isUpdate, setIsUpdate }: Props) => {
 
     const [product, setProduct] = useState<IProduct | null>(null)
-    // düzenleme ekranı açık mı?
-    const [updateScreen, setUpdateScreen] = useState<boolean>(false)
     const [productCoverImage, setProductCoverImage] = useState<File | null>(null)
     const [productImages, setProductImages] = useState<any[]>([])
-
     const dispatch = useDispatch()
 
 
@@ -40,19 +38,15 @@ const UpdateProduct = ({ productUpdateId, setUpdateProductId }: Props) => {
             const toast: IToast = { severity: "error", summary: "Hata", detail: err.message, life: 5000 }
             dispatch(SET_TOAST(toast))
             setProduct(null)
-            setUpdateProductId(null)
-            setUpdateScreen(false)
+            setIsUpdate(false)
             return
         }
         setProduct(data.data)
         setProductCoverImage(data.data.image || null)
-        console.log("data.data", data.data.images || [])
         setProductImages(data.data.images || [])
-        console.log("data.data", data.data)
     }
 
     useEffect(() => {
-        setUpdateScreen(productUpdateId != null)
         setProduct(null)
         fetchProduct()
     }, [productUpdateId])
@@ -78,13 +72,11 @@ const UpdateProduct = ({ productUpdateId, setUpdateProductId }: Props) => {
     }
 
     const handleRemoveImage = (image: File | string) => {
-        console.log("image", image)
         if (typeof image === "string") {
             setProductImages(productImages.filter((img) => img !== image))
             return
         }
         setProductImages(productImages.filter((img) => img !== image))
-        console.log("productImages", productImages)
     }
 
 
@@ -94,8 +86,8 @@ const UpdateProduct = ({ productUpdateId, setUpdateProductId }: Props) => {
 
         <motion.div className="w-full h-full min-h-[800px] fixed z-10 bg-opacity-10  flex justify-center items-center bg-primaryDark top-0 left-0"
             animate={{
-                scale: !updateScreen ? 0 : 1,
-                opacity: !updateScreen ? 0 : 1
+                scale: isUpdate ? 1 : 0,
+                opacity: isUpdate ? 1 : 0
             }}
             transition={{
                 duration: 0.4
@@ -105,7 +97,7 @@ const UpdateProduct = ({ productUpdateId, setUpdateProductId }: Props) => {
 
             <div className="md:w-2/3 w-full md:h-3/4 h-full bg-white rounded-lg shadow-2xl flex flex-col p-5">
                 <div className="w-full text-right pr-6 pt-6">
-                    <button onClick={() => setUpdateProductId(null)} className="text-2xl text-primaryDark">
+                    <button onClick={() => setIsUpdate(false)} className="text-2xl text-primaryDark">
                         <FaTimes />
                     </button>
                 </div>

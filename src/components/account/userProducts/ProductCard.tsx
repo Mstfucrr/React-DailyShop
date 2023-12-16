@@ -6,10 +6,11 @@ import { Link } from "react-router-dom"
 
 type Props = {
     product: IProduct,
-    setUpdateProductId: (updateProductId: number | null) => void
+    setUpdateProductId: (updateProductId: number | null) => void,
+    setIsUpdate: (isUpdate: boolean) => void
 }
 
-const ProductCard = ({ product, setUpdateProductId }: Props) => {
+const ProductCard = ({ product, setUpdateProductId, setIsUpdate }: Props) => {
 
     const isApprovedRender = useCallback(() => {
         if (product.isApproved == null)
@@ -33,6 +34,10 @@ const ProductCard = ({ product, setUpdateProductId }: Props) => {
 
     }, [product.isApproved])
 
+    const handleUpdate = useCallback(() => {
+        setUpdateProductId(product?.id)
+        setIsUpdate(true)
+    }, [product])
 
     return (
         <Card
@@ -41,7 +46,7 @@ const ProductCard = ({ product, setUpdateProductId }: Props) => {
                     <h3 className="text-2xl">{product.name}</h3>
                     <div className="flex flex-row gap-4">
                         <Button label="Düzenle" rounded severity="warning" icon="pi pi-pencil"
-                            onClick={() => setUpdateProductId(product?.id)}
+                            onClick={handleUpdate}
                         />
                         <Button label="Sil" rounded severity="danger" icon="pi pi-trash" />
                     </div>
