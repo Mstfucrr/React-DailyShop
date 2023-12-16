@@ -1,16 +1,19 @@
-import { getCart } from "@/services/order/order.service"
+import { createOrder, getCart } from "@/services/order/order.service"
 import { ICartItem } from "@/shared/types"
 import { authSelector } from "@/store/auth"
 import to from "await-to-js"
 import { Messages } from "primereact/messages"
 import { useEffect, useRef, useState } from "react"
-import { useSelector } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 import OrderAddress from "./orderAddress"
 import { Button } from "primereact/button"
 import { AnimatePresence } from "framer-motion"
 import OrderPayment from "./orderPayment"
 import { IUserAddress } from "@/services/auth/types"
 import { ICreditCard, IOrderAddress, IOrderRequest } from "@/services/order/types"
+import { IToast } from "@/store/Toast/type"
+import { SET_TOAST } from "@/store/Toast"
+import { useNavigate } from "react-router-dom"
 
 const Order = () => {
     const msgs = useRef<Messages>(null)
@@ -24,6 +27,8 @@ const Order = () => {
         LastDate: "",
         cvv: ""
     })
+    const navigate = useNavigate()
+    const dispacth = useDispatch()
     const { isAuthorized, auth, token } = useSelector(authSelector)
     const [user, setUser] = useState(auth)
     useEffect(() => {
@@ -55,12 +60,12 @@ const Order = () => {
             fetchCart()
     }, [])
 
-    const handleSubmitOrder = () => {
+    const handleSubmitOrder = async () => {
         console.log(selectAddress)
         console.log(cardValues)
         console.log(cartItems)
         console.log(cartTotal)
-        if (!selectAddress) return 
+        if (!selectAddress) return
         const orderReq: IOrderRequest = {
             addressId: selectAddress?.id,
             creditCard: {
@@ -77,8 +82,20 @@ const Order = () => {
                     size: item.size
                 }
             }),
-        }            
-        console.log("orderReq", orderReq)
+        }
+        console.log(orderReq)
+
+        const [err, data] = await to(createOrder(orderReq, token))
+        if (err) {
+            const toast: IToast = { severity: "error", summary: "Hata", detail: err.message, life: 5000 }
+            dispacth(SET_TOAST(toast))
+            return
+        }
+        const toast: IToast = { severity: "success", summary: "Başarılı", detail: data.message, life: 5000 }
+        dispacth(SET_TOAST(toast))
+        setTimeout(() => {
+            navigate("/account/Siparişlerim")
+        }, 1500);
     }
 
 
