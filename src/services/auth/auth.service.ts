@@ -8,6 +8,9 @@ const login = async (input: ILogin) =>
 const register = async (input: IRegister) =>
     await makeRequest<any>("Auths/Register", "POST", input);
 
+const forgotPassword = async (email: string) =>
+    await makeRequest<any>(`Auths/ForgotPassword?email=${email}`, "GET");
+
 const getAccount = async (token: string) =>
     await makeRequest<any>("Profiles/GetUser", "GET", null, token);
 
@@ -30,6 +33,7 @@ const deleteAccount = async (token: string) =>
 export const authService = {
     login,
     register,
+    forgotPassword,
     logout,
     updateAccount,
     deleteAccount,
