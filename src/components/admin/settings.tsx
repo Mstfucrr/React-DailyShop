@@ -143,7 +143,7 @@ const Settings = () => {
                     <div className="flex flex-col gap-y-6">
                         <h3 className="text-2xl" >Hakkımızda</h3>
                         {about &&
-                            <Editor style={{ height: '320px' }} value={about as string} onTextChange={(e) => setAbout(e.htmlValue as any)} />
+                            <Editor style={{ height: '320px' }} value={about} onTextChange={(e) => setAbout(e.htmlValue as any)} />
                         }
                     </div>
                     {/* test show about */}
