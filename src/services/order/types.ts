@@ -15,6 +15,7 @@ export interface IOrder {
     totalPrice: number;
     orderItems: IOrderItem[];
     date: string;
+    OrderNumber: string;
 }
 
 export enum Ordertatus {
