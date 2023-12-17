@@ -31,12 +31,12 @@ const ForgotPasswordForm = () => {
 
 
     return (
-        <div className='md:w-[500px] w-full h-[420px] flex flex-col justify-evenly md:my-0 pb-10 bg-white 
+        <div className='md:w-[500px] w-full md:my-0 bg-white 
         border border-solid mx-auto md:mt-[110px] '>
             <div className='py-7 bg-primary flex justify-center items-center mb-4'>
                 <h1 className='text-white md:text-4xl text-3xl font-bold text-center'>Parolamı Unuttum</h1>
             </div>
-            <div className='w-full flex flex-col justify-between items-center'>
+            <div className='w-full flex flex-col items-center h-[300px] '>
                 <Formik initialValues={{ email: '' }}
                     validationSchema={Yup.object({
                         email: Yup.string()
@@ -49,7 +49,7 @@ const ForgotPasswordForm = () => {
                     onSubmit={handleSubmit}
                 >
                     {formik => (
-                        <form onSubmit={formik.handleSubmit} className="w-4/5 h-full flex flex-col">
+                        <form onSubmit={formik.handleSubmit} className="w-4/5 h-auto flex flex-col justify-start py-10 ">
                             <div className="flex flex-col gap-6">
                                 <label htmlFor="email" className='text-primary text-xl font-medium'>E-Posta</label>
                                 <InputText
