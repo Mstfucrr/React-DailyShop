@@ -25,3 +25,7 @@ export const fetchPaddingProductByUserId = async (id: number, token: string) =>
 
 export const updateProductApprovalStatus = async (id: number, IsApproved: boolean, token: string) =>
     await makeRequest<any>(`/Admin/Products/UpdateStatus/${id}?IsApproved=${IsApproved}`, "PUT", null, token);
+
+// USER ORDERS
+export const fetchOrdersByUserId = async (id: number, token: string) =>
+    await makeRequest(`/admin/Users/${id}/Orders`, "GET", null, token);
