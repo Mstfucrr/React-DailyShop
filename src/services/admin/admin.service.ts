@@ -1,7 +1,16 @@
 import { fetchSettings, saveSettings } from './settings.service'
 import { addCategory, deleteCategoryById, getAllCategories, updateCategoryById } from './category.service'
 import { getAllProducts } from './products.service'
-import { blockUser, fetchAddressByUserId, fetchPaddingProductByUserId, fetchReviewsByUserId, fetchUsers, updateProductApprovalStatus, updateReviewStatus } from './user.service'
+import {
+    blockUser,
+    fetchAddressByUserId,
+    fetchPaddingProductByUserId,
+    fetchReviewsByUserId,
+    fetchUsers,
+    updateProductApprovalStatus,
+    updateReviewStatus,
+    fetchOrdersByUserId
+} from './user.service'
 
 export class AdminService {
     settings: {
@@ -27,7 +36,8 @@ export class AdminService {
         fetchReviewsByUserId: (id: number, token: string) => Promise<any>,
         fetchPaddingProductByUserId: (id: number, token: string) => Promise<any>,
         updateProductApprovalStatus: (id: number, input: any, token: string) => Promise<any>,
-        updateReviewStatus: (id: number, input: any, token: string) => Promise<any>
+        updateReviewStatus: (id: number, input: any, token: string) => Promise<any>,
+        fetchOrdersByUserId: (id: number, token: string) => Promise<any>
     }
 
     constructor() {
@@ -51,7 +61,8 @@ export class AdminService {
             fetchReviewsByUserId,
             fetchPaddingProductByUserId,
             updateProductApprovalStatus,
-            updateReviewStatus
+            updateReviewStatus,
+            fetchOrdersByUserId
         }
     }
 }
