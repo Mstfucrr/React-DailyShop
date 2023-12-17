@@ -16,6 +16,7 @@ import { SET_TOAST } from '@/store/Toast';
 import { IToast } from '@/store/Toast/type';
 import AboutUsPage from '@/pages/AboutUs';
 import { Helmet } from 'react-helmet';
+import ForgotPassword from '@/pages/ForgotPassword';
 
 const PrivateRoute: React.FC<{ path: string, element: React.ReactNode }> = ({ path, element }) => {
     const dispatch = useDispatch();
@@ -56,7 +57,10 @@ const AppRouter: React.FC = () => {
                 
             <Route path="/register"
                 element={<>{TopLevelHelmet("Kayıt Ol")}<Register /></>} />
-                
+            
+            <Route path="/forgot-password"
+                element={<>{TopLevelHelmet("Şifremi Unuttum")}<ForgotPassword /></>} />
+
             <Route path="/about"
                 element={<>{TopLevelHelmet("Hakkımızda")}<AboutUsPage /></>} />
                 
