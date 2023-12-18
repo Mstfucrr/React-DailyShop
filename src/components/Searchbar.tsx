@@ -5,16 +5,20 @@ import { authSelector } from '@/store/auth'
 import to from 'await-to-js'
 import { OverlayPanel } from 'primereact/overlaypanel'
 import { useEffect, useRef, useState } from 'react'
-import { FaHeart, FaSearch, FaShoppingCart } from 'react-icons/fa'
+import { FaHeart, FaSearch, FaShoppingCart, FaWallet } from 'react-icons/fa'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
+import CreditCard from './creditCard/creditCard'
+import { Tooltip } from 'primereact/tooltip'
+import { getWalletByUser } from '@/services/wallet/wallet.service'
 
 const Searchbar = () => {
 
 
     const { token, isAuthorized } = useSelector(authSelector)
     const [cartCount, setCartCount] = useState<number>(0)
-
+    const [walletCount, setWalletCount] = useState<number>(0)
+    const [isShowWalletScreen, setIsShowWalletScreen] = useState<boolean>(false)
     const dispatch = useDispatch()
 
     const fetchCart = async () => {
@@ -26,12 +30,24 @@ const Searchbar = () => {
         }
         setCartCount(data.data?.length > 0 ? data.data.length : 0)
     }
+
+    const fetchWallet = async () => {
+        const [err, data] = await to(getWalletByUser(token))
+        if (err) {
+            const toast: IToast = { severity: 'error', summary: 'Hata', detail: err.message, life: 3000 }
+            dispatch(SET_TOAST(toast))
+            return
+        }
+        setWalletCount(data.data)
+    }
+
     useEffect(() => {
         if (isAuthorized)
             fetchCart()
     }, [])
 
     const op = useRef(null);
+    const opWallet = useRef(null);
 
     return (
         <div className="px-[15px] mx-auto w-full">
@@ -67,9 +83,56 @@ const Searchbar = () => {
                 </div>
                 {/* col-lg-3 col-6 text-right */}
                 <div className="lg:col-span-3 col-span-6 text-right">
+                    {/* Cüzdan */}
+                    <CreditCard isShowWalletScreen={isShowWalletScreen} setIsShowWalletScreen={setIsShowWalletScreen} />
+
                     <button className="border border-secondary inline-block text-center rounded-none select-none py-[.375rem] px-3 align-middle mr-1"
+                        //@ts-ignore
+                        onClick={(e) => opWallet?.current?.toggle(e)}
+                    >
+                        <FaWallet className="w-6 h-auto inline-block text-primary" />
+                        <span className="inline-block py-[.25em] px-[.6em] font-bold text-[75%] relative -top-[1px]">0</span>
+                    </button>
+                    {/* Cüzdan */}
+                    <OverlayPanel ref={opWallet} className="w-[300px]">
+
+                        <div className="flex flex-col gap-6">
+                            <div className="flex flex-row justify-between items-center">
+                                <h1 className="text-2xl font-bold">Cüzdan</h1>
+                            </div>
+                            <div className="flex flex-col gap-4">
+                                {/* Cüzdan içeriği */}
+                                <div className="flex flex-row items-center justify-between">
+                                    <div className="flex flex-col">
+                                        <h1 className="text-lg font-semibold">Bakiye</h1>
+                                        <span className="text-sm text-gray-500">0 TL</span>
+                                    </div>
+                                    <button className="text-primary fawallet"
+                                        // onClickte para eklemesi yapılacak
+                                        onClick={() => setIsShowWalletScreen(true)}
+                                    >
+                                        <FaWallet className=" w-6 h-auto inline-block text-primary" />
+                                    </button>
+                                    <Tooltip target=".fawallet" position="bottom" 
+                                    //@ts-ignore
+                                    >
+                                        Para Ekle
+                                    </Tooltip>
+
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </OverlayPanel>
+
+
+                    {/* Favoriler */}
+                    <button className="border border-secondary inline-block text-center rounded-none select-none py-[.375rem] px-3 align-middle mr-1"
+                        //@ts-ignore
                         onClick={(e) => op?.current?.toggle(e)}
                     >
+
                         <FaHeart className="w-6 h-auto inline-block text-primary" />
                         <span className="inline-block py-[.25em] px-[.6em] font-bold text-[75%] relative -top-[1px]">0</span>
                     </button>
@@ -81,7 +144,7 @@ const Searchbar = () => {
                             </div>
                             <div className="flex flex-col gap-4">
                                 {/* Favori ürünlerin listesi */}
-                                
+
                                 <div className="flex flex-row items-center justify-between">
                                     <Link to={`/product/1`} className="rounded-md overflow-hidden flex flex-row items-center justify-between gap-8">
                                         <img src="https://picsum.photos/200/300" alt="" className="w-[50px] h-[50px] rounded-md" />
@@ -101,12 +164,14 @@ const Searchbar = () => {
 
                         </div>
                     </OverlayPanel>
+                    {/* Sepet */}
                     <Link className="border border-secondary inline-block text-center rounded-none select-none py-[.375rem] px-3 align-middle"
                         to={`/cart`}
                     >
                         <FaShoppingCart className="w-6 h-auto inline-block text-primary" />
                         <span className="inline-block py-[.25em] px-[.6em] font-bold text-[75%] relative -top-[1px]">{cartCount}</span>
                     </Link>
+
                 </div>
             </div>
         </div>
