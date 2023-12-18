@@ -8,9 +8,9 @@ import { useEffect, useRef, useState } from 'react'
 import { FaHeart, FaSearch, FaShoppingCart, FaWallet } from 'react-icons/fa'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
-import CreditCard from './creditCard/creditCard'
 import { Tooltip } from 'primereact/tooltip'
 import { getWalletByUser } from '@/services/wallet/wallet.service'
+import WalletSection from './wallet/walletSection'
 
 const Searchbar = () => {
 
@@ -84,14 +84,14 @@ const Searchbar = () => {
                 {/* col-lg-3 col-6 text-right */}
                 <div className="lg:col-span-3 col-span-6 text-right">
                     {/* Cüzdan */}
-                    {isShowWalletScreen && <CreditCard isShowWalletScreen={isShowWalletScreen} setIsShowWalletScreen={setIsShowWalletScreen} /> }
+                    {isShowWalletScreen && <WalletSection setIsShowWalletScreen={setIsShowWalletScreen} /> }
 
                     <button className="border border-secondary inline-block text-center rounded-none select-none py-[.375rem] px-3 align-middle mr-1"
                         //@ts-ignore
                         onClick={(e) => opWallet?.current?.toggle(e)}
                     >
                         <FaWallet className="w-6 h-auto inline-block text-primary" />
-                        <span className="inline-block py-[.25em] px-[.6em] font-bold text-[75%] relative -top-[1px]">0</span>
+                        <span className="inline-block py-[.25em] px-[.6em] font-bold text-[75%] relative -top-[1px]">{walletCount}</span>
                     </button>
                     {/* Cüzdan */}
                     <OverlayPanel ref={opWallet} className="w-[300px]">
