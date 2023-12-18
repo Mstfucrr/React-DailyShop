@@ -250,7 +250,7 @@ const CreditCard = ({ isShowWalletScreen, setIsShowWalletScreen }: Props) => {
 
                     <FaTimes className="float-right text-right text-4xl text-primary cursor-pointer
                                 rounded-full bg-white p-1" onClick={() => setIsShowWalletScreen(false)} />
-                    <Card values={cardValues} />
+                    {isShowWalletScreen && <Card values={cardValues} />}
                 </div>
             </div>
 
