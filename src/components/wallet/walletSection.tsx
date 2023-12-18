@@ -31,6 +31,11 @@ const WalletSection = ({ setIsShowWalletScreen }: Props) => {
     const dispatch = useDispatch()
 
     const handleSubmit = async (values: any) => {
+        if (addMoneyValue <= 5) {
+            const toast: IToast = { severity: 'error', summary: 'Hata', detail: "En az 5 TL yükleyebilirsiniz", life: 3000 }
+            dispatch(SET_TOAST(toast))
+            return
+        }
 
         const [err, res] = await to(addMoneyToWallet(values.money, token))
         if (err) {
@@ -43,7 +48,7 @@ const WalletSection = ({ setIsShowWalletScreen }: Props) => {
         dispatch(SET_TOAST(toast))
     }
 
-    
+
     return (
         <motion.div className="top-0 left-0 w-full h-full bg-gray-500 bg-opacity-50 flex justify-center items-center z-50 fixed"
             initial={{
@@ -103,14 +108,15 @@ const WalletSection = ({ setIsShowWalletScreen }: Props) => {
                         name="money"
                         value={addMoneyValue}
                         onChange={(e) => { if (e.value) setAddMoneyValue(e.value) }}
-                        className={`w-full ${addMoneyValue <= 0 ? "border-red-500" : ""}`}
+                        className={`w-full ${addMoneyValue <= 5 ? "p-inputnumber-error p-invalid" : ""}`}
                     />
-                    {addMoneyValue <= 0 &&
-                        <div className="text-red-500">Para miktarı 0'dan büyük olmalıdır!</div>
+                    {addMoneyValue <= 5 &&
+                        <div className="text-red-500">En az 5 TL yükleyebilirsiniz</div>
                     }
 
 
                 </motion.div>
+                {/* credit card */}
 
                 <CreditCard setCardValues={setCardValues} cardValues={cardValues} handleSubmit={handleSubmit} />
 
