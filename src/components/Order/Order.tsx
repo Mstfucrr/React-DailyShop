@@ -105,7 +105,9 @@ const Order = () => {
 
             <AnimatePresence>
                 <OrderAddress key={"orderAddress"} addresses={user?.addresses} IsAddressSelectionconfirmed={IsAddressSelectionconfirmed} selectAddress={selectAddress as IUserAddress} setSelectAddress={setSelectAddress} />
-                <OrderPayment key={"orderPayment"} IsAddressSelectionconfirmed={IsAddressSelectionconfirmed} cardValues={cardValues} setcardValues={setCardValues} handleSubmitOrder={handleSubmitOrder} />
+                {IsAddressSelectionconfirmed &&
+                    <OrderPayment key={"orderPayment"} cardValues={cardValues} setcardValues={setCardValues} handleSubmitOrder={handleSubmitOrder} />
+                }
             </AnimatePresence>
 
 
