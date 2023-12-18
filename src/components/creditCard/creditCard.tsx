@@ -33,8 +33,6 @@ const CreditCard = ({ setCardValues, cardValues, handleSubmit }: Props) => {
         cardOwner: Yup.string().required("Kart üzerindeki isim zorunludur"),
         cvv: Yup.string().required("CVV zorunludur").min(3, "CVV 3 haneli olmalıdır").max(3, "CVV 3 haneli olmalıdır"),
         LastDate: Yup.date().required("Son kullanma tarihi zorunludur"),
-        // para ekle
-        money: Yup.number().required("Para miktarı zorunludur").min(1, "Para miktarı 1 TL'den az olamaz")
     })
 
     const handleChangeLastDate = (e: any) => {
