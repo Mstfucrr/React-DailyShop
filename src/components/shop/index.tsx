@@ -3,7 +3,7 @@ import SideBar from './sideBar'
 import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
 import { useEffect, useRef, useState } from 'react';
 import { Card } from 'primereact/card';
-import { FaEye } from 'react-icons/fa';
+import { FaEye, FaHeart } from 'react-icons/fa';
 import { IProduct, IShopResponse } from '@/shared/types';
 import { Paginator, PaginatorPageChangeEvent } from 'primereact/paginator';
 import { getProductsByCategoryId } from '@/services/shop/shop.service';
@@ -12,10 +12,13 @@ import { InputSwitch } from "primereact/inputswitch";
 import to from 'await-to-js';
 import { Messages } from 'primereact/messages';
 import { ProgressSpinner } from 'primereact/progressspinner';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { authSelector } from '@/store/auth';
 import { sortBy } from '@/shared/constants';
 import { ProductsSortBy } from '@/services/shop/types';
+import { favoritesService } from '@/services/favorites/favorites.service';
+import { IToast } from '@/store/Toast/type';
+import { SET_TOAST } from '@/store/Toast';
 
 const Shop = () => {
 
@@ -30,6 +33,7 @@ const Shop = () => {
   const [isDelProductShow, setIsDelProductShow] = useState<boolean>(true);
   const { id } = useParams<{ id: string }>();
   const msgs = useRef<Messages>(null);
+  const dispatch = useDispatch()
 
   const { token } = useSelector(authSelector);
 
@@ -67,7 +71,7 @@ const Shop = () => {
 
   const fetchData = async () => {
     if (id) {
-      const [err, data] = await to(getProductsByCategoryId(parseInt(id), isDelProductShow,token))
+      const [err, data] = await to(getProductsByCategoryId(parseInt(id), isDelProductShow, token))
       if (err) {
         console.log(err)
         msgs.current?.clear()
@@ -115,7 +119,12 @@ const Shop = () => {
     setProducts([...filteredProducts].slice(event.first, event.first + event.rows))
   };
 
-
+  const handleAddFavorite = async (id: number) => {
+    const [err, data] = await to(favoritesService.addFavorite(token, id))
+    if (err) return console.log(err)
+    const toast : IToast = { severity: 'success', summary: 'Başarılı', detail: data?.message, life: 3000 }
+    dispatch(SET_TOAST(toast))
+  }
 
   return (
     <div className='pt-16 px-14 gap-x-10'>
@@ -198,9 +207,14 @@ const Shop = () => {
 
                               </div>
                               <div className="flex flex-row justify-between border-t-[1px] pt-2">
-                                <a href={`/productDetail/${product.id}`}
+                                <a href={`/product/${product.id}`}
                                   className="flex items-center"><FaEye className='text-primary mr-2' />Detaylı gör</a>
-                                {/* <button className="flex items-center"><FaShoppingCart className='text-primary mr-2' />Sepete Ekle</button> */}
+
+                                {/* add favorite */}
+                                <button className="flex items-center hover:scale-105"
+                                  onClick={() => handleAddFavorite(product.id)}
+                                ><FaHeart className='text-primary mr-2' />Favorilere ekle</button>
+
 
                               </div>
 

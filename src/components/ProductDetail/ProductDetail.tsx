@@ -3,7 +3,7 @@ import { Galleria } from 'primereact/galleria';
 import { useEffect, useRef, useState } from "react";
 import { Rating } from "primereact/rating";
 import { RadioButton } from "primereact/radiobutton";
-import { FaCommentAlt, FaInfoCircle, FaMinus, FaPencilAlt, FaPlus, FaShoppingCart, FaSpinner, FaTrashAlt } from "react-icons/fa";
+import { FaCommentAlt, FaHeart, FaInfoCircle, FaMinus, FaPencilAlt, FaPlus, FaShoppingCart, FaSpinner, FaTrashAlt } from "react-icons/fa";
 import { MdDescription } from "react-icons/md";
 import { TabView, TabPanel } from 'primereact/tabview';
 import { Avatar } from 'primereact/avatar';
@@ -24,6 +24,7 @@ import { InputNumber } from "primereact/inputnumber";
 import to from "await-to-js";
 import { ProgressSpinner } from "primereact/progressspinner";
 import UpdateProduct from "../account/userProducts/UpdateProduct";
+import { favoritesService } from "@/services/favorites/favorites.service";
 
 
 const ProductDetail = () => {
@@ -225,6 +226,13 @@ const ProductDetail = () => {
         )
     }
 
+    const handleAddFavorite = async (id: number) => {
+        const [err, data] = await to(favoritesService.addFavorite(token, id))
+        if (err) return console.log(err)
+        const toast: IToast = { severity: 'success', summary: 'Başarılı', detail: data?.message, life: 3000 }
+        dispatch(SET_TOAST(toast))
+    }
+
     return (
 
         <>
@@ -345,7 +353,7 @@ const ProductDetail = () => {
                                     </div>
                                 </div>
 
-                                <div className="">
+                                <div className="gap-4 flex">
                                     <button className='inline-block bg-primary text-[#212529] border-primary py-2 px-3 leading-6 hover:text-white hover:bg-primaryDark transition-all duration-300 ease-in-out'
                                         onClick={() => handleAddToCart()}
                                         disabled={addCartLoading}
@@ -359,6 +367,14 @@ const ProductDetail = () => {
                                             />
                                         }
                                     </button>
+
+                                    <button className="inline-block bg-primary text-[#212529] border-primary py-2 px-3 leading-6 hover:text-white hover:bg-primaryDark transition-all duration-300 ease-in-out"
+                                        onClick={() => handleAddFavorite(product.id)}
+                                    >
+                                        <FaHeart className="inline mr-3" />
+                                        Favorilere Ekle
+                                    </button>
+
                                 </div>
 
                             </div>

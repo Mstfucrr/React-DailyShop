@@ -11,6 +11,7 @@ import { Link } from 'react-router-dom'
 import { Tooltip } from 'primereact/tooltip'
 import { getWalletByUser } from '@/services/wallet/wallet.service'
 import WalletSection from './wallet/walletSection'
+import { favoritesService } from '@/services/favorites/favorites.service'
 
 const Searchbar = () => {
 
@@ -18,32 +19,46 @@ const Searchbar = () => {
     const { token, isAuthorized } = useSelector(authSelector)
     const [cartCount, setCartCount] = useState<number>(0)
     const [walletCount, setWalletCount] = useState<number>(0)
+    const [favoritesList, setFavoritesList] = useState<any[]>([])
     const [isShowWalletScreen, setIsShowWalletScreen] = useState<boolean>(false)
+
     const dispatch = useDispatch()
+
+    const showErrorMessage = (message: string) => {
+        const toast: IToast = { severity: 'error', summary: 'Hata', detail: message, life: 3000 }
+        dispatch(SET_TOAST(toast))
+    }
 
     const fetchCart = async () => {
         const [err, data] = await to(getCart(token))
-        if (err) {
-            const toast: IToast = { severity: 'error', summary: 'Hata', detail: err.message, life: 3000 }
-            dispatch(SET_TOAST(toast))
-            return
-        }
+        if (err) return showErrorMessage(err.message)
         setCartCount(data.data?.length > 0 ? data.data.length : 0)
     }
 
     const fetchWallet = async () => {
         const [err, data] = await to(getWalletByUser(token))
-        if (err) {
-            const toast: IToast = { severity: 'error', summary: 'Hata', detail: err.message, life: 3000 }
-            dispatch(SET_TOAST(toast))
-            return
-        }
+        if (err) return showErrorMessage(err.message)
         setWalletCount(data.data)
     }
 
+    const fetchFavorites = async () => {
+        const [err, data] = await to(favoritesService.getFavorites(token))
+        if (err) return showErrorMessage(err.message)
+        setFavoritesList(data.data)
+    }
+    
+    const deleteFavorite = async (id: number) => {
+        const [err, data] = await to(favoritesService.deleteFavorite(token, id))
+        if (err) return showErrorMessage(err.message)
+        setFavoritesList(data.data)
+    }
+
     useEffect(() => {
-        if (isAuthorized)
+        if (isAuthorized) {
             fetchCart()
+            // fetchWallet()
+            // fetchFavorites()
+        }
     }, [])
 
     const op = useRef(null);
@@ -82,95 +97,104 @@ const Searchbar = () => {
                     </form>
                 </div>
                 {/* col-lg-3 col-6 text-right */}
-                <div className="lg:col-span-3 col-span-6 text-right">
+                <div className="lg:col-span-3 col-span-6 flex w-full justify-end text-right">
                     {/* Cüzdan */}
-                    {isShowWalletScreen && <WalletSection setIsShowWalletScreen={setIsShowWalletScreen} /> }
+                    <div className="">
+                        {isShowWalletScreen && <WalletSection setIsShowWalletScreen={setIsShowWalletScreen} />}
 
-                    <button className="border border-secondary inline-block text-center rounded-none select-none py-[.375rem] px-3 align-middle mr-1"
-                        //@ts-ignore
-                        onClick={(e) => opWallet?.current?.toggle(e)}
-                    >
-                        <FaWallet className="w-6 h-auto inline-block text-primary" />
-                        <span className="inline-block py-[.25em] px-[.6em] font-bold text-[75%] relative -top-[1px]">{walletCount}</span>
-                    </button>
-                    {/* Cüzdan */}
-                    <OverlayPanel ref={opWallet} className="w-[300px]">
+                        <button className="border border-secondary inline-block text-center rounded-none select-none py-[.375rem] px-3 align-middle mr-1"
+                            //@ts-ignore
+                            onClick={(e) => opWallet?.current?.toggle(e)}
+                        >
+                            <FaWallet className="w-6 h-auto inline-block text-primary" />
+                            <span className="inline-block py-[.25em] px-[.6em] font-bold text-[75%] relative -top-[1px]">{walletCount}</span>
+                        </button>
 
-                        <div className="flex flex-col gap-6">
-                            <div className="flex flex-row justify-between items-center">
-                                <h1 className="text-2xl font-bold">Cüzdan</h1>
-                            </div>
-                            <div className="flex flex-col gap-4">
-                                {/* Cüzdan içeriği */}
-                                <div className="flex flex-row items-center justify-between">
-                                    <div className="flex flex-col">
-                                        <h1 className="text-lg font-semibold">Bakiye</h1>
-                                        <span className="text-sm text-gray-500">0 TL</span>
+                        <OverlayPanel ref={opWallet} className="w-[300px]">
+
+                            <div className="flex flex-col gap-6">
+                                <div className="flex flex-row justify-between items-center">
+                                    <h1 className="text-2xl font-bold">Cüzdan</h1>
+                                </div>
+                                <div className="flex flex-col gap-4">
+                                    {/* Cüzdan içeriği */}
+                                    <div className="flex flex-row items-center justify-between">
+                                        <div className="flex flex-col">
+                                            <h1 className="text-lg font-semibold">Bakiye</h1>
+                                            <span className="text-sm text-gray-500">0 TL</span>
+                                        </div>
+                                        <button className="text-primary fawallet"
+                                            // onClickte para eklemesi yapılacak
+                                            onClick={() => setIsShowWalletScreen(true)}
+                                        >
+                                            <FaWallet className=" w-6 h-auto inline-block text-primary" />
+                                        </button>
+                                        <Tooltip target=".fawallet" position="bottom"
+                                        //@ts-ignore
+                                        >
+                                            Para Ekle
+                                        </Tooltip>
+
                                     </div>
-                                    <button className="text-primary fawallet"
-                                        // onClickte para eklemesi yapılacak
-                                        onClick={() => setIsShowWalletScreen(true)}
-                                    >
-                                        <FaWallet className=" w-6 h-auto inline-block text-primary" />
-                                    </button>
-                                    <Tooltip target=".fawallet" position="bottom"
-                                    //@ts-ignore
-                                    >
-                                        Para Ekle
-                                    </Tooltip>
 
                                 </div>
-
                             </div>
-                        </div>
 
-                    </OverlayPanel>
-
+                        </OverlayPanel>
+                    </div>
 
                     {/* Favoriler */}
-                    <button className="border border-secondary inline-block text-center rounded-none select-none py-[.375rem] px-3 align-middle mr-1"
-                        //@ts-ignore
-                        onClick={(e) => op?.current?.toggle(e)}
-                    >
+                    <div className="">
 
-                        <FaHeart className="w-6 h-auto inline-block text-primary" />
-                        <span className="inline-block py-[.25em] px-[.6em] font-bold text-[75%] relative -top-[1px]">0</span>
-                    </button>
-                    {/* Favoriler (ürünImage , isim ve kalp) */}
-                    <OverlayPanel ref={op} className="w-[300px]">
-                        <div className="flex flex-col gap-6">
-                            <div className="flex flex-row justify-between items-center">
-                                <h1 className="text-2xl font-bold">Favoriler</h1>
-                            </div>
-                            <div className="flex flex-col gap-4">
-                                {/* Favori ürünlerin listesi */}
+                        <button className="border border-secondary inline-block text-center rounded-none select-none py-[.375rem] px-3 align-middle mr-1"
+                            //@ts-ignore
+                            onClick={(e) => op?.current?.toggle(e)}
+                        >
 
-                                <div className="flex flex-row items-center justify-between">
-                                    <Link to={`/product/1`} className="rounded-md overflow-hidden flex flex-row items-center justify-between gap-8">
-                                        <img src="https://picsum.photos/200/300" alt="" className="w-[50px] h-[50px] rounded-md" />
-                                        <div className="flex flex-col">
-                                            <h1 className="text-lg font-semibold">Ürün İsmi</h1>
+                            <FaHeart className="w-6 h-auto inline-block text-primary" />
+                            <span className="inline-block py-[.25em] px-[.6em] font-bold text-[75%] relative -top-[1px]">0</span>
+                        </button>
+
+                        <OverlayPanel ref={op} className="w-[300px]">
+                            <div className="flex flex-col gap-6">
+                                <div className="flex flex-row justify-between items-center">
+                                    <h1 className="text-2xl font-bold">Favoriler</h1>
+                                </div>
+                                <div className="flex flex-col gap-4">
+                                    {/* Favori ürünlerin listesi */}
+                                    {favoritesList.map((item) => (
+                                        <div className="flex flex-row items-center justify-between" key={item.id}>
+                                            <Link to={`/product/1`} className="rounded-md overflow-hidden flex flex-row items-center justify-between gap-8">
+                                                <img src={item.product.image} alt="" className="w-[50px] h-[50px] rounded-md" />
+                                                <div className="flex flex-col">
+                                                    <h1 className="text-lg font-semibold">{item.product.name}</h1>
+                                                </div>
+                                            </Link>
+                                            <button className="text-primary">
+                                                <FaHeart className="w-6 h-auto inline-block text-primary" />
+                                            </button>
+
                                         </div>
-                                    </Link>
-                                    <button className="text-primary">
-                                        <FaHeart className="w-6 h-auto inline-block text-primary" />
-                                    </button>
+                                    ))}
 
                                 </div>
 
+
+
                             </div>
-
-
-
-                        </div>
-                    </OverlayPanel>
+                        </OverlayPanel>
+                    </div>
                     {/* Sepet */}
-                    <Link className="border border-secondary inline-block text-center rounded-none select-none py-[.375rem] px-3 align-middle"
-                        to={`/cart`}
-                    >
-                        <FaShoppingCart className="w-6 h-auto inline-block text-primary" />
-                        <span className="inline-block py-[.25em] px-[.6em] font-bold text-[75%] relative -top-[1px]">{cartCount}</span>
-                    </Link>
+                    <div className="">
+
+                        <Link className="border border-secondary inline-block text-center rounded-none select-none py-[.375rem] px-3 align-middle"
+                            to={`/cart`}
+                        >
+                            <FaShoppingCart className="w-6 h-auto inline-block text-primary" />
+                            <span className="inline-block py-[.25em] px-[.6em] font-bold text-[75%] relative -top-[1px]">{cartCount}</span>
+                        </Link>
+
+                    </div>
 
                 </div>
             </div>
