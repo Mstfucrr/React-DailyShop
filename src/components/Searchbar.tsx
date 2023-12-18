@@ -84,7 +84,7 @@ const Searchbar = () => {
                 {/* col-lg-3 col-6 text-right */}
                 <div className="lg:col-span-3 col-span-6 text-right">
                     {/* Cüzdan */}
-                    <CreditCard isShowWalletScreen={isShowWalletScreen} setIsShowWalletScreen={setIsShowWalletScreen} />
+                    {isShowWalletScreen && <CreditCard isShowWalletScreen={isShowWalletScreen} setIsShowWalletScreen={setIsShowWalletScreen} /> }
 
                     <button className="border border-secondary inline-block text-center rounded-none select-none py-[.375rem] px-3 align-middle mr-1"
                         //@ts-ignore
@@ -113,7 +113,7 @@ const Searchbar = () => {
                                     >
                                         <FaWallet className=" w-6 h-auto inline-block text-primary" />
                                     </button>
-                                    <Tooltip target=".fawallet" position="bottom" 
+                                    <Tooltip target=".fawallet" position="bottom"
                                     //@ts-ignore
                                     >
                                         Para Ekle
