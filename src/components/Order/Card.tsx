@@ -1,3 +1,4 @@
+import { motion } from "framer-motion"
 import { useEffect, useState } from "react"
 
 
@@ -29,10 +30,18 @@ const Card = ({ values }: Props) => {
         handleChangeCardNumber({ target: { value: values.cardNumber } })
     }, [values.cardNumber])
 
-
+    
     
     return (
-        <div className="w-96 h-56 m-auto bg-red-100 rounded-xl relative text-white shadow-2xl transition-transform transform hover:scale-110">
+        <motion.div className="w-96 h-56 m-auto bg-red-100 rounded-xl relative text-white shadow-2xl"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            // döne döne geliyor
+            initial={{ rotateY: 0, scale: 0.4 }}
+            animate={{ rotateY: 360, scale: 1 }}
+            transition={{ duration: 1.7 }}
+            
+        >
 
             <img className="relative object-cover w-full h-full rounded-xl" src="https://i.imgur.com/kGkSg1v.png"
                 alt="card"
@@ -87,7 +96,7 @@ const Card = ({ values }: Props) => {
                 </div>
 
             </div>
-        </div>
+        </motion.div>
     )
 }
 
