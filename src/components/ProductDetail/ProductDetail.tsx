@@ -3,7 +3,7 @@ import { Galleria } from 'primereact/galleria';
 import { useEffect, useRef, useState } from "react";
 import { Rating } from "primereact/rating";
 import { RadioButton } from "primereact/radiobutton";
-import { FaCommentAlt, FaHeart, FaInfoCircle, FaMinus, FaPencilAlt, FaPlus, FaShoppingCart, FaSpinner, FaTrashAlt } from "react-icons/fa";
+import { FaComment, FaCommentAlt, FaHeart, FaInfoCircle, FaMinus, FaPencilAlt, FaPlus, FaShoppingCart, FaSpinner, FaTrashAlt } from "react-icons/fa";
 import { MdDescription } from "react-icons/md";
 import { TabView, TabPanel } from 'primereact/tabview';
 import { Avatar } from 'primereact/avatar';
@@ -25,6 +25,7 @@ import to from "await-to-js";
 import { ProgressSpinner } from "primereact/progressspinner";
 import UpdateProduct from "../account/userProducts/UpdateProduct";
 import { favoritesService } from "@/services/favorites/favorites.service";
+import { InputText } from "primereact/inputtext";
 
 
 const ProductDetail = () => {
@@ -233,6 +234,36 @@ const ProductDetail = () => {
         dispatch(SET_TOAST(toast))
     }
 
+    const handleAnswerReview = async (id: number) => {
+        const [err, data] = await to(favoritesService.addFavorite(token, id))
+        if (err) return console.log(err)
+        const toast: IToast = { severity: 'success', summary: 'Başarılı', detail: data?.message, life: 3000 }
+        dispatch(SET_TOAST(toast))
+    }
+
+    const [answerReview, setAnswerReview] = useState<number | undefined>(undefined)
+    const [answerReviewText, setAnswerReviewText] = useState<string>('')
+
+    const answerReviewTemplete = (review: IReview) => {
+        return (
+            <div className="flex flex-col m-3 p-3 gap-4">
+                <span className="p-input-icon-left">
+                    <i className="!text-blue-600">{review.user?.email}</i>
+                    <InputText className=" sm:w-1/2 w-full"
+                        value={answerReviewText}
+                        onChange={(e) => setAnswerReviewText(e.target.value)}
+                    />
+                </span>
+                <button className="bg-primary text-white px-3 py-2 rounded-md w-min
+                    hover:bg-primaryDark transition-all duration-300 ease-in-out"
+                    onClick={() => handleAnswerReview(review.id)}
+                    disabled={answerReviewText.length < 4}>Gönder</button>
+
+            </div>
+        )
+    }
+
+
     return (
 
         <>
@@ -284,7 +315,9 @@ const ProductDetail = () => {
                             </h2>
                             {/* description */}
                             <p className="leading-6 my-4">
-                                {product.description.substring(0, 300) + "..."}
+                                <div className="ql-editor">
+                                    <p dangerouslySetInnerHTML={{ __html: product.description.substring(0, 200) + "..." }}></p>
+                                </div>
                             </p>
                             {/* sizes */}
                             {sizes && sizes.length > 0 && (
@@ -440,14 +473,40 @@ const ProductDetail = () => {
                                                                 <div className="flex-1">
                                                                     <h6 className="text-lg"> {review.user?.name} - <small><i>
                                                                         {review.date}
+                                                                        <br />
                                                                     </i></small> </h6>
+                                                                    <small>{review.user?.email}</small>
                                                                     <Rating value={review.rating} readOnly cancel={false} className="my-2" pt={{
                                                                         onIcon: { className: '!text-primary' }
                                                                     }} />
                                                                     <p>
                                                                         {review.comment}
                                                                     </p>
+                                                                    {/* Yanıtla */}
+                                                                    <div className="flex flex-row gap-x-2 mt-2">
+                                                                        <button className="text-primary hover:text-primaryDark transition-all duration-300 ease-in-out"
+                                                                            onClick={() => setAnswerReview(review.id)}
+                                                                        >
+                                                                            <FaComment className="inline mr-2" />
+                                                                            Yanıtla
+                                                                        </button>
+                                                                        {/* iptal */}
+                                                                        {answerReview == review.id &&
+                                                                            <button className="text-primary hover:text-primaryDark transition-all duration-300 ease-in-out"
+                                                                                onClick={() => {
+                                                                                    setAnswerReview(undefined)
+                                                                                    setAnswerReviewText('')
+                                                                                }}
+                                                                            >
+                                                                                <FaTrashAlt className="inline mr-2" />
+                                                                                İptal
+                                                                            </button>
+                                                                        }
 
+                                                                    </div>
+                                                                    {answerReview == review.id &&
+                                                                        answerReviewTemplete(review)
+                                                                    }
                                                                 </div>
                                                                 {
                                                                     review.user?.id == auth.id &&
