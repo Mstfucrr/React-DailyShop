@@ -18,8 +18,5 @@ export const removeFromCart = async (id: number, token: string) =>
 export const getOrders = async (token: string) => 
     await makeRequest<any>("Orders", "GET", null, token);
 
-export const getOrder = async (id: number, token: string) =>
-    await makeRequest<any>(`Orders/${id}`, "GET", null, token);
-
 export const createOrder = async (input: IOrderRequest, token: string) =>
     await makeRequest<any>("Orders", "POST", input, token);
