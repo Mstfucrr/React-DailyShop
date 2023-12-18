@@ -11,6 +11,9 @@ const register = async (input: IRegister) =>
 const forgotPassword = async (email: string) =>
     await makeRequest<any>(`Auths/ForgotPassword?email=${email}`, "GET");
 
+const resetPassword = async (input: any, token: string) =>
+    await makeRequest<any>("Auths/ResetPassword", "POST", input, token);
+
 const getAccount = async (token: string) =>
     await makeRequest<any>("Profiles/GetUser", "GET", null, token);
 
@@ -34,6 +37,7 @@ export const authService = {
     login,
     register,
     forgotPassword,
+    resetPassword,
     logout,
     updateAccount,
     deleteAccount,
