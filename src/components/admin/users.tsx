@@ -1,4 +1,4 @@
-import { userService } from '@/services/admin/admin.service'
+import { productService, userService } from '@/services/admin/admin.service'
 import { authSelector } from '@/store/auth'
 import { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -18,6 +18,7 @@ import { DataView } from 'primereact/dataview';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { reviewStatus } from '@/shared/constants';
 import { IOrder } from '@/services/order/types';
+import { ConfirmPopup, confirmPopup } from 'primereact/confirmpopup';
 
 const UserSettings = () => {
 
@@ -55,7 +56,7 @@ const UserSettings = () => {
         dispatch(SET_TOAST(toast))
     }
 
-  const fetchUsers = async () => {
+    const fetchUsers = async () => {
         const [err, data] = await to(userService.fetchUsers(token))
         if (err) return showErrorMessage(err)
         setUsers(data)
@@ -98,7 +99,7 @@ const UserSettings = () => {
         if (err) return showErrorMessage(err)
         setSelectUserOrders(data.data)
         setProductLoading(false)
-        
+
     }
 
 
@@ -188,6 +189,28 @@ const UserSettings = () => {
 
     }, [handleProductApprovalStatusChange]);
 
+    const handleDetleteProduct = async (id: number) => {
+        const [err, data] = await to(productService.deleteProduct(id, token))
+        if (err) return showErrorMessage(err)
+        showSuccess(data.message)
+        fetchUserProducts()
+    }
+
+    const confirmDelete = (event: any, id: number) => {
+        confirmPopup({
+            target: event.currentTarget,
+            message: 'Silmek istediğinize emin misiniz?',
+            icon: 'pi pi-exclamation-triangle',
+            accept: () => handleDetleteProduct(id),
+            reject: () => { },
+            acceptLabel: 'Sil',
+            rejectLabel: 'Hayır',
+            acceptIcon: 'pi pi-trash',
+            rejectIcon: 'pi pi-times',
+            acceptClassName: 'p-button-danger'
+        });
+    }
+
     const renderselectUserProducts = useCallback((data: IProduct) => (
         <div className="flex items-center w-full">
             <div className="flex flex-row items-center w-full justify-evenly gap-2 ml-2">
@@ -206,7 +229,14 @@ const UserSettings = () => {
                 <div className="card flex flex-wrap gap-2 justify-content-center">
                     {renderIsApproved(data)}
                 </div>
+                <ConfirmPopup />
 
+                <Button label="Sil"
+                    onClick={(e) => confirmDelete(e, data.id)}
+                    severity="danger"
+                    loading={false}
+                    className="ml-3"
+                />
             </div>
 
 
