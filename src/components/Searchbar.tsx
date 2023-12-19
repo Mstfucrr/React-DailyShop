@@ -18,7 +18,7 @@ const Searchbar = () => {
 
     const { token, isAuthorized } = useSelector(authSelector)
     const [cartCount, setCartCount] = useState<number>(0)
-    const [walletCount, setWalletCount] = useState<number>(0)
+    const [balance, setBalance] = useState<number>(0)
     const [favoritesList, setFavoritesList] = useState<any[]>([])
     const [isShowWalletScreen, setIsShowWalletScreen] = useState<boolean>(false)
 
@@ -41,8 +41,9 @@ const Searchbar = () => {
 
     const fetchWallet = async () => {
         const [err, data] = await to(getWalletByUser(token))
+        console.log(data)
         if (err) return showErrorMessage(err.message)
-        setWalletCount(data.data)
+        setBalance(data.data.balance ?? 0)
     }
 
     const fetchFavorites = async () => {
@@ -50,7 +51,7 @@ const Searchbar = () => {
         if (err) return showErrorMessage(err.message)
         setFavoritesList(data.data)
     }
-    
+
     const deleteFavorite = async (id: number) => {
         const [err, data] = await to(favoritesService.deleteFavorite(token, id))
         if (err) return showErrorMessage(err.message)
@@ -110,10 +111,11 @@ const Searchbar = () => {
 
                         <button className="border border-secondary inline-block text-center rounded-none select-none py-[.375rem] px-3 align-middle mr-1"
                             //@ts-ignore
-                            onClick={(e) => opWallet?.current?.toggle(e)}
+                            onClick={(e) => { opWallet?.current?.toggle(e); fetchWallet() }}
+
                         >
                             <FaWallet className="w-6 h-auto inline-block text-primary" />
-                            <span className="inline-block py-[.25em] px-[.6em] font-bold text-[75%] relative -top-[1px]">{walletCount}</span>
+                            <span className="inline-block py-[.25em] px-[.6em] font-bold text-[75%] relative -top-[1px]">{balance} ₺</span>
                         </button>
 
                         <OverlayPanel ref={opWallet} className="w-[300px]">
@@ -127,7 +129,7 @@ const Searchbar = () => {
                                     <div className="flex flex-row items-center justify-between">
                                         <div className="flex flex-col">
                                             <h1 className="text-lg font-semibold">Bakiye</h1>
-                                            <span className="text-sm text-gray-500">0 TL</span>
+                                            <span className="text-sm text-gray-500">{balance} ₺</span>
                                         </div>
                                         <button className="text-primary fawallet"
                                             // onClickte para eklemesi yapılacak
@@ -154,7 +156,7 @@ const Searchbar = () => {
 
                         <button className="border border-secondary inline-block text-center rounded-none select-none py-[.375rem] px-3 align-middle mr-1"
                             //@ts-ignore
-                            onClick={(e) => {op?.current?.toggle(e); fetchFavorites()}}
+                            onClick={(e) => { op?.current?.toggle(e); fetchFavorites() }}
                         >
 
                             <FaHeart className="w-6 h-auto inline-block text-primary" />

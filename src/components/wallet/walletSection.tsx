@@ -30,14 +30,14 @@ const WalletSection = ({ setIsShowWalletScreen }: Props) => {
     const { token } = useSelector(authSelector)
     const dispatch = useDispatch()
 
-    const handleSubmit = async (values: any) => {
+    const handleSubmit = async () => {
         if (addMoneyValue <= 5) {
             const toast: IToast = { severity: 'error', summary: 'Hata', detail: "En az 5 TL yükleyebilirsiniz", life: 3000 }
             dispatch(SET_TOAST(toast))
             return
         }
 
-        const [err, res] = await to(addMoneyToWallet({ 'money': values.money }, token))
+        const [err, res] = await to(addMoneyToWallet({ 'Balance': addMoneyValue }, token))
         if (err) {
             console.log(err)
             const toast: IToast = { severity: 'error', summary: 'Hata', detail: err.message, life: 3000 }
@@ -46,6 +46,7 @@ const WalletSection = ({ setIsShowWalletScreen }: Props) => {
         }
         const toast: IToast = { severity: 'success', summary: 'Başarılı', detail: res.message, life: 3000 }
         dispatch(SET_TOAST(toast))
+        setIsShowWalletScreen(false)
     }
 
 
