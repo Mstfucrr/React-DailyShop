@@ -28,6 +28,14 @@ export const reviewStatus = [
     { label: 'Reddet', value: 'reject' }
 ];
 
+export const productStatus = [
+    { label: 'Yeni', value: 'new' },
+    { label: 'İkinci El', value: 'second-hand' },
+    { label: 'Yenilenmiş', value: 'renewed' },
+    { label: 'Kullanılmış', value: 'used' },
+    { label: 'Kötü', value: 'bad' },
+];
+
 export const orderStatus = [
     { label: 'Yeni', value: Ordertatus.New },
     { label: 'Kabul Edildi', value: Ordertatus.Accepted },
