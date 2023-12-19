@@ -9,13 +9,13 @@ import { useCallback, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import ImageUpload from "./ImageUpload"
 import ProductInfo from "./ProductInfo"
-import * as Yup from 'yup'
 import { ProgressSpinner } from "primereact/progressspinner"
 import { Button } from "primereact/button"
+import { productInfoValidationSchema } from "@/shared/validationSchemas"
 
 const Seller = () => {
 
-    const [coverImage, setcoverImage] = useState<File | null>(null)
+    const [coverImage, setCoverImage] = useState<File | null>(null)
     const [images, setImages] = useState<File[] | null>([])
     const [loading, setLoading] = useState<boolean>(false)
     const { token } = useSelector(authSelector)
@@ -32,31 +32,9 @@ const Seller = () => {
         sizes: [] as string[] | undefined,
     })
 
-    const validationSchema = Yup.object().shape({
-        productName: Yup.string()
-            .required('Ürün adı gereklidir')
-            .min(3, 'Ürün adı çok kısa')
-            .max(50, 'Ürün adı çok uzun'),
-        price: Yup.number()
-            .required('Fiyat gereklidir')
-            .min(2, 'Fiyat 2 dan küçük olamaz'),
-        stock: Yup.number()
-            .required('Stok gereklidir')
-            .min(0, 'Stok 0 dan küçük olamaz'),
-        description: Yup.string()
-            .required('Açıklama gereklidir')
-            .min(40, 'Açıklama çok kısa'),
-        status: Yup.string()
-            .required('Durum gereklidir'),
-        colors: Yup.array()
-            .min(1, 'En az bir renk seçiniz'),
-        category: Yup.string()
-            .required('Kategori seçiniz'),
-    })
-
     const formik = useFormik({
         initialValues: {
-            productName: '',
+            name: '',
             price: 0,
             stock: 0,
             description: '',
@@ -64,7 +42,7 @@ const Seller = () => {
             category: '',
             colors: [],
         },
-        validationSchema: validationSchema,
+        validationSchema: productInfoValidationSchema,
         onSubmit: async () => {
             setLoading(true)
 
@@ -119,23 +97,19 @@ const Seller = () => {
     }, [])
 
     return (
-        <>
-
-            <section className="h-auto lg:px-20 px-5 my-10">
-                {loading && LoadingTemplete()}
-                <div className="flex md:flex-row flex-col w-full h-full gap-10 justify-around">
-                    {/* cover and another images */}
-                    <div className="basis-2/5 h-full w-full flex">
-                        <ImageUpload setcoverImage={setcoverImage} setImages={setImages as React.Dispatch<React.SetStateAction<File[]>>} />
-                    </div>
-                    {/* product informations */}
-                    <div className="basis-3/5 h-full w-full">
-                        <ProductInfo formik={formik} setProductInfo={setProductInfo as any} productInfo={productInfo} loading={loading} />
-                    </div>
+        <section className="h-auto lg:px-20 px-5 my-10">
+            {loading && LoadingTemplete()}
+            <div className="flex md:flex-row flex-col w-full h-full gap-10 justify-around">
+                {/* cover and another images */}
+                <div className="basis-2/5 h-full w-full flex">
+                    <ImageUpload setcoverImage={setCoverImage} setImages={setImages as React.Dispatch<React.SetStateAction<File[]>>} />
                 </div>
-            </section>
-
-        </>
+                {/* product informations */}
+                <div className="basis-3/5 h-full w-full">
+                    <ProductInfo formik={formik} setProductInfo={setProductInfo as any} productInfo={productInfo} loading={loading} />
+                </div>
+            </div>
+        </section>
     )
 }
 
