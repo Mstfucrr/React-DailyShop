@@ -56,8 +56,8 @@ const Searchbar = () => {
     useEffect(() => {
         if (isAuthorized) {
             fetchCart()
-            // fetchWallet()
-            // fetchFavorites()
+            fetchWallet()
+            fetchFavorites()
         }
     }, [])
 
@@ -148,11 +148,11 @@ const Searchbar = () => {
 
                         <button className="border border-secondary inline-block text-center rounded-none select-none py-[.375rem] px-3 align-middle mr-1"
                             //@ts-ignore
-                            onClick={(e) => op?.current?.toggle(e)}
+                            onClick={(e) => {op?.current?.toggle(e); fetchFavorites()}}
                         >
 
                             <FaHeart className="w-6 h-auto inline-block text-primary" />
-                            <span className="inline-block py-[.25em] px-[.6em] font-bold text-[75%] relative -top-[1px]">0</span>
+                            <span className="inline-block py-[.25em] px-[.6em] font-bold text-[75%] relative -top-[1px]">{favoritesList.length}</span>
                         </button>
 
                         <OverlayPanel ref={op} className="w-[300px]">
@@ -170,7 +170,7 @@ const Searchbar = () => {
                                                     <h1 className="text-lg font-semibold">{item.product.name}</h1>
                                                 </div>
                                             </Link>
-                                            <button className="text-primary">
+                                            <button className="text-primary" onClick={() => deleteFavorite(item.id)}>
                                                 <FaHeart className="w-6 h-auto inline-block text-primary" />
                                             </button>
 
