@@ -37,7 +37,7 @@ const WalletSection = ({ setIsShowWalletScreen }: Props) => {
             return
         }
 
-        const [err, res] = await to(addMoneyToWallet(values.money, token))
+        const [err, res] = await to(addMoneyToWallet({ 'money': values.money }, token))
         if (err) {
             console.log(err)
             const toast: IToast = { severity: 'error', summary: 'Hata', detail: err.message, life: 3000 }
