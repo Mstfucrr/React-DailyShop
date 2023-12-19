@@ -16,7 +16,7 @@ import { IToast } from '@/store/Toast/type';
 import { useDispatch } from 'react-redux';
 import { SET_TOAST } from '@/store/Toast';
 import { ProgressSpinner } from 'primereact/progressspinner';
-import { colors, sizes } from '@/shared/constants';
+import { colors, productStatus, sizes } from '@/shared/constants';
 
 type Props = {
     productInfo: IProductInfo
@@ -70,196 +70,187 @@ const ProductInfo = (
     };
 
     return (
-        <>
-            <div className="flex h-auto flex-col gap-y-7">
-                <h2 className="text-4xl font-semibold mb-5">Ürün Bilgileri</h2>
-                <form className="flex flex-col gap-y-4"
-                    onSubmit={formik.handleSubmit}
-                >
+        <div className="flex h-auto flex-col gap-y-7">
+            <h2 className="text-4xl font-semibold mb-5">Ürün Bilgileri</h2>
+            <form className="flex flex-col gap-y-4"
+                onSubmit={formik.handleSubmit}
+            >
 
-                    {/* category */}
-                    <span className="p-float-label">
-                        <TreeSelect id='ts-category' name='ts-category'
-                            className={`w-full md:w-56 ${formik.touched.category && formik.errors.category ? 'p-invalid' : ''}`}
-                            value={formik.values.category}
-                            options={TreeNodes}
-                            onChange={(e: TreeSelectChangeEvent) => {
-                                formik.setFieldValue('category', e.value);
-                                setSelectedNodeKey(e.value as string)
-                            }}
-                            filter
+                {/* category */}
+                <span className="p-float-label">
+                    <TreeSelect id='ts-category' name='ts-category'
+                        className={`w-full md:w-56 ${formik.touched.category && formik.errors.category ? 'p-invalid' : ''}`}
+                        value={formik.values.category}
+                        options={TreeNodes}
+                        onChange={(e: TreeSelectChangeEvent) => {
+                            formik.setFieldValue('category', e.value);
+                            setSelectedNodeKey(e.value as string)
+                        }}
+                        filter
+                    />
+                    <label htmlFor="ts-category">
+                        Bir Kategori Seç
+                    </label>
+
+                    {formik.touched.category &&
+                        showFormErrorMessage(formik.errors.category!)
+                    }
+
+                </span>
+
+
+                {/* product name and pierce */}
+                <div className="flex flex-row flex-wrap gap-5 w-full">
+
+                    <div className="w-full md:w-1/2">
+                        <label htmlFor="name" className="font-bold block mb-2">Ürün Adı</label>
+                        <InputText id="name" name="name"
+                            className={`w-full ${formik.touched.name && formik.errors.name ? 'p-invalid' : ''}`}
+                            value={formik.values.name}
+                            onChange={(e) => formik.setFieldValue('name', e.target.value)}
                         />
-                        <label htmlFor="ts-category">
-                            Bir Kategori Seç
-                        </label>
-
-                        {formik.touched.category &&
-                            showFormErrorMessage(formik.errors.category!)
+                        {formik.touched.name &&
+                            showFormErrorMessage(formik.errors.name!)
                         }
 
-                    </span>
-
-
-                    {/* product name and pierce */}
-                    <div className="flex flex-row flex-wrap gap-5 w-full">
-
-                        <div className="w-full md:w-1/2">
-                            <label htmlFor="in-product-name" className="font-bold block mb-2">Ürün Adı</label>
-                            <InputText id="in-product-name" name="in-product-name"
-                                className={`w-full ${formik.touched.productName && formik.errors.productName ? 'p-invalid' : ''}`}
-                                value={formik.values.productName}
-                                onChange={(e) => formik.setFieldValue('productName', e.target.value)}
-                            />
-                            {formik.touched.productName &&
-                                showFormErrorMessage(formik.errors.productName!)
-                            }
-
-
-                        </div>
-                        <div className="w-full md:w-1/2 flex gap-x-3 flex-col">
-                            <label htmlFor="in-product-price" className="font-bold block mb-2">Fiyatı</label>
-                            <InputNumber id="in-product-price" name="in-product-price"
-                                mode="currency" currency="TRY" locale="de-DE" minFractionDigits={2}
-                                className={`w-full mb-2 ${formik.touched.price && formik.errors.price ? 'p-invalid' : ''}`}
-                                onChange={(e) => formik.setFieldValue('price', e.value as any)}
-                                value={formik.values.price}
-                            />
-                            {formik.touched.price &&
-                                showFormErrorMessage(formik.errors.price!)
-                            }
-
-                            {/* fiyat önerisi getir */}
-                            <div className="flex items-center gap-x-2 flex-row flex-wrap">
-
-                                <Button label="Fiyat Önerisi Al" className="w-44 !text-sm" type='button' />
-                                <span>
-                                    Önerisi : 4527.24,21 ₺
-                                </span>
-                            </div>
-                        </div>
-
 
                     </div>
+                    <div className="w-full md:w-1/2 flex gap-x-3 flex-col">
+                        <label htmlFor="in-product-price" className="font-bold block mb-2">Fiyatı</label>
+                        <InputNumber id="in-product-price" name="in-product-price"
+                            mode="currency" currency="TRY" locale="de-DE" minFractionDigits={2}
+                            className={`w-full mb-2 ${formik.touched.price && formik.errors.price ? 'p-invalid' : ''}`}
+                            onChange={(e) => formik.setFieldValue('price', e.value as any)}
+                            value={formik.values.price}
+                        />
+                        {formik.touched.price &&
+                            showFormErrorMessage(formik.errors.price!)
+                        }
 
-                    {/* colors and sizes (multi) */}
-                    <div className="flex flex-row flex-wrap gap-x-5 w-full">
-                        <div className="w-full md:w-1/3">
-                            <label htmlFor="dd-colors" className="font-bold block mb-2">Renkler</label>
-                            <MultiSelect id="dd-colors" name="dd-colors" multiple
-                                options={colors}
-                                value={formik.values.colors}
-                                onChange={(e: DropdownChangeEvent) => formik.setFieldValue('colors', e.value )}
-                                itemTemplate={colorTemplete}
-                                className={`w-full ${formik.touched.colors && formik.errors.colors ? 'p-invalid' : ''}`}
-                            />
-                            {formik.touched.colors &&
-                                showFormErrorMessage(formik.errors.colors!)
-                            }
-                        </div>
-                        <div className="w-full md:w-1/3">
-                            <label htmlFor="dd-sizes" className="font-bold block mb-2">Bedenler</label>
-                            <MultiSelect id="dd-sizes" name="dd-sizes" className="w-full " multiple
-                                options={sizes}
-                                value={selectedSizes}
-                                onChange={(e: DropdownChangeEvent) => setSelectedSizes(e.value )}
+                        {/* fiyat önerisi getir */}
+                        <div className="flex items-center gap-x-2 flex-row flex-wrap">
 
-                            />
-
-                        </div>
-
-                    </div>
-
-                    {/* bilgiler ( durum, stok adet) */}
-                    <div className="flex flex-row flex-wrap gap-x-5 w-full">
-                        <div className="w-full md:w-1/3">
-                            <label htmlFor="dd-status" className="font-bold block mb-2">Durum</label>
-                            <Dropdown id="dd-status" name="dd-status"
-                                options={[
-                                    { label: 'Yeni', value: 'new' },
-                                    { label: 'İkinci El', value: 'second-hand' },
-                                    { label: 'Yenilenmiş', value: 'renewed' },
-                                    { label: 'Kullanılmış', value: 'used' },
-                                    { label: 'Kötü', value: 'bad' },
-                                ]}
-                                onChange={(e: DropdownChangeEvent) => {
-                                    formik.setFieldValue('status', e.value );
-                                }}
-                                value={formik.values.status}
-                                className={`w-full ${formik.touched.status && formik.errors.status ? 'p-invalid' : ''}`}
-                            />
-
-                            {formik.touched.status &&
-                                showFormErrorMessage(formik.errors.status!)
-                            }
-
-                        </div>
-
-                        <div className="w-full md:w-1/3">
-                            <label htmlFor="in-stock" className="font-bold block mb-2">Stok Adedi</label>
-                            <InputNumber id="in-stock" name="in-stock" min={1}
-                                onChange={(e) => formik.setFieldValue('stock', e.value as any)}
-                                className={`w-full ${formik.touched.stock && formik.errors.stock ? 'p-invalid' : ''}`}
-                                value={formik.values.stock}
-                            />
+                            <Button label="Fiyat Önerisi Al" className="w-44 !text-sm" type='button' />
+                            <span>
+                                Önerisi : 4527.24,21 ₺
+                            </span>
                         </div>
                     </div>
 
-                    {/* description */}
-                    <div className="flex w-full mt-5 ">
-                        <div className="w-full card mx-auto">
-                            <label htmlFor="ed-description" className="font-bold block mb-2">Açıklama</label>
-                            <Editor value={formik.values.description} 
-                                onTextChange={(e: EditorTextChangeEvent) => formik.setFieldValue('description', e.htmlValue as any)}
-                                style={{ height: '300px' }}
-                                id="ed-description" name="ed-description"
-                                className={`w-full ${formik.touched.description && formik.errors.description ? 'border-red-500 border' : ''}`}
-                            />
 
-                            {formik.touched.description &&
-                                showFormErrorMessage(formik.errors.description!)
-                            }
+                </div>
 
-                        </div>
+                {/* colors and sizes (multi) */}
+                <div className="flex flex-row flex-wrap gap-x-5 w-full">
+                    <div className="w-full md:w-1/3">
+                        <label htmlFor="dd-colors" className="font-bold block mb-2">Renkler</label>
+                        <MultiSelect id="dd-colors" name="dd-colors" multiple
+                            options={colors}
+                            value={formik.values.colors}
+                            onChange={(e: DropdownChangeEvent) => formik.setFieldValue('colors', e.value)}
+                            itemTemplate={colorTemplete}
+                            className={`w-full ${formik.touched.colors && formik.errors.colors ? 'p-invalid' : ''}`}
+                        />
+                        {formik.touched.colors &&
+                            showFormErrorMessage(formik.errors.colors!)
+                        }
+                    </div>
+                    <div className="w-full md:w-1/3">
+                        <label htmlFor="dd-sizes" className="font-bold block mb-2">Bedenler</label>
+                        <MultiSelect id="dd-sizes" name="dd-sizes" className="w-full " multiple
+                            options={sizes}
+                            value={selectedSizes}
+                            onChange={(e: DropdownChangeEvent) => setSelectedSizes(e.value)}
+
+                        />
+
                     </div>
 
-                    {/* SUBMİT */}
+                </div>
 
-                    <Button className='text-white !mt-7 w-1/3' type='submit' disabled={loading} text={loading}
+                {/* bilgiler ( durum, stok adet) */}
+                <div className="flex flex-row flex-wrap gap-x-5 w-full">
+                    <div className="w-full md:w-1/3">
+                        <label htmlFor="dd-status" className="font-bold block mb-2">Durum</label>
+                        <Dropdown id="dd-status" name="dd-status"
+                            options={productStatus}
+                            onChange={(e: DropdownChangeEvent) => {
+                                formik.setFieldValue('status', e.value);
+                            }}
+                            value={formik.values.status}
+                            className={`w-full ${formik.touched.status && formik.errors.status ? 'p-invalid' : ''}`}
+                        />
+
+                        {formik.touched.status &&
+                            showFormErrorMessage(formik.errors.status!)
+                        }
+
+                    </div>
+
+                    <div className="w-full md:w-1/3">
+                        <label htmlFor="in-stock" className="font-bold block mb-2">Stok Adedi</label>
+                        <InputNumber id="in-stock" name="in-stock" min={1}
+                            onChange={(e) => formik.setFieldValue('stock', e.value as any)}
+                            className={`w-full ${formik.touched.stock && formik.errors.stock ? 'p-invalid' : ''}`}
+                            value={formik.values.stock}
+                        />
+                    </div>
+                </div>
+
+                {/* description */}
+                <div className="flex w-full mt-5 ">
+                    <div className="w-full card mx-auto">
+                        <label htmlFor="ed-description" className="font-bold block mb-2">Açıklama</label>
+                        <Editor value={formik.values.description}
+                            onTextChange={(e: EditorTextChangeEvent) => formik.setFieldValue('description', e.htmlValue as any)}
+                            style={{ height: '300px' }}
+                            id="ed-description" name="ed-description"
+                            className={`w-full ${formik.touched.description && formik.errors.description ? 'border-red-500 border' : ''}`}
+                        />
+
+                        {formik.touched.description &&
+                            showFormErrorMessage(formik.errors.description!)
+                        }
+
+                    </div>
+                </div>
+
+                {/* SUBMİT */}
+
+                <Button className='text-white !mt-7 w-1/3' type='submit' disabled={loading} text={loading}
                     severity="help"
-                        onClick={
-                            () => {
-                                setProductInfo(
-                                    {
-                                        ...productInfo,
-                                        price: formik.values.price,
-                                        stock: formik.values.stock,
-                                        status: formik.values.status,
-                                        description: formik.values.description,
-                                        colors: formik.values.colors,
-                                        sizes: selectedSizes,
-                                        categoryId: selectedCategory?.id!,
-                                        name: formik.values.productName,
-                                    }
-                                )
-                            }
+                    onClick={
+                        () => {
+                            setProductInfo(
+                                {
+                                    ...productInfo,
+                                    price: formik.values.price,
+                                    stock: formik.values.stock,
+                                    status: formik.values.status,
+                                    description: formik.values.description,
+                                    colors: formik.values.colors,
+                                    sizes: selectedSizes,
+                                    categoryId: selectedCategory?.id!,
+                                    name: formik.values.productName,
+                                }
+                            )
                         }
-                    >
-                        {loading ?
-                            <div className="flex items-center w-1/2 gap-x-2 max-h-10">
-                                <ProgressSpinner className='!w-16' strokeWidth='3.5' />
-                                <span>Kaydediliyor...</span>
-                            </div>
-                            :
-                            <span className='w-full text-center'>Kaydet</span>
-                        }
+                    }
+                >
+                    {loading ?
+                        <div className="flex items-center w-1/2 gap-x-2 max-h-10">
+                            <ProgressSpinner className='!w-16' strokeWidth='3.5' />
+                            <span>Kaydediliyor...</span>
+                        </div>
+                        :
+                        <span className='w-full text-center'>Kaydet</span>
+                    }
 
-                    </Button>
+                </Button>
 
-                </form>
+            </form>
 
-            </div>
-
-        </>
+        </div>
     )
 }
 
