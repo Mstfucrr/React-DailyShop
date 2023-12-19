@@ -164,7 +164,7 @@ const Searchbar = () => {
                                     {/* Favori ürünlerin listesi */}
                                     {favoritesList.map((item) => (
                                         <div className="flex flex-row items-center justify-between" key={item.id}>
-                                            <Link to={`/product/1`} className="rounded-md overflow-hidden flex flex-row items-center justify-between gap-8">
+                                            <Link to={`/product/${item.product.id}`} className="rounded-md overflow-hidden flex flex-row items-center justify-between gap-8">
                                                 <img src={item.product.image} alt="" className="w-[50px] h-[50px] rounded-md" />
                                                 <div className="flex flex-col">
                                                     <h1 className="text-lg font-semibold">{item.product.name}</h1>
