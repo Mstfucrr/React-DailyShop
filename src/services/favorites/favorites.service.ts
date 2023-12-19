@@ -7,8 +7,8 @@ const getFavorites = async (token: string) =>
 const addFavorite = async (token: string, productId: number) =>
     await makeRequest<any>(`Favorites/AddFavorite?productId=${productId}`, "POST", null, token);
 
-const deleteFavorite = async (token: string,productId: number) =>
-    await makeRequest<any>(`Favorites/DeleteFavorite?productId=${productId}`, "DELETE", null, token);
+const deleteFavorite = async (token: string,favoriteId: number) =>
+    await makeRequest<any>(`Favorites/DeleteFavorite?favoriteId=${favoriteId}`, "DELETE", null, token);
 
 export const favoritesService = {
     getFavorites,

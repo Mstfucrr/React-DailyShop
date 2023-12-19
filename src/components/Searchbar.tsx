@@ -25,7 +25,11 @@ const Searchbar = () => {
     const dispatch = useDispatch()
 
     const showErrorMessage = (message: string) => {
-        const toast: IToast = { severity: 'error', summary: 'Hata', detail: message, life: 3000 }
+        const toast: IToast = { severity: 'error', summary: 'Hata', detail: message, life: 2000 }
+        dispatch(SET_TOAST(toast))
+    }
+    const showSuccess = (message: string) => {
+        const toast: IToast = { severity: 'success', summary: 'Başarılı', detail: message, life: 2000 }
         dispatch(SET_TOAST(toast))
     }
 
@@ -51,6 +55,8 @@ const Searchbar = () => {
         const [err, data] = await to(favoritesService.deleteFavorite(token, id))
         if (err) return showErrorMessage(err.message)
         setFavoritesList(data.data)
+        fetchFavorites()
+        showSuccess(data.message)
     }
 
     useEffect(() => {
@@ -152,7 +158,7 @@ const Searchbar = () => {
                         >
 
                             <FaHeart className="w-6 h-auto inline-block text-primary" />
-                            <span className="inline-block py-[.25em] px-[.6em] font-bold text-[75%] relative -top-[1px]">{favoritesList.length}</span>
+                            <span className="inline-block py-[.25em] px-[.6em] font-bold text-[75%] relative -top-[1px]">{favoritesList?.length}</span>
                         </button>
 
                         <OverlayPanel ref={op} className="w-[300px]">
@@ -162,7 +168,7 @@ const Searchbar = () => {
                                 </div>
                                 <div className="flex flex-col gap-4">
                                     {/* Favori ürünlerin listesi */}
-                                    {favoritesList.map((item) => (
+                                    {favoritesList?.map((item) => (
                                         <div className="flex flex-row items-center justify-between" key={item.id}>
                                             <Link to={`/product/${item.product.id}`} className="rounded-md overflow-hidden flex flex-row items-center justify-between gap-8">
                                                 <img src={item.product.image} alt="" className="w-[50px] h-[50px] rounded-md" />
