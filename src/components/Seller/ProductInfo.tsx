@@ -29,7 +29,7 @@ const ProductInfo = (
     { formik, setProductInfo, productInfo, loading }: Props
 ) => {
 
-    const [TreeNodes, setTreeNodes] = useState<TreeNode[] | undefined>(undefined)
+    const [treeNodes, setTreeNodes] = useState<TreeNode[] | undefined>(undefined)
     const [selectedCategory, setSelectedCategory] = useState<ICategory>()
     const [selectedNodeKey, setSelectedNodeKey] = useState<string | undefined>(undefined);
     const [selectedSizes, setSelectedSizes] = useState<string[] | undefined>([])
@@ -60,8 +60,8 @@ const ProductInfo = (
     }, [])
 
     useEffect(() => {
-        if (TreeNodes && selectedNodeKey)
-            setSelectedCategory(findCategoryByKeyInTreeSelectModel(TreeNodes, selectedNodeKey))
+        if (treeNodes && selectedNodeKey)
+            setSelectedCategory(findCategoryByKeyInTreeSelectModel(treeNodes, selectedNodeKey))
     }, [selectedCategory, selectedNodeKey]);
 
 
@@ -81,7 +81,7 @@ const ProductInfo = (
                     <TreeSelect id='ts-category' name='ts-category'
                         className={`w-full md:w-56 ${formik.touched.category && formik.errors.category ? 'p-invalid' : ''}`}
                         value={formik.values.category}
-                        options={TreeNodes}
+                        options={treeNodes}
                         onChange={(e: TreeSelectChangeEvent) => {
                             formik.setFieldValue('category', e.value);
                             setSelectedNodeKey(e.value as string)
@@ -231,7 +231,7 @@ const ProductInfo = (
                                     colors: formik.values.colors,
                                     sizes: selectedSizes,
                                     categoryId: selectedCategory?.id!,
-                                    name: formik.values.productName,
+                                    name: formik.values.name,
                                 }
                             )
                         }
