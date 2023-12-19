@@ -11,6 +11,7 @@ import {
     updateReviewStatus,
     fetchOrdersByUserId
 } from './user.service'
+import { deleteProduct } from '../product/product.service'
 
 export class AdminService {
     settings: {
@@ -26,7 +27,8 @@ export class AdminService {
     }
 
     products: {
-        getAllProducts: (token: string) => Promise<any>
+        getAllProducts: (token: string) => Promise<any>,
+        deleteProduct: (id: number, token: string) => Promise<any>,
     }
 
     users: {
@@ -52,7 +54,8 @@ export class AdminService {
             deleteCategoryById
         }
         this.products = {
-            getAllProducts
+            getAllProducts,
+            deleteProduct
         }
         this.users = {
             fetchUsers,
