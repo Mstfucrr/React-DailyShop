@@ -150,8 +150,8 @@ const CreditCard = ({ setCardValues, cardValues, handleSubmit }: Props) => {
                             )}
                         </div>
                     </div>
-                    <button 
-                        onClick={handleSubmit}
+                    <button
+                        type="submit"
                         className="bg-primary text-white rounded-lg py-2 px-4
                                         hover:bg-white hover:text-primaryDark hover:border-primaryDark border border-primaryDark
                                         transition duration-300 ease-in-out">
