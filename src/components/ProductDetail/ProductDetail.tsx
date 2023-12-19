@@ -3,16 +3,12 @@ import { Galleria } from 'primereact/galleria';
 import { useEffect, useRef, useState } from "react";
 import { Rating } from "primereact/rating";
 import { RadioButton } from "primereact/radiobutton";
-import { FaComment, FaCommentAlt, FaHeart, FaInfoCircle, FaMinus, FaPencilAlt, FaPlus, FaShoppingCart, FaSpinner, FaTrashAlt } from "react-icons/fa";
+import { FaCommentAlt, FaHeart, FaInfoCircle, FaMinus, FaPencilAlt, FaPlus, FaShoppingCart } from "react-icons/fa";
 import { MdDescription } from "react-icons/md";
 import { TabView, TabPanel } from 'primereact/tabview';
-import { Avatar } from 'primereact/avatar';
-import * as Yup from 'yup'
-import { useFormik } from 'formik'
-import { InputTextarea } from "primereact/inputtextarea";
 import { Messages } from "primereact/messages";
 import { Link, useParams } from "react-router-dom";
-import { getProductById, addReviewToProduct, deleteReviewFromProduct } from "@/services/product/product.service";
+import { getProductById } from "@/services/product/product.service";
 import { setProductCookie } from "@/helper/cookieUtils";
 import { useDispatch, useSelector } from "react-redux";
 import { authSelector } from "@/store/auth";
@@ -25,7 +21,7 @@ import to from "await-to-js";
 import { ProgressSpinner } from "primereact/progressspinner";
 import UpdateProduct from "../account/userProducts/UpdateProduct";
 import { favoritesService } from "@/services/favorites/favorites.service";
-import { InputText } from "primereact/inputtext";
+import ProductReview from "./productReview";
 
 
 const ProductDetail = () => {
@@ -33,7 +29,6 @@ const ProductDetail = () => {
     const { id } = useParams()
     const [productLoading, setProductLoading] = useState<boolean>(false)
     const [addCartLoading, setAddCartLoading] = useState<boolean>(false)
-    const [addReviewLoading, setAddReviewLoading] = useState<boolean>(false)
     const [product, setProduct] = useState<IProduct | null>(null)
     const [selectSize, setSelectSize] = useState<string | undefined>(undefined)
     const [selectColor, setSelectColor] = useState<string | undefined>(undefined)
@@ -45,7 +40,6 @@ const ProductDetail = () => {
     const [colors, setColors] = useState<{ name: string; key: string; }[] | undefined>(undefined)
     const dispatch = useDispatch()
     const [isUpdate, setIsUpdate] = useState<boolean>(false)
-
 
     // kullanıcı giriş yapmış mı konrol et ve hangi üründe ne kadar gezindiğini cooki ye kaydet
 
@@ -119,45 +113,6 @@ const ProductDetail = () => {
         );
     }
 
-
-    // validate for review
-    const validationSchema = Yup.object().shape({
-        comment: Yup.string()
-            .required('Yorum alanı boş bırakılamaz')
-            .max(500, 'Yorumunuz çok uzun')
-            .min(4, 'Yorumunuz çok kısa'),
-        rating: Yup.number()
-            .min(1, "Rating alanı boş bırakılamaz"),
-    })
-    const formik = useFormik({
-        initialValues: {
-            comment: '',
-            rating: 0
-        },
-        validationSchema,
-        onSubmit: async (values) => {
-            if (!product) return
-            const review = {
-                rating: values.rating,
-                comment: values.comment,
-            }
-            setAddReviewLoading(true)
-            const [err, data] = await to(addReviewToProduct(product.id, review, token))
-            if (err) {
-                const toast: IToast = { severity: 'error', summary: "Hata", detail: err.message, life: 3000 }
-                dispatch(SET_TOAST(toast))
-                setAddReviewLoading(false)
-                return
-            }
-            if (data) {
-                const toast: IToast = { severity: 'success', summary: "Başarılı", detail: data.message, life: 3000 }
-                dispatch(SET_TOAST(toast))
-            }
-            setAddReviewLoading(false)
-            formik.resetForm()
-        }
-    })
-
     const handleAddToCart = async () => {
         if (!product) return
         if (!isAuthorized) {
@@ -191,20 +146,6 @@ const ProductDetail = () => {
 
     }
 
-    const handleDeleteReview = async (rewId: number) => {
-
-        if (!product) return
-
-        const [err, data] = await to(deleteReviewFromProduct(product.id, rewId, token))
-        if (err) {
-            const toast: IToast = { severity: 'error', summary: "Hata", detail: err.message, life: 3000 }
-            dispatch(SET_TOAST(toast))
-            return
-        }
-        if (data.data != null) {
-            setReviews(data.data)
-        }
-    }
 
     const addToCartSuccessTemplete = (message: string) => {
 
@@ -232,35 +173,6 @@ const ProductDetail = () => {
         if (err) return console.log(err)
         const toast: IToast = { severity: 'success', summary: 'Başarılı', detail: data?.message, life: 3000 }
         dispatch(SET_TOAST(toast))
-    }
-
-    const handleAnswerReview = async (id: number) => {
-        const [err, data] = await to(favoritesService.addFavorite(token, id))
-        if (err) return console.log(err)
-        const toast: IToast = { severity: 'success', summary: 'Başarılı', detail: data?.message, life: 3000 }
-        dispatch(SET_TOAST(toast))
-    }
-
-    const [answerReview, setAnswerReview] = useState<number | undefined>(undefined)
-    const [answerReviewText, setAnswerReviewText] = useState<string>('')
-
-    const answerReviewTemplete = (review: IReview) => {
-        return (
-            <div className="flex flex-col m-3 p-3 gap-4">
-                <span className="p-input-icon-left">
-                    <i className="!text-blue-600">{review.user?.email}</i>
-                    <InputText className=" sm:w-1/2 w-full"
-                        value={answerReviewText}
-                        onChange={(e) => setAnswerReviewText(e.target.value)}
-                    />
-                </span>
-                <button className="bg-primary text-white px-3 py-2 rounded-md w-min
-                    hover:bg-primaryDark transition-all duration-300 ease-in-out"
-                    onClick={() => handleAnswerReview(review.id)}
-                    disabled={answerReviewText.length < 4}>Gönder</button>
-
-            </div>
-        )
     }
 
 
@@ -452,161 +364,13 @@ const ProductDetail = () => {
                                     </div>
 
                                 </TabPanel>
+
                                 <TabPanel header={
                                     <div className="text-primary">
                                         <FaCommentAlt className="inline mr-2" />Yorumlar
                                     </div>
                                 }>
-                                    <div className="flex flex-col lg:flex-row w-full px-5 gap-x-3 gap-y-4 mt-6">
-                                        <div className="w-full flex flex-col">
-                                            <h1 className="text-3xl">
-                                                "{product.name}" için {reviews?.length} Yorum
-                                            </h1>
-                                            <div className="flex flex-col w-full">
-                                                {reviews?.map((review: IReview) => (
-                                                    <>
-                                                        {review.status == "approved" &&
-                                                            <div className="flex items-start mx-4 my-2" key={review.date}>
-                                                                <Avatar image={review.user?.profileImage} size={"large"}
-                                                                    className="m-2"
-                                                                />
-                                                                <div className="flex-1">
-                                                                    <h6 className="text-lg"> {review.user?.name} - <small><i>
-                                                                        {review.date}
-                                                                        <br />
-                                                                    </i></small> </h6>
-                                                                    <small>{review.user?.email}</small>
-                                                                    <Rating value={review.rating} readOnly cancel={false} className="my-2" pt={{
-                                                                        onIcon: { className: '!text-primary' }
-                                                                    }} />
-                                                                    <p>
-                                                                        {review.comment}
-                                                                    </p>
-                                                                    {/* Yanıtla */}
-                                                                    <div className="flex flex-row gap-x-2 mt-2">
-                                                                        <button className="text-primary hover:text-primaryDark transition-all duration-300 ease-in-out"
-                                                                            onClick={() => setAnswerReview(review.id)}
-                                                                        >
-                                                                            <FaComment className="inline mr-2" />
-                                                                            Yanıtla
-                                                                        </button>
-                                                                        {/* iptal */}
-                                                                        {answerReview == review.id &&
-                                                                            <button className="text-primary hover:text-primaryDark transition-all duration-300 ease-in-out"
-                                                                                onClick={() => {
-                                                                                    setAnswerReview(undefined)
-                                                                                    setAnswerReviewText('')
-                                                                                }}
-                                                                            >
-                                                                                <FaTrashAlt className="inline mr-2" />
-                                                                                İptal
-                                                                            </button>
-                                                                        }
-
-                                                                    </div>
-                                                                    {answerReview == review.id &&
-                                                                        answerReviewTemplete(review)
-                                                                    }
-                                                                </div>
-                                                                {
-                                                                    review.user?.id == auth.id &&
-                                                                    <div className="">
-                                                                        <button className="text-primary hover:text-primaryDark transition-all duration-300 ease-in-out"
-                                                                            onClick={() => handleDeleteReview(review.id)}
-                                                                        >
-                                                                            <FaTrashAlt className="inline mr-2" />
-                                                                            Yorumu Sil
-                                                                        </button>
-
-                                                                    </div>
-                                                                }
-
-                                                            </div>
-                                                        }
-                                                    </>
-
-                                                ))}
-                                            </div>
-                                        </div>
-                                        <div className="w-full">
-                                            <h1 className="text-3xl"> Yorum Yap </h1>
-                                            {isAuthorized ?
-                                                <>
-                                                    <small className="">Gerekli alanlar işaretlendi *</small>
-                                                    <div className="my-1">
-                                                        {/* rating */}
-                                                        <form action="" className="w-full flex flex-col gap-y-2"
-                                                            onSubmit={formik.handleSubmit}
-                                                        >
-
-                                                            <div className="flex flex-col">
-                                                                <div className="flex flex-row">
-
-                                                                    <p className="mr-2 text-lg text-[#6F6F6F]">Puanınız * :</p>
-                                                                    <Rating cancel={false} className=""
-                                                                        name="rating" id="rating"
-                                                                        value={formik.values.rating}
-                                                                        onChange={(e) => formik.setFieldValue("rating", e.value)}
-                                                                        pt={{
-                                                                            onIcon: { className: '!text-primary' }
-                                                                        }}
-                                                                    />
-                                                                </div>
-                                                                {formik.errors.rating && formik.touched.rating ? (
-                                                                    <div className="text-red-500 text-sm mt-1">{formik.errors.rating}</div>
-                                                                ) : null}
-                                                            </div>
-
-                                                            <div className="flex flex-col">
-                                                                <label htmlFor="review" className="text-lg text-[#6F6F6F] mb-1">Yorumunuz * :</label>
-                                                                <InputTextarea id="review" rows={5} cols={30} autoResize className={`${formik.errors.comment && formik.touched.comment && "!border-red-500"}`}
-                                                                    value={formik.values.comment}
-                                                                    onChange={(e) => formik.setFieldValue("comment", e.target.value)}
-                                                                />
-                                                                {formik.errors.comment && formik.touched.comment ? (
-                                                                    <div className="text-red-500 text-sm">{formik.errors.comment}</div>
-                                                                ) : null}
-                                                            </div>
-
-                                                            <div className="flex flex-col mt-4">
-                                                                <button className='md:w-1/3 w-full h-12 bg-primary text-white text-xl font-bold rounded-xl  
-                                                                    hover:text-primary hover:bg-white hover:border-primary border border-solid border-primary
-                                                                    transition duration-300 ease-in-out'
-                                                                    type="submit" disabled={addReviewLoading}
-                                                                    onClick={() => formik.handleSubmit()}
-                                                                >
-                                                                    {addReviewLoading ?
-                                                                        <div className="flex items-center justify-center">
-                                                                            <FaSpinner className="mr-2 animate-spin" />
-                                                                            Yorum Yapılıyor...
-                                                                        </div>
-                                                                        : <>
-                                                                            <FaCommentAlt className="inline mr-2" /> Yorum Yap
-                                                                        </>
-
-                                                                    }
-
-                                                                </button>
-
-                                                            </div>
-
-
-                                                        </form>
-
-
-
-                                                    </div>
-                                                </>
-                                                :
-                                                // arka plan blurlu Giriş yap kısmı link li
-                                                <div className="flex flex-col items-center justify-center w-full h-32 bg-gray-100 bg-opacity-50 rounded-xl">
-                                                    <h1 className="text-2xl text-center">Yorum yapabilmek için giriş yapmalısınız</h1>
-                                                    <Link to="/login" className="text-primary hover:text-primaryDark transition-all duration-300 ease-in-out text-xl">Giriş Yap</Link>
-                                                </div>
-                                            }
-
-                                        </div>
-                                    </div>
+                                    <ProductReview reviews={reviews} setReviews={setReviews} product={product} />
                                 </TabPanel>
 
                             </TabView>
