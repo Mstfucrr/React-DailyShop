@@ -63,11 +63,11 @@ const Settings = () => {
 
         setSaveLoading(true)
         const formData = new FormData();
-        formData.append("about", val.about || "")
-        formData.append("email", val.email || "")
-        formData.append("phone", val.phone || "")
-        formData.append("address", val.address || "")
-        formData.append("siteIcon", val.siteIcon || "")
+        formData.append("about", val.about ?? "")
+        formData.append("email", val.email ?? "")
+        formData.append("phone", val.phone ?? "")
+        formData.append("address", val.address ?? "")
+        formData.append("siteIcon", val.siteIcon ?? "")
         const [err, data] = await to(settingsService.saveSettings(formData, token))
         if (err) return showErrorMessage(err)
         showSuccess(data.message)
@@ -94,7 +94,7 @@ const Settings = () => {
     };
 
     const openFileInput = () => {
-        if (inputRef && inputRef.current) {
+        if (inputRef?.current) {
             (inputRef.current as HTMLInputElement).click();
         }
     };
