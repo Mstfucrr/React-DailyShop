@@ -32,3 +32,12 @@ export const creditCardValidationSchema = Yup.object().shape({
     cvv: Yup.string().required("CVV zorunludur").min(3, "CVV 3 haneli olmalıdır").max(3, "CVV 3 haneli olmalıdır"),
     LastDate: Yup.date().required("Son kullanma tarihi zorunludur"),
 })
+
+export const reviewValidationSchema = Yup.object().shape({
+    comment: Yup.string()
+        .required('Yorum alanı boş bırakılamaz')
+        .max(500, 'Yorumunuz çok uzun')
+        .min(4, 'Yorumunuz çok kısa'),
+    rating: Yup.number()
+        .min(1, "Rating alanı boş bırakılamaz"),
+})
