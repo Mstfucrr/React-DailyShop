@@ -314,11 +314,11 @@ const ProductDetail = () => {
                                 {product.price}₺
                             </h2>
                             {/* description */}
-                            <p className="leading-6 my-4">
+                            <div className="leading-6 my-4">
                                 <div className="ql-editor">
                                     <p dangerouslySetInnerHTML={{ __html: product.description.substring(0, 200) + "..." }}></p>
                                 </div>
-                            </p>
+                            </div>
                             {/* sizes */}
                             {sizes && sizes.length > 0 && (
 
