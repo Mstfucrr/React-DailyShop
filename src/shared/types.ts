@@ -7,6 +7,7 @@ export interface IProduct {
     image: string | undefined,
     images: string[] | [] | undefined,
     categoryId: number,
+    category: ICategory | undefined,
     description: string,
     status: string,
     stock: number,
