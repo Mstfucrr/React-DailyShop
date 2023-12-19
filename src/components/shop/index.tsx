@@ -189,7 +189,7 @@ const Shop = () => {
                                   <img
                                     src={product.image?.toString()}
                                     alt={product.name}
-                                    className="w-full h-auto object-cover transition-transform duration-500 hover:scale-125"
+                                    className="w-full h-80 object-scale-down transition-transform duration-500 hover:scale-125"
                                   />
                                 </Link>
                               </div>
