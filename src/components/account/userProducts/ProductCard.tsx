@@ -1,7 +1,14 @@
+import { productService } from "@/services/admin/admin.service"
 import { IProduct } from "@/shared/types"
+import { SET_TOAST } from "@/store/Toast"
+import { IToast } from "@/store/Toast/type"
+import { authSelector } from "@/store/auth"
+import to from "await-to-js"
 import { Button } from "primereact/button"
 import { Card } from "primereact/card"
-import { useCallback } from "react"
+import { ConfirmPopup, confirmPopup } from "primereact/confirmpopup"
+import { useCallback, useState } from "react"
+import { useDispatch, useSelector } from "react-redux"
 import { Link } from "react-router-dom"
 
 type Props = {
@@ -11,6 +18,50 @@ type Props = {
 }
 
 const ProductCard = ({ product, setUpdateProductId, setIsUpdate }: Props) => {
+
+    const { token } = useSelector(authSelector)
+    const [loading, setLoading] = useState<boolean>(false)
+    const dispatch = useDispatch();
+
+
+    const showErrorMessage = (err: Error) => {
+        const toast: IToast = { severity: 'error', summary: "Hata", detail: err.message, life: 3000 }
+        setLoading(false)
+        dispatch(SET_TOAST(toast))
+    }
+    const showSuccess = (message: string) => {
+        const toast: IToast = { severity: 'success', summary: "Başarılı", detail: message, life: 3000 }
+        setLoading(false)
+        dispatch(SET_TOAST(toast))
+    }
+
+    const handleUpdate = useCallback(() => {
+        setUpdateProductId(product?.id)
+        setIsUpdate(true)
+    }, [product])
+
+    const handleDetleteProduct = async (id: number) => {
+        const [err, data] = await to(productService.deleteProduct(id, token))
+        if (err) return showErrorMessage(err)
+        showSuccess(data.message)
+        setTimeout(() => {
+            window.location.reload()
+        }, 2500);
+    }
+    const confirmDelete = (event: any, id: number) => {
+        confirmPopup({
+            target: event.currentTarget,
+            message: 'Silmek istediğinize emin misiniz?',
+            icon: 'pi pi-exclamation-triangle',
+            accept: () => handleDetleteProduct(id),
+            reject: () => { },
+            acceptLabel: 'Sil',
+            rejectLabel: 'Hayır',
+            acceptIcon: 'pi pi-trash',
+            rejectIcon: 'pi pi-times',
+            acceptClassName: 'p-button-danger'
+        });
+    }
 
     const isApprovedRender = useCallback(() => {
         if (product.isApproved == null)
@@ -34,11 +85,6 @@ const ProductCard = ({ product, setUpdateProductId, setIsUpdate }: Props) => {
 
     }, [product.isApproved])
 
-    const handleUpdate = useCallback(() => {
-        setUpdateProductId(product?.id)
-        setIsUpdate(true)
-    }, [product])
-
     return (
         <Card
             title={
@@ -48,7 +94,10 @@ const ProductCard = ({ product, setUpdateProductId, setIsUpdate }: Props) => {
                         <Button label="Düzenle" rounded severity="warning" icon="pi pi-pencil"
                             onClick={handleUpdate}
                         />
-                        <Button label="Sil" rounded severity="danger" icon="pi pi-trash" />
+                        <ConfirmPopup />
+                        <Button label="Sil" rounded severity="danger" icon="pi pi-trash"
+                            onClick={(e) => confirmDelete(e, product.id)}
+                        />
                     </div>
                 </div>
             }
