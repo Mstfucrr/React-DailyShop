@@ -10,10 +10,10 @@ import { Button } from "primereact/button"
 import { AnimatePresence } from "framer-motion"
 import OrderPayment from "./orderPayment"
 import { IUserAddress } from "@/services/auth/types"
-import { ICreditCard, IOrderAddress, IOrderRequest } from "@/services/order/types"
+import { IOrderAddress, IOrderRequest } from "@/services/order/types"
 import { IToast } from "@/store/Toast/type"
 import { SET_TOAST } from "@/store/Toast"
-import { useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 
 const Order = () => {
     const msgs = useRef<Messages>(null)
@@ -103,13 +103,25 @@ const Order = () => {
 
         <div className="flex lg:flex-row flex-col xl:px-10 px-3 gap-3 mt-20">
 
-            <AnimatePresence>
-                <OrderAddress key={"orderAddress"} addresses={user?.addresses} IsAddressSelectionconfirmed={IsAddressSelectionconfirmed} selectAddress={selectAddress as IUserAddress} setSelectAddress={setSelectAddress} />
-                {IsAddressSelectionconfirmed &&
-                    <OrderPayment key={"orderPayment"} cardValues={cardValues} setcardValues={setCardValues} handleSubmitOrder={handleSubmitOrder} />
-                }
-            </AnimatePresence>
+            {user?.addresses?.length === 0 ?
 
+                <div className="flex justify-center items-center w-full h-full">
+                    <div className="flex flex-col items-center gap-5">
+                        <h1 className="text-3xl font-semibold">Adresiniz Bulunmamaktadır</h1>
+                        <Link to={'/account'} className="!bg-primary border border-solid border-transparent text-[#212529] py-4 px-3 w-full
+                            hover:!bg-primaryDark hover:!border-primaryDark hover:text-white
+                            transition duration-300 ease-in-out flex justify-center rounded-xl">
+                            Lütfen Adres Ekleyiniz
+                        </Link>
+                    </div>
+                </div>
+                : <AnimatePresence>
+                    <OrderAddress key={"orderAddress"} addresses={user?.addresses} IsAddressSelectionconfirmed={IsAddressSelectionconfirmed} selectAddress={selectAddress as IUserAddress} setSelectAddress={setSelectAddress} />
+                    {IsAddressSelectionconfirmed &&
+                        <OrderPayment key={"orderPayment"} cardValues={cardValues} setcardValues={setCardValues} handleSubmitOrder={handleSubmitOrder} />
+                    }
+                </AnimatePresence>
+            }
 
             <div className="flex basis-4/12 p-2">
                 <div className="w-full border border-solid border-secondary
