@@ -333,7 +333,7 @@ const UserInformation = ({ user }: { user: IUser }) => {
 
             {/* adres bilgileri */}
             <Fieldset legend={
-                <div className="flex align-items-center text-primary">
+                <div className="flex align-items-center text-primary" id="MyAddress">
                     <span className="pi pi-map-marker mr-2 mt-1"></span>
                     <span className="font-bold text-lg">Adres Bilgileri</span>
                 </div>
