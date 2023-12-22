@@ -41,7 +41,8 @@ const ForgotPasswordForm = () => {
 
     const handleResetPassword = async (values: { password: string }) => {
         setIsLoading(true)
-        const [err, data] = await to(authService.resetPassword(token, values.password))
+        if (token == null) return setIsLoading(false)
+        const [err, data] = await to(authService.resetPassword({ Password: values.password }, token))
         if (err) {
             const toast: IToast = { severity: 'error', summary: "Hata", detail: err.message, life: 3000 }
             dispatch(SET_TOAST(toast))
