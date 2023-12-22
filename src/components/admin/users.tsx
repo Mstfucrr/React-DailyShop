@@ -36,15 +36,6 @@ const UserSettings = () => {
     const dispatch = useDispatch()
     const params = new URLSearchParams(window.location.search);
 
-    useEffect(() => {
-        const userId = params.get('userId')
-        if (userId && users.length > 0) {
-            const user = users.find(u => u.id === Number(userId))
-            setSelectedUser(user)
-        }
-    }, [users, params])
-
-
     const showErrorMessage = (err: Error) => {
         const toast: IToast = { severity: 'error', summary: "Hata", detail: err.message, life: 3000 }
         setLoading(false)
@@ -72,24 +63,23 @@ const UserSettings = () => {
     const fetchUserAddress = async () => {
         const [err, data] = await to(userService.fetchAddressByUserId(selectedUser?.id!, token))
         if (err) return showErrorMessage(err)
-        console.log("address data: ", data)
-        setSelectedUserAddress(data)
+        return data.data
     }
     const fetchUserReviews = async () => {
         setSelectedUserReviews([])
         setReviewLoading(true)
         const [err, data] = await to(userService.fetchReviewsByUserId(selectedUser?.id!, token))
         if (err) return showErrorMessage(err)
-        setSelectedUserReviews(data.data)
         setReviewLoading(false)
+        return data.data
     }
     const fetchUserProducts = async () => {
         setProductLoading(true)
         setSelectUserProducts([])
         const [err, data] = await to(userService.fetchPaddingProductByUserId(selectedUser?.id!, token))
         if (err) return showErrorMessage(err)
-        setSelectUserProducts(data.data)
         setProductLoading(false)
+        return data.data
     }
 
     const fetchUserOrders = async () => {
@@ -97,18 +87,24 @@ const UserSettings = () => {
         setSelectUserOrders([])
         const [err, data] = await to(userService.fetchOrdersByUserId(selectedUser?.id!, token))
         if (err) return showErrorMessage(err)
-        setSelectUserOrders(data.data)
         setProductLoading(false)
-
+        return data.data
     }
 
+    useEffect(() => {
+        const userId = params.get('userId')
+        if (userId && users.length > 0 && !selectedUser) {
+            const user = users.find(u => u.id === Number(userId))
+            setSelectedUser(user)
+        }
+    }, [users, params])
 
     useEffect(() => {
-        if (selectedUser) {
-            fetchUserAddress()
-            fetchUserReviews()
-            fetchUserProducts()
-            fetchUserOrders()
+        if (selectedUser) {          
+            fetchUserAddress().then(data => setSelectedUserAddress(data))
+            fetchUserReviews().then(data => setSelectedUserReviews(data))
+            fetchUserProducts().then(data => setSelectUserProducts(data))
+            fetchUserOrders().then(data => setSelectUserOrders(data))
             window.history.pushState({}, '', `/admin/users?userId=${selectedUser.id}`)
         }
     }, [selectedUser])
