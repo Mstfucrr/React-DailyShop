@@ -63,7 +63,7 @@ const UserSettings = () => {
     const fetchUserAddress = async () => {
         const [err, data] = await to(userService.fetchAddressByUserId(selectedUser?.id!, token))
         if (err) return showErrorMessage(err)
-        return data.data
+        setSelectedUserAddress(data)
     }
     const fetchUserReviews = async () => {
         setSelectedUserReviews([])
@@ -71,7 +71,7 @@ const UserSettings = () => {
         const [err, data] = await to(userService.fetchReviewsByUserId(selectedUser?.id!, token))
         if (err) return showErrorMessage(err)
         setReviewLoading(false)
-        return data.data
+        setSelectedUserReviews(data.data)
     }
     const fetchUserProducts = async () => {
         setProductLoading(true)
@@ -79,7 +79,7 @@ const UserSettings = () => {
         const [err, data] = await to(userService.fetchPaddingProductByUserId(selectedUser?.id!, token))
         if (err) return showErrorMessage(err)
         setProductLoading(false)
-        return data.data
+        setSelectUserProducts(data.data)
     }
 
     const fetchUserOrders = async () => {
@@ -88,7 +88,7 @@ const UserSettings = () => {
         const [err, data] = await to(userService.fetchOrdersByUserId(selectedUser?.id!, token))
         if (err) return showErrorMessage(err)
         setProductLoading(false)
-        return data.data
+        setSelectUserOrders(data.data)
     }
 
     useEffect(() => {
@@ -100,11 +100,12 @@ const UserSettings = () => {
     }, [users, params])
 
     useEffect(() => {
-        if (selectedUser) {          
-            fetchUserAddress().then(data => setSelectedUserAddress(data))
-            fetchUserReviews().then(data => setSelectedUserReviews(data))
-            fetchUserProducts().then(data => setSelectUserProducts(data))
-            fetchUserOrders().then(data => setSelectUserOrders(data))
+        if (selectedUser) {
+            fetchUserAddress()
+            fetchUserReviews()
+            fetchUserProducts()
+            fetchUserOrders()
+            // url'i güncelle
             window.history.pushState({}, '', `/admin/users?userId=${selectedUser.id}`)
         }
     }, [selectedUser])
