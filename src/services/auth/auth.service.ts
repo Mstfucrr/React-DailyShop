@@ -9,7 +9,7 @@ const register = async (input: IRegister) =>
     await makeRequest<any>("Auths/Register", "POST", input);
 
 const forgotPassword = async (email: string) =>
-    await makeRequest<any>(`Auths/ForgotPassword?email=${email}`, "GET");
+    await makeRequest<any>(`Auths/ForgotPassword?email=${email}`, "POST");
 
 const resetPassword = async (input: any, token: string) =>
     await makeRequest<any>("Auths/ResetPassword", "POST", input, token);
