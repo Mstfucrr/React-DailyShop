@@ -12,6 +12,9 @@ export const getProductByUser = async (token : string) =>
 export const deleteProduct = async (id: number, token: string) =>
     await makeRequest<any>(`Products/DeleteProduct/${id}`, "DELETE", null, token);
 
+export const updateProduct = async (id: number, input: any, token: string) =>
+    await makeRequest<any>(`Products/${id}`, "PUT", input, token, true);
+
 export const addReviewToProduct = async (productId: number, input: any, token: string) =>
     await makeRequest<any>(`/Reviews/AddReviewToProduct/${productId}`, "POST", input, token);
 
