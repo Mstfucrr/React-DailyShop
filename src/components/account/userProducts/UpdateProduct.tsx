@@ -1,5 +1,5 @@
 import categoryService from "@/services/category/category.service";
-import { getProductById } from "@/services/product/product.service";
+import { getProductById, updateProduct } from "@/services/product/product.service";
 import { colors, productStatus, sizes } from "@/shared/constants";
 import { ICategory, IProduct } from "@/shared/types"
 import { productInfoValidationSchema } from "@/shared/validationSchemas";
@@ -91,7 +91,41 @@ const UpdateProduct = ({ productUpdateId, isUpdate, setIsUpdate }: Props) => {
 
 
     const hanldeSubmit = async (values: any) => {
-        console.log("values", values)
+        const formData = new FormData()
+        formData.append("name", values.name)
+        formData.append("description", values.description)
+        formData.append("price", values.price)
+        formData.append("status", values.status)
+        formData.append("stock", values.stock)
+        formData.append("categoryId", values.category?.id)
+        if (productCoverImage != null)
+            formData.append("BodyImage", productCoverImage)
+        if (productImages != null)
+            productImages.forEach((img) => {
+                formData.append(typeof img === "string" ? "ProductImages" : "ProductImagesFile", img)
+            })
+        values.colors?.forEach((color: string) => formData.append("Colors", color))
+        values.sizes?.forEach((size : string) => formData.append("Sizes", size))
+
+        formData.forEach((value, key) => {
+            console.log(key, value)
+        })
+
+        const [err, data] = await to(updateProduct(product?.id as number, formData, token))
+        if (err) {
+            const toast: IToast = { severity: "error", summary: "Hata", detail: err.message, life: 5000 }
+            dispatch(SET_TOAST(toast))
+            return
+        }
+        const toast: IToast = { severity: "success", summary: "Başarılı", detail: data.message, life: 5000 }
+        dispatch(SET_TOAST(toast))
+        setIsUpdate(false)
+        setTimeout(() => {
+            window.location.reload()
+        }, 2500);
+
+
+
     }
 
     const [treeNodes, setTreeNodes] = useState<TreeNode[] | undefined>(undefined);
@@ -232,9 +266,12 @@ const UpdateProduct = ({ productUpdateId, isUpdate, setIsUpdate }: Props) => {
                                                     value={selectedNodeKey}
                                                     options={treeNodes}
                                                     onChange={(e: TreeSelectChangeEvent) => {
-                                                        handleChange({ target: { name: 'category', value: 
-                                                        findCategoryByKeyInTreeSelectModel(treeNodes as TreeNode[], e.value as string)
-                                                    } })
+                                                        handleChange({
+                                                            target: {
+                                                                name: 'category', value:
+                                                                    findCategoryByKeyInTreeSelectModel(treeNodes as TreeNode[], e.value as string)
+                                                            }
+                                                        })
                                                         setSelectedNodeKey(e.value as string)
                                                     }}
                                                     className={classNames({ 'p-invalid': errors.categoryId })}
