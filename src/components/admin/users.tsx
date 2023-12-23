@@ -16,9 +16,10 @@ import { Fieldset } from 'primereact/fieldset';
 import { Link } from 'react-router-dom';
 import { DataView } from 'primereact/dataview';
 import { ProgressSpinner } from 'primereact/progressspinner';
-import { reviewStatus } from '@/shared/constants';
+import { orderStatus, reviewStatus } from '@/shared/constants';
 import { IOrder } from '@/services/order/types';
 import { ConfirmPopup, confirmPopup } from 'primereact/confirmpopup';
+import { Steps } from 'primereact/steps';
 
 const UserSettings = () => {
 
@@ -33,6 +34,7 @@ const UserSettings = () => {
     const [loading, setLoading] = useState<boolean>(false)
     const [productLoading, setProductLoading] = useState<boolean>(false)
     const [reviewLoading, setReviewLoading] = useState<boolean>(false)
+    const [orderLoading, setOrderLoading] = useState<boolean>(false)
     const dispatch = useDispatch()
     const params = new URLSearchParams(window.location.search);
 
@@ -83,11 +85,11 @@ const UserSettings = () => {
     }
 
     const fetchUserOrders = async () => {
-        setProductLoading(true)
+        setOrderLoading(true)
         setSelectUserOrders([])
         const [err, data] = await to(userService.fetchOrdersByUserId(selectedUser?.id!, token))
         if (err) return showErrorMessage(err)
-        setProductLoading(false)
+        setOrderLoading(false)
         setSelectUserOrders(data.data)
     }
 
@@ -240,6 +242,19 @@ const UserSettings = () => {
         </div>
     ), [handleProductApprovalStatusChange, selectUserProducts]);
 
+    const renderselectUserOrders = useCallback((data: IOrder) => (
+        <div className="flex items-center w-full">
+            <div className="flex flex-row items-center w-full justify-evenly gap-2 ml-2">
+                <span className="font-semibold">{data.id}</span>
+                <span className="font-semibold">{data.totalPrice} ₺</span>
+                <span className="font-semibold">{data.status}</span>
+                <Steps model={orderStatus} activeIndex={orderStatus.findIndex(s => s.value === data.status)} readOnly />
+                <Link to={`/order/${data.id}`}>
+                    <Button label="Siparişi görüntüle" className="p-button-info p-button-outlined" size="small" />
+                </Link>
+            </div>
+        </div>
+    ), [selectUserOrders]);
 
     const refreshButton = useCallback((refreshFunction: () => Promise<void>) => (
         <div className="flex justify-end my-3">
@@ -258,6 +273,17 @@ const UserSettings = () => {
                 </div>}
         </>
     ), [productLoading]);
+
+    const orderLoadingTemplate = useCallback(() => (
+        <>
+            {orderLoading ?
+                <ProgressSpinner className='w-full' />
+                :
+                <div className="flex flex-col justify-center items-center">
+                    <span className="text-xl font-semibold">Sipariş bulunamadı</span>
+                </div>}
+        </>
+    ), [orderLoading]);
 
     return (
         <div className="flex flex-col gap-10 w-full">
@@ -404,7 +430,26 @@ const UserSettings = () => {
                         }
                     </Fieldset>
 
+                    {/* Siparişler */}
+                    <Fieldset
+                        legend={
+                            <h3 className="text-xl font-semibold text-center text-primary uppercase">Kullanıcı siparişleri</h3>
+                        }
+                        toggleable
 
+                    >
+
+                        {refreshButton(fetchUserOrders)}
+                        {/* // ürünler tablosu */}
+
+                        {selectUserOrders && selectUserOrders.length > 0
+
+                            ? <DataView value={selectUserOrders} itemTemplate={renderselectUserOrders} className='w-full' />
+                            : orderLoadingTemplate()
+                        }
+                        
+
+                    </Fieldset>
 
                 </div>
             }
