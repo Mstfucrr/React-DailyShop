@@ -4,7 +4,7 @@ import { DataTable, DataTableFilterMeta } from 'primereact/datatable';
 import { Column, ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { InputText } from 'primereact/inputtext';
 import { TriStateCheckbox, TriStateCheckboxChangeEvent } from 'primereact/tristatecheckbox';
-import { productService } from '@/services/admin/admin.service';
+import { productService, userService } from '@/services/admin/admin.service';
 import to from 'await-to-js';
 import { useDispatch, useSelector } from 'react-redux';
 import { authSelector } from '@/store/auth';
@@ -13,6 +13,7 @@ import CategorySettings from './CategorySettings';
 import { SET_TOAST } from '@/store/Toast';
 import { IToast } from '@/store/Toast/type';
 import { ProgressSpinner } from 'primereact/progressspinner';
+import { Button } from 'primereact/button';
 
 
 const ProductSettings = () => {
@@ -26,6 +27,17 @@ const ProductSettings = () => {
         status: { value: null, matchMode: FilterMatchMode.EQUALS },
         isApproved: { value: null, matchMode: FilterMatchMode.EQUALS },
     });
+
+    const showErrorMessage = (err: Error) => {
+        const toast: IToast = { severity: 'error', summary: "Hata", detail: err.message, life: 3000 }
+        setLoading(false)
+        dispatch(SET_TOAST(toast))
+    }
+    const showSuccess = (message: string) => {
+        const toast: IToast = { severity: 'success', summary: "Başarılı", detail: message, life: 3000 }
+        setLoading(false)
+        dispatch(SET_TOAST(toast))
+    }
 
     const [loading, setLoading] = useState<boolean>(false);
     const [globalFilterValue, setGlobalFilterValue] = useState('');
@@ -92,6 +104,32 @@ const ProductSettings = () => {
         return <TriStateCheckbox value={options.value} onChange={(e: TriStateCheckboxChangeEvent) => options.filterApplyCallback(e.value)} />;
     }
 
+    const handleProductApprovalStatusChange = async (data: IProduct, status: boolean) => {
+        console.log("status: ", status)
+        const [err, data2] = await to(userService.updateProductApprovalStatus(data.id, status, token))
+        if (err) return showErrorMessage(err)
+        showSuccess(data2.message)
+        getAllProducts();
+    }
+
+    const renderIsApproved = useCallback((data: IProduct) => {
+        if (data.isApproved === null)
+            return <>
+                <Button onClick={() => (handleProductApprovalStatusChange(data, true))} icon="pi pi-check" label="Onayla" className="p-button-success p-button-outlined" size='small' />
+                <Button onClick={() => { handleProductApprovalStatusChange(data, false) }} icon="pi pi-times" className="p-button-danger p-button-outlined" label="Reddet" size='small' />
+            </>
+        else if (data.isApproved)
+            return <div className='flex flex-wrap flex-row gap-4 items-center'>
+                <span className="font-semibold text-green-500">(Onaylandı)</span>
+                <Button onClick={() => { handleProductApprovalStatusChange(data, false) }} icon="pi pi-times" className="p-button-danger p-button-outlined" label="Reddet" size='small' />
+            </div>
+        else
+            return <div className='flex flex-wrap flex-row gap-4 items-center'>
+                <Button onClick={() => (handleProductApprovalStatusChange(data, true))} icon="pi pi-check" label="Onayla" className="p-button-success p-button-outlined" size='small' />
+                <span className="font-semibold text-red-500">(Reddedildi)</span>
+            </div>
+
+    }, [handleProductApprovalStatusChange]);
 
     const renderStatusFilter = useCallback((props: any) => <InputText type="text" onChange={(e) => props.onChange(e.target.value)} />, []);
 
@@ -100,45 +138,44 @@ const ProductSettings = () => {
     const header = renderHeader();
 
     return (
-        <>
-            <div className="flex flex-col gap-12 w-full">
+        <div className="flex flex-col gap-12 w-full">
 
-                {loading &&
-                    <div className="w-full flex justify-center items-center">
-                        <ProgressSpinner strokeWidth="4" style={{ width: '50px', height: '50px' }} />
-                    </div>
-                }
-                {/* Ürünler */}
-                {!loading && products &&
-                    <DataTable value={products} header={header} className="p-datatable-customers w-full" dataKey="id"
-                        emptyMessage="Ürün Bulunamadı" globalFilter={globalFilterValue}
-                        filterDisplay="row" loading={false}
-                        globalFilterFields={["name", "category.name", "stock", "price", "status"]}
-                        paginator rows={10} rowsPerPageOptions={[1, 5, 10, 25]}
-                        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                        currentPageReportTemplate="Toplam {totalRecords} ürün arasından {first} - {last} arası gösteriliyor"
-                        paginatorLeft={null} paginatorRight={null} >
+            {loading &&
+                <div className="w-full flex justify-center items-center">
+                    <ProgressSpinner strokeWidth="4" style={{ width: '50px', height: '50px' }} />
+                </div>
+            }
+            {/* Ürünler */}
+            {!loading && products &&
+                <DataTable value={products} header={header} className="p-datatable-customers w-full" dataKey="id"
+                    emptyMessage="Ürün Bulunamadı" globalFilter={globalFilterValue}
+                    filterDisplay="row" loading={false}
+                    globalFilterFields={["name", "category.name", "stock", "price", "status"]}
+                    paginator rows={10} rowsPerPageOptions={[1, 5, 10, 25]}
+                    paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                    currentPageReportTemplate="Toplam {totalRecords} ürün arasından {first} - {last} arası gösteriliyor"
+                    paginatorLeft={null} paginatorRight={null} >
 
-                        <Column field="id" header="ID" sortable />
-                        <Column field='image' header="Resim" body={renderImage} filter={false} />
-                        <Column field="name" header="Ürün Adı" sortable filterPlaceholder="Ara" filterMatchMode="contains" filter />
-                        <Column field="stock" header="Stok" sortable />
-                        <Column field="price" header="Fiyat" sortable />
-                        <Column field="status" header="Durum" sortable body={statusBodyTemplate} filterPlaceholder="Ara" filterMatchMode="contains" filterElement={renderStatusFilter} />
-                        <Column field="isApproved" header="Onay" sortable body={approvedBodyTemplate} filter filterMatchMode="contains" filterElement={approvedRowFilterTemplate} />
+                    <Column field="id" header="ID" sortable />
+                    <Column field='image' header="Resim" body={renderImage} filter={false} />
+                    <Column field="name" header="Ürün Adı" sortable filterPlaceholder="Ara" filterMatchMode="contains" filter />
+                    <Column field="stock" header="Stok" sortable />
+                    <Column field="price" header="Fiyat" sortable />
+                    <Column field="status" header="Durum" sortable body={statusBodyTemplate} filterPlaceholder="Ara" filterMatchMode="contains" filterElement={renderStatusFilter} />
+                    <Column field="isApproved" header="Onay" sortable body={approvedBodyTemplate} filter filterMatchMode="contains" filterElement={approvedRowFilterTemplate} />
+                    {/* approve button */}
+                    <Column header="Onay" body={renderIsApproved} filter={false} />
 
-                    </DataTable>
-                }
+                </DataTable>
+            }
 
-                {/* Kategori ekle kaldır güncelle */}
+            {/* Kategori ekle kaldır güncelle */}
 
-                <CategorySettings />
-
-
-            </div>
+            <CategorySettings />
 
 
-        </>
+        </div>
+
     )
 }
 
