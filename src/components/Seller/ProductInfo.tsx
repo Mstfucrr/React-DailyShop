@@ -17,6 +17,7 @@ import { useDispatch } from 'react-redux';
 import { SET_TOAST } from '@/store/Toast';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { colors, productStatus, sizes } from '@/shared/constants';
+import { get_quote } from '@/services/ai/get_quote.service';
 
 type Props = {
     productInfo: IProductInfo
@@ -33,6 +34,8 @@ const ProductInfo = (
     const [selectedCategory, setSelectedCategory] = useState<ICategory>()
     const [selectedNodeKey, setSelectedNodeKey] = useState<string | undefined>(undefined);
     const [selectedSizes, setSelectedSizes] = useState<string[] | undefined>([])
+    const [priceQuated, setPriceQuated] = useState<number | undefined>(undefined)
+    const [getPriceQuatedLoading, setGetPriceQuatedLoading] = useState<boolean>(false)
     const dispatch = useDispatch()
     const colorTemplete = (option: any) => {
         return (
@@ -45,6 +48,11 @@ const ProductInfo = (
 
     const showErrorMessage = (err: Error) => {
         const toast: IToast = { severity: 'error', summary: "Hata", detail: err.message, life: 3000 }
+        dispatch(SET_TOAST(toast))
+    }
+
+    const showSuccessMessage = (message: string) => {
+        const toast: IToast = { severity: 'success', summary: "Başarılı", detail: message, life: 3000 }
         dispatch(SET_TOAST(toast))
     }
 
@@ -64,6 +72,20 @@ const ProductInfo = (
             setSelectedCategory(findCategoryByKeyInTreeSelectModel(treeNodes, selectedNodeKey))
     }, [selectedCategory, selectedNodeKey]);
 
+
+    const handleGetQuatedPrice = async () => {
+        setGetPriceQuatedLoading(true)
+        const [err, data] = await to(get_quote(formik.values!))
+        if (err) {
+            showErrorMessage(err)
+            return setGetPriceQuatedLoading(false)
+        }
+        if (data) {
+            showSuccessMessage(data.message)
+            setPriceQuated(data.data)
+            setGetPriceQuatedLoading(false)
+        }
+    }
 
     const showFormErrorMessage = (err: string) => {
         return <small className="p-error block h-0 mb-6"> {err} </small>;
@@ -130,10 +152,17 @@ const ProductInfo = (
                         {/* fiyat önerisi getir */}
                         <div className="flex items-center gap-x-2 flex-row flex-wrap">
 
-                            <Button label="Fiyat Önerisi Al" className="w-44 !text-sm" type='button' />
-                            <span>
-                                Önerisi : 4527.24,21 ₺
-                            </span>
+                            <Button label="Fiyat Önerisi Al" className="w-44 !text-sm" type='button'
+                                onClick={handleGetQuatedPrice}
+                                disabled={getPriceQuatedLoading}
+                            />
+
+                            {getPriceQuatedLoading ?
+                                <ProgressSpinner strokeWidth='3.5' className='!w-10' />
+                                : priceQuated &&
+                                <span className="text-sm">Önerilen Fiyat: {priceQuated} ₺</span>
+                            }
+
                         </div>
                     </div>
 
