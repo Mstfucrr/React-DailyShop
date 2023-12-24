@@ -9,12 +9,14 @@ import { InputText } from 'primereact/inputtext'
 import { InputTextarea } from 'primereact/inputtextarea'
 import { Rating } from 'primereact/rating'
 import { useState } from 'react'
-import { FaComment, FaTrashAlt, FaSpinner, FaCommentAlt } from 'react-icons/fa'
+import { FaComment, FaTrashAlt, FaSpinner, FaCommentAlt, FaCheckCircle } from 'react-icons/fa'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { Form, Formik } from 'formik'
 import { reviewValidationSchema } from '@/shared/validationSchemas'
 import { classNames } from 'primereact/utils'
+import { MdReportProblem } from 'react-icons/md'
+import { reportReview } from '@/services/report/report.service'
 
 type Props = {
     reviews: IReview[] | undefined,
@@ -109,6 +111,37 @@ const ProductReview = ({ reviews, setReviews, product }
         )
     }
 
+    const reportReviewTemplete = (data: IReview) => {
+        return (
+            <div className="flex flex-col">
+                <button className="text-primary flex flex-col items-center hover:text-primaryDark transition-all duration-300 ease-in-out"
+                    onClick={() => {
+                        handleReportReview(data.id)
+                    }}
+                >
+                    <MdReportProblem className="inline mr-2" />
+                    Şikayet Et
+                </button>
+
+            </div>
+        )
+    }
+
+    const handleReportReview = async (reviewId: number) => {
+        // report review
+        const [err, data] = await to(reportReview(reviewId, token))
+        if (err) {
+            const toast: IToast = { severity: 'error', summary: "Hata", detail: err.message, life: 1000 }
+            dispatch(SET_TOAST(toast))
+            return
+        }
+        if (data) {
+            const toast: IToast = { severity: 'success', summary: "Başarılı", detail: data.message, life: 1000 }
+            dispatch(SET_TOAST(toast))
+        }
+    }
+
+
     return (
         <div className="flex flex-col lg:flex-row w-full px-5 gap-x-3 gap-y-4 mt-6">
             <div className="w-full flex flex-col">
@@ -122,11 +155,18 @@ const ProductReview = ({ reviews, setReviews, product }
                                 className="m-2"
                             />
                             <div className="flex-1">
-                                <h6 className="text-lg"> {review.user?.name} - <small><i>
-                                    {review.date}
-                                    <br />
-                                </i></small> </h6>
+                                <div className="flex flex-row flex-wrap gap-7 text-xs items-center">
+                                    <h6 className="text-lg"> {review.user?.name} </h6>
+                                    {/* eğer yorumu yazan kişi bu ürünü Almışsa icon */}
+
+                                    <div className="flex flex-row gap-3 items-center">
+                                        <FaCheckCircle className="text-primary text-2xl" />
+                                        <small>Ürünü Almış</small>
+                                    </div>
+                                    {review.date.split('T')[0]}
+                                </div>
                                 <small>{review.user?.email}</small>
+
                                 <Rating value={review.rating} readOnly cancel={false} className="my-2" pt={{
                                     onIcon: { className: '!text-primary' }
                                 }} />
@@ -159,16 +199,24 @@ const ProductReview = ({ reviews, setReviews, product }
                                     answerReviewTemplete(review)
                                 }
                             </div>
-                            {
-                                review.user?.id == auth.id &&
-                                <div className="">
-                                    <button className="text-primary hover:text-primaryDark transition-all duration-300 ease-in-out"
-                                        onClick={() => handleDeleteReview(review.id)}
-                                    >
-                                        <FaTrashAlt className="inline mr-2" />
-                                        Yorumu Sil
-                                    </button>
+                            {/* eğer yorumu yazan kişi giriş yapmışsa ve yorumu silmek istiyorsa */}
+                            {isAuthorized &&
 
+                                <div className="flex flex-row gap-6 items-center justify-center">
+                                    {review.user?.id == auth.id &&
+                                        <div className="">
+                                            <button className="text-primary hover:text-primaryDark transition-all duration-300 ease-in-out"
+                                                onClick={() => handleDeleteReview(review.id)}
+                                            >
+                                                <FaTrashAlt className="inline mr-2" />
+                                                Yorumu Sil
+                                            </button>
+
+                                        </div>
+                                    }
+
+                                    {/* Şikayet Et */}
+                                    {reportReviewTemplete(review)}
                                 </div>
                             }
 
