@@ -267,7 +267,7 @@ const ProductDetail = () => {
 
                                 </div>
                             )}
-                            <div className="flex flex-wrap items-center mt-5 gap-x-6">
+                            <div className="flex flex-wrap items-center mt-5 gap-6">
 
                                 <div className="relative flex flex-nowrap max-w-[130px]">
                                     <div>
