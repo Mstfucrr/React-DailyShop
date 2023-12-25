@@ -39,6 +39,7 @@ export interface IReview {
     comment: string,
     user: IUser | undefined,
     status: string | undefined,
+    userPurchasedThisProduct: boolean | undefined
 }
 
 
