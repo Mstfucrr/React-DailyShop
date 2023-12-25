@@ -95,13 +95,10 @@ const ProductReview = ({ reviews, setReviews, product }
     const answerReviewTemplete = (review: IReview) => {
         return (
             <div className="flex flex-col m-3 p-3 gap-4">
-                <span className="p-input-icon-left">
-                    <i className="!text-blue-600">{review.user?.email}</i>
-                    <InputText className=" sm:w-1/2 w-full"
-                        value={answerReviewText}
-                        onChange={(e) => setAnswerReviewText(e.target.value)}
-                    />
-                </span>
+                <InputText className="w-full" placeholder="Yanıtınızı giriniz"
+                    value={answerReviewText}
+                    onChange={(e) => setAnswerReviewText(e.target.value)}
+                />
                 <button className="bg-primary text-white px-3 py-2 rounded-md w-min
                     hover:bg-primaryDark transition-all duration-300 ease-in-out"
                     onClick={() => handleAnswerReview(review.id)}
