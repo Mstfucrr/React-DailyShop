@@ -46,11 +46,11 @@ const Cart = () => {
 
 
     return (
-        <div className="grid lg:grid-rows-1 grid-rows-2 grid-flow-col lg:px-16 gap-9 my-24 px-[15px]">
+        <div className="flex md:flex-row flex-wrap flex-col w-full gap-y-9 lg:px-16 my-24 px-[15px]">
             {cartItems && cartItems.length > 0
                 && <>
-                    <div className="grid lg:col-span-12 col-span-12">
-                        <table className="w-100 text-[#6F6F6F] mb-0 text-center border-0 border-collapse">
+                    <div className="w-2/3 md:px-9">
+                        <table className="w-full text-[#6F6F6F] mb-0 text-center border-0 border-collapse">
                             <thead className="bg-secondary text-black">
                                 <tr>
                                     <th className='p-3 border border-solid border-secondary'>Ürünler</th>
@@ -72,7 +72,7 @@ const Cart = () => {
                         </table>
 
                     </div>
-                    <div className="grid lg:col-span-4 col-span-12">
+                    <div className="w-1/3">
                         <form action="" className="mb-12">
                             <div className="relative flex flex-wrap w-full items-stretch">
                                 <input className="relative flex-auto p-6 border border-solid outline-none border-secondary
