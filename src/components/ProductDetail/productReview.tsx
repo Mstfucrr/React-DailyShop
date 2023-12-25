@@ -9,7 +9,7 @@ import { InputText } from 'primereact/inputtext'
 import { InputTextarea } from 'primereact/inputtextarea'
 import { Rating } from 'primereact/rating'
 import { useState } from 'react'
-import { FaComment, FaTrashAlt, FaSpinner, FaCommentAlt, FaCheckCircle } from 'react-icons/fa'
+import { FaComment, FaTrashAlt, FaSpinner, FaCommentAlt, FaCheckCircle, FaCommentSlash } from 'react-icons/fa'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { Form, Formik } from 'formik'
@@ -17,6 +17,7 @@ import { reviewValidationSchema } from '@/shared/validationSchemas'
 import { classNames } from 'primereact/utils'
 import { MdReportProblem } from 'react-icons/md'
 import { reportReview } from '@/services/report/report.service'
+import { SpeedDial } from 'primereact/speeddial'
 
 type Props = {
     reviews: IReview[] | undefined,
@@ -76,6 +77,15 @@ const ProductReview = ({ reviews, setReviews, product }
     const [answerReview, setAnswerReview] = useState<number | undefined>(undefined)
     const [answerReviewText, setAnswerReviewText] = useState<string>('')
 
+    const deleteReviewTemplete = (reviewId: number) => {
+        return <button className="text-primary hover:text-primaryDark transition-all duration-300 ease-in-out flex flex-col items-center"
+            onClick={() => handleDeleteReview(reviewId)}
+        >
+            <FaTrashAlt className="inline mr-2" />
+            Yorumu Sil
+        </button>
+
+    }
 
     const handleDeleteReview = async (rewId: number) => {
 
@@ -138,6 +148,14 @@ const ProductReview = ({ reviews, setReviews, product }
         }
     }
 
+    const userPurchasedThisProductTemplete = () => {
+        return (
+            <div className="flex flex-col gap-1 mx-3 items-center text-primary">
+                <FaCheckCircle />
+                <small>Ürünü Almış</small>
+            </div>
+        )
+    }
 
     return (
         <div className="flex flex-col lg:flex-row w-full px-5 gap-x-3 gap-y-4 mt-6">
@@ -152,14 +170,11 @@ const ProductReview = ({ reviews, setReviews, product }
                                 className="m-2"
                             />
                             <div className="flex-1">
-                                <div className="flex flex-row flex-wrap gap-7 text-xs items-center">
+                                <div className="flex flex-row flex-wrap sm:gap-7 gap-1 text-xs items-center">
                                     <h6 className="text-lg"> {review.user?.name} </h6>
                                     {/* eğer yorumu yazan kişi bu ürünü Almışsa icon */}
 
-                                    <div className="flex flex-row gap-3 items-center">
-                                        <FaCheckCircle className="text-primary text-2xl" />
-                                        <small>Ürünü Almış</small>
-                                    </div>
+
                                     {review.date.split('T')[0]}
                                 </div>
                                 <small>{review.user?.email}</small>
@@ -186,7 +201,7 @@ const ProductReview = ({ reviews, setReviews, product }
                                                 setAnswerReviewText('')
                                             }}
                                         >
-                                            <FaTrashAlt className="inline mr-2" />
+                                            <FaCommentSlash className="inline mr-2 w-6" />
                                             İptal
                                         </button>
                                     }
@@ -196,26 +211,53 @@ const ProductReview = ({ reviews, setReviews, product }
                                     answerReviewTemplete(review)
                                 }
                             </div>
-                            {/* eğer yorumu yazan kişi giriş yapmışsa ve yorumu silmek istiyorsa */}
-                            {isAuthorized &&
-
-                                <div className="flex flex-row gap-6 items-center justify-center">
-                                    {review.user?.id == auth.id &&
-                                        <div className="">
-                                            <button className="text-primary hover:text-primaryDark transition-all duration-300 ease-in-out"
-                                                onClick={() => handleDeleteReview(review.id)}
-                                            >
-                                                <FaTrashAlt className="inline mr-2" />
-                                                Yorumu Sil
-                                            </button>
-
-                                        </div>
-                                    }
-
-                                    {/* Şikayet Et */}
-                                    {reportReviewTemplete(review)}
-                                </div>
+                            {review.userPurchasedThisProduct &&
+                                userPurchasedThisProductTemplete()
                             }
+                            {/* eğer yorumu yazan kişi giriş yapmışsa ve yorumu silmek istiyorsa */}
+                            <div className="sm:flex hidden">
+
+                                {isAuthorized &&
+                                    <div className="flex flex-row gap-6 items-center justify-center">
+                                        {review.user?.id == auth.id &&
+                                            deleteReviewTemplete(review.id)
+                                        }
+                                        {/* Şikayet Et */}
+                                        {review.user?.id != auth.id &&
+                                            reportReviewTemplete(review)
+                                        }
+                                    </div>
+                                }
+
+                            </div>
+
+                            <div className="sm:hidden gap-2 relative">
+                                {isAuthorized &&
+                                    <SpeedDial model={
+                                        [
+                                            {
+                                                label: 'Delete',
+                                                icon: 'pi pi-trash',
+                                                command: () => {
+                                                    deleteReviewTemplete(review.id)
+                                                }
+                                            },
+                                            {
+                                                label: 'Report',
+                                                icon: 'pi pi-exclamation-triangle',
+                                                command: () => {
+                                                    reportReviewTemplete(review)
+                                                }
+                                            },
+                                        ]
+                                    }
+                                        showIcon="pi pi-bars" hideIcon="pi pi-times"
+                                        className=''
+                                        // direction="down-left"
+                                        radius={120} style={{ left: -35, bottom: -10 }} buttonClassName="p-button-help !w-12 !h-12" />
+                                }
+
+                            </div>
 
                         </div>
                     ))}
