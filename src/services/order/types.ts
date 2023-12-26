@@ -10,7 +10,7 @@ export interface IaddToCartRequest {
 export interface IOrder {
     id: number | undefined;
     address: IOrderAddress;
-    status: Ordertatus;
+    status: OrderStatus;
     user: IUser;
     totalPrice: number;
     orderItems: IOrderItem[];
@@ -18,7 +18,7 @@ export interface IOrder {
     OrderNumber: string;
 }
 
-export enum Ordertatus {
+export enum OrderStatus {
     New = 'New',
     Accepted = 'Accepted',
     Preparing = 'Preparing',

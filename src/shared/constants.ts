@@ -1,4 +1,4 @@
-import { Ordertatus } from "@/services/order/types";
+import { OrderStatus } from "@/services/order/types";
 import { ProductsSortBy } from "@/services/shop/types";
 
 export const sizes = [
@@ -37,12 +37,12 @@ export const productStatus = [
 ];
 
 export const orderStatus = [
-    { label: 'Yeni', value: Ordertatus.New },
-    { label: 'Kabul Edildi', value: Ordertatus.Accepted },
-    { label: 'Hazırlanıyor', value: Ordertatus.Preparing },
-    { label: 'Kargoda', value: Ordertatus.OnShipping },
-    { label: 'Tamamlandı', value: Ordertatus.Completed },
-    { label: 'İptal Edildi', value: Ordertatus.Cancelled },
+    { label: 'Yeni', value: OrderStatus.New },
+    { label: 'Kabul Edildi', value: OrderStatus.Accepted },
+    { label: 'Hazırlanıyor', value: OrderStatus.Preparing },
+    { label: 'Kargoda', value: OrderStatus.OnShipping },
+    { label: 'Tamamlandı', value: OrderStatus.Completed },
+    { label: 'İptal Edildi', value: OrderStatus.Cancelled },
 ]
 
 export const sortBy: { name: string, code: ProductsSortBy }[] = [
