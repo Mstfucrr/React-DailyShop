@@ -1,5 +1,5 @@
 import { addAnswerToReview, addReviewToProduct, deleteReviewFromProduct } from '@/services/product/product.service'
-import { IProduct, IReview } from '@/shared/types'
+import { IAnswer, IProduct, IReview } from '@/shared/types'
 import { SET_TOAST } from '@/store/Toast'
 import { IToast } from '@/store/Toast/type'
 import { authSelector } from '@/store/auth'
@@ -17,7 +17,6 @@ import { reviewValidationSchema } from '@/shared/validationSchemas'
 import { classNames } from 'primereact/utils'
 import { MdReportProblem } from 'react-icons/md'
 import { reportReview } from '@/services/report/report.service'
-import { SpeedDial } from 'primereact/speeddial'
 
 type Props = {
     reviews: IReview[] | undefined,
@@ -106,7 +105,11 @@ const ProductReview = ({ reviews, setReviews, product }
         return (
             <div className="flex flex-col m-3 p-3 gap-4">
                 <InputText className="w-full" placeholder="Yanıtınızı giriniz"
-                    value={answerReviewText}
+                    value={answerReviewText.indexOf('@' + review.user?.email) == -1
+                        ? '@' + review.user?.email + ' ' + answerReviewText
+                        : answerReviewText
+                    }
+                    // commenteın başında @ile başlayacak ve @user.email şeklinde olacak
                     onChange={(e) => setAnswerReviewText(e.target.value)}
                 />
                 <button className="bg-primary text-white px-3 py-2 rounded-md w-min
@@ -118,12 +121,12 @@ const ProductReview = ({ reviews, setReviews, product }
         )
     }
 
-    const reportReviewTemplete = (data: IReview) => {
+    const reportReviewTemplete = (id: number) => {
         return (
             <div className="flex flex-col">
                 <button className="text-primary flex flex-col items-center hover:text-primaryDark transition-all duration-300 ease-in-out"
                     onClick={() => {
-                        handleReportReview(data.id)
+                        handleReportReview(id)
                     }}
                 >
                     <MdReportProblem className="inline mr-2" />
@@ -157,6 +160,118 @@ const ProductReview = ({ reviews, setReviews, product }
         )
     }
 
+    
+    const reviewTemplete = (review: IReview) => {
+        return <div className="flex items-start mx-4 my-2" key={review.date}>
+            <Avatar image={review.user?.profileImage} size={"large"}
+                className="m-2"
+            />
+            <div className="flex-1">
+                <div className="flex flex-row flex-wrap sm:gap-7 gap-1 text-xs items-center">
+                    <h6 className="text-lg"> {review.user?.name} </h6>
+                    {/* eğer yorumu yazan kişi bu ürünü Almışsa icon */}
+
+
+                    {review.date.split('T')[0]}
+                </div>
+                <small>{review.user?.email}</small>
+
+                <Rating value={review.rating} readOnly cancel={false} className="my-2" pt={{
+                    onIcon: { className: '!text-primary' }
+                }} />
+                <p>
+                    {review.comment}
+                </p>
+                {/* Yanıtla */}
+                <div className="flex flex-row gap-x-2 mt-2">
+                    <button className="text-primary hover:text-primaryDark transition-all duration-300 ease-in-out"
+                        onClick={() => setAnswerReview(review.id)}>
+                        <FaComment className="inline mr-2" />
+                        Yanıtla
+                    </button>
+                    {/* iptal */}
+                    {answerReview == review.id &&
+                        <button className="text-primary hover:text-primaryDark transition-all duration-300 ease-in-out"
+                            onClick={() => {
+                                setAnswerReview(undefined)
+                                setAnswerReviewText('')
+                            }}>
+                            <FaCommentSlash className="inline mr-2 w-6" />
+                            İptal
+                        </button>
+                    }
+
+                </div>
+
+                {/* Answers */}
+                {review.answers?.map((answer) => (
+                    reviewAnswersTemplete(answer)
+                ))}
+
+                {answerReview == review.id &&
+                    answerReviewTemplete(review)
+                }
+            </div>
+            {review.userPurchasedThisProduct &&
+                userPurchasedThisProductTemplete()
+            }
+            {/* eğer yorumu yazan kişi giriş yapmışsa ve yorumu silmek istiyorsa */}
+            <div className="flex">
+
+                {isAuthorized &&
+                    <div className="flex flex-row flex-wrap gap-6 items-center justify-center">
+                        {review.user?.id == auth.id &&
+                            deleteReviewTemplete(review.id)
+                        }
+                        {/* Şikayet Et */}
+                        {review.user?.id != auth.id &&
+                            reportReviewTemplete(review.id)
+                        }
+                    </div>
+                }
+
+            </div>
+
+        </div>
+    }
+
+    const reviewAnswersTemplete = (answer: IAnswer) => {
+        return <div className="flex items-start mx-4 my-2" key={answer.date}>
+            <Avatar image={answer.user?.profileImage} size={"large"}
+                className="m-2"
+            />
+            <div className="flex-1">
+                <div className="flex flex-row flex-wrap sm:gap-7 gap-1 text-xs items-center">
+                    <h6 className="text-lg"> {answer.user?.name} </h6>
+                    {/* eğer yorumu yazan kişi bu ürünü Almışsa icon */}
+                    {answer.date.split('T')[0]}
+                </div>
+                <small>{answer.user?.email}</small>
+                <p>
+                    {answer.comment}
+                </p>
+
+                    
+            </div>
+            {/* eğer yorumu yazan kişi giriş yapmışsa ve yorumu silmek istiyorsa */}
+            <div className="flex">
+
+                {isAuthorized &&
+                    <div className="flex flex-row flex-wrap gap-6 items-center justify-center">
+                        {answer.user?.id == auth.id &&
+                            deleteReviewTemplete(answer.id)
+                        }
+                        {/* Şikayet Et */}
+                        {answer.user?.id != auth.id &&
+                            reportReviewTemplete(answer.id)
+                        }
+                    </div>
+                }
+            </div>
+
+        </div>
+    }
+    
     return (
         <div className="flex flex-col lg:flex-row w-full px-5 gap-x-3 gap-y-4 mt-6">
             <div className="w-full flex flex-col">
@@ -165,101 +280,7 @@ const ProductReview = ({ reviews, setReviews, product }
                 </h1>
                 <div className="flex flex-col w-full">
                     {reviews?.filter(review => review.status == "approved").map((review) => (
-                        <div className="flex items-start mx-4 my-2" key={review.date}>
-                            <Avatar image={review.user?.profileImage} size={"large"}
-                                className="m-2"
-                            />
-                            <div className="flex-1">
-                                <div className="flex flex-row flex-wrap sm:gap-7 gap-1 text-xs items-center">
-                                    <h6 className="text-lg"> {review.user?.name} </h6>
-                                    {/* eğer yorumu yazan kişi bu ürünü Almışsa icon */}
-
-
-                                    {review.date.split('T')[0]}
-                                </div>
-                                <small>{review.user?.email}</small>
-
-                                <Rating value={review.rating} readOnly cancel={false} className="my-2" pt={{
-                                    onIcon: { className: '!text-primary' }
-                                }} />
-                                <p>
-                                    {review.comment}
-                                </p>
-                                {/* Yanıtla */}
-                                <div className="flex flex-row gap-x-2 mt-2">
-                                    <button className="text-primary hover:text-primaryDark transition-all duration-300 ease-in-out"
-                                        onClick={() => setAnswerReview(review.id)}
-                                    >
-                                        <FaComment className="inline mr-2" />
-                                        Yanıtla
-                                    </button>
-                                    {/* iptal */}
-                                    {answerReview == review.id &&
-                                        <button className="text-primary hover:text-primaryDark transition-all duration-300 ease-in-out"
-                                            onClick={() => {
-                                                setAnswerReview(undefined)
-                                                setAnswerReviewText('')
-                                            }}
-                                        >
-                                            <FaCommentSlash className="inline mr-2 w-6" />
-                                            İptal
-                                        </button>
-                                    }
-
-                                </div>
-                                {answerReview == review.id &&
-                                    answerReviewTemplete(review)
-                                }
-                            </div>
-                            {review.userPurchasedThisProduct &&
-                                userPurchasedThisProductTemplete()
-                            }
-                            {/* eğer yorumu yazan kişi giriş yapmışsa ve yorumu silmek istiyorsa */}
-                            <div className="sm:flex hidden">
-
-                                {isAuthorized &&
-                                    <div className="flex flex-row gap-6 items-center justify-center">
-                                        {review.user?.id == auth.id &&
-                                            deleteReviewTemplete(review.id)
-                                        }
-                                        {/* Şikayet Et */}
-                                        {review.user?.id != auth.id &&
-                                            reportReviewTemplete(review)
-                                        }
-                                    </div>
-                                }
-
-                            </div>
-
-                            <div className="sm:hidden gap-2 relative">
-                                {isAuthorized &&
-                                    <SpeedDial model={
-                                        [
-                                            {
-                                                label: 'Delete',
-                                                icon: 'pi pi-trash',
-                                                command: () => {
-                                                    deleteReviewTemplete(review.id)
-                                                }
-                                            },
-                                            {
-                                                label: 'Report',
-                                                icon: 'pi pi-exclamation-triangle',
-                                                command: () => {
-                                                    reportReviewTemplete(review)
-                                                }
-                                            },
-                                        ]
-                                    }
-                                        showIcon="pi pi-bars" hideIcon="pi pi-times"
-                                        className=''
-                                        // direction="down-left"
-                                        radius={120} style={{ left: -35, bottom: -10 }} buttonClassName="p-button-help !w-12 !h-12" />
-                                }
-
-                            </div>
-
-                        </div>
+                        reviewTemplete(review)
                     ))}
                 </div>
             </div>
