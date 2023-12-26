@@ -3,15 +3,19 @@ import { authSelector } from "@/store/auth"
 import { motion } from "framer-motion"
 import { Messages } from "primereact/messages"
 import { useEffect, useRef, useState } from "react"
-import { useSelector } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 import { DataView } from 'primereact/dataview';
 import { Fieldset } from "primereact/fieldset"
 import { Steps } from "primereact/steps"
 import { Rating } from "primereact/rating"
-import { getOrders } from "@/services/order/order.service"
+import { cancelOrder, getOrders } from "@/services/order/order.service"
 import to from "await-to-js"
-import { IOrder, IOrderAddress, IOrderItem } from "@/services/order/types"
+import { IOrder, IOrderAddress, IOrderItem, OrderStatus } from "@/services/order/types"
 import { Link } from "react-router-dom"
+import { Button } from "primereact/button"
+import { ConfirmPopup, confirmPopup } from "primereact/confirmpopup"
+import { SET_TOAST } from "@/store/Toast"
+import { IToast } from "@/store/Toast/type"
 
 const UserOrders = () => {
 
@@ -64,6 +68,42 @@ const UserOrders = () => {
       </div>
 
     )
+  }
+
+  const dispatch = useDispatch()
+
+  const handleCancelOrder = async (orderId: number) => {
+    const [err, data] = await to(cancelOrder(orderId, OrderStatus.Cancelled, token))
+    if (err) {
+      const toast: IToast = { severity: "error", summary: "Hata", detail: err.message, life: 5000 }
+      dispatch(SET_TOAST(toast))
+      return
+    }
+    if (data) {
+      const toast: IToast = { severity: "success", summary: "Başarılı", detail: data.message, life: 5000 }
+      dispatch(SET_TOAST(toast))
+      fetchOrders()
+    }
+  }
+
+  const confirm = (event: any, orderId: number) => {
+    confirmPopup({
+      target: event.currentTarget,
+      message: 'Siparişi iptal etmek istediğinize emin misiniz?',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Evet',
+      rejectLabel: 'Hayır',
+      acceptIcon: 'pi pi-check',
+      rejectIcon: 'pi pi-times',
+      acceptClassName: 'p-button-danger',
+      rejectClassName: 'p-button-secondary',
+      accept: () => {
+        handleCancelOrder(orderId)
+      },
+      reject: () => {
+        //reject
+      }
+    });
   }
 
   const OrderItemTemplate = (orderItem: IOrderItem) => {
@@ -137,7 +177,14 @@ const UserOrders = () => {
                   orderStatus.findIndex((item) => item.value === order.status)
                 } className="w-full min-w-[600px]" />
               </div>
+
+              {/* order cancel */}
             </div>
+            <ConfirmPopup />
+            <Button severity="danger" className="sm:w-1/3 w-full float-right !m-9"
+              onClick={(e) => confirm(e, order?.id ?? 0)}
+              disabled={order.status === OrderStatus.Cancelled}
+              label="Siparişi İptal Et" icon="pi pi-times" iconPos="right" />
 
 
           </Fieldset>
