@@ -15,12 +15,15 @@ export const deleteProduct = async (id: number, token: string) =>
 export const updateProduct = async (id: number, input: any, token: string) =>
     await makeRequest<any>(`Products/${id}`, "PUT", input, token, true);
 
+export const getReviewsByProductId = async (productId: number, token: string) =>
+    await makeRequest<any>(`Reviews/GetReviewByProductId/${productId}`, "GET", null, token);
+
 export const addReviewToProduct = async (productId: number, input: any, token: string) =>
     await makeRequest<any>(`/Reviews/AddReviewToProduct/${productId}`, "POST", input, token);
 
 export const addAnswerToReview = async (productId: number, input: any, token: string) =>
     await makeRequest<any>(`/Reviews/AddReviewToReview/${productId}`, "POST", input, token);
 
-export const deleteReviewFromProduct = async (productId: number, reviewId: number, token: string) =>
-    await makeRequest<any>(`Products/DeleteReviewFromProduct/${productId}/${reviewId}`, "DELETE", null, token);
+export const deleteReviewFromProduct = async (reviewId: number, token: string) =>
+    await makeRequest<any>(`Reviews/${reviewId}`, "DELETE", null, token);
 
