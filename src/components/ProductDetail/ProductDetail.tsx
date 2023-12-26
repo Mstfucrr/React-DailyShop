@@ -8,7 +8,7 @@ import { MdDescription } from "react-icons/md";
 import { TabView, TabPanel } from 'primereact/tabview';
 import { Messages } from "primereact/messages";
 import { Link, useParams } from "react-router-dom";
-import { getProductById } from "@/services/product/product.service";
+import { getProductById, getReviewsByProductId } from "@/services/product/product.service";
 import { setProductCookie } from "@/helper/cookieUtils";
 import { useDispatch, useSelector } from "react-redux";
 import { authSelector } from "@/store/auth";
@@ -66,38 +66,47 @@ const ProductDetail = () => {
         }
     }, []);
 
+    const fetchData = async () => {
+        if (!id) return
+        setProductLoading(true)
+        const [err, data] = await to(getProductById(parseInt(id), token))
+        if (err) {
+            msgs.current?.clear()
+            msgs.current?.show([
+                { sticky: true, severity: 'error', summary: 'Hata', detail: err.message, closable: false }
+            ]);
+            setProductLoading(false)
+            return
+        }
+        if (data.data) {
+            const fetchedProduct = await data.data as IProduct;
+            setProduct(fetchedProduct)
+            setSizes(fetchedProduct.sizes?.map((size: string) => ({ name: size, key: size })))
+            setColors(fetchedProduct.colors?.map((color: string) => ({ name: color, key: color })))
+            const imagesSources = []
+            fetchedProduct.images?.forEach((image: string) => {
+                imagesSources.push(image)
+            })
+            if (fetchedProduct.image)
+                imagesSources.push(fetchedProduct.image)
+            setImages(imagesSources.map((source: string) => ({ source: source })))
+        }
+        setProductLoading(false)
+    }
+
+    const fetchProductReviews = async () => {
+        if (!product) return
+        const [err, data] = await to(getReviewsByProductId(product.id, token))
+        if (err) return console.log(err)
+        if (data.data) {
+            const reviews = await data.data as IReview[];
+            setReviews(reviews)
+            setProduct({ ...product, rating: reviews.reduce((a, b) => a + b.rating, 0) / reviews.length })
+        }
+    }
 
     useEffect(() => {
-        if (!id) return
-        const fetchData = async () => {
-            setProductLoading(true)
-            const [err, data] = await to(getProductById(parseInt(id), token))
-            if (err) {
-                msgs.current?.clear()
-                msgs.current?.show([
-                    { sticky: true, severity: 'error', summary: 'Hata', detail: err.message, closable: false }
-                ]);
-                setProductLoading(false)
-                return
-            }
-            if (data.data) {
-                const fetchedProduct = await data.data as IProduct;
-                setProduct(fetchedProduct)
-                setSizes(fetchedProduct.sizes?.map((size: string) => ({ name: size, key: size })))
-                setColors(fetchedProduct.colors?.map((color: string) => ({ name: color, key: color })))
-                const imagesSources = []
-                fetchedProduct.images?.forEach((image: string) => {
-                    imagesSources.push(image)
-                })
-                if (fetchedProduct.image)
-                    imagesSources.push(fetchedProduct.image)
-                setImages(imagesSources.map((source: string) => ({ source: source })))
-                setReviews(fetchedProduct.reviews)
-            }
-            setProductLoading(false)
-        }
-
-        fetchData()
+        fetchData().then(fetchProductReviews)
     }, [])
 
 
