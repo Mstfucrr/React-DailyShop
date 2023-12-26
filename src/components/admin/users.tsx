@@ -17,7 +17,7 @@ import { Link } from 'react-router-dom';
 import { DataView } from 'primereact/dataview';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { orderStatus, reviewStatus } from '@/shared/constants';
-import { IOrder } from '@/services/order/types';
+import { IOrder, OrderStatus } from '@/services/order/types';
 import { ConfirmPopup, confirmPopup } from 'primereact/confirmpopup';
 import { Steps } from 'primereact/steps';
 
@@ -82,7 +82,7 @@ const UserSettings = () => {
         setProductLoading(true)
         setSelectUserProducts([])
         const [err, data] = await to(userService.fetchPaddingProductByUserId(selectedUser?.id!, token))
-        if (err){
+        if (err) {
             setProductLoading(false)
             return showErrorMessage(err)
         }
@@ -204,6 +204,13 @@ const UserSettings = () => {
         fetchUserProducts()
     }
 
+    const handleChangeOrderStatus = async (orderId: number, status: OrderStatus) => {
+        const [err, data2] = await to(userService.updateOrderStatus(orderId, status, token))
+        if (err) return showErrorMessage(err)
+        showSuccess(data2.message)
+        fetchUserOrders()
+    }
+
     const confirmDelete = (event: any, id: number) => {
         confirmPopup({
             target: event.currentTarget,
@@ -252,12 +259,23 @@ const UserSettings = () => {
     ), [handleProductApprovalStatusChange, selectUserProducts]);
 
     const renderselectUserOrders = useCallback((data: IOrder) => (
-        <div className="flex items-center w-full">
+        <div className="flex items-center w-full my-5">
             <div className="flex flex-row items-center w-full justify-evenly gap-2 ml-2">
-                <span className="font-semibold">{data.id}</span>
-                <span className="font-semibold">{data.totalPrice} ₺</span>
-                <span className="font-semibold">{data.status}</span>
-                <Steps model={orderStatus} activeIndex={orderStatus.findIndex(s => s.value === data.status)} readOnly />
+                <span className="font-semibold flex">Id : {data.id}</span>
+                <span className="font-semibold">Toplam : {data.totalPrice} ₺</span>
+                <span className="font-semibold">Durumu : {orderStatus.find(s => s.value === data.status)?.label}</span>
+                <div className="overflow-x-auto">
+                    <Steps model={orderStatus} activeIndex={orderStatus.findIndex(s => s.value === data.status)}
+                        className='w-[38rem] border border-gray-300 rounded-md'
+                        readOnly={false}
+                        style={{ backgroundColor: 'transparent' }}
+                        onSelect={(e: any) => {
+                            if (data.id)
+                                handleChangeOrderStatus(data.id, e.item?.value as OrderStatus)
+                        }}
+
+                    />
+                </div>
                 <Link to={`/order/${data.id}`}>
                     <Button label="Siparişi görüntüle" className="p-button-info p-button-outlined" size="small" />
                 </Link>
@@ -456,7 +474,7 @@ const UserSettings = () => {
                             ? <DataView value={selectUserOrders} itemTemplate={renderselectUserOrders} className='w-full' />
                             : orderLoadingTemplate()
                         }
-                        
+
 
                     </Fieldset>
 
