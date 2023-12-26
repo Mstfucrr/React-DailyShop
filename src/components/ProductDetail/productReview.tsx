@@ -65,8 +65,9 @@ const ProductReview = ({ reviews, setReviews, product }
             dispatch(SET_TOAST(toast))
             return
         }
-        if (data.data != null) {
-            setReviews(data.data)
+        if (data) {
+            const toast: IToast = { severity: 'success', summary: "Başarılı", detail: data.message, life: 3000 }
+            dispatch(SET_TOAST(toast))
         }
         setAnswerReview(undefined)
         setAnswerReviewText('')
@@ -90,14 +91,18 @@ const ProductReview = ({ reviews, setReviews, product }
 
         if (!product) return
 
-        const [err, data] = await to(deleteReviewFromProduct(product.id, rewId, token))
+        const [err, data] = await to(deleteReviewFromProduct(rewId, token))
         if (err) {
             const toast: IToast = { severity: 'error', summary: "Hata", detail: err.message, life: 3000 }
             dispatch(SET_TOAST(toast))
             return
         }
-        if (data.data != null) {
-            setReviews(data.data)
+        if (data) {
+            const toast: IToast = { severity: 'success', summary: "Başarılı", detail: data.message, life: 3000 }
+            dispatch(SET_TOAST(toast))
+            setTimeout(() => {
+                window.location.reload()
+            }, 1500);
         }
     }
 
