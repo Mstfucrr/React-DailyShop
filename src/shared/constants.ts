@@ -23,7 +23,7 @@ export const colors = [
 ];
 
 export const reviewStatus = [
-    { label: 'Yeni', value: 'new' },
+    { label: 'Yeni', value: 'New' },
     { label: 'Onayla', value: 'approved' },
     { label: 'Reddet', value: 'reject' }
 ];

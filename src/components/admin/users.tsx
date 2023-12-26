@@ -160,7 +160,7 @@ const UserSettings = () => {
     const renderStatusDropdown = useCallback((data: IReview) => (
         <Dropdown
             options={reviewStatus}
-            value={data.status ?? 'new'}
+            value={data.status ?? 'New'}
             onChange={(e) => {
                 handleReviewStatusChange(data, e.value)
                     .then(fetchUserReviews)
