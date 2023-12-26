@@ -71,7 +71,10 @@ const UserSettings = () => {
         setSelectedUserReviews([])
         setReviewLoading(true)
         const [err, data] = await to(userService.fetchReviewsByUserId(selectedUser?.id!, token))
-        if (err) return showErrorMessage(err)
+        if (err) {
+            setReviewLoading(false)
+            return showErrorMessage(err)
+        }
         setReviewLoading(false)
         setSelectedUserReviews(data.data)
     }
@@ -79,7 +82,10 @@ const UserSettings = () => {
         setProductLoading(true)
         setSelectUserProducts([])
         const [err, data] = await to(userService.fetchPaddingProductByUserId(selectedUser?.id!, token))
-        if (err) return showErrorMessage(err)
+        if (err){
+            setProductLoading(false)
+            return showErrorMessage(err)
+        }
         setProductLoading(false)
         setSelectUserProducts(data.data)
     }
@@ -88,7 +94,10 @@ const UserSettings = () => {
         setOrderLoading(true)
         setSelectUserOrders([])
         const [err, data] = await to(userService.fetchOrdersByUserId(selectedUser?.id!, token))
-        if (err) return showErrorMessage(err)
+        if (err) {
+            setOrderLoading(false)
+            return showErrorMessage(err)
+        }
         setOrderLoading(false)
         setSelectUserOrders(data.data)
     }
