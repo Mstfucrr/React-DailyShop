@@ -30,16 +30,25 @@ export interface ICategory {
 
 }
 
-export interface IReview {
+export interface IReviewBase {
     id: number,
     date: string,
-    rating: number,
     productId: number,
     product: IProduct | undefined,
     comment: string,
     user: IUser | undefined,
     status: string | undefined,
-    userPurchasedThisProduct: boolean | undefined
+    userPurchasedThisProduct: boolean | undefined,
+}
+
+export interface IReview extends IReviewBase {
+    rating: number,
+    answers: IAnswer[] | undefined
+}
+
+export interface IAnswer extends IReviewBase {
+    parentReviewId: number,
+    parentReview: IReview | undefined
 }
 
 
