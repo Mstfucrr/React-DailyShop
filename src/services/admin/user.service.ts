@@ -28,4 +28,7 @@ export const updateProductApprovalStatus = async (id: number, IsApproved: boolea
 
 // USER ORDERS
 export const fetchOrdersByUserId = async (id: number, token: string) =>
-    await makeRequest(`/admin/Users/${id}/Orders`, "GET", null, token);
+    await makeRequest(`/admin/Orders/${id}`, "GET", null, token);
+
+export const updateOrderStatus = async (orderId: number, status: string, token: string) =>
+    await makeRequest<any>(`Orders/${orderId}`, "PUT", status, token);

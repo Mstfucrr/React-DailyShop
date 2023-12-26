@@ -9,7 +9,8 @@ import {
     fetchUsers,
     updateProductApprovalStatus,
     updateReviewStatus,
-    fetchOrdersByUserId
+    fetchOrdersByUserId,
+    updateOrderStatus
 } from './user.service'
 import { deleteProduct } from '../product/product.service'
 
@@ -39,7 +40,8 @@ export class AdminService {
         fetchPaddingProductByUserId: (id: number, token: string) => Promise<any>,
         updateProductApprovalStatus: (id: number, input: any, token: string) => Promise<any>,
         updateReviewStatus: (id: number, input: any, token: string) => Promise<any>,
-        fetchOrdersByUserId: (id: number, token: string) => Promise<any>
+        fetchOrdersByUserId: (id: number, token: string) => Promise<any>,
+        updateOrderStatus: (orderId: number, status: string, token: string) => Promise<any>
     }
 
     constructor() {
@@ -65,7 +67,8 @@ export class AdminService {
             fetchPaddingProductByUserId,
             updateProductApprovalStatus,
             updateReviewStatus,
-            fetchOrdersByUserId
+            fetchOrdersByUserId,
+            updateOrderStatus
         }
     }
 }
