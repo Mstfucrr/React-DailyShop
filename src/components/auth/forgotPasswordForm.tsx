@@ -53,6 +53,9 @@ const ForgotPasswordForm = () => {
         const toast: IToast = { severity: 'success', summary: "Başarılı", detail: message, life: 3000 }
         dispatch(SET_TOAST(toast))
         setIsLoading(false)
+        setTimeout(() => {
+            window.location.href = '/login'
+        }, 1000);
     }
 
     return (
