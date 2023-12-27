@@ -97,7 +97,11 @@ const ProductDetail = () => {
     const fetchProductReviews = async () => {
         if (!product) return
         const [err, data] = await to(getReviewsByProductId(product.id, token))
-        if (err) return console.log(err)
+        if (err) {
+            const toast: IToast = { severity: 'error', summary: 'Hata', detail: err.message, life: 3000 }
+            dispatch(SET_TOAST(toast))
+            return
+        }
         if (data.data) {
             const reviews = await data.data as IReview[];
             setReviews(reviews)
