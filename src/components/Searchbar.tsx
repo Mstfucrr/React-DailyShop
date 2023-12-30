@@ -42,7 +42,7 @@ const Searchbar = () => {
     const fetchWallet = async () => {
         const [err, data] = await to(getWalletByUser(token))
         console.log(data)
-        if (err) return showErrorMessage(err.message)
+        if (err) return
         setBalance(data.data.balance ?? 0)
     }
 
@@ -127,13 +127,22 @@ const Searchbar = () => {
                                 <div className="flex flex-col gap-4">
                                     {/* Cüzdan içeriği */}
                                     <div className="flex flex-row items-center justify-between">
+                                        {isAuthorized ?
                                         <div className="flex flex-col">
                                             <h1 className="text-lg font-semibold">Bakiye</h1>
                                             <span className="text-sm text-gray-500">{balance} ₺</span>
                                         </div>
+                                        : 
+                                        <div className="flex flex-col">
+                                            <h1 className="text-lg font-semibold">Bakiyeyi görmek için </h1>
+                                            <span className="text-sm text-gray-500"><Link to="/login" className="text-primary">Giriş Yap</Link></span>
+                                        </div>
+                                        }
                                         <button className="text-primary fawallet"
                                             // onClickte para eklemesi yapılacak
-                                            onClick={() => setIsShowWalletScreen(true)}
+                                            onClick={() => (
+                                                isAuthorized ? setIsShowWalletScreen(true) : showErrorMessage('Para eklemek için giriş yapmalısınız')
+                                            )}
                                         >
                                             <FaWallet className=" w-6 h-auto inline-block text-primary" />
                                         </button>
