@@ -36,6 +36,10 @@ const UpdateProduct = ({ productUpdateId, isUpdate, setIsUpdate }: Props) => {
     const [product, setProduct] = useState<IProduct | null>(null)
     const [productCoverImage, setProductCoverImage] = useState<File | null>(null)
     const [productImages, setProductImages] = useState<any[]>([])
+    const [treeNodes, setTreeNodes] = useState<TreeNode[] | undefined>(undefined);
+    const [selectedCategory, setSelectedCategory] = useState<ICategory>()
+    const [selectedNodeKey, setSelectedNodeKey] = useState<string | undefined>(product?.categoryId?.toString())
+
     const dispatch = useDispatch()
 
 
@@ -54,11 +58,30 @@ const UpdateProduct = ({ productUpdateId, isUpdate, setIsUpdate }: Props) => {
         setProduct(data.data)
         setProductCoverImage(data.data.image || null)
         setProductImages(data.data.images || [])
+        setSelectedNodeKey(data.data?.category?.id?.toString())
+        setSelectedCategory(data.data?.category)
     }
+
+    const getCategories = async () => {
+        const [err, data] = await to(categoryService.fetchCategories())
+        if (err) return console.log(err)
+        if (data) {
+            setTreeNodes(convertCategoriesToTreeSelectModel(data))
+        }
+    }
+
+    useEffect(() => {
+        if (treeNodes && selectedNodeKey)
+            setSelectedCategory(findCategoryByKeyInTreeSelectModel(treeNodes, selectedNodeKey))
+    }, [selectedCategory, selectedNodeKey]);
+
+    useEffect(() => {
+    }, [])
 
     useEffect(() => {
         setProduct(null)
         fetchProduct()
+            .then(getCategories)
     }, [productUpdateId])
 
     const handleCoverImage = (e: any) => {
@@ -105,7 +128,7 @@ const UpdateProduct = ({ productUpdateId, isUpdate, setIsUpdate }: Props) => {
                 formData.append(typeof img === "string" ? "ProductImages" : "ProductImagesFile", img)
             })
         values.colors?.forEach((color: string) => formData.append("Colors", color))
-        values.sizes?.forEach((size : string) => formData.append("Sizes", size))
+        values.sizes?.forEach((size: string) => formData.append("Sizes", size))
 
         formData.forEach((value, key) => {
             console.log(key, value)
@@ -128,26 +151,6 @@ const UpdateProduct = ({ productUpdateId, isUpdate, setIsUpdate }: Props) => {
 
     }
 
-    const [treeNodes, setTreeNodes] = useState<TreeNode[] | undefined>(undefined);
-    const [selectedCategory, setSelectedCategory] = useState<ICategory>()
-    const [selectedNodeKey, setSelectedNodeKey] = useState<string | undefined>(undefined);
-
-    const getCategories = async () => {
-        const [err, data] = await to(categoryService.fetchCategories())
-        if (err) return console.log(err)
-        if (data)
-            setTreeNodes(convertCategoriesToTreeSelectModel(data))
-    }
-
-    useEffect(() => {
-        getCategories()
-        setSelectedNodeKey(product?.category?.id?.toString())
-    }, [])
-
-    useEffect(() => {
-        if (treeNodes && selectedNodeKey)
-            setSelectedCategory(findCategoryByKeyInTreeSelectModel(treeNodes, selectedNodeKey))
-    }, [selectedCategory, selectedNodeKey]);
 
     return (
 
@@ -168,8 +171,8 @@ const UpdateProduct = ({ productUpdateId, isUpdate, setIsUpdate }: Props) => {
                         <FaTimes />
                     </button>
                 </div>
-                {product == null && <ProgressSpinner className="!w-full text-center" />}
-                {product != null &&
+                {(product == null || selectedNodeKey == undefined) && <ProgressSpinner className="!w-full text-center" />}
+                {product != null && selectedNodeKey != undefined &&
                     <div className="w-full h-full overflow-y-auto flex flex-col">
 
                         <div className="text-center">
@@ -261,7 +264,7 @@ const UpdateProduct = ({ productUpdateId, isUpdate, setIsUpdate }: Props) => {
                                     </div>
                                     <div className="flex flex-col gap-4 md:w-5/6 w-full p-4">
                                         <span className="p-float-label">
-                                            {values.category != undefined && <>
+                                            {product.category?.id != null && selectedNodeKey != undefined && <>
                                                 <TreeSelect id='ts-category' name='ts-category'
                                                     value={selectedNodeKey}
                                                     options={treeNodes}
@@ -273,12 +276,12 @@ const UpdateProduct = ({ productUpdateId, isUpdate, setIsUpdate }: Props) => {
                                                             }
                                                         })
                                                         setSelectedNodeKey(e.value as string)
+                                                        setSelectedCategory(findCategoryByKeyInTreeSelectModel(treeNodes as TreeNode[], e.value as string))
+
                                                     }}
-                                                    className={classNames({ 'p-invalid': errors.categoryId })}
+                                                    className={classNames({ 'p-invalid': errors.categoryId }) + " w-auto"}
+                                                    placeholder="Bir Kategori Seç"
                                                 />
-                                                <label htmlFor="ts-category">
-                                                    Bir Kategori Seç
-                                                </label>
 
                                                 {touched.categoryId && errors.categoryId &&
                                                     <div className="text-red-500">{errors.categoryId}</div>
