@@ -66,6 +66,22 @@ const ProductDetail = () => {
         }
     }, []);
 
+    const fetchProductReviews = async (productId: number) => {
+        const [err, data] = await to(getReviewsByProductId(productId, token))
+        if (err) {
+            const toast: IToast = { severity: 'error', summary: 'Hata', detail: err.message, life: 3000 }
+            dispatch(SET_TOAST(toast))
+            return
+        }
+        console.log("data", data)
+        if (data.data) {
+            const reviews = data.data as IReview[];
+            setReviews(reviews)
+            if (product)
+                setProduct({ ...product, rating: reviews.reduce((a, b) => a + b.rating, 0) / reviews.length })
+        }
+    }
+
     const fetchData = async () => {
         if (!id) return
         setProductLoading(true)
@@ -90,27 +106,15 @@ const ProductDetail = () => {
             if (fetchedProduct.image)
                 imagesSources.push(fetchedProduct.image)
             setImages(imagesSources.map((source: string) => ({ source: source })))
+            fetchProductReviews(fetchedProduct.id)
         }
         setProductLoading(false)
     }
 
-    const fetchProductReviews = async () => {
-        if (!product) return
-        const [err, data] = await to(getReviewsByProductId(product.id, token))
-        if (err) {
-            const toast: IToast = { severity: 'error', summary: 'Hata', detail: err.message, life: 3000 }
-            dispatch(SET_TOAST(toast))
-            return
-        }
-        if (data.data) {
-            const reviews = await data.data as IReview[];
-            setReviews(reviews)
-            setProduct({ ...product, rating: reviews.reduce((a, b) => a + b.rating, 0) / reviews.length })
-        }
-    }
+
 
     useEffect(() => {
-        fetchData().then(fetchProductReviews)
+        fetchData()
     }, [])
 
 
@@ -383,7 +387,7 @@ const ProductDetail = () => {
                                         <FaCommentAlt className="inline mr-2" />Yorumlar
                                     </div>
                                 }>
-                                    <ProductReview reviews={reviews} setReviews={setReviews} product={product} />
+                                    <ProductReview reviews={reviews} product={product} />
                                 </TabPanel>
 
                             </TabView>
