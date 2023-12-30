@@ -9,7 +9,7 @@ import { InputText } from 'primereact/inputtext'
 import { InputTextarea } from 'primereact/inputtextarea'
 import { Rating } from 'primereact/rating'
 import { useState } from 'react'
-import { FaComment, FaTrashAlt, FaSpinner, FaCommentAlt, FaCheckCircle, FaCommentSlash } from 'react-icons/fa'
+import { FaComment, FaTrashAlt, FaSpinner, FaCommentAlt, FaCommentSlash } from 'react-icons/fa'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { Form, Formik } from 'formik'
@@ -20,11 +20,10 @@ import { reportReview } from '@/services/report/report.service'
 
 type Props = {
     reviews: IReview[] | undefined,
-    setReviews: React.Dispatch<React.SetStateAction<IReview[]>>,
     product: IProduct
 }
 
-const ProductReview = ({ reviews, setReviews, product }
+const ProductReview = ({ reviews, product }
     : Props) => {
 
     const [addReviewLoading, setAddReviewLoading] = useState<boolean>(false)
@@ -78,10 +77,10 @@ const ProductReview = ({ reviews, setReviews, product }
     const [answerReviewText, setAnswerReviewText] = useState<string>('')
 
     const deleteReviewTemplete = (reviewId: number) => {
-        return <button className="text-primary hover:text-primaryDark transition-all duration-300 ease-in-out flex flex-col items-center"
+        return <button className="text-primary hover:text-primaryDark text-sm transition-all duration-300 ease-in-out flex flex-col items-center"
             onClick={() => handleDeleteReview(reviewId)}
         >
-            <FaTrashAlt className="inline mr-2" />
+            <FaTrashAlt className="inline mr-2 w-3" />
             Yorumu Sil
         </button>
 
@@ -106,7 +105,7 @@ const ProductReview = ({ reviews, setReviews, product }
         }
     }
 
-    const answerReviewTemplete = (review: IReview) => {
+    const answerReviewTemplete = (review: any) => {
         return (
             <div className="flex flex-col m-3 p-3 gap-4">
                 <InputText className="w-full" placeholder="Yanıtınızı giriniz"
@@ -129,12 +128,12 @@ const ProductReview = ({ reviews, setReviews, product }
     const reportReviewTemplete = (id: number) => {
         return (
             <div className="flex flex-col">
-                <button className="text-primary flex flex-col items-center hover:text-primaryDark transition-all duration-300 ease-in-out"
+                <button className="text-primary flex flex-col text-sm items-center hover:text-primaryDark transition-all duration-300 ease-in-out"
                     onClick={() => {
                         handleReportReview(id)
                     }}
                 >
-                    <MdReportProblem className="inline mr-2" />
+                    <MdReportProblem className="inline mr-2 w-3" />
                     Şikayet Et
                 </button>
 
@@ -156,28 +155,35 @@ const ProductReview = ({ reviews, setReviews, product }
         }
     }
 
-    const userPurchasedThisProductTemplete = () => {
+    const userPurchasedThisProductTemplete = (image: string) => {
         return (
-            <div className="flex flex-col gap-1 mx-3 items-center text-primary">
-                <FaCheckCircle />
-                <small>Ürünü Almış</small>
+            <div className="relative m-2">
+                <div className="before:before-content flex flex-col items-center text-primary text-sm border-4 border-primary">
+                    <Avatar image={image} size={"large"}
+                    />
+                </div>
             </div>
         )
     }
 
-    
+
     const reviewTemplete = (review: IReview) => {
         return <div className="flex items-start mx-4 my-2" key={review.date}>
-            <Avatar image={review.user?.profileImage} size={"large"}
-                className="m-2"
-            />
+
+            {review.userPurchasedThisProduct ?
+                userPurchasedThisProductTemplete(review.user?.profileImage ?? '')
+                :
+                <Avatar image={review.user?.profileImage} size={"large"}
+                    className="m-2"
+                />
+            }
             <div className="flex-1">
                 <div className="flex flex-row flex-wrap sm:gap-7 gap-1 text-xs items-center">
                     <h6 className="text-lg"> {review.user?.name} </h6>
                     {/* eğer yorumu yazan kişi bu ürünü Almışsa icon */}
 
 
-                    {review.date.split('T')[0]}
+                    {review?.date?.split('T')[0]}
                 </div>
                 <small>{review.user?.email}</small>
 
@@ -208,18 +214,17 @@ const ProductReview = ({ reviews, setReviews, product }
 
                 </div>
 
+                {answerReview == review.id &&
+                    answerReviewTemplete(review)
+                }
+
                 {/* Answers */}
                 {review.answers?.map((answer) => (
                     reviewAnswersTemplete(answer)
                 ))}
 
-                {answerReview == review.id &&
-                    answerReviewTemplete(review)
-                }
             </div>
-            {review.userPurchasedThisProduct &&
-                userPurchasedThisProductTemplete()
-            }
+
             {/* eğer yorumu yazan kişi giriş yapmışsa ve yorumu silmek istiyorsa */}
             <div className="flex">
 
@@ -241,22 +246,49 @@ const ProductReview = ({ reviews, setReviews, product }
     }
 
     const reviewAnswersTemplete = (answer: IAnswer) => {
-        return <div className="flex items-start mx-4 my-2" key={answer.date}>
-            <Avatar image={answer.user?.profileImage} size={"large"}
-                className="m-2"
-            />
+        return <div className="flex items-start mx-4 my-4 border-l-4" key={"answer-" + answer.id}>
+            {/* ürünü satın aldıysa border var ve sol üstünde tik yanında ürünü satın aldı yazısı */}
+            {answer.userPurchasedThisProduct ?
+                userPurchasedThisProductTemplete(answer.user?.profileImage ?? '')
+                :
+                <Avatar image={answer.user?.profileImage} size={"large"}
+                    className="m-2"
+                />
+            }
             <div className="flex-1">
                 <div className="flex flex-row flex-wrap sm:gap-7 gap-1 text-xs items-center">
                     <h6 className="text-lg"> {answer.user?.name} </h6>
                     {/* eğer yorumu yazan kişi bu ürünü Almışsa icon */}
-                    {answer.date.split('T')[0]}
+                    {answer?.date?.split('T')[0]}
                 </div>
                 <small>{answer.user?.email}</small>
                 <p>
                     {answer.comment}
                 </p>
 
-                    
+                <div className="flex flex-row gap-x-2 mt-2">
+                    <button className="text-primary hover:text-primaryDark transition-all duration-300 ease-in-out"
+                        onClick={() => setAnswerReview(answer.id)}>
+                        <FaComment className="inline mr-2" />
+                        Yanıtla
+                    </button>
+                    {/* iptal */}
+                    {answerReview == answer.id &&
+                        <button className="text-primary hover:text-primaryDark transition-all duration-300 ease-in-out"
+                            onClick={() => {
+                                setAnswerReview(undefined)
+                                setAnswerReviewText('')
+                            }}>
+                            <FaCommentSlash className="inline mr-2 w-6" />
+                            İptal
+                        </button>
+                    }
+
+                </div>
+                {answerReview == answer.id &&
+                    answerReviewTemplete(answer)
+                }
+
             </div>
             {/* eğer yorumu yazan kişi giriş yapmışsa ve yorumu silmek istiyorsa */}
             <div className="flex">
@@ -276,7 +308,7 @@ const ProductReview = ({ reviews, setReviews, product }
 
         </div>
     }
-    
+
     return (
         <div className="flex flex-col lg:flex-row w-full px-5 gap-x-3 gap-y-4 mt-6">
             <div className="w-full flex flex-col">
