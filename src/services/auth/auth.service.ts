@@ -18,7 +18,7 @@ const getAccount = async (token: string) =>
     await makeRequest<any>("Profiles/GetUser", "GET", null, token);
 
 const updateAccount = async (input: any, token: string) =>
-    await makeRequest<any>("Profiles/Update", "PUT", input, token);
+    await makeRequest<any>("Profiles/Update", "PUT", input, token, true);
 
 const updateAddress = async (input: any, token: string) =>
     await makeRequest<any>("Profiles/UpdateAddress", "PUT", input, token);
