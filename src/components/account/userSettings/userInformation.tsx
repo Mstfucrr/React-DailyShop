@@ -27,6 +27,7 @@ const UserInformation = ({ user }: { user: IUser }) => {
     const [addressesState, setAddressesState] = useState(user.addresses)
     const [loading, setLoading] = useState(false)
     const { token } = useSelector(authSelector)
+    const [profileImage, setProfileImage] = useState<string | File>(user.profileImage)
     const dispatch = useDispatch()
     const navigate = useNavigate()
 
@@ -37,11 +38,7 @@ const UserInformation = ({ user }: { user: IUser }) => {
 
     const handleProfileImageChange = (e: any) => {
         const file = e.target.files[0]
-        const reader = new FileReader()
-        reader.readAsDataURL(file)
-        reader.onloadend = () => {
-            formik.setFieldValue('profileImage', reader.result as string)
-        }
+        setProfileImage(file)
     }
 
     const handleAddressAdd = () => {
@@ -60,8 +57,6 @@ const UserInformation = ({ user }: { user: IUser }) => {
     };
 
 
-
-
     const validationSchema = Yup.object({
         id: Yup.number().notRequired(),
         name: Yup.string().required('Ad alanı zorunludur')
@@ -69,7 +64,6 @@ const UserInformation = ({ user }: { user: IUser }) => {
         surname: Yup.string().required('Soyad alanı zorunludur'),
         email: Yup.string().email('Geçerli bir email adresi giriniz').required('Email alanı zorunludur'),
         phone: Yup.string().required('Telefon alanı zorunludur'),
-        profileImage: Yup.string().notRequired(),
     });
 
     const formik = useFormik({
@@ -78,13 +72,17 @@ const UserInformation = ({ user }: { user: IUser }) => {
             surname: userState.surname,
             email: userState.email,
             phone: userState.phone,
-            profileImage: userState.profileImage,
-
         },
         validationSchema: validationSchema,
         onSubmit: async (values) => {
+            let formData = new FormData();
+            formData.append('ProfileImageFile', profileImage as File)
+            formData.append('FirstName', values.name)
+            formData.append('LastName', values.surname)
+            formData.append('Email', values.email)
+            formData.append('PhoneNumber', values.phone)
             setLoading(true)
-            const [err, res] = await to(authService.updateAccount(values, token))
+            const [err, res] = await to(authService.updateAccount(formData, token))
             if (err) {
                 const toast: IToast = { severity: 'error', summary: "Hata", detail: err.message, life: 3000 }
                 setLoading(false)
@@ -166,7 +164,11 @@ const UserInformation = ({ user }: { user: IUser }) => {
                 </div>
             } className="mb-4" >
                 <div className="flex flex-col items-center">
-                    <img src={formik.values.profileImage} alt="profile" className="lg:w-1/3 w-1/2 max-w-[250px] max-h-[250px] object-cover rounded-full" />
+                    <img src={
+                        typeof profileImage === 'string' ?
+                            profileImage
+                            : URL.createObjectURL(profileImage)
+                    } alt="profile" className="lg:w-1/3 w-1/2 max-w-[250px] max-h-[250px] object-cover rounded-full" />
                     <form method='post' encType='multipart/form-data' className="flex flex-col items-center">
                         <input type="file" name="profileImage" id="profileImage" className="hidden"
                             onInput={(e: any) => { handleProfileImageChange(e) }}
@@ -176,7 +178,7 @@ const UserInformation = ({ user }: { user: IUser }) => {
                         </label>
                     </form>
                     {
-                        formik.values.profileImage !== user.profileImage && (
+                        profileImage !== user.profileImage && (
                             <div className="flex flex-wrap justify-content-end gap-2 my-4">
                                 {loading ? buttonsLoadingTemplete()
 
