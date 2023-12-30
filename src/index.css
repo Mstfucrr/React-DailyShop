@@ -21,3 +21,23 @@ body {
   text-align: left;
   background-color: #ffffff;
 }
+
+
+@layer utilities {
+  .before-content {
+    content: '✓ ürünü satın aldı';
+    position: absolute;
+    top: -10%;
+    left: -44%;
+    display: flex;
+    justify-content: center;
+    width: 90.6px;
+    height: 21px;
+    border-radius: 9999px;
+    background-color: #1bc345;
+    color: white;
+    font-size: 0.575rem;
+    font-weight: bold;
+    align-items: flex-start;
+  }
+}
