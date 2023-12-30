@@ -33,8 +33,6 @@ export interface ICategory {
 export interface IReviewBase {
     id: number,
     date: string,
-    productId: number,
-    product: IProduct | undefined,
     comment: string,
     user: IUser | undefined,
     status: string | undefined,
@@ -44,11 +42,13 @@ export interface IReviewBase {
 export interface IReview extends IReviewBase {
     rating: number,
     answers: IAnswer[] | undefined
+    productId: number,
+    product: IProduct | undefined,
 }
 
 export interface IAnswer extends IReviewBase {
     parentReviewId: number,
-    parentReview: IReview | undefined
+    parentReview: IReview | undefined,
 }
 
 
