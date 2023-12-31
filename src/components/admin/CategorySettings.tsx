@@ -21,7 +21,7 @@ import { ProgressSpinner } from 'primereact/progressspinner'
 
 const CategorySettings = () => {
 
-    const [TreeNodes, setTreeNodes] = useState<any>(null)
+    const [treeNodes, setTreeNodes] = useState<any>(null);
     const [selectedNodeKey, setSelectedNodeKey] = useState<any>(null)
     const [selectedCategory, setSelectedCategory] = useState<ICategory | undefined>(undefined)
     const [loading, setLoading] = useState(true);
@@ -32,8 +32,8 @@ const CategorySettings = () => {
     const dispatch = useDispatch()
 
     useEffect(() => {
-        if (TreeNodes && selectedNodeKey)
-            setSelectedCategory(findCategoryByKeyInTreeSelectModel(TreeNodes, selectedNodeKey))
+        if (treeNodes && selectedNodeKey)
+            setSelectedCategory(findCategoryByKeyInTreeSelectModel(treeNodes, selectedNodeKey))
     }, [selectedCategory, selectedNodeKey]);
 
     useEffect(() => {
@@ -92,7 +92,7 @@ const CategorySettings = () => {
             setLoading(true);
             const val: ICategoryRequest = {
                 name: values.categoryName,
-                parentCategoryId: selectedCategory?.id || null
+                parentCategoryId: selectedCategory?.id ?? null
             }
             await handleAddCategory(val)
             setLoading(false);
@@ -123,7 +123,7 @@ const CategorySettings = () => {
 
     const updateCategoryFormik = useFormik({
         initialValues: {
-            categoryName: updateCategory?.name || '',
+            categoryName: updateCategory?.name ?? '',
         },
         validationSchema: updateCategoryValidationSchema,
         onSubmit: async (values) => {
@@ -131,7 +131,7 @@ const CategorySettings = () => {
             setLoading(true);
             const val: ICategoryRequest = {
                 name: values.categoryName,
-                parentCategoryId: updateCategory?.parentCategoryId || null
+                parentCategoryId: updateCategory?.parentCategoryId ?? null
             }
             if (updateCategory)
                 await handleUpdateCategory(updateCategory?.id, val)
@@ -151,11 +151,11 @@ const CategorySettings = () => {
 
     const renderNodeTemplate = (node: any) => (
         <NodeTemplate
-          node={node}
-          setUpdateCategory={setUpdateCategory}
-          handleDeleteCategory={handleDeleteCategory}
+            node={node}
+            setUpdateCategory={setUpdateCategory}
+            handleDeleteCategory={handleDeleteCategory}
         />
-      );
+    );
 
     return (
         <>
@@ -187,29 +187,27 @@ const CategorySettings = () => {
                     {!updateCategoryActive && <>
 
                         <div className="flex flex-col gap-4 w-full">
-                            {TreeNodes &&
-                                <>
-                                    <div className="flex flex-row flex-wrap gap-2">
+                            {treeNodes &&
+                                <div className="flex flex-row flex-wrap gap-2">
 
-                                        <TreeSelect
-                                            value={selectedNodeKey}
-                                            options={TreeNodes}
-                                            onChange={(e) => setSelectedNodeKey(e.value)}
-                                            filter
-                                            filterBy="label"
-                                            placeholder="Üst Kategori Seç"
-                                            className="md:w-1/2 w-full"
+                                    <TreeSelect
+                                        value={selectedNodeKey}
+                                        options={treeNodes}
+                                        onChange={(e) => setSelectedNodeKey(e.value)}
+                                        filter
+                                        filterBy="label"
+                                        placeholder="Üst Kategori Seç"
+                                        className="md:w-1/2 w-full"
 
-                                        />
-                                        <Button onClick={() => {
-                                            setSelectedCategory(undefined)
-                                            setSelectedNodeKey(null)
-                                        }} icon="pi pi-times" className="p-button-danger"
-                                            disabled={!selectedNodeKey}
-                                        />
-                                        {/* <Button className='p-button-rounded p-button-danger' label='Seçili Kategoriyi Sil' icon="pi pi-trash" /> */}
-                                    </div>
-                                </>
+                                    />
+                                    <Button onClick={() => {
+                                        setSelectedCategory(undefined)
+                                        setSelectedNodeKey(null)
+                                    }} icon="pi pi-times" className="p-button-danger"
+                                        disabled={!selectedNodeKey}
+                                    />
+                                    {/* <Button className='p-button-rounded p-button-danger' label='Seçili Kategoriyi Sil' icon="pi pi-trash" /> */}
+                                </div>
                             }
 
                         </div>
@@ -241,55 +239,53 @@ const CategorySettings = () => {
 
                 {/* seçili kategoryi düzenle */}
                 {updateCategoryActive &&
-                    <>
-                        <div className="flex w-full justify-evenly flex-wrap">
+                    <div className="flex w-full justify-evenly flex-wrap">
 
-                            <Tree
-                                className='w-full max-w-xl'
-                                value={TreeNodes} selectionMode="single"
-                                selectionKeys={selectedNodeKey}
-                                onSelectionChange={(e) => setSelectedNodeKey(e.value)}
-                                dragdropScope='demo'
-                                onDragDrop={(e) => {
-                                    setLoading(true);
-                                    handleUpdateCategory(e.dragNode.data.id, { name: e.dragNode.data.name, parentCategoryId: e.dropNode?.data.id || null })
-                                    setLoading(false);
-                                }}
-                                nodeTemplate={renderNodeTemplate}
-                            />
-                            <ConfirmDialog />
-                            {updateCategory &&
-                                <div className="flex flex-col gap-3">
-                                    <h3 className="text-2xl font-semibold">
-                                        {updateCategory?.name} düzenleniyor
-                                    </h3>
+                        <Tree
+                            className='w-full max-w-xl'
+                            value={treeNodes} selectionMode="single"
+                            selectionKeys={selectedNodeKey}
+                            onSelectionChange={(e) => setSelectedNodeKey(e.value)}
+                            dragdropScope='demo'
+                            onDragDrop={(e) => {
+                                setLoading(true);
+                                handleUpdateCategory(e.dragNode.data.id, { name: e.dragNode.data.name, parentCategoryId: e.dropNode?.data.id || null })
+                                setLoading(false);
+                            }}
+                            nodeTemplate={renderNodeTemplate}
+                        />
+                        <ConfirmDialog />
+                        {updateCategory &&
+                            <div className="flex flex-col gap-3">
+                                <h3 className="text-2xl font-semibold">
+                                    {updateCategory?.name} düzenleniyor
+                                </h3>
 
-                                    <InputText placeholder='Yeni Kategori Adı*'
-                                        className={
-                                            updateCategoryFormik.touched.categoryName && updateCategoryFormik.errors.categoryName
-                                                ? "p-invalid w-full" : "w-full"
-                                        }
-                                        id='categoryName'
-                                        name='categoryName'
-                                        value={updateCategoryFormik.values.categoryName}
-                                        onChange={updateCategoryFormik.handleChange}
-                                        onBlur={updateCategoryFormik.handleBlur}
-                                    />
+                                <InputText placeholder='Yeni Kategori Adı*'
+                                    className={
+                                        updateCategoryFormik.touched.categoryName && updateCategoryFormik.errors.categoryName
+                                            ? "p-invalid w-full" : "w-full"
+                                    }
+                                    id='categoryName'
+                                    name='categoryName'
+                                    value={updateCategoryFormik.values.categoryName}
+                                    onChange={updateCategoryFormik.handleChange}
+                                    onBlur={updateCategoryFormik.handleBlur}
+                                />
 
-                                    {updateCategoryFormik.touched.categoryName && updateCategoryFormik.errors.categoryName ? (
-                                        <small id="categoryName-help" className="p-error p-d-block">
-                                            {updateCategoryFormik.errors.categoryName}
-                                        </small>
-                                    ) : null}
+                                {updateCategoryFormik.touched.categoryName && updateCategoryFormik.errors.categoryName ? (
+                                    <small id="categoryName-help" className="p-error p-d-block">
+                                        {updateCategoryFormik.errors.categoryName}
+                                    </small>
+                                ) : null}
 
-                                    <Button label="Güncelle" className="p-button-help max-w-xs" onClick={() => updateCategoryFormik.handleSubmit()} type='submit' />
+                                <Button label="Güncelle" className="p-button-help max-w-xs" onClick={() => updateCategoryFormik.handleSubmit()} type='submit' />
 
 
-                                </div>
-                            }
+                            </div>
+                        }
 
-                        </div>
-                    </>
+                    </div>
                 }
             </div>
 
