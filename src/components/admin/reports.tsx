@@ -169,13 +169,24 @@ const Reports = () => {
             // engelle , raporu sil
 
             <div className="flex gap-5 flex-row justify-between">
-                <Button label="Kullanıcıyı Engelle" severity='danger' onClick={() => handleBlockUser(user.id)} disabled={user.status} />
+                {user.status ? (
+                    <Button onClick={() => { handleBlockUser(user.id); }} icon="pi pi-ban" className="p-button-danger p-button-outlined" label="Engelle" size='small' />
+                ) : (
+                    <Button onClick={() => { handleBlockUser(user.id); }} icon="pi pi-check" className="p-button-success p-button-outlined" label="Engeli kaldır" size='small' />
+                )}
                 <Button label="Raporu Sil" severity='help'
                     onClick={() => handleDeleteReportForUser(reportId)}
                 />
             </div>
         );
     }
+
+    const handleBlockUser = async (id: number) => {
+        const [err, data] = await to(userService.blockUser(id, token))
+        if (err) return showErrorMessage(err)
+        showSuccess(data.message)
+    }
+
 
     const handleReviewStatusChange = async (data: IReview, status: string) => {
         const [err, data2] = await to(userService.updateReviewStatus(data.id, status, token))
@@ -205,11 +216,7 @@ const Reports = () => {
         );
     }
 
-    const handleBlockUser = async (id: number) => {
-        const [err, data] = await to(userService.blockUser(id, token))
-        if (err) return showErrorMessage(err)
-        showSuccess(data.message)
-    }
+
 
     const renderRepUserPanel = (user: IUser) => {
         return (
