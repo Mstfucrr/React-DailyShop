@@ -25,7 +25,7 @@ const UserSettings = () => {
 
     const { token } = useSelector(authSelector)
 
-    const [users, setUsers] = useState<any[]>([])
+    const [users, setUsers] = useState<IUser[]>([])
     const [selectedUser, setSelectedUser] = useState<IUser>()
     const [selectedUserAddress, setSelectedUserAddress] = useState<IUserAddress[]>([])
     const [selectedUserReviews, setSelectedUserReviews] = useState<IReview[]>([])
@@ -52,7 +52,7 @@ const UserSettings = () => {
     const fetchUsers = async () => {
         const [err, data] = await to(userService.fetchUsers(token))
         if (err) return showErrorMessage(err)
-        setUsers(data)
+        setUsers(data.data)
         showSuccess(data.message)
         setLoading(false)
     }
@@ -317,7 +317,7 @@ const UserSettings = () => {
 
             {/* Kullanıcı listesi */}
             {users && <h1 className="text-2xl font-semibold text-primary uppercase">Kullanıcılar</h1>}
-            {users &&
+            {users && users.length > 0 &&
 
                 <DataTable value={users} loading={loading} selection={selectedUser} onSelectionChange={(e) => setSelectedUser(e.value as IUser)}
                     scrollable scrollHeight="400px"
