@@ -8,7 +8,7 @@ import { Avatar } from 'primereact/avatar'
 import { InputText } from 'primereact/inputtext'
 import { InputTextarea } from 'primereact/inputtextarea'
 import { Rating } from 'primereact/rating'
-import { useCallback, useState } from 'react'
+import { useState } from 'react'
 import { FaComment, FaTrashAlt, FaSpinner, FaCommentAlt, FaCommentSlash } from 'react-icons/fa'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
@@ -16,8 +16,10 @@ import { Form, Formik } from 'formik'
 import { reviewValidationSchema } from '@/shared/validationSchemas'
 import { classNames } from 'primereact/utils'
 import { MdReportProblem } from 'react-icons/md'
-import { reportReview } from '@/services/report/report.service'
-import { ConfirmPopup, confirmPopup } from 'primereact/confirmpopup'
+import { reportReview, reportUser } from '@/services/report/report.service'
+import { SelectButton } from 'primereact/selectbutton'
+import { Dialog } from 'primereact/dialog'
+import { Button } from 'primereact/button'
 
 type Props = {
     reviews: IReview[] | undefined,
@@ -30,11 +32,25 @@ const ProductReview = ({ reviews, product }: Props) => {
     const { token, isAuthorized, auth } = useSelector(authSelector)
     const [answerReview, setAnswerReview] = useState<number | undefined>(undefined)
     const [answerReviewText, setAnswerReviewText] = useState<string>('')
+    const [reportMessage, setReportMessage] = useState<string>('')
+    const [reportType, setReportType] = useState<string>('review')
+    const [visible, setVisible] = useState(false)
+    const [repUserId, setRepUserId] = useState<number>(0)
+    const [repReviewId, setRepReviewId] = useState<number>(0)
 
+    const showErrorMessage = (message: string) => {
+        const toast: IToast = { severity: 'error', summary: "Hata", detail: message, life: 3000 }
+        dispatch(SET_TOAST(toast))
+    }
+    const showSuccess = (message: string) => {
+        const toast: IToast = { severity: 'success', summary: "Başarılı", detail: message, life: 3000 }
+        dispatch(SET_TOAST(toast))
+    }
 
     const dispatch = useDispatch()
     // validate for review
 
+    // Yorum Yap
     const handleAddReview = async (values: any) => {
         if (!product) return
         const review = {
@@ -56,6 +72,7 @@ const ProductReview = ({ reviews, product }: Props) => {
         setAddReviewLoading(false)
     }
 
+    // Yorumu Yanıtla
     const handleAnswerReview = async (parentReviewId: number) => {
         const answerReview = {
             parentReviewId: parentReviewId,
@@ -76,36 +93,48 @@ const ProductReview = ({ reviews, product }: Props) => {
 
     }
 
-
-    const deleteReviewTemplete = (reviewId: number) => {
-        return <button className="text-primary hover:text-primaryDark text-sm transition-all duration-300 ease-in-out flex flex-col items-center"
-            onClick={() => handleDeleteReview(reviewId)}
-        >
-            <FaTrashAlt className="inline mr-2 w-3" />
-            Yorumu Sil
-        </button>
-
+    // Yorumu Şikayet Et
+    const handleReportReview = async (reviewId: number, reportMessage: string) => {
+        // report review
+        if (!reportMessage) return showErrorMessage("Şikayet sebebi boş olamaz")
+        const repVal = {
+            message: reportMessage
+        }
+        console.log(repVal)
+        const [err, data] = await to(reportReview(reviewId, repVal, token))
+        if (err) return showErrorMessage(err.message)
+        if (data) return showSuccess(data.message)
     }
 
+    // Kullanıcıyı Şikayet Et
+    const handleReportUser = async (userId: number, reportMessage: string) => {
+        // report user
+        if (!reportMessage) return showErrorMessage("Şikayet sebebi boş olamaz")
+        const repVal = {
+            message: reportMessage
+        }
+        console.log(repVal)
+        const [err, data] = await to(reportUser(userId, repVal, token))
+        if (err) return showErrorMessage(err.message)
+        if (data) return showSuccess(data.message)
+    }
+
+    // Yorumu Sil
     const handleDeleteReview = async (rewId: number) => {
 
         if (!product) return
 
         const [err, data] = await to(deleteReviewFromProduct(rewId, token))
-        if (err) {
-            const toast: IToast = { severity: 'error', summary: "Hata", detail: err.message, life: 3000 }
-            dispatch(SET_TOAST(toast))
-            return
-        }
+        if (err) return showErrorMessage(err.message)
         if (data) {
-            const toast: IToast = { severity: 'success', summary: "Başarılı", detail: data.message, life: 3000 }
-            dispatch(SET_TOAST(toast))
+            showSuccess(data.message)
             setTimeout(() => {
                 window.location.reload()
             }, 1500);
         }
     }
-
+    
+    // Yorumu Yanıtla
     const answerReviewTemplete = (review: any) => {
         return (
             <div className="flex flex-col m-3 p-3 gap-4">
@@ -126,45 +155,28 @@ const ProductReview = ({ reviews, product }: Props) => {
         )
     }
 
-    const [reportMessage, setReportMessage] = useState("")
-    const confirmReport = useCallback((event: any, id: number) => {
-        confirmPopup({
-            target: event.currentTarget,
-            message:
-                <>
-                    <h1 className="text-lg">Şikayet Sebebi</h1>
-                    <InputTextarea className="w-full" rows={5} cols={30} autoResize
-                        value={reportMessage}
-                        onChange={(e) => {
-                            console.log(reportMessage)
-                            // console.log(e.currentTarget.value)
-                            setReportMessage(e.target.value)
-                        }}
-                    />
-                </>
+    // Yorumu Sil
+    const deleteReviewTemplete = (reviewId: number) => {
+        return <button className="text-primary hover:text-primaryDark text-sm transition-all duration-300 ease-in-out flex flex-col items-center"
+            onClick={() => handleDeleteReview(reviewId)}
+        >
+            <FaTrashAlt className="inline mr-2 w-3" />
+            Yorumu Sil
+        </button>
 
-            ,
-            icon: 'pi pi-exclamation-triangle',
-            accept: () => { handleReportReview(id, reportMessage) },
-            reject: () => {
-                setReportMessage('')
-            },
-            acceptLabel: 'Şikayet Et',
-            rejectLabel: 'İptal',
-            acceptIcon: 'pi pi-trash',
-            rejectIcon: 'pi pi-times',
-            acceptClassName: 'p-button-danger'
+    }
 
-        });
-    }, [reportMessage])
-
-
-    const reportReviewTemplete = (id: number) => {
+    // Şikayet Et
+    const reportTemplete = (reviewId?: number, userId?: number) => {
         return (
             <div className="flex flex-col">
 
                 <button className="text-primary flex flex-col text-sm items-center hover:text-primaryDark transition-all duration-300 ease-in-out"
-                    onClick={(e) => confirmReport(e, id)}
+                    onClick={() => {
+                        setVisible(true)
+                        setRepReviewId(reviewId ?? 0)
+                        setRepUserId(userId ?? 0)
+                    }}
                 >
                     <MdReportProblem className="inline mr-2 w-3" />
                     Şikayet Et
@@ -174,29 +186,7 @@ const ProductReview = ({ reviews, product }: Props) => {
         )
     }
 
-    const handleReportReview = async (reviewId: number, reportMessage: string) => {
-        // report review
-        if (!reportMessage) {
-            const toast: IToast = { severity: 'info', summary: "Hata", detail: "Şikayet sebebi boş olamaz", life: 1000 }
-            dispatch(SET_TOAST(toast))
-            return
-        }
-        const repVal = {
-            message: reportMessage
-        }
-        console.log(repVal)
-        const [err, data] = await to(reportReview(reviewId, repVal, token))
-        if (err) {
-            const toast: IToast = { severity: 'error', summary: "Hata", detail: err.message, life: 1000 }
-            dispatch(SET_TOAST(toast))
-            return
-        }
-        if (data) {
-            const toast: IToast = { severity: 'success', summary: "Başarılı", detail: data.message, life: 1000 }
-            dispatch(SET_TOAST(toast))
-        }
-    }
-
+    // eğer yorumu yazan kişi bu ürünü Almışsa icon
     const userPurchasedThisProductTemplete = (image: string) => {
         return (
             <div className="relative m-2">
@@ -208,7 +198,7 @@ const ProductReview = ({ reviews, product }: Props) => {
         )
     }
 
-
+    // Yorum Templete
     const reviewTemplete = (review: IReview) => {
         return <div className="flex items-start mx-4 my-2" key={review.date}>
 
@@ -277,7 +267,7 @@ const ProductReview = ({ reviews, product }: Props) => {
                         }
                         {/* Şikayet Et */}
                         {review.user?.id != auth.id &&
-                            reportReviewTemplete(review.id)
+                            reportTemplete(review.id, review.user?.id)
                         }
                     </div>
                 }
@@ -287,6 +277,7 @@ const ProductReview = ({ reviews, product }: Props) => {
         </div>
     }
 
+    // Yorum Yanıt Templete
     const reviewAnswersTemplete = (answer: IAnswer) => {
         return <div className="flex items-start mx-4 my-4 border-l-4" key={"answer-" + answer.id}>
             {/* ürünü satın aldıysa border var ve sol üstünde tik yanında ürünü satın aldı yazısı */}
@@ -304,13 +295,10 @@ const ProductReview = ({ reviews, product }: Props) => {
                     {answer?.date?.split('T')[0]}
                 </div>
                 <small>{answer.user?.email}</small>
-                <p>
-                    {answer.comment}
-                </p>
+                <p> {answer.comment} </p>
 
                 <div className="flex flex-row gap-x-2 mt-2">
-                    <button className="text-primary hover:text-primaryDark transition-all duration-300 ease-in-out"
-                        onClick={() => setAnswerReview(answer.id)}>
+                    <button className="text-primary hover:text-primaryDark transition-all duration-300 ease-in-out" onClick={() => setAnswerReview(answer.id)}>
                         <FaComment className="inline mr-2" />
                         Yanıtla
                     </button>
@@ -318,8 +306,7 @@ const ProductReview = ({ reviews, product }: Props) => {
                     {answerReview == answer.id &&
                         <button className="text-primary hover:text-primaryDark transition-all duration-300 ease-in-out"
                             onClick={() => {
-                                setAnswerReview(undefined)
-                                setAnswerReviewText('')
+                                setAnswerReview(undefined); setAnswerReviewText('')
                             }}>
                             <FaCommentSlash className="inline mr-2 w-6" />
                             İptal
@@ -342,7 +329,7 @@ const ProductReview = ({ reviews, product }: Props) => {
                         }
                         {/* Şikayet Et */}
                         {answer.user?.id != auth.id &&
-                            reportReviewTemplete(answer.id)
+                            reportTemplete(answer.id, answer.user?.id)
                         }
                     </div>
                 }
@@ -357,7 +344,40 @@ const ProductReview = ({ reviews, product }: Props) => {
                 <h1 className="text-3xl">
                     "{product.name}" için {reviews?.length} Yorum
                 </h1>
-                <ConfirmPopup />
+                <Dialog header="Header" visible={visible} style={{ width: '50vw' }} onHide={() => setVisible(false)} modal draggable={false} resizable={false}>
+                    <>
+                        <h1 className="text-lg">Şikayet Sebebi</h1>
+                        {/* kullanıcı ya da yorumu şikayet et seçenekleri */}
+                        <SelectButton
+                            value={reportType}
+                            options={[
+                                { label: "Kullanıcıyı Şikayet Et", value: "user", className: "text-sm" },
+                                { label: "Yorumu Şikayet Et", value: "review", className: "text-sm" },
+                            ]}
+                            onChange={(e) => { setReportType(e.value) }}
+                        />
+                        <br />
+
+                        <p className="text-sm">Şikayetinizin sebebini belirtiniz</p>
+                        <small className="text-xs text-gray-400">Şikayetiniz incelendikten sonra size geri dönüş yapılacaktır</small>
+                        <br />
+                        <InputTextarea
+                            className="w-full" rows={5} cols={30} autoResize value={reportMessage}
+                            onChange={(e) => { setReportMessage(e.target.value) }}
+                        />
+
+                        <div className="flex flex-row gap-2 mt-4">
+                            <Button label="Gönder" icon="pi pi-check" onClick={() => {
+                                if (reportType == 'review') 
+                                    handleReportReview(repReviewId, reportMessage)
+                                else
+                                    handleReportUser(repUserId, reportMessage)
+                                setVisible(false)
+                            }} severity='danger' />
+                            <Button label="İptal" icon="pi pi-times" onClick={() => setVisible(false)} severity='secondary' />
+                        </div>
+                    </>
+                </Dialog>
                 <div className="flex flex-col w-full">
                     {reviews?.filter(review => review.status == "approved").map((review) => (
                         reviewTemplete(review)
