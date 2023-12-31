@@ -1,79 +1,21 @@
-import { fetchSettings, saveSettings } from './settings.service'
-import { addCategory, deleteCategoryById, getAllCategories, updateCategoryById } from './category.service'
-import { getAllProducts } from './products.service'
-import {
-    blockUser,
-    fetchAddressByUserId,
-    fetchPaddingProductByUserId,
-    fetchReviewsByUserId,
-    fetchUsers,
-    updateProductApprovalStatus,
-    updateReviewStatus,
-    fetchOrdersByUserId,
-    updateOrderStatus
-} from './user.service'
-import { deleteProduct } from '../product/product.service'
+// settings.service.ts
+import { makeRequest } from "../base/base";
+import { ISiteSettings } from "./types";
 
-export class AdminService {
-    settings: {
-        fetchSettings: (token: string) => Promise<any>,
-        saveSettings: (input: any, token: string) => Promise<any>
-    }
+export const fetchSettings = (token: string) =>
+    makeRequest<any>(`Admin/WebSiteSettings`, "GET", null, token);
+export const saveSettings = (val: ISiteSettings, token: string) =>
+    makeRequest<any>(`Admin/WebSiteSettings`, "PUT", val, token, true);
 
-    categories: {
-        getAllCategories: () => Promise<any>,
-        addCategory: (input: any, token: string) => Promise<any>,
-        updateCategoryById: (id: number, input: any, token: string) => Promise<any>,
-        deleteCategoryById: (id: number, token: string) => Promise<any>
-    }
+// admin.service.ts
+import * as SettingsService from './settings.service'
+import * as CategoryService from './category.service'
+import * as ProductService from './products.service'
+import * as UserService from './user.service'
 
-    products: {
-        getAllProducts: (token: string) => Promise<any>,
-        deleteProduct: (id: number, token: string) => Promise<any>,
-    }
+export const categoryService = { ...CategoryService };
 
-    users: {
-        fetchUsers: (token: string) => Promise<any>,
-        blockUser: (id: number, token: string) => Promise<any>,
-        fetchAddressByUserId: (id: number, token: string) => Promise<any>,
-        fetchReviewsByUserId: (id: number, token: string) => Promise<any>,
-        fetchPaddingProductByUserId: (id: number, token: string) => Promise<any>,
-        updateProductApprovalStatus: (id: number, input: any, token: string) => Promise<any>,
-        updateReviewStatus: (id: number, input: any, token: string) => Promise<any>,
-        fetchOrdersByUserId: (id: number, token: string) => Promise<any>,
-        updateOrderStatus: (orderId: number, status: string, token: string) => Promise<any>
-    }
+export const settingsService = { ...SettingsService };
+export const productService = { ...ProductService };
 
-    constructor() {
-        this.settings = {
-            fetchSettings,
-            saveSettings
-        }
-        this.categories = {
-            getAllCategories,
-            addCategory,
-            updateCategoryById,
-            deleteCategoryById
-        }
-        this.products = {
-            getAllProducts,
-            deleteProduct
-        }
-        this.users = {
-            fetchUsers,
-            blockUser,
-            fetchAddressByUserId,
-            fetchReviewsByUserId,
-            fetchPaddingProductByUserId,
-            updateProductApprovalStatus,
-            updateReviewStatus,
-            fetchOrdersByUserId,
-            updateOrderStatus
-        }
-    }
-}
-
-export const categoryService = new AdminService().categories
-export const settingsService = new AdminService().settings
-export const productService = new AdminService().products
-export const userService = new AdminService().users
+export const userService = { ...UserService };
