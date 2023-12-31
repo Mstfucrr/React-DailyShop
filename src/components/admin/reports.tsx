@@ -166,8 +166,6 @@ const Reports = () => {
 
     const renderCardFooterForUser = (user: IUser, reportId: number) => {
         return (
-            // engelle , raporu sil
-
             <div className="flex gap-5 flex-row justify-between">
                 {user.status ? (
                     <Button onClick={() => { handleBlockUser(user.id); }} icon="pi pi-ban" className="p-button-danger p-button-outlined" label="Engelle" size='small' />
@@ -356,7 +354,3 @@ const Reports = () => {
 }
 
 export default Reports;
-
-function useCallback(arg0: (data: IReview) => import("react/jsx-runtime").JSX.Element, arg1: ((data: IReview, status: string) => Promise<void>)[]) {
-    throw new Error('Function not implemented.');
-}
