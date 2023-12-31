@@ -4,11 +4,13 @@ import UserSettings from './users';
 import ProductSettings from './ProductSettings';
 import { useNavigate } from 'react-router-dom';
 import { Button } from 'primereact/button';
+import Reports from './reports';
 
 enum AdminPage {
     Settings = 'settings',
     Products = 'products',
     Users = 'users',
+    Reports = 'reports',
 }
 
 const Admin: React.FC = () => {
@@ -27,6 +29,9 @@ const Admin: React.FC = () => {
             case '/admin/products':
                 setSelectedPage(AdminPage.Products);
                 break;
+            case '/admin/reports':
+                setSelectedPage(AdminPage.Reports);
+                break;
             default:
                 setSelectedPage(AdminPage.Settings);
                 break;
@@ -42,7 +47,7 @@ const Admin: React.FC = () => {
                 setSelectedPage(AdminPage.Settings);
                 navigate('/admin/settings'); // Navigate to /admin/settings
             },
-            className: `${selectedPage === AdminPage.Settings ? '!bg-primary' : ''}`
+            className: `${selectedPage === AdminPage.Settings ? '!bg-primary' : ''}`,
         },
         {
             label: 'Kullanıcı Ayarları',
@@ -52,7 +57,6 @@ const Admin: React.FC = () => {
                 navigate('/admin/users'); // Navigate to /admin/users
             },
             className: `${selectedPage === AdminPage.Users ? '!bg-primary' : ''}`,
-
         },
         {
             label: 'Ürün Ayarları',
@@ -61,7 +65,16 @@ const Admin: React.FC = () => {
                 setSelectedPage(AdminPage.Products);
                 navigate('/admin/products'); // Navigate to /admin/products
             },
-            className: `${selectedPage === AdminPage.Products ? '!bg-primary' : ''}`
+            className: `${selectedPage === AdminPage.Products ? '!bg-primary' : ''}`,
+        },
+        {
+            label: 'Raporlar',
+            icon: 'pi pi-fw pi-chart-bar',
+            command: () => {
+                setSelectedPage(AdminPage.Reports);
+                navigate('/admin/reports'); // Navigate to /admin/reports
+            },
+            className: `${selectedPage === AdminPage.Reports ? '!bg-primary' : ''}`,
         },
     ];
 
@@ -72,10 +85,10 @@ const Admin: React.FC = () => {
             <div className="flex flex-wrap justify-between gap-5 py-7">
 
                 <a href="/" className=" text-black">
-                    <h1 className="m-0 text-4xl font-semibold" style={{ fontSize: 'calc(1.375rem + 1.5vw)' }}>
+                    <div className="m-0 text-4xl font-semibold" style={{ fontSize: 'calc(1.375rem + 1.5vw)' }}>
                         <span className="text-primary font-bold border px-4 mr-1">D</span>
-                        ailyShop
-                    </h1>
+                        {`ailyShop`}
+                    </div>
                 </a>
 
                 <div className="flex justify-end items-center">
@@ -107,6 +120,7 @@ const Admin: React.FC = () => {
                     {selectedPage === AdminPage.Settings && <Settings />}
                     {selectedPage === AdminPage.Users && <UserSettings />}
                     {selectedPage === AdminPage.Products && <ProductSettings />}
+                    {selectedPage === AdminPage.Reports && <Reports />}
 
                 </div>
             </div>
