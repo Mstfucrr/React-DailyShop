@@ -133,7 +133,7 @@ const ProductReview = ({ reviews, product }: Props) => {
             }, 1500);
         }
     }
-    
+
     // Yorumu Yanıtla
     const answerReviewTemplete = (review: any) => {
         return (
@@ -368,7 +368,7 @@ const ProductReview = ({ reviews, product }: Props) => {
 
                         <div className="flex flex-row gap-2 mt-4">
                             <Button label="Gönder" icon="pi pi-check" onClick={() => {
-                                if (reportType == 'review') 
+                                if (reportType == 'review')
                                     handleReportReview(repReviewId, reportMessage)
                                 else
                                     handleReportUser(repUserId, reportMessage)
@@ -382,7 +382,7 @@ const ProductReview = ({ reviews, product }: Props) => {
                     {reviews?.filter(review => review.status == "approved").map((review) => (
                         reviewTemplete(review)
                     ))}
-                    C</div>
+                </div>
             </div>
             <div className="w-full">
                 <h1 className="text-3xl"> Yorum Yap </h1>
