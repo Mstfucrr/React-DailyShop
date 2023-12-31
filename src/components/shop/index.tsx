@@ -122,7 +122,7 @@ const Shop = () => {
   const handleAddFavorite = async (id: number) => {
     const [err, data] = await to(favoritesService.addFavorite(token, id))
     if (err) return console.log(err)
-    const toast : IToast = { severity: 'success', summary: 'Başarılı', detail: data?.message, life: 3000 }
+    const toast: IToast = { severity: 'success', summary: 'Başarılı', detail: data?.message, life: 3000 }
     dispatch(SET_TOAST(toast))
   }
 
@@ -156,7 +156,9 @@ const Shop = () => {
                           onChange={(e) => setIsDelProductShow(e.value as boolean)}
 
                         />
-                        <span className={isDelProductShow ? "text-gray-900" : "text-gray-400"}>Silinen ürünleri de göster</span>
+                        <span className={isDelProductShow ? "text-gray-900" : "text-gray-400"}>
+                          Silinen veya stokta olmayan ürünleri göster
+                        </span>
                       </div>
 
                     </div>
@@ -179,7 +181,7 @@ const Shop = () => {
 
                   <div className="grid lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-5 py-10 ">
                     {products.map((product) => (
-                      <div className="flex pb-4 w-full max-w-[400px]" key={product.id}>
+                      <div className={`flex pb-4 w-full max-w-[400px] z-50 ${(product.stock === 0 || product.isDeleted) ? 'opacity-50 grayscale' : ''}`} key={product.id}>
                         <Card
                           className="w-full"
                           header={
@@ -189,6 +191,7 @@ const Shop = () => {
                                   <img
                                     src={product.image?.toString()}
                                     alt={product.name}
+                                    // className="w-full h-80 object-scale-down transition-transform duration-500 hover:scale-125"
                                     className="w-full h-80 object-scale-down transition-transform duration-500 hover:scale-125"
                                   />
                                 </Link>
