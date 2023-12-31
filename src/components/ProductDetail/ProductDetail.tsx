@@ -73,7 +73,6 @@ const ProductDetail = () => {
             dispatch(SET_TOAST(toast))
             return
         }
-        console.log("data", data)
         if (data.data) {
             const reviews = data.data as IReview[];
             setReviews(reviews)
