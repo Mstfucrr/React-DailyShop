@@ -5,20 +5,19 @@ import { makeRequest } from "../base/base";
 
 // Reportlanan kullanıcılar ve yorumlar için servisler
 
-export interface IReportedUsers {
+export interface IReportBase {
     id: number;
-    user: IUser;
     reporterUser: IUser;
     reportedDate: string;
     reportedMessage: string;
 }
 
-export interface IReportedReviews {
-    id: number;
+export interface IReportedUsers extends IReportBase {
+    user: IUser;
+}
+
+export interface IReportedReviews extends IReportBase {
     review: IReview;
-    reporterUser: IUser;
-    reportedDate: string;
-    reportedMessage: string;
 }
 
 // USERS
@@ -55,21 +54,18 @@ export default {
 //         user: auth,
 //         reporterUser: auth,
 //         reportedDate: "2023-01-01",
-//         reportedMessage: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Temporibus fuga non cum consectetur aperiam deserunt eaque sit earum quos quis, itaque sunt rem quas, amet veritatis repellat recusandae accusantium at."
 //     },
 //     {
 //         id: 2,
 //         user: auth,
 //         reporterUser: auth,
 //         reportedDate: "2022-01-01",
-//         reportedMessage: "Lorem ipsum dolor sit  recusandae accusantium at."
 //     },
 //     {
 //         id: 3,
 //         user: auth,
 //         reporterUser: auth,
 //         reportedDate: "2021-01-01",
-//         reportedMessage: "Lorem ipsum dolor sit amet, consectetur   accusantium at."
 //     }
 
 // ]
@@ -79,7 +75,6 @@ export default {
 //         id: 1,
 //         reporterUser: auth,
 //         reportedDate: "2023-01-01",
-//         reportedMessage: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Temporibus fuga non cum consectetur aperiam deserunt eaque sit earum quos quis, itaque sunt rem quas, amet veritatis repellat recusandae accusantium at.",
 //         review: {
 //             user: auth,
 //             comment: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Temporibus fuga non cum consectetur aperiam deserunt eaque sit earum quos quis, itaque sunt rem quas, amet veritatis repellat recusandae accusantium at.",
@@ -90,7 +85,6 @@ export default {
 //         id: 2,
 //         reporterUser: auth,
 //         reportedDate: "2022-01-01",
-//         reportedMessage: "Lorem ipsum dolor sit  recusandae accusantium at.",
 //         review: {
 //             user: auth,
 //             comment: "Lorem ipsum dolor sit amet,  sit earum quos quis, itaque sunt rem quas, amet veritatis repellat recusandae accusantium at.",
@@ -101,7 +95,6 @@ export default {
 //         id: 3,
 //         reporterUser: auth,
 //         reportedDate: "2021-01-01",
-//         reportedMessage: "Lorem ipsum dolor sit amet, consectetur   accusantium at.",
 //         review: {
 //             user: auth,
 //             comment: "itaque sunt rem quas, amet veritatis repellat recusandae accusantium at.",
