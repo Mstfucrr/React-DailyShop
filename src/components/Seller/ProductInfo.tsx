@@ -78,11 +78,16 @@ const ProductInfo = (
         const [err, data] = await to(get_quote(formik.values!))
         if (err) {
             showErrorMessage(err)
-            return setGetPriceQuatedLoading(false)
+            setGetPriceQuatedLoading(false)
+            return
         }
-        if (data) {
+        if (data.status === 200) {
             showSuccessMessage(data.message)
             setPriceQuated(data.data)
+            setGetPriceQuatedLoading(false)
+        }
+        else {
+            showErrorMessage(data)
             setGetPriceQuatedLoading(false)
         }
     }

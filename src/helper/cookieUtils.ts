@@ -3,9 +3,25 @@ export function setProductCookie(productId: number, durationInSeconds: number) {
     expires.setTime(expires.getTime() + durationInSeconds * 1000); // Süre saniyeler cinsinden
 
     document.cookie = `product_${productId}=${durationInSeconds};path=/`;
-        
-    // expires : cookie'nin ne zaman silineceğini belirler. Eğer bu değer belirtilmezse, cookie oturum sonlanana kadar geçerli olur.
-    // expires.toUTCString : 
-    console.log("setProductCookie", document.cookie)
-    console.log("cscs")
+
+}
+
+// product and durationInSeconds
+export function getProductsFromCookie(): { productId: number, durationInSeconds: number }[] {
+    const cookies = document.cookie.split(';');
+    const productIds: { productId: number, durationInSeconds: number }[] = [];
+
+    cookies.forEach((cookie) => {
+        const cookieParts = cookie.split('=');
+        const key = cookieParts[0].trim();
+        const value = cookieParts[1].trim();
+
+        if (key.startsWith('product_')) {
+            const productId = parseInt(key.split('_')[1]);
+            const durationInSeconds = parseInt(value);
+            productIds.push({ productId, durationInSeconds });
+        }
+    });
+
+    return productIds;
 }
