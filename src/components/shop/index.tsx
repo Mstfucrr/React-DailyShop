@@ -10,13 +10,10 @@ import { InputSwitch } from "primereact/inputswitch";
 import to from 'await-to-js';
 import { Messages } from 'primereact/messages';
 import { ProgressSpinner } from 'primereact/progressspinner';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { authSelector } from '@/store/auth';
 import { sortBy } from '@/shared/constants';
 import { ProductsSortBy } from '@/services/shop/types';
-import { favoritesService } from '@/services/favorites/favorites.service';
-import { IToast } from '@/store/Toast/type';
-import { SET_TOAST } from '@/store/Toast';
 import ProductCard from './productCard';
 
 const Shop = () => {
@@ -32,7 +29,6 @@ const Shop = () => {
   const [isDelProductShow, setIsDelProductShow] = useState<boolean>(true);
   const { id } = useParams<{ id: string }>();
   const msgs = useRef<Messages>(null);
-  const dispatch = useDispatch()
 
   const { token } = useSelector(authSelector);
 
