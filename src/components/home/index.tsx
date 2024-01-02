@@ -9,19 +9,19 @@ import { getSuggestions } from "@/services/home/Suggestions.service"
 
 const HomeComponent = () => {
     const [products, setProducts] = useState<IProduct[]>([])
-    const [productCookie, setProductCookie] = useState<{ productId: number, durationInSeconds: number }[]>([])
 
     const { token } = useSelector(authSelector)
 
 
     const fetchProducts = async () => {
+        let productCookie = getProductsFromCookie() || []
+        if (productCookie.length === 0) return
         const [err, data] = await to(getSuggestions(token, productCookie))
         if (err) return
         if (data)
             setProducts(data.data)
     }
     useEffect(() => {
-        setProductCookie(getProductsFromCookie)
         fetchProducts()
     }, [])
 
