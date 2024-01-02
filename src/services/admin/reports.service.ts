@@ -8,7 +8,7 @@ import { makeRequest } from "../base/base";
 export interface IReportBase {
     id: number;
     reporterUser: IUser;
-    reportedDate: string;
+    createdAt: string;
     reportedMessage: string;
 }
 
@@ -53,21 +53,21 @@ export default {
 //         id: 1,
 //         user: auth,
 //         reporterUser: auth,
-//         reportedDate: "2023-01-01",
+//         createdAt: "2023-01-01",
 //         reportedMessage: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Temporibus fuga non cum consectetur aperiam deserunt eaque sit earum quos quis, itaque sunt rem quas, amet veritatis repellat recusandae accusantium at."
 //     },
 //     {
 //         id: 2,
 //         user: auth,
 //         reporterUser: auth,
-//         reportedDate: "2022-01-01",
+//         createdAt: "2022-01-01",
 //         reportedMessage: "Lorem ipsum dolor sit  recusandae accusantium at."
 //     },
 //     {
 //         id: 3,
 //         user: auth,
 //         reporterUser: auth,
-//         reportedDate: "2021-01-01",
+//         createdAt: "2021-01-01",
 //         reportedMessage: "Lorem ipsum dolor sit amet, consectetur   accusantium at."
 //     }
 
@@ -77,7 +77,7 @@ export default {
 //     {
 //         id: 1,
 //         reporterUser: auth,
-//         reportedDate: "2023-01-01",
+//         createdAt: "2023-01-01",
 //         reportedMessage: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Temporibus fuga non cum consectetur aperiam deserunt eaque sit earum quos quis, itaque sunt rem quas, amet veritatis repellat recusandae accusantium at.",
 //         review: {
 //             user: auth,
@@ -88,7 +88,7 @@ export default {
 //     {
 //         id: 2,
 //         reporterUser: auth,
-//         reportedDate: "2022-01-01",
+//         createdAt: "2022-01-01",
 //         reportedMessage: "Lorem ipsum dolor sit  recusandae accusantium at.",
 //         review: {
 //             user: auth,
@@ -99,7 +99,7 @@ export default {
 //     {
 //         id: 3,
 //         reporterUser: auth,
-//         reportedDate: "2021-01-01",
+//         createdAt: "2021-01-01",
 //         reportedMessage: "Lorem ipsum dolor sit amet, consectetur   accusantium at.",
 //         review: {
 //             user: auth,

@@ -195,7 +195,7 @@ const Reports = () => {
 
                 {/* rapor tarihi */}
                 <div>
-                    <strong>Rapor Tarihi:</strong><br /> {reportedItem.reportedDate}
+                    <strong>Rapor Tarihi:</strong><br /> {reportedItem.createdAt.toString().split('T')[0]}
                 </div>
 
                 {/* rapor mesajı */}
@@ -238,7 +238,7 @@ const Reports = () => {
 
                 {/* rapor tarihi */}
                 <div>
-                    <strong>Rapor Tarihi:</strong><br /> {reportedItem.reportedDate}
+                    <strong>Rapor Tarihi:</strong><br /> {reportedItem.createdAt.toString().split('T')[0]}
                 </div>
 
                 {/* rapor mesajı */}
