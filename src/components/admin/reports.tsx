@@ -148,13 +148,13 @@ const Reports = () => {
     ))
 
 
-    const renderCardFooterForReview = (review: IReview) => {
+    const renderCardFooterForReview = (review: IReview, reportId: number) => {
         return (
             // engelle , raporu sil
 
             <div className="flex gap-5 flex-row justify-between">
                 {renderStatusDropdown(review)}
-                <Button label="Raporu Sil" severity='help' onClick={() => handleDeleteReportForReview(review.id)} />
+                <Button label="Raporu Sil" severity='help' onClick={() => handleDeleteReportForReview(reportId)} />
             </div>
         );
     }
@@ -228,7 +228,7 @@ const Reports = () => {
 
 
     const renderReportedReviewsCard = (reportedItem: IReportedReviews) => (
-        <Card key={reportedItem.review.id} footer={renderCardFooterForReview(reportedItem.review)}
+        <Card key={reportedItem.review.id} footer={renderCardFooterForReview(reportedItem.review, reportedItem.id)}
             pt={{
                 body: { className: 'bg-[#f4f4ff] w-full' },
             }}
