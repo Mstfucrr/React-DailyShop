@@ -23,20 +23,20 @@ export interface IReportedReviews extends IReportBase {
 // USERS
 // Reportlanan kullanıcıları getir
 const getReportedUsers = async (token: string) =>
-    await makeRequest<any>(`Admin/ReportedUsers`, "GET", null, token);
+    await makeRequest<any>("Admin/Users/ReportedUsers", "GET", null, token);
 
 // Kullacıya ait raporu sil
 const deleteReportForUser = async (reportId: number, token: string) =>
-    await makeRequest<any>(`Admin/ReportedUsers/${reportId}`, "DELETE", null, token);
+    await makeRequest<any>(`Admin/Users/ReportedUsers/${reportId}`, "DELETE", null, token);
 
 // REVIEWS
 // Reportlanan yorumları getir
 const getReportedReviews = async (token: string) =>
-    await makeRequest<any>(`Admin/ReportedReviews`, "GET", null, token);
+    await makeRequest<any>("Admin/Reviews/ReportedReviews", "GET", null, token);
 
 // Yoruma ait raporu sil
 const deleteReportForReview = async (reportId: number, token: string) =>
-    await makeRequest<any>(`Admin/ReportedReviews/${reportId}`, "DELETE", null, token);
+    await makeRequest<any>(`Admin/Reviews/ReportedReviews/${reportId}`, "DELETE", null, token);
 
 export default {
     // USERS
