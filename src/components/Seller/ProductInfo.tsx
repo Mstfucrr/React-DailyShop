@@ -165,7 +165,8 @@ const ProductInfo = (
                             {getPriceQuatedLoading ?
                                 <ProgressSpinner strokeWidth='3.5' className='!w-10' />
                                 : priceQuated &&
-                                <span className="text-sm">Önerilen Fiyat: {priceQuated} ₺</span>
+                                <span className="text-sm text-red-600 font-medium">Önerilen Fiyat:
+                                    {priceQuated.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' })}</span>
                             }
 
                         </div>
