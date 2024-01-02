@@ -5,7 +5,7 @@ import { Button } from 'primereact/button';
 import to from 'await-to-js';
 import { useDispatch, useSelector } from 'react-redux';
 import { authSelector } from '@/store/auth';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Fieldset } from "primereact/fieldset"
 import reportsService, { IReportedReviews, IReportedUsers } from '@/services/admin/reports.service';
 import { Messages } from 'primereact/messages';
@@ -16,6 +16,7 @@ import { IUser } from '@/services/auth/types';
 import { IReview } from '@/shared/types';
 import { Dropdown } from 'primereact/dropdown';
 import { reviewStatus } from '@/shared/constants';
+import { motion } from 'framer-motion';
 
 const Reports = () => {
     const dispatch = useDispatch();
@@ -166,6 +167,17 @@ const Reports = () => {
         )
     }
 
+    
+    const refreshButton = useCallback((refreshFunction: () => Promise<void>) => (
+        <motion.div className="flex justify-end my-3"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            transition={{ duration: 0.4 }}
+        >
+            <Button label="Yenile" icon="pi pi-refresh" rounded raised text className='!bg-white' onClick={refreshFunction} />
+        </motion.div>
+    ), [reportedReviews, reportedUsers]);
+
     const renderReportedUsersCard = (reportedItem: IReportedUsers) => (
         <Card key={reportedItem.id} footer={renderCardFooterForUser(reportedItem.user, reportedItem.id)}
             pt={{
@@ -261,11 +273,15 @@ const Reports = () => {
         <div className="flex flex-col gap-4 w-full">
             <div className="col-span-1">
                 <Fieldset legend="Raporlanan Kullanıcılar" toggleable={true}>
+
                     {reportedUserLoading ? <ProgressSpinner /> :
-                        <div className="flex flex-wrap gap-4 w-full max-h-96 overflow-y-auto">
+                        <div className="flex flex-wrap gap-4 w-full max-h-[30rem] overflow-y-auto">
+                            <div className="w-full flex justify-end pr-10 bg-transparent z-20 sticky top-0">
+                                {refreshButton(fetchReportedUsers)}
+                            </div>
                             {msgsRepUser && <Messages ref={msgsRepUser} className="w-1/2 ml-24" />}
                             {reportedUsers.map((repUser) => (
-                                <div key={"reportedUser-" + repUser.id}>
+                                <div key={"reportedUser-" + repUser.id} className='min-w-full'>
                                     {renderReportedUsersCard(repUser)}
                                 </div>
                             ))}
@@ -276,7 +292,10 @@ const Reports = () => {
             <div className="col-span-1">
                 <Fieldset legend="Raporlanan Yorumlar" toggleable={true}>
                     {reportedReviewLoading ? <ProgressSpinner /> :
-                        <div className="flex flex-wrap gap-4 w-full max-h-96 overflow-y-auto">
+                        <div className="flex flex-wrap gap-4 w-full max-h-[30rem] overflow-y-auto">
+                            <div className="w-full flex justify-end pr-10 bg-transparent z-20 sticky top-0">
+                                {refreshButton(fetchReportedReviews)}
+                            </div>
                             {msgsRepReview && <Messages ref={msgsRepReview} className="w-1/2 ml-24" />}
                             {reportedReviews.map((repReview) => (
                                 <div key={"reportedReview-" + repReview.review.id}>
