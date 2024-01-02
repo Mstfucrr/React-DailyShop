@@ -1,8 +1,7 @@
 import { makeRequest } from "../base/base";
-import { ISiteSettings } from "./types";
 
 export const fetchSettings = async (token: string) =>
     await makeRequest<any>(`Admin/WebSiteSettings`, "GET", null, token);
 
-export const saveSettings = async (val: ISiteSettings, token: string) =>
+export const saveSettings = async (val: any, token: string) =>
     await makeRequest<any>(`Admin/WebSiteSettings`, "PUT", val, token , true);
