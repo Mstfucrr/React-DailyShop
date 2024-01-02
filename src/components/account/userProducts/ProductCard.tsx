@@ -7,7 +7,7 @@ import to from "await-to-js"
 import { Button } from "primereact/button"
 import { Card } from "primereact/card"
 import { ConfirmPopup, confirmPopup } from "primereact/confirmpopup"
-import { useCallback, useState } from "react"
+import { useCallback } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { Link } from "react-router-dom"
 
@@ -20,18 +20,15 @@ type Props = {
 const ProductCard = ({ product, setUpdateProductId, setIsUpdate }: Props) => {
 
     const { token } = useSelector(authSelector)
-    const [loading, setLoading] = useState<boolean>(false)
     const dispatch = useDispatch();
 
 
     const showErrorMessage = (err: Error) => {
         const toast: IToast = { severity: 'error', summary: "Hata", detail: err.message, life: 3000 }
-        setLoading(false)
         dispatch(SET_TOAST(toast))
     }
     const showSuccess = (message: string) => {
         const toast: IToast = { severity: 'success', summary: "Başarılı", detail: message, life: 3000 }
-        setLoading(false)
         dispatch(SET_TOAST(toast))
     }
 
