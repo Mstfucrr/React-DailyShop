@@ -13,6 +13,9 @@ export function getProductsFromCookie(): { productId: number, durationInSeconds:
 
     cookies.forEach((cookie) => {
         const cookieParts = cookie.split('=');
+        if (cookieParts.length !== 2) {
+            return;
+        }
         const key = cookieParts[0].trim();
         const value = cookieParts[1].trim();
 
