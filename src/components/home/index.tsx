@@ -2,34 +2,20 @@ import { useEffect, useState } from "react"
 import ProductCard from "../shop/productCard"
 import { getProductsFromCookie } from "@/helper/cookieUtils"
 import { IProduct } from "@/shared/types"
-import { SET_TOAST } from "@/store/Toast"
-import { IToast } from "@/store/Toast/type"
-import { useDispatch, useSelector } from "react-redux"
+import { useSelector } from "react-redux"
 import to from "await-to-js"
 import { authSelector } from "@/store/auth"
 import { getSuggestions } from "@/services/home/Suggestions.service"
-import { getProductsByCategoryId } from "@/services/shop/shop.service"
 
 const HomeComponent = () => {
     const [products, setProducts] = useState<IProduct[]>([])
     const [productCookie, setProductCookie] = useState<{ productId: number, durationInSeconds: number }[]>([])
 
-    const dispatch = useDispatch()
-
     const { token } = useSelector(authSelector)
 
-    const showErrorMessage = (message: string) => {
-        const toast: IToast = { severity: 'error', summary: "Hata", detail: message, life: 3000 }
-        dispatch(SET_TOAST(toast))
-    }
-    const showSuccess = (message: string) => {
-        const toast: IToast = { severity: 'success', summary: "Başarılı", detail: message, life: 3000 }
-        dispatch(SET_TOAST(toast))
-    }
 
     const fetchProducts = async () => {
-        // const [err, data] = await to(getSuggestions(token, productCookie))
-        const [err, data] = await to(getProductsByCategoryId(1, true, token))
+        const [err, data] = await to(getSuggestions(token, productCookie))
         if (err) return
         if (data)
             setProducts(data.data)
