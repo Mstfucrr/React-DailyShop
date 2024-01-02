@@ -53,7 +53,7 @@ const UserInformation = ({ user }: { user: IUser }) => {
         } as any;
 
         const newAddresses = [...addressesState, address]
-        setAddressesState(newAddresses)        
+        setAddressesState(newAddresses)
     };
 
 
@@ -164,11 +164,13 @@ const UserInformation = ({ user }: { user: IUser }) => {
                 </div>
             } className="mb-4" >
                 <div className="flex flex-col items-center">
-                    <img src={
-                        typeof profileImage === 'string' ?
-                            profileImage
-                            : URL.createObjectURL(profileImage)
-                    } alt="profile" className="lg:w-1/3 w-1/2 max-w-[250px] max-h-[250px] object-cover rounded-full" />
+                    {profileImage != null &&
+                        <img src={
+                            typeof profileImage === 'string' ?
+                                profileImage
+                                : URL.createObjectURL(profileImage)
+                        } alt="profile" className="lg:w-1/3 w-1/2 max-w-[250px] max-h-[250px] object-cover rounded-full" />
+                    }
                     <form method='post' encType='multipart/form-data' className="flex flex-col items-center">
                         <input type="file" name="profileImage" id="profileImage" className="hidden"
                             onInput={(e: any) => { handleProfileImageChange(e) }}
