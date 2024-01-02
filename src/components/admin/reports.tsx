@@ -39,23 +39,23 @@ const Reports = () => {
 
     const fetchReportedUsers = async () => {
         setReportedUserLoading(true);
-        const [err, data] = await to(reportsService.getReportedUsers(token));
         setReportedUserLoading(false);
+        msgsRepUser.current?.clear(); // Clear previous messages
+        
+        const [err, data] = await to(reportsService.getReportedUsers(token));
         if (err) {
-            msgsRepUser.current?.clear();
             msgsRepUser.current?.show([
                 { sticky: true, severity: 'error', summary: 'Sistematik Hata', detail: err.message, closable: false, icon: 'pi pi-exclamation-triangle' }
             ]);
             return;
         }
         if (data.data.length === 0) {
-            msgsRepUser.current?.clear();
             msgsRepUser.current?.show([
                 { sticky: true, severity: 'info', summary: 'Raporlanan Kullanıcı Bulunamadı', detail: 'Raporlanan kullanıcı bulunamadı.', closable: false, icon: 'pi pi-info-circle' }
             ]);
+            setReportedUsers([]);
         }
         else {
-            msgsRepUser.current?.clear();
             setReportedUsers(data.data);
         }
 
@@ -63,23 +63,21 @@ const Reports = () => {
 
     const fetchReportedReviews = async () => {
         setReportedReviewLoading(true);
-        const [err, data] = await to(reportsService.getReportedReviews(token));
         setReportedReviewLoading(false);
+        msgsRepReview.current?.clear(); // Clear previous messages
+        const [err, data] = await to(reportsService.getReportedReviews(token));
         if (err) {
-            msgsRepReview.current?.clear();
             msgsRepReview.current?.show([
                 { sticky: true, severity: 'error', summary: 'Sistematik Hata', detail: err.message, closable: false, icon: 'pi pi-exclamation-triangle' }
             ]);
             return;
         }
         if (data.data.length === 0) {
-            msgsRepReview.current?.clear();
             msgsRepReview.current?.show([
                 { sticky: true, severity: 'info', summary: 'Raporlanan Yorum Bulunamadı', detail: 'Raporlanan yorum bulunamadı.', closable: false, icon: 'pi pi-info-circle' }
             ]);
         }
         else {
-            msgsRepReview.current?.clear();
             setReportedReviews(data.data);
         }
     }
