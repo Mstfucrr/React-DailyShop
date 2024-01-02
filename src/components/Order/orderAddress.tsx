@@ -1,4 +1,3 @@
-import { IUserAddress } from '@/services/auth/types'
 import { IOrderAddress } from '@/services/order/types'
 import { useFormik } from 'formik'
 import { motion } from 'framer-motion'
