@@ -39,14 +39,15 @@ const Reports = () => {
 
     const fetchReportedUsers = async () => {
         setReportedUserLoading(true);
-        setReportedUserLoading(false);
         msgsRepUser.current?.clear(); // Clear previous messages
-        
+
         const [err, data] = await to(reportsService.getReportedUsers(token));
         if (err) {
             msgsRepUser.current?.show([
                 { sticky: true, severity: 'error', summary: 'Sistematik Hata', detail: err.message, closable: false, icon: 'pi pi-exclamation-triangle' }
             ]);
+            setReportedUserLoading(false);
+
             return;
         }
         if (data.data.length === 0) {
@@ -59,18 +60,21 @@ const Reports = () => {
         else {
             setReportedUsers(data.data);
         }
+        setReportedUserLoading(false);
+
 
     }
 
     const fetchReportedReviews = async () => {
         setReportedReviewLoading(true);
-        setReportedReviewLoading(false);
         msgsRepReview.current?.clear(); // Clear previous messages
         const [err, data] = await to(reportsService.getReportedReviews(token));
         if (err) {
             msgsRepReview.current?.show([
                 { sticky: true, severity: 'error', summary: 'Sistematik Hata', detail: err.message, closable: false, icon: 'pi pi-exclamation-triangle' }
             ]);
+            setReportedReviewLoading(false);
+
             return;
         }
         if (data.data.length === 0) {
@@ -82,6 +86,8 @@ const Reports = () => {
         else {
             setReportedReviews(data.data);
         }
+        setReportedReviewLoading(false);
+
     }
 
     const handleDeleteReportForUser = async (reportId: number) => {
@@ -167,7 +173,7 @@ const Reports = () => {
         )
     }
 
-    
+
     const refreshButton = useCallback((refreshFunction: () => Promise<void>) => (
         <motion.div className="flex justify-end my-3"
             whileHover={{ scale: 1.1 }}
