@@ -19,7 +19,7 @@ import { reviewStatus } from '@/shared/constants';
 
 const Reports = () => {
     const dispatch = useDispatch();
-    const { token, auth } = useSelector(authSelector);
+    const { token } = useSelector(authSelector);
     const [reportedUserLoading, setReportedUserLoading] = useState<boolean>(false);
     const [reportedUsers, setReportedUsers] = useState<IReportedUsers[]>([]);
     const [reportedReviewLoading, setReportedReviewLoading] = useState<boolean>(false);
@@ -101,68 +101,6 @@ const Reports = () => {
         fetchReportedUsers();
         fetchReportedReviews();
     }, []);
-
-    const reportedUserss: IReportedUsers[] = [
-        {
-            id: 1,
-            user: auth,
-            reporterUser: auth,
-            reportedDate: "2023-01-01",
-            reportedMessage: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Temporibus fuga non cum consectetur aperiam deserunt eaque sit earum quos quis, itaque sunt rem quas, amet veritatis repellat recusandae accusantium at."
-        },
-        {
-            id: 2,
-            user: auth,
-            reporterUser: auth,
-            reportedDate: "2022-01-01",
-            reportedMessage: "Lorem ipsum dolor sit  recusandae accusantium at."
-        },
-        {
-            id: 3,
-            user: auth,
-            reporterUser: auth,
-            reportedDate: "2021-01-01",
-            reportedMessage: "Lorem ipsum dolor sit amet, consectetur   accusantium at."
-        }
-
-    ]
-
-    const reportedReviewss: any[] = [
-        {
-            id: 1,
-            reporterUser: auth,
-            reportedDate: "2023-01-01",
-            reportedMessage: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Temporibus fuga non cum consectetur aperiam deserunt eaque sit earum quos quis, itaque sunt rem quas, amet veritatis repellat recusandae accusantium at.",
-            review: {
-                user: auth,
-                comment: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Temporibus fuga non cum consectetur aperiam deserunt eaque sit earum quos quis, itaque sunt rem quas, amet veritatis repellat recusandae accusantium at.",
-                status: "New"
-            }
-        },
-        {
-            id: 2,
-            reporterUser: auth,
-            reportedDate: "2022-01-01",
-            reportedMessage: "Lorem ipsum dolor sit  recusandae accusantium at.",
-            review: {
-                user: auth,
-                comment: "Lorem ipsum dolor sit amet,  sit earum quos quis, itaque sunt rem quas, amet veritatis repellat recusandae accusantium at.",
-                status: "reject"
-            }
-        },
-        {
-            id: 3,
-            reporterUser: auth,
-            reportedDate: "2021-01-01",
-            reportedMessage: "Lorem ipsum dolor sit amet, consectetur   accusantium at.",
-            review: {
-                user: auth,
-                comment: "itaque sunt rem quas, amet veritatis repellat recusandae accusantium at.",
-                status: "approved"
-            }
-        }
-
-    ]
 
     const renderCardFooterForUser = (user: IUser, reportId: number) => {
         return (
@@ -325,8 +263,8 @@ const Reports = () => {
                 <Fieldset legend="Raporlanan Kullanıcılar" toggleable={true}>
                     {reportedUserLoading ? <ProgressSpinner /> :
                         <div className="flex flex-wrap gap-4 w-full max-h-96 overflow-y-auto">
-                            {/* {msgsRepUser && <Messages ref={msgsRepUser} className="w-1/2 ml-24" />} */}
-                            {reportedUserss.map((repUser) => (
+                            {msgsRepUser && <Messages ref={msgsRepUser} className="w-1/2 ml-24" />}
+                            {reportedUsers.map((repUser) => (
                                 <div key={"reportedUser-" + repUser.id}>
                                     {renderReportedUsersCard(repUser)}
                                 </div>
@@ -339,8 +277,8 @@ const Reports = () => {
                 <Fieldset legend="Raporlanan Yorumlar" toggleable={true}>
                     {reportedReviewLoading ? <ProgressSpinner /> :
                         <div className="flex flex-wrap gap-4 w-full max-h-96 overflow-y-auto">
-                            {/* {msgsRepReview && <Messages ref={msgsRepReview} className="w-1/2 ml-24" />} */}
-                            {reportedReviewss.map((repReview) => (
+                            {msgsRepReview && <Messages ref={msgsRepReview} className="w-1/2 ml-24" />}
+                            {reportedReviews.map((repReview) => (
                                 <div key={"reportedReview-" + repReview.review.id}>
                                     {renderReportedReviewsCard(repReview)}
                                 </div>
