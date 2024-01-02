@@ -82,6 +82,7 @@ const Reports = () => {
             msgsRepReview.current?.show([
                 { sticky: true, severity: 'info', summary: 'Raporlanan Yorum Bulunamadı', detail: 'Raporlanan yorum bulunamadı.', closable: false, icon: 'pi pi-info-circle' }
             ]);
+            setReportedReviews([]);
         }
         else {
             setReportedReviews(data.data);
