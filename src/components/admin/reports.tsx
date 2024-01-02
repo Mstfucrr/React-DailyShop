@@ -42,16 +42,16 @@ const Reports = () => {
         msgsRepUser.current?.clear(); // Clear previous messages
 
         const [err, data] = await to(reportsService.getReportedUsers(token));
+
         if (err) {
             msgsRepUser.current?.show([
                 { sticky: true, severity: 'error', summary: 'Sistematik Hata', detail: err.message, closable: false, icon: 'pi pi-exclamation-triangle' }
             ]);
             setReportedUserLoading(false);
-
             return;
         }
         if (data.data.length === 0) {
-            msgsRepUser.current?.clear();
+            msgsRepUser.current?.clear(); // Clear previous messages
             msgsRepUser.current?.show([
                 { sticky: true, severity: 'info', summary: 'Raporlanan Kullanıcı Bulunamadı', detail: 'Raporlanan kullanıcı bulunamadı.', closable: false, icon: 'pi pi-info-circle' }
             ]);
@@ -62,13 +62,14 @@ const Reports = () => {
         }
         setReportedUserLoading(false);
 
-
     }
 
     const fetchReportedReviews = async () => {
         setReportedReviewLoading(true);
         msgsRepReview.current?.clear(); // Clear previous messages
-        const [err, data] = await to(reportsService.getReportedReviews(token));
+
+        const [err, data] = await to(reportsService.getReportedReviews(token))
+
         if (err) {
             msgsRepReview.current?.show([
                 { sticky: true, severity: 'error', summary: 'Sistematik Hata', detail: err.message, closable: false, icon: 'pi pi-exclamation-triangle' }
@@ -281,12 +282,12 @@ const Reports = () => {
             <div className="col-span-1">
                 <Fieldset legend="Raporlanan Kullanıcılar" toggleable={true}>
 
+                    {msgsRepUser && <Messages ref={msgsRepUser} className="w-1/2 ml-24" />}
                     {reportedUserLoading ? <ProgressSpinner /> :
                         <div className="flex flex-wrap gap-4 w-full max-h-[30rem] overflow-y-auto">
                             <div className="w-full flex justify-end pr-10 bg-transparent z-20 sticky top-0">
                                 {refreshButton(fetchReportedUsers)}
                             </div>
-                            {msgsRepUser && <Messages ref={msgsRepUser} className="w-1/2 ml-24" />}
                             {reportedUsers.map((repUser) => (
                                 <div key={"reportedUser-" + repUser.id} className='min-w-full'>
                                     {renderReportedUsersCard(repUser)}
@@ -298,12 +299,12 @@ const Reports = () => {
             </div>
             <div className="col-span-1">
                 <Fieldset legend="Raporlanan Yorumlar" toggleable={true}>
+                    {msgsRepReview && <Messages ref={msgsRepReview} className="w-1/2 ml-24" />}
                     {reportedReviewLoading ? <ProgressSpinner /> :
                         <div className="flex flex-wrap gap-4 w-full max-h-[30rem] overflow-y-auto">
                             <div className="w-full flex justify-end pr-10 bg-transparent z-20 sticky top-0">
                                 {refreshButton(fetchReportedReviews)}
                             </div>
-                            {msgsRepReview && <Messages ref={msgsRepReview} className="w-1/2 ml-24" />}
                             {reportedReviews.map((repReview) => (
                                 <div key={"reportedReview-" + repReview.review.id}>
                                     {renderReportedReviewsCard(repReview)}
