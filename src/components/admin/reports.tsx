@@ -50,6 +50,7 @@ const Reports = () => {
             return;
         }
         if (data.data.length === 0) {
+            msgsRepUser.current?.clear();
             msgsRepUser.current?.show([
                 { sticky: true, severity: 'info', summary: 'Raporlanan Kullanıcı Bulunamadı', detail: 'Raporlanan kullanıcı bulunamadı.', closable: false, icon: 'pi pi-info-circle' }
             ]);
@@ -73,6 +74,7 @@ const Reports = () => {
             return;
         }
         if (data.data.length === 0) {
+            msgsRepReview.current?.clear();
             msgsRepReview.current?.show([
                 { sticky: true, severity: 'info', summary: 'Raporlanan Yorum Bulunamadı', detail: 'Raporlanan yorum bulunamadı.', closable: false, icon: 'pi pi-info-circle' }
             ]);
