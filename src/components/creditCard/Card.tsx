@@ -1,6 +1,8 @@
 import { motion } from "framer-motion"
 import { useEffect, useState } from "react"
-
+import bg from '@/assets/images/card/bg.png'
+import master from '@/assets/images/card/master.png'
+import visa from '@/assets/images/card/visa.svg'
 
 type Props = {
     values: {
@@ -43,7 +45,7 @@ const Card = ({ values }: Props) => {
             
         >
 
-            <img className="relative object-cover w-full h-full rounded-xl" src="https://i.imgur.com/kGkSg1v.png"
+            <img className="relative object-cover w-full h-full rounded-xl" src={bg}
                 alt="card"
                 style={ cardType === 'visa' ? { filter: 'none' } : { filter: 'grayscale(1)' } }
             />
@@ -61,7 +63,7 @@ const Card = ({ values }: Props) => {
                     </div>
                     {/* masetr : https://i.imgur.com/bbPHJVe.png , visa : https://upload.wikimedia.org/wikipedia/commons/d/d6/Visa_2021.svg*/}
                     <img className="w-16 h-16" 
-                        src={ cardType === 'visa' ? 'https://upload.wikimedia.org/wikipedia/commons/d/d6/Visa_2021.svg' : 'https://i.imgur.com/bbPHJVe.png' }
+                        src={ cardType === 'visa' ? visa : master }
                         alt="card type"
                     />
                 </div>
