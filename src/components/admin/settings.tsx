@@ -69,7 +69,10 @@ const Settings = () => {
         formData.append("address", val.address ?? "")
         formData.append("siteIcon", val.siteIcon ?? "")
         const [err, data] = await to(settingsService.saveSettings(formData, token))
-        if (err) return showErrorMessage(err)
+        if (err) {
+            showErrorMessage(err)
+            return setSaveLoading(false)
+        }
         showSuccess(data.message)
         setSaveLoading(false)
         fetchDatas()
@@ -142,9 +145,7 @@ const Settings = () => {
                     {/* Hakkımızda */}
                     <div className="flex flex-col gap-y-6">
                         <h3 className="text-2xl" >Hakkımızda</h3>
-                        {about &&
                             <Editor style={{ height: '320px' }} value={about} onTextChange={(e) => setAbout(e.htmlValue as any)} />
-                        }
                     </div>
                     {/* test show about */}
                     <Fieldset legend="Hakkımızda Önizleme" toggleable collapsed={true}>
