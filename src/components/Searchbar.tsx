@@ -42,6 +42,7 @@ const Searchbar = () => {
     const fetchWallet = async () => {
         const [err, data] = await to(getWalletByUser(token))
         if (err) return
+        if (data.data)
         setBalance(data.data.balance ?? 0)
     }
 
