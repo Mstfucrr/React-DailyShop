@@ -22,6 +22,7 @@ import { ProgressSpinner } from "primereact/progressspinner";
 import UpdateProduct from "../account/userProducts/UpdateProduct";
 import { favoritesService } from "@/services/favorites/favorites.service";
 import ProductReview from "./productReview";
+import { productStatus } from "@/shared/constants";
 
 
 const ProductDetail = () => {
@@ -372,7 +373,7 @@ const ProductDetail = () => {
                                 }>
                                     <div className="flex flex-col px-4 mt-2">
                                         <p className="">
-                                            <span className="font-semibold">Ürün Durumu : </span> {product.status}
+                                            <span className="font-semibold">Ürün Durumu : </span> {productStatus.find((status) => status.value === product.status)?.label}
                                         </p>
                                         <p className="">
                                             <span className="font-semibold">Ürün Stok Durumu : </span> {product.stock}
