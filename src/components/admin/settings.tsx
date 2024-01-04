@@ -43,7 +43,13 @@ const Settings = () => {
         setLoading(true)
         const [err, data] = await to(settingsService.fetchSettings(token))
         if (err) return showErrorMessage(err)
+        if (!data) return
         setSiteSettings(data.data)
+        setAbout(data.data.about)
+        setEmail(data.data.email)
+        setPhone(data.data.phone)
+        setAddress(data.data.address)
+        setSiteIcon(data.data.siteIcon)
         setLoading(false)
     }
 
@@ -145,7 +151,9 @@ const Settings = () => {
                     {/* Hakkımızda */}
                     <div className="flex flex-col gap-y-6">
                         <h3 className="text-2xl" >Hakkımızda</h3>
-                            <Editor style={{ height: '320px' }} value={about} onTextChange={(e) => setAbout(e.htmlValue as any)} />
+                            <Editor style={{ height: '320px' }} value={
+                                about == null ? "" : about as string
+                            } onTextChange={(e) => setAbout(e.htmlValue as any)} />
                     </div>
                     {/* test show about */}
                     <Fieldset legend="Hakkımızda Önizleme" toggleable collapsed={true}>
