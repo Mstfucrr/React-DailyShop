@@ -34,7 +34,7 @@ const ProductInfo = (
     const [selectedCategory, setSelectedCategory] = useState<ICategory>()
     const [selectedNodeKey, setSelectedNodeKey] = useState<string | undefined>(undefined);
     const [selectedSizes, setSelectedSizes] = useState<string[] | undefined>([])
-    const [priceQuated, setPriceQuated] = useState<number | undefined>(undefined)
+    const [priceQuated, setPriceQuated] = useState<{ min: number, max: number } | undefined>(undefined)
     const [getPriceQuatedLoading, setGetPriceQuatedLoading] = useState<boolean>(false)
     const dispatch = useDispatch()
     const colorTemplete = (option: any) => {
@@ -165,8 +165,9 @@ const ProductInfo = (
                             {getPriceQuatedLoading ?
                                 <ProgressSpinner strokeWidth='3.5' className='!w-10' />
                                 : priceQuated &&
-                                <span className="text-sm text-red-600 font-medium">Önerilen Fiyat:
-                                    {priceQuated.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' })}</span>
+                                <span className={`text-sm font-medium ${priceQuated.min > formik.values.price  || priceQuated.max < formik.values.price ? 'text-red-500' : 'text-green-500'}`}>
+                                    Ürün için önerilen fiyat aralığı: [{priceQuated.min} - {priceQuated.max}]
+                                </span>
                             }
 
                         </div>
