@@ -20,6 +20,8 @@ import { reportReview, reportUser } from '@/services/report/report.service'
 import { SelectButton } from 'primereact/selectbutton'
 import { Dialog } from 'primereact/dialog'
 import { Button } from 'primereact/button'
+import { AnimatePresence, motion } from 'framer-motion'
+import { Fieldset } from 'primereact/fieldset'
 
 type Props = {
     reviews: IReview[] | undefined,
@@ -200,7 +202,10 @@ const ProductReview = ({ reviews, product }: Props) => {
 
     // Yorum Templete
     const reviewTemplete = (review: IReview) => {
-        return <div className="flex items-start mx-4 my-2" key={review.date}>
+        return <motion.div className="flex items-start mx-4 my-2" key={review.date}
+            // elemanların sıralı gelmesi için
+            variants={variants}
+        >
 
             {review.userPurchasedThisProduct ?
                 userPurchasedThisProductTemplete(review.user?.profileImage ?? '')
@@ -226,6 +231,7 @@ const ProductReview = ({ reviews, product }: Props) => {
                     {review.comment}
                 </p>
                 {/* Yanıtla */}
+
                 <div className="flex flex-row gap-x-2 mt-2">
                     <button className="text-primary hover:text-primaryDark transition-all duration-300 ease-in-out"
                         onClick={() => setAnswerReview(review.id)}>
@@ -250,10 +256,27 @@ const ProductReview = ({ reviews, product }: Props) => {
                     answerReviewTemplete(review)
                 }
 
-                {/* Answers */}
-                {review.answers?.map((answer) => (
-                    reviewAnswersTemplete(answer)
-                ))}
+                <Fieldset className="mt-4"
+                    toggleable collapsed
+                    legend={<div className="flex flex-row gap-x-2 text-primary hover:text-primaryDark transition-all duration-300 ease-in-out">
+                        <FaComment className="inline mr-2" />
+                        Yanıtlar ({review.answers?.length ?? 0})
+                    </div>}
+
+                    collapseIcon="null"
+                    expandIcon="null"
+                    pt={{
+                        toggler: { className: 'bg-white !px-4 !py-3' }
+                    }}
+
+                >
+
+                    {/* Answers */}
+                    {review.answers?.map((answer) => (
+                        reviewAnswersTemplete(answer)
+                    ))}
+
+                </Fieldset>
 
             </div>
 
@@ -274,7 +297,7 @@ const ProductReview = ({ reviews, product }: Props) => {
 
             </div>
 
-        </div>
+        </motion.div>
     }
 
     // Yorum Yanıt Templete
@@ -338,15 +361,29 @@ const ProductReview = ({ reviews, product }: Props) => {
         </div>
     }
 
+    const variants = {
+        animate: {
+            opacity: 1,
+            x: 0,
+            transition: {
+                staggerChildren: 0.1
+            }
+        },
+        initial: {
+            opacity: 0,
+            x: -100,
+        }
+    }
+
     return (
         <div className="flex flex-col lg:flex-row w-full px-5 gap-x-3 gap-y-4 mt-6">
             <div className="w-full flex flex-col">
                 <h1 className="text-3xl">
                     "{product.name}" için {reviews?.length} Yorum
                 </h1>
-                <Dialog header="Header" visible={visible} style={{ width: '50vw' }} onHide={() => setVisible(false)} modal draggable={false} resizable={false}>
+                <Dialog header="Şikayet Et" visible={visible} style={{ width: '50vw' }} onHide={() => setVisible(false)} modal draggable={false} resizable={false}>
                     <>
-                        <h1 className="text-lg">Şikayet Sebebi</h1>
+                        <h1 className="text-lg my-2">Şikayet Sebebi</h1>
                         {/* kullanıcı ya da yorumu şikayet et seçenekleri */}
                         <SelectButton
                             value={reportType}
@@ -355,6 +392,7 @@ const ProductReview = ({ reviews, product }: Props) => {
                                 { label: "Yorumu Şikayet Et", value: "review", className: "text-sm" },
                             ]}
                             onChange={(e) => { setReportType(e.value) }}
+                            required
                         />
                         <br />
 
@@ -378,11 +416,18 @@ const ProductReview = ({ reviews, product }: Props) => {
                         </div>
                     </>
                 </Dialog>
-                <div className="flex flex-col w-full">
-                    {reviews?.filter(review => review.status == "approved").map((review) => (
-                        reviewTemplete(review)
-                    ))}
-                </div>
+                <AnimatePresence>
+
+                    <motion.div className="flex flex-col w-full"
+                        variants={variants}
+                        animate="animate"
+                        initial="initial"
+                    >
+                        {reviews?.filter(review => review.status == "approved").map((review) => (
+                            reviewTemplete(review)
+                        ))}
+                    </motion.div>
+                </AnimatePresence>
             </div>
             <div className="w-full">
                 <h1 className="text-3xl"> Yorum Yap </h1>
