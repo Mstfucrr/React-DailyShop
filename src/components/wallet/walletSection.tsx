@@ -51,7 +51,7 @@ const WalletSection = ({ setIsShowWalletScreen }: Props) => {
 
 
     return (
-        <motion.div className="top-0 left-0 w-full h-full bg-gray-500 bg-opacity-50 flex justify-center items-center z-50 fixed"
+        <motion.div className="top-0 left-0 w-full h-full bg-gray-500 bg-opacity-50 flex justify-center items-center z-[200] fixed overflow-y-auto"
             initial={{
                 opacity: 0,
             }}
@@ -104,7 +104,7 @@ const WalletSection = ({ setIsShowWalletScreen }: Props) => {
 
                         />
                     </div>
-                    <label className="text-lg font-semibold text-primaryDark">Para Miktarı</label>
+                    <span className="text-lg font-semibold text-primaryDark">Para Miktarı</span>
                     <InputNumber
                         name="money"
                         value={addMoneyValue}
