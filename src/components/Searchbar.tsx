@@ -5,7 +5,7 @@ import { authSelector } from '@/store/auth'
 import to from 'await-to-js'
 import { OverlayPanel } from 'primereact/overlaypanel'
 import { useEffect, useRef, useState } from 'react'
-import { FaHeart, FaSearch, FaShoppingCart, FaWallet } from 'react-icons/fa'
+import { FaHeart, FaShoppingCart, FaWallet } from 'react-icons/fa'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { Tooltip } from 'primereact/tooltip'
@@ -14,7 +14,6 @@ import WalletSection from './wallet/walletSection'
 import { favoritesService } from '@/services/favorites/favorites.service'
 
 const Searchbar = () => {
-
 
     const { token, isAuthorized } = useSelector(authSelector)
     const [cartCount, setCartCount] = useState<number>(0)
@@ -43,7 +42,7 @@ const Searchbar = () => {
         const [err, data] = await to(getWalletByUser(token))
         if (err) return
         if (data.data)
-        setBalance(data.data.balance ?? 0)
+            setBalance(data.data.balance ?? 0)
     }
 
     const fetchFavorites = async () => {
@@ -68,14 +67,15 @@ const Searchbar = () => {
         }
     }, [])
 
+
     const op = useRef(null);
     const opWallet = useRef(null);
 
     return (
         <div className="px-[15px] mx-auto w-full">
-            <div className="grid grid-cols-12 items-center py-4 xl:px-12">
+            <div className="flex justify-between items-center py-4 xl:px-12">
                 {/* col-lg-3 d-none d-lg-block */}
-                <div className="col-span-3 hidden lg:block">
+                <div className=" w-1/2 hidden lg:block">
                     {/* text-decoration-none */}
                     <a href="/" style={{ textDecoration: 'none' }}>
                         <h1 className="m-0 font-semibold text-4xl text-black">
@@ -84,27 +84,8 @@ const Searchbar = () => {
                         </h1>
                     </a>
                 </div>
-                {/* col-lg-6 col-6 text-left */}
-                <div className="lg:col-span-6 col-span-6 text-left px-[15px]">
-                    <form action="">
-                        {/* input-group */}
-                        <div className="relative flex flex-wrap w-full">
-                            {/* form-control height calc(1.5em + 0.75rem + 2px) */}
-                            <input type="text" className="
-                    relative flex-[1_1_auto] block py-[.375rem] px-3 border border-solid border-secondary rounded-none
-                    h-[calc(1.5em + 0.75rem + 2px)] text-[#495057]
-                    focus:outline-none w-[1%]" placeholder='Search for products' />
-                            {/* input-group-append */}
-                            <div className="flex items-center ">
-                                <span className="text-primary px-3 py-2 rounded-none border border-solid border-secondary">
-                                    <FaSearch className="h-5 w-5" />
-                                </span>
-                            </div>
-                        </div>
-                    </form>
-                </div>
                 {/* col-lg-3 col-6 text-right */}
-                <div className="lg:col-span-3 col-span-6 flex w-full justify-end text-right">
+                <div className="flex w-full justify-end text-right">
                     {/* Cüzdan */}
                     <div className="">
                         {isShowWalletScreen && <WalletSection setIsShowWalletScreen={setIsShowWalletScreen} />}
@@ -128,15 +109,15 @@ const Searchbar = () => {
                                     {/* Cüzdan içeriği */}
                                     <div className="flex flex-row items-center justify-between">
                                         {isAuthorized ?
-                                        <div className="flex flex-col">
-                                            <h1 className="text-lg font-semibold">Bakiye</h1>
-                                            <span className="text-sm text-gray-500">{balance} ₺</span>
-                                        </div>
-                                        : 
-                                        <div className="flex flex-col">
-                                            <h1 className="text-lg font-semibold">Bakiyeyi görmek için </h1>
-                                            <span className="text-sm text-gray-500"><Link to="/login" className="text-primary">Giriş Yap</Link></span>
-                                        </div>
+                                            <div className="flex flex-col">
+                                                <h1 className="text-lg font-semibold">Bakiye</h1>
+                                                <span className="text-sm text-gray-500">{balance} ₺</span>
+                                            </div>
+                                            :
+                                            <div className="flex flex-col">
+                                                <h1 className="text-lg font-semibold">Bakiyeyi görmek için </h1>
+                                                <span className="text-sm text-gray-500"><Link to="/login" className="text-primary">Giriş Yap</Link></span>
+                                            </div>
                                         }
                                         <button className="text-primary fawallet"
                                             // onClickte para eklemesi yapılacak
