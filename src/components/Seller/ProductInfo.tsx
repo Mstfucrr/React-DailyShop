@@ -2,7 +2,7 @@ import { Dropdown, DropdownChangeEvent } from "primereact/dropdown";
 import { TreeSelect, TreeSelectChangeEvent } from "primereact/treeselect";
 import { InputNumber } from "primereact/inputnumber";
 import { InputText } from "primereact/inputtext";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   convertCategoriesToTreeSelectModel,
   findCategoryByKeyInTreeSelectModel,
@@ -59,44 +59,50 @@ const ProductInfo = ({
     );
   };
 
-  const showErrorMessage = (err: Error) => {
-    const toast: IToast = {
-      severity: "error",
-      summary: "Hata",
-      detail: err.message,
-      life: 3000,
-    };
-    dispatch(SET_TOAST(toast));
-  };
+  const showErrorMessage = useCallback(
+    (err: Error) => {
+      const toast: IToast = {
+        severity: "error",
+        summary: "Hata",
+        detail: err.message,
+        life: 3000,
+      };
+      dispatch(SET_TOAST(toast));
+    },
+    [dispatch]
+  );
 
-  const showSuccessMessage = (message: string) => {
-    const toast: IToast = {
-      severity: "success",
-      summary: "Başarılı",
-      detail: message,
-      life: 3000,
-    };
-    dispatch(SET_TOAST(toast));
-  };
+  const showSuccessMessage = useCallback(
+    (message: string) => {
+      const toast: IToast = {
+        severity: "success",
+        summary: "Başarılı",
+        detail: message,
+        life: 3000,
+      };
+      dispatch(SET_TOAST(toast));
+    },
+    [dispatch]
+  );
 
-  const getCategories = async () => {
+  const getCategories = useCallback(async () => {
     const [err, data] = await to(categoryService.fetchCategories());
     if (err) return showErrorMessage(err);
     if (data) setTreeNodes(convertCategoriesToTreeSelectModel(data));
-  };
+  }, [showErrorMessage]);
 
   useEffect(() => {
     getCategories();
-  }, []);
+  }, [getCategories]);
 
   useEffect(() => {
     if (treeNodes && selectedNodeKey)
       setSelectedCategory(
         findCategoryByKeyInTreeSelectModel(treeNodes, selectedNodeKey)
       );
-  }, [selectedCategory, selectedNodeKey]);
+  }, [selectedCategory, selectedNodeKey, treeNodes]);
 
-  const handleGetQuatedPrice = async () => {
+  const handleGetQuatedPrice = useCallback(async () => {
     setGetPriceQuatedLoading(true);
     const [err, data] = await to(get_quote(formik.values!));
     if (err) {
@@ -112,7 +118,7 @@ const ProductInfo = ({
       showErrorMessage(data);
       setGetPriceQuatedLoading(false);
     }
-  };
+  }, [formik.values, showErrorMessage, showSuccessMessage]);
 
   const showFormErrorMessage = (err: string) => {
     return <small className="p-error block h-0 mb-6"> {err} </small>;
@@ -335,7 +341,7 @@ const ProductInfo = ({
               description: formik.values.description,
               colors: formik.values.colors,
               sizes: selectedSizes,
-            categoryId: selectedCategory?.id ?? 0,
+              categoryId: selectedCategory?.id ?? 0,
               name: formik.values.name,
             });
           }}
