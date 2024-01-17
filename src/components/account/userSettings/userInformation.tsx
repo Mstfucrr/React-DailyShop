@@ -75,7 +75,7 @@ const UserInformation = ({ user }: { user: IUser }) => {
         },
         validationSchema: validationSchema,
         onSubmit: async (values) => {
-            let formData = new FormData();
+            const formData = new FormData();
             formData.append('ProfileImageFile', profileImage as File)
             formData.append('FirstName', values.name)
             formData.append('LastName', values.surname)

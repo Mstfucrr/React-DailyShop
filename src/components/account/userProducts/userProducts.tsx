@@ -39,6 +39,7 @@ const UserProducts = () => {
       setLoading(false);
       setProducts(data.data);
     };
+
     fetchProducts();
   }, []);
 
