@@ -61,8 +61,7 @@ const ProductCard = ({ product }: Props) => {
               </h6>
               <div className="flex justify-center py-2">
                 <h6>
-                  {" "}
-                  <b>${product.price}</b>
+                  <b>{product.price} ₺</b>
                 </h6>
               </div>
             </div>
