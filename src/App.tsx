@@ -2,53 +2,42 @@ import to from "await-to-js";
 import { Toast } from "primereact/toast";
 import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { BrowserRouter } from "react-router-dom"
+import { BrowserRouter } from "react-router-dom";
 import Footer from "./components/Footer";
-import AppRouter from "./routes/AppRouter"
+import AppRouter from "./routes/AppRouter";
 import { getSiteIcon } from "./services/siteIcon/siteIcon";
-import { CLEAR_TOAST } from "./store/Toast";
-import { IToast } from "./store/Toast/type";
-
+import { CLEAR_TOAST, toastSelector } from "./store/Toast";
 
 function App() {
   const toast = useRef<Toast>(null);
-  const dispatch = useDispatch()
-
-  const toastData = useSelector((state: { toast: IToast }) => state.toast)
+  const dispatch = useDispatch();
+  const toastData = useSelector(toastSelector);
 
   useEffect(() => {
-    const toastSeverity = toastData.severity
-    const toastSummary = toastData.summary
-    const toastDetail = toastData.detail
-    const toastLife = toastData.life
-
-    if (toastDetail) {
+    if (toastData.detail) {
       toast.current?.show({
-        severity: toastSeverity as any,
-        summary: toastSummary,
-        detail: toastDetail,
-        life: toastLife,
+        severity: toastData.severity,
+        summary: toastData.summary,
+        detail: toastData.detail,
+        life: toastData.life,
       });
-
-
-      dispatch(CLEAR_TOAST())
+      dispatch(CLEAR_TOAST());
     }
-  }, [toastData])
+  }, [dispatch, toastData]);
 
-  // site Icon 
+  // site Icon
   const fetchAndUpdateSiteIcon = async () => {
     const link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
-    const [err, data] = await to(getSiteIcon())
-    if (err) return console.log(err)
+    const [err, data] = await to(getSiteIcon());
+    if (err) return console.log(err);
     if (data) {
-      link.href = data.data
+      link.href = data.data;
     }
-  }
+  };
 
   useEffect(() => {
-    fetchAndUpdateSiteIcon()
-  }, [])
-
+    fetchAndUpdateSiteIcon();
+  }, []);
 
   return (
     <BrowserRouter>
@@ -58,8 +47,7 @@ function App() {
         <Footer />
       </div>
     </BrowserRouter>
-
-  )
+  );
 }
 
-export default App
+export default App;
