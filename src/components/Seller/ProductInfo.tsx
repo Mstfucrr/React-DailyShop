@@ -335,7 +335,7 @@ const ProductInfo = ({
               description: formik.values.description,
               colors: formik.values.colors,
               sizes: selectedSizes,
-              categoryId: selectedCategory?.id!,
+            categoryId: selectedCategory?.id ?? 0,
               name: formik.values.name,
             });
           }}
