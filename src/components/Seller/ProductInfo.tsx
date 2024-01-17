@@ -104,7 +104,15 @@ const ProductInfo = ({
 
   const handleGetQuatedPrice = useCallback(async () => {
     setGetPriceQuatedLoading(true);
-    const [err, data] = await to(get_quote(formik.values!));
+    if (!selectedCategory?.id) {
+      setGetPriceQuatedLoading(false);
+      return;
+    }
+    const input = {
+      category: selectedCategory?.id ?? 0,
+      status: formik.values.status,
+    };
+    const [err, data] = await to(get_quote(input));
     if (err) {
       showErrorMessage(err);
       setGetPriceQuatedLoading(false);
