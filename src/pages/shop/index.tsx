@@ -11,7 +11,7 @@ const index = () => {
             <Topbar />
             <Searchbar />
             <Navbar />
-            <PageBanner title="Shop" link="/shop" />
+            <PageBanner title="Mağaza" link="/shop" />
             <Shop />
         </>
     )

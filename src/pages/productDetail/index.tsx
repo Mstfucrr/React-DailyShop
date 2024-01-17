@@ -11,7 +11,7 @@ const ProductDetailPage = () => {
             <Topbar />
             <Searchbar />
             <Navbar />
-            <PageBanner title="Shop Detail" link="/productDetail" />
+            <PageBanner title="Ürün Detayı" link="/productDetail" />
             <ProductDetail />
 
         </>
