@@ -27,17 +27,16 @@ import { ProgressSpinner } from "primereact/progressspinner";
 import { TreeNode } from "primereact/treenode";
 import { TreeSelect, TreeSelectChangeEvent } from "primereact/treeselect";
 import { classNames } from "primereact/utils";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FaTimes } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 
 type Props = {
   productUpdateId: number | null;
-  isUpdate: boolean;
   setIsUpdate: (isUpdate: boolean) => void;
 };
 
-const UpdateProduct = ({ productUpdateId, isUpdate, setIsUpdate }: Props) => {
+const UpdateProduct = ({ productUpdateId, setIsUpdate }: Props) => {
   const [product, setProduct] = useState<IProduct | null>(null);
   const [productCoverImage, setProductCoverImage] = useState<File | null>(null);
   const [productImages, setProductImages] = useState<any[]>([]);
@@ -50,7 +49,7 @@ const UpdateProduct = ({ productUpdateId, isUpdate, setIsUpdate }: Props) => {
   const dispatch = useDispatch();
 
   const { token } = useSelector(authSelector);
-  const fetchProduct = async () => {
+  const fetchProduct = useCallback(async () => {
     if (productUpdateId == null) return setProduct(null);
     const [err, data] = await to(getProductById(productUpdateId, token));
     if (err) {
@@ -70,7 +69,7 @@ const UpdateProduct = ({ productUpdateId, isUpdate, setIsUpdate }: Props) => {
     setProductImages(data.data.images || []);
     setSelectedNodeKey(data.data?.category?.id?.toString());
     setSelectedCategory(data.data?.category);
-  };
+  }, [productUpdateId, token, dispatch, setIsUpdate]);
 
   const getCategories = async () => {
     const [err, data] = await to(categoryService.fetchCategories());
@@ -85,14 +84,14 @@ const UpdateProduct = ({ productUpdateId, isUpdate, setIsUpdate }: Props) => {
       setSelectedCategory(
         findCategoryByKeyInTreeSelectModel(treeNodes, selectedNodeKey)
       );
-  }, [selectedCategory, selectedNodeKey]);
+  }, [selectedCategory, selectedNodeKey, treeNodes]);
 
   useEffect(() => {}, []);
 
   useEffect(() => {
     setProduct(null);
     fetchProduct().then(getCategories);
-  }, [productUpdateId]);
+  }, [fetchProduct, productUpdateId]);
 
   const handleCoverImage = (e: any) => {
     if (e.target.files == null) return;
@@ -180,12 +179,14 @@ const UpdateProduct = ({ productUpdateId, isUpdate, setIsUpdate }: Props) => {
   return (
     <motion.div
       className="w-full h-full min-h-[800px] fixed z-10 bg-opacity-10  flex justify-center items-center bg-primaryDark top-0 left-0"
-      animate={{
-        scale: isUpdate ? 1 : 0,
-        opacity: isUpdate ? 1 : 0,
-      }}
+      initial={{ opacity: 0, scale: 0.3 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.3 }}
       transition={{
         duration: 0.4,
+        type: "spring",
+        stiffness: 260,
+        damping: 20,
       }}
     >
       <div className="md:w-2/3 w-full md:h-3/4 h-full bg-white rounded-lg shadow-2xl flex flex-col p-5">
@@ -244,7 +245,7 @@ const UpdateProduct = ({ productUpdateId, isUpdate, setIsUpdate }: Props) => {
                     >
                       <>
                         {productCoverImage != null && (
-                          <div className="relative flex justify-center">
+                          <div className="relative flex justify-center h-80">
                             <img
                               src={
                                 typeof productCoverImage == "string"
@@ -257,7 +258,7 @@ const UpdateProduct = ({ productUpdateId, isUpdate, setIsUpdate }: Props) => {
                             <div
                               className="absolute top-2/3 bg-white bg-opacity-60 rounded-full
                                             hover:bg-opacity-80 transition-all duration-300 ease-in-out transform hover:scale-110
-                                            hover:border hover:border-green-500 border-dashed
+                                            border  border-green-500 border-dashed mt-20
                                         "
                             >
                               <Button
@@ -281,7 +282,7 @@ const UpdateProduct = ({ productUpdateId, isUpdate, setIsUpdate }: Props) => {
                         )}
 
                         {productImages != null && (
-                          <div className="flex flex-row gap-4 w-full flex-wrap mt-3">
+                          <div className="flex flex-row gap-4 w-full flex-wrap mt-10">
                             {productImages.map((image) => (
                               <div
                                 className="flex relative justify-end w-[300px] h-auto rounded-3xl border-dashed border border-blue-600"
