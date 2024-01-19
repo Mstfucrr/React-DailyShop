@@ -100,7 +100,7 @@ const Searchbar = () => {
               className='mr-1 inline-block select-none rounded-none border border-secondary px-3 py-[.375rem] text-center align-middle'
               //@ts-ignore
               onClick={e => {
-                opWallet?.current?.toggle(e)
+                ;(opWallet.current as any)?.toggle(e)
                 fetchWallet()
               }}
             >
@@ -163,7 +163,7 @@ const Searchbar = () => {
               className='mr-1 inline-block select-none rounded-none border border-secondary px-3 py-[.375rem] text-center align-middle'
               //@ts-ignore
               onClick={e => {
-                op?.current?.toggle(e)
+                ;(op.current as any)?.toggle(e)
                 fetchFavorites()
               }}
             >
