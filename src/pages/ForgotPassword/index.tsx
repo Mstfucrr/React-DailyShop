@@ -1,7 +1,7 @@
-import Navbar from "@/components/Navbar";
-import Searchbar from "@/components/Searchbar";
-import Topbar from "@/components/Topbar";
-import ForgotPasswordForm from "@/components/auth/forgotPasswordForm";
+import Navbar from '@/components/Navbar'
+import Searchbar from '@/components/Searchbar'
+import Topbar from '@/components/Topbar'
+import ForgotPasswordForm from '@/components/auth/forgotPasswordForm'
 
 const ForgotPassword = () => {
   return (
@@ -11,7 +11,7 @@ const ForgotPassword = () => {
       <Navbar />
       <ForgotPasswordForm />
     </>
-  );
-};
+  )
+}
 
-export default ForgotPassword;
+export default ForgotPassword

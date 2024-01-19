@@ -1,8 +1,8 @@
-import PageBanner from "@/components/Header/PageBanner";
-import Navbar from "@/components/Navbar";
-import ProductDetail from "@/components/ProductDetail/ProductDetail";
-import Searchbar from "@/components/Searchbar";
-import Topbar from "@/components/Topbar";
+import PageBanner from '@/components/Header/PageBanner'
+import Navbar from '@/components/Navbar'
+import ProductDetail from '@/components/ProductDetail/ProductDetail'
+import Searchbar from '@/components/Searchbar'
+import Topbar from '@/components/Topbar'
 
 const ProductDetailPage = () => {
   return (
@@ -10,10 +10,10 @@ const ProductDetailPage = () => {
       <Topbar />
       <Searchbar />
       <Navbar />
-      <PageBanner title="Ürün Detayı" link="/productDetail" />
+      <PageBanner title='Ürün Detayı' link='/productDetail' />
       <ProductDetail />
     </>
-  );
-};
+  )
+}
 
-export default ProductDetailPage;
+export default ProductDetailPage

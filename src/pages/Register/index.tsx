@@ -1,8 +1,8 @@
-import { Link } from "react-router-dom";
-import RegisterForm from "@/components/auth/registerForm";
-import Navbar from "@/components/Navbar";
-import Topbar from "@/components/Topbar";
-import Searchbar from "@/components/Searchbar";
+import { Link } from 'react-router-dom'
+import RegisterForm from '@/components/auth/registerForm'
+import Navbar from '@/components/Navbar'
+import Topbar from '@/components/Topbar'
+import Searchbar from '@/components/Searchbar'
 
 const index = () => {
   return (
@@ -11,33 +11,31 @@ const index = () => {
       <Searchbar />
       <Navbar />
       <div
-        className="md:w-[560px] w-full h-auto md:my-0 pb-10 bg-white 
-      border border-solid mx-auto md:mt-[110px]"
+        className='mx-auto h-auto w-full border border-solid bg-white 
+      pb-10 md:my-0 md:mt-[110px] md:w-[560px]'
       >
-        <div className="py-7 bg-primary flex justify-center items-center mb-4">
-          <h1 className="text-white md:text-4xl text-3xl font-bold text-center">
-            Kayıt Ol
-          </h1>
+        <div className='mb-4 flex items-center justify-center bg-primary py-7'>
+          <h1 className='text-center text-3xl font-bold text-white md:text-4xl'>Kayıt Ol</h1>
         </div>
-        <div className="w-full h-5/6 flex flex-col justify-between items-center">
+        <div className='flex h-5/6 w-full flex-col items-center justify-between'>
           <RegisterForm />
 
           {/* login */}
-          <div className="flex flex-row mx-auto mt-4">
-            <span className="text-sm font-thin mr-3">Zaten üye misin ?</span>
+          <div className='mx-auto mt-4 flex flex-row'>
+            <span className='mr-3 text-sm font-thin'>Zaten üye misin ?</span>
             <Link
-              className="underline text-sm font-thin
-                        text-primary hover:text-black transition duration-300 ease-in-out"
-              to="/login"
+              className='text-sm font-thin text-primary
+                        underline transition duration-300 ease-in-out hover:text-black'
+              to='/login'
             >
               Giriş Yap
             </Link>
           </div>
         </div>
       </div>
-      <div className="h-[100px]"></div>
+      <div className='h-[100px]'></div>
     </>
-  );
-};
+  )
+}
 
-export default index;
+export default index

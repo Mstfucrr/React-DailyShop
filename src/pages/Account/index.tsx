@@ -1,7 +1,7 @@
-import Navbar from "@/components/Navbar";
-import Searchbar from "@/components/Searchbar";
-import Topbar from "@/components/Topbar";
-import Account from "@/components/account/account";
+import Navbar from '@/components/Navbar'
+import Searchbar from '@/components/Searchbar'
+import Topbar from '@/components/Topbar'
+import Account from '@/components/account/account'
 
 const AccountPage = () => {
   return (
@@ -12,7 +12,7 @@ const AccountPage = () => {
 
       <Account />
     </>
-  );
-};
+  )
+}
 
-export default AccountPage;
+export default AccountPage

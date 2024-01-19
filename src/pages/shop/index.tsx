@@ -1,8 +1,8 @@
-import PageBanner from "@/components/Header/PageBanner";
-import Navbar from "@/components/Navbar";
-import Searchbar from "@/components/Searchbar";
-import Shop from "@/components/shop";
-import Topbar from "@/components/Topbar";
+import PageBanner from '@/components/Header/PageBanner'
+import Navbar from '@/components/Navbar'
+import Searchbar from '@/components/Searchbar'
+import Shop from '@/components/shop'
+import Topbar from '@/components/Topbar'
 
 const index = () => {
   return (
@@ -10,10 +10,10 @@ const index = () => {
       <Topbar />
       <Searchbar />
       <Navbar />
-      <PageBanner title="Mağaza" link="/shop" />
+      <PageBanner title='Mağaza' link='/shop' />
       <Shop />
     </>
-  );
-};
+  )
+}
 
-export default index;
+export default index

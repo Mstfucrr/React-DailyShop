@@ -1,49 +1,43 @@
-import {
-  FaFacebookF,
-  FaTwitter,
-  FaLinkedinIn,
-  FaInstagram,
-  FaYoutube,
-} from "react-icons/fa";
+import { FaFacebookF, FaTwitter, FaLinkedinIn, FaInstagram, FaYoutube } from 'react-icons/fa'
 
 const Topbar = () => {
   return (
-    <div className="px-[15px]">
+    <div className='px-[15px]'>
       {/* row bg-secondary py-2 px-xl-5 */}
-      <div className="grid-cols-12 grid bg-secondary py-2 xl:px-[3rem] flex-wrap -mx-[15px]">
+      <div className='-mx-[15px] grid grid-cols-12 flex-wrap bg-secondary py-2 xl:px-[3rem]'>
         {/* col-lg-6 d-none d-lg-block */}
-        <div className="lg:col-span-6 hidden lg:block px-[15px]">
-          <div className="inline-flex items-center">
-            <div className="text-black">FAQs</div>
-            <span className="text-[#6c757d] px-2">|</span>
-            <div className="text-black">Help</div>
-            <span className="text-[#6c757d] px-2">|</span>
-            <div className="text-black">Support</div>
+        <div className='hidden px-[15px] lg:col-span-6 lg:block'>
+          <div className='inline-flex items-center'>
+            <div className='text-black'>FAQs</div>
+            <span className='px-2 text-[#6c757d]'>|</span>
+            <div className='text-black'>Help</div>
+            <span className='px-2 text-[#6c757d]'>|</span>
+            <div className='text-black'>Support</div>
           </div>
         </div>
         {/* col-lg-6 text-center text-lg-right */}
-        <div className="lg:col-span-6 col-span-12 text-center lg:text-right px-[15px]">
-          <div className="inline-flex items-center">
-            <a href="" className="text-black px-2">
+        <div className='col-span-12 px-[15px] text-center lg:col-span-6 lg:text-right'>
+          <div className='inline-flex items-center'>
+            <a href='' className='px-2 text-black'>
               <FaFacebookF />
             </a>
-            <a href="" className="text-black px-2">
+            <a href='' className='px-2 text-black'>
               <FaTwitter />
             </a>
-            <a href="" className="text-black px-2">
+            <a href='' className='px-2 text-black'>
               <FaLinkedinIn />
             </a>
-            <a href="" className="text-black px-2">
+            <a href='' className='px-2 text-black'>
               <FaInstagram />
             </a>
-            <a href="" className="text-black px-2">
+            <a href='' className='px-2 text-black'>
               <FaYoutube />
             </a>
           </div>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Topbar;
+export default Topbar

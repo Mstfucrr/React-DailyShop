@@ -1,4 +1,3 @@
-import { makeRequest } from "../base/base";
+import { makeRequest } from '../base/base'
 
-export const getContact = async () =>
-  await makeRequest<any>(`/Contacts`, "GET");
+export const getContact = async () => await makeRequest<any>(`/Contacts`, 'GET')
