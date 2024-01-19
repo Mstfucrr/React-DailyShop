@@ -26,7 +26,9 @@ const UserSettings = () => {
 
   const [users, setUsers] = useState<IUser[]>([]);
   const [selectedUser, setSelectedUser] = useState<IUser>();
-  const [selectedUserAddress, setSelectedUserAddress] = useState<IUserAddress[]>([]);
+  const [selectedUserAddress, setSelectedUserAddress] = useState<
+    IUserAddress[]
+  >([]);
   const [selectedUserReviews, setSelectedUserReviews] = useState<IReview[]>([]);
   const [selectUserProducts, setSelectUserProducts] = useState<IProduct[]>();
   const [selectUserOrders, setSelectUserOrders] = useState<IOrder[]>();
@@ -48,7 +50,7 @@ const UserSettings = () => {
       setLoading(false);
       dispatch(SET_TOAST(toast));
     },
-    [dispatch]
+    [dispatch],
   );
   const showSuccess = useCallback(
     (message: string) => {
@@ -61,7 +63,7 @@ const UserSettings = () => {
       setLoading(false);
       dispatch(SET_TOAST(toast));
     },
-    [dispatch]
+    [dispatch],
   );
 
   const fetchUsers = useCallback(async () => {
@@ -79,7 +81,7 @@ const UserSettings = () => {
   const fetchUserAddress = useCallback(async () => {
     if (!selectedUser) return;
     const [err, data] = await to(
-      userService.fetchAddressByUserId(selectedUser?.id, token)
+      userService.fetchAddressByUserId(selectedUser?.id, token),
     );
     if (err) return showErrorMessage(err);
     setSelectedUserAddress(data);
@@ -90,7 +92,7 @@ const UserSettings = () => {
     setReviewLoading(true);
     if (!selectedUser) return;
     const [err, data] = await to(
-      userService.fetchReviewsByUserId(selectedUser?.id, token)
+      userService.fetchReviewsByUserId(selectedUser?.id, token),
     );
     if (err) {
       setReviewLoading(false);
@@ -105,7 +107,7 @@ const UserSettings = () => {
     setSelectUserProducts([]);
     if (!selectedUser) return;
     const [err, data] = await to(
-      userService.fetchPaddingProductByUserId(selectedUser?.id, token)
+      userService.fetchPaddingProductByUserId(selectedUser?.id, token),
     );
     if (err) {
       setProductLoading(false);
@@ -120,7 +122,7 @@ const UserSettings = () => {
     setSelectUserOrders([]);
     if (!selectedUser) return;
     const [err, data] = await to(
-      userService.fetchOrdersByUserId(selectedUser?.id, token)
+      userService.fetchOrdersByUserId(selectedUser?.id, token),
     );
     if (err) {
       setOrderLoading(false);
@@ -148,7 +150,7 @@ const UserSettings = () => {
       window.history.pushState(
         {},
         "",
-        `/admin/users?userId=${selectedUser.id}`
+        `/admin/users?userId=${selectedUser.id}`,
       );
     }
   }, [
@@ -161,7 +163,7 @@ const UserSettings = () => {
 
   const handleReviewStatusChange = async (data: IReview, status: string) => {
     const [err, data2] = await to(
-      userService.updateReviewStatus(data.id, status, token)
+      userService.updateReviewStatus(data.id, status, token),
     );
     if (err) return showErrorMessage(err);
     showSuccess(data2.message);
@@ -171,13 +173,13 @@ const UserSettings = () => {
     async (data: IProduct, status: boolean) => {
       console.log("status: ", status);
       const [err, data2] = await to(
-        userService.updateProductApprovalStatus(data.id, status, token)
+        userService.updateProductApprovalStatus(data.id, status, token),
       );
       if (err) return showErrorMessage(err);
       showSuccess(data2.message);
       fetchUserProducts();
     },
-    [fetchUserProducts, showErrorMessage, showSuccess, token]
+    [fetchUserProducts, showErrorMessage, showSuccess, token],
   );
 
   const handleBlockUser = useCallback(
@@ -187,7 +189,7 @@ const UserSettings = () => {
       showSuccess(data.message);
       fetchUsers();
     },
-    [fetchUsers, showErrorMessage, showSuccess, token]
+    [fetchUsers, showErrorMessage, showSuccess, token],
   );
 
   const renderProductImage = useCallback(
@@ -203,12 +205,12 @@ const UserSettings = () => {
         )}
       </Link>
     ),
-    []
+    [],
   );
 
   const renderRating = useCallback(
     (data: IReview) => <Rating value={data.rating} readOnly cancel={false} />,
-    []
+    [],
   );
 
   const renderStatusDropdown = useCallback(
@@ -221,7 +223,7 @@ const UserSettings = () => {
         }}
       />
     ),
-    [fetchUserReviews, handleReviewStatusChange]
+    [fetchUserReviews, handleReviewStatusChange],
   );
 
   const renderUserBlockButton = useCallback(
@@ -250,7 +252,7 @@ const UserSettings = () => {
         )}
       </>
     ),
-    [handleBlockUser]
+    [handleBlockUser],
   );
 
   const renderIsApproved = useCallback(
@@ -305,7 +307,7 @@ const UserSettings = () => {
           </div>
         );
     },
-    [handleProductApprovalStatusChange]
+    [handleProductApprovalStatusChange],
   );
 
   const handleDetleteProduct = async (id: number) => {
@@ -317,10 +319,10 @@ const UserSettings = () => {
 
   const handleChangeOrderStatus = async (
     orderId: number,
-    status: OrderStatus
+    status: OrderStatus,
   ) => {
     const [err, data2] = await to(
-      userService.updateOrderStatus(orderId, status, token)
+      userService.updateOrderStatus(orderId, status, token),
     );
     if (err) return showErrorMessage(err);
     showSuccess(data2.message);
@@ -329,7 +331,7 @@ const UserSettings = () => {
 
   const confirmDelete = (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-    id: number
+    id: number,
   ) => {
     confirmPopup({
       target: event.currentTarget,
@@ -380,7 +382,7 @@ const UserSettings = () => {
         </div>
       </div>
     ),
-    [handleProductApprovalStatusChange, selectUserProducts]
+    [handleProductApprovalStatusChange, selectUserProducts],
   );
 
   const renderselectUserOrders = useCallback(
@@ -396,7 +398,7 @@ const UserSettings = () => {
             <Steps
               model={orderStatus}
               activeIndex={orderStatus.findIndex(
-                (s) => s.value === data.status
+                (s) => s.value === data.status,
               )}
               className="w-[38rem] border border-gray-300 rounded-md"
               readOnly={false}
@@ -418,7 +420,7 @@ const UserSettings = () => {
         </div>
       </div>
     ),
-    [selectUserOrders]
+    [selectUserOrders],
   );
 
   const refreshButton = useCallback(
@@ -432,7 +434,7 @@ const UserSettings = () => {
         />
       </div>
     ),
-    [users, selectedUserReviews, selectUserProducts]
+    [users, selectedUserReviews, selectUserProducts],
   );
 
   const productLoadingTemplate = useCallback(
@@ -449,7 +451,7 @@ const UserSettings = () => {
         )}
       </>
     ),
-    [productLoading]
+    [productLoading],
   );
 
   const orderLoadingTemplate = useCallback(
@@ -464,7 +466,7 @@ const UserSettings = () => {
         )}
       </>
     ),
-    [orderLoading]
+    [orderLoading],
   );
 
   return (

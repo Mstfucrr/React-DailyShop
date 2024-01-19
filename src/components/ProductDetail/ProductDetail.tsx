@@ -107,7 +107,7 @@ const ProductDetail = () => {
           });
       }
     },
-    [dispatch, product, token]
+    [dispatch, product, token],
   );
 
   const fetchData = useCallback(async () => {
@@ -132,13 +132,16 @@ const ProductDetail = () => {
       const fetchedProduct = (await data.data) as IProduct;
       setProduct(fetchedProduct);
       setSizes(
-        fetchedProduct.sizes?.map((size: string) => ({ name: size, key: size }))
+        fetchedProduct.sizes?.map((size: string) => ({
+          name: size,
+          key: size,
+        })),
       );
       setColors(
         fetchedProduct.colors?.map((color: string) => ({
           name: color,
           key: color,
-        }))
+        })),
       );
       const imagesSources = [];
       fetchedProduct.images?.forEach((image: string) => {
@@ -518,7 +521,7 @@ const ProductDetail = () => {
                       <span className="font-semibold">Ürün Durumu : </span>{" "}
                       {
                         productStatus.find(
-                          (status) => status.value === product.status
+                          (status) => status.value === product.status,
                         )?.label
                       }
                     </p>

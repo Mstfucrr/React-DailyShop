@@ -1,8 +1,8 @@
 // NodeTemplate.tsx
-import React from 'react';
-import { Button } from 'primereact/button';
-import { confirmDialog } from 'primereact/confirmdialog';
-import { TreeNode } from 'primereact/treenode';
+import React from "react";
+import { Button } from "primereact/button";
+import { confirmDialog } from "primereact/confirmdialog";
+import { TreeNode } from "primereact/treenode";
 
 interface NodeTemplateProps {
   node: TreeNode;
@@ -10,22 +10,37 @@ interface NodeTemplateProps {
   handleDeleteCategory: (categoryId: number) => void;
 }
 
-const NodeTemplate: React.FC<NodeTemplateProps> = ({ node, setUpdateCategory, handleDeleteCategory }) => {
+const NodeTemplate: React.FC<NodeTemplateProps> = ({
+  node,
+  setUpdateCategory,
+  handleDeleteCategory,
+}) => {
   return (
     <div className="flex flex-row justify-between items-center w-full flex-wrap">
       <span className="p-2">{node.label}</span>
-      <div className='flex gap-x-3'>
-        <Button className='p-button-rounded p-button-info' icon="pi pi-pencil"
-          onClick={() => { setUpdateCategory(node.data) }}
+      <div className="flex gap-x-3">
+        <Button
+          className="p-button-rounded p-button-info"
+          icon="pi pi-pencil"
+          onClick={() => {
+            setUpdateCategory(node.data);
+          }}
         />
 
-        <Button className='p-button-rounded p-button-danger' icon="pi pi-trash"
+        <Button
+          className="p-button-rounded p-button-danger"
+          icon="pi pi-trash"
           onClick={() => {
             let co = confirmDialog({
-              message: <div className='flex items-center gap-2 flex-wrap'>
-                <h4 className="font-bold text-lg"> {node.data.name} </h4>
-                <span className="text-sm text-gray-500"> Kategoriyi silmek istediğinize emin misiniz? </span>
-              </div>,
+              message: (
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h4 className="font-bold text-lg"> {node.data.name} </h4>
+                  <span className="text-sm text-gray-500">
+                    {" "}
+                    Kategoriyi silmek istediğinize emin misiniz?{" "}
+                  </span>
+                </div>
+              ),
               header: "Kategori Silme",
               icon: "pi pi-exclamation-triangle",
               acceptLabel: "Sil",
@@ -35,8 +50,8 @@ const NodeTemplate: React.FC<NodeTemplateProps> = ({ node, setUpdateCategory, ha
               rejectLabel: "iptal",
               rejectIcon: "pi pi-times",
               accept: () => handleDeleteCategory(node.data.id),
-              reject: () => co.hide()
-            })
+              reject: () => co.hide(),
+            });
           }}
         />
       </div>

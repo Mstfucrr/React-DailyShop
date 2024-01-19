@@ -1,8 +1,7 @@
-import Navbar from '@/components/Navbar'
-import Searchbar from '@/components/Searchbar'
-import Topbar from '@/components/Topbar'
-import HomeComponent from '@/components/home'
-
+import Navbar from "@/components/Navbar";
+import Searchbar from "@/components/Searchbar";
+import Topbar from "@/components/Topbar";
+import HomeComponent from "@/components/home";
 
 const index = () => {
   return (
@@ -12,7 +11,7 @@ const index = () => {
       <Navbar />
       <HomeComponent />
     </>
-  )
-}
+  );
+};
 
-export default index
+export default index;

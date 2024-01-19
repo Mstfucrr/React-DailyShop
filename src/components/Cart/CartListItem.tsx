@@ -29,7 +29,7 @@ const CartListItem = ({
   const handleUpdateItem = async (quantity: number) => {
     setQuantity(quantity);
     const [err, data] = await to(
-      updateCart(cartItem.id, { quantity: quantity }, token)
+      updateCart(cartItem.id, { quantity: quantity }, token),
     );
     if (err) {
       const toast: IToast = {

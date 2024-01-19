@@ -22,7 +22,7 @@ const Account = () => {
     USER_PRODUCTS = "Ürünlerim",
   }
   const [activeTab, setActiveTab] = useState<AccountTabs>(
-    AccountTabs.USER_INFO
+    AccountTabs.USER_INFO,
   );
 
   const [user, setUser] = useState<IUser | null>(null);
@@ -48,7 +48,7 @@ const Account = () => {
       SET_AUTH({
         user: data.data,
         token: token,
-      })
+      }),
     );
     setLoading(false);
   }, [dispatch, token]);

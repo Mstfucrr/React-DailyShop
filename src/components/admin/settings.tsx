@@ -23,7 +23,7 @@ const Settings = () => {
   const [address, setAddress] = useState<string | undefined>(undefined);
   const [siteSettings, setSiteSettings] = useState<ISiteSettings | null>();
   const [siteIcon, setSiteIcon] = useState<File | string | undefined>(
-    undefined
+    undefined,
   );
   const [loading, setLoading] = useState<boolean>(false);
   const [saveLoading, setSaveLoading] = useState<boolean>(false);

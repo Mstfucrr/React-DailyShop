@@ -43,7 +43,7 @@ const UpdateProduct = ({ productUpdateId, setIsUpdate }: Props) => {
   const [treeNodes, setTreeNodes] = useState<TreeNode[] | undefined>(undefined);
   const [selectedCategory, setSelectedCategory] = useState<ICategory>();
   const [selectedNodeKey, setSelectedNodeKey] = useState<string | undefined>(
-    product?.categoryId?.toString()
+    product?.categoryId?.toString(),
   );
 
   const dispatch = useDispatch();
@@ -82,7 +82,7 @@ const UpdateProduct = ({ productUpdateId, setIsUpdate }: Props) => {
   useEffect(() => {
     if (treeNodes && selectedNodeKey)
       setSelectedCategory(
-        findCategoryByKeyInTreeSelectModel(treeNodes, selectedNodeKey)
+        findCategoryByKeyInTreeSelectModel(treeNodes, selectedNodeKey),
       );
   }, [selectedCategory, selectedNodeKey, treeNodes]);
 
@@ -140,7 +140,7 @@ const UpdateProduct = ({ productUpdateId, setIsUpdate }: Props) => {
       productImages.forEach((img) => {
         formData.append(
           typeof img === "string" ? "ProductImages" : "ProductImagesFile",
-          img
+          img,
         );
       });
     values.colors?.forEach((color: string) => formData.append("Colors", color));
@@ -151,7 +151,7 @@ const UpdateProduct = ({ productUpdateId, setIsUpdate }: Props) => {
     });
 
     const [err, data] = await to(
-      updateProduct(product?.id as number, formData, token)
+      updateProduct(product?.id as number, formData, token),
     );
     if (err) {
       const toast: IToast = {
@@ -345,7 +345,7 @@ const UpdateProduct = ({ productUpdateId, setIsUpdate }: Props) => {
                                     name: "category",
                                     value: findCategoryByKeyInTreeSelectModel(
                                       treeNodes as TreeNode[],
-                                      e.value as string
+                                      e.value as string,
                                     ),
                                   },
                                 });
@@ -353,8 +353,8 @@ const UpdateProduct = ({ productUpdateId, setIsUpdate }: Props) => {
                                 setSelectedCategory(
                                   findCategoryByKeyInTreeSelectModel(
                                     treeNodes as TreeNode[],
-                                    e.value as string
-                                  )
+                                    e.value as string,
+                                  ),
                                 );
                               }}
                               className={

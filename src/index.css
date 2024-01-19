@@ -17,15 +17,14 @@ body {
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.5;
-  color: #6F6F6F;
+  color: #6f6f6f;
   text-align: left;
   background-color: #ffffff;
 }
 
-
 @layer utilities {
   .before-content {
-    content: '✓ ürünü satın aldı';
+    content: "✓ ürünü satın aldı";
     position: absolute;
     top: -10%;
     left: -44%;

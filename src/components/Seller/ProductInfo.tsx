@@ -38,7 +38,7 @@ const ProductInfo = ({
   const [treeNodes, setTreeNodes] = useState<TreeNode[] | undefined>(undefined);
   const [selectedCategory, setSelectedCategory] = useState<ICategory>();
   const [selectedNodeKey, setSelectedNodeKey] = useState<string | undefined>(
-    undefined
+    undefined,
   );
   const [selectedSizes, setSelectedSizes] = useState<string[] | undefined>([]);
   const [priceQuated, setPriceQuated] = useState<
@@ -69,7 +69,7 @@ const ProductInfo = ({
       };
       dispatch(SET_TOAST(toast));
     },
-    [dispatch]
+    [dispatch],
   );
 
   const showSuccessMessage = useCallback(
@@ -82,7 +82,7 @@ const ProductInfo = ({
       };
       dispatch(SET_TOAST(toast));
     },
-    [dispatch]
+    [dispatch],
   );
 
   const getCategories = useCallback(async () => {
@@ -98,7 +98,7 @@ const ProductInfo = ({
   useEffect(() => {
     if (treeNodes && selectedNodeKey)
       setSelectedCategory(
-        findCategoryByKeyInTreeSelectModel(treeNodes, selectedNodeKey)
+        findCategoryByKeyInTreeSelectModel(treeNodes, selectedNodeKey),
       );
   }, [selectedCategory, selectedNodeKey, treeNodes]);
 

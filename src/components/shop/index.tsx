@@ -24,7 +24,7 @@ const Shop = () => {
   const [filteredProducts, setFilteredProducts] = useState<IProduct[]>([]);
   const [search, setSearch] = useState<string>("");
   const [responseData, setResponseData] = useState<IShopResponse | undefined>(
-    undefined
+    undefined,
   );
   const [products, setProducts] = useState<IProduct[]>([]); // tüm ürünlerin listesi
   const [first, setFirst] = useState(0);
@@ -43,34 +43,34 @@ const Shop = () => {
         break;
       case ProductsSortBy.PriceLowToHigh:
         setFilteredProducts(
-          [...filteredProducts].sort((a, b) => a.price - b.price)
+          [...filteredProducts].sort((a, b) => a.price - b.price),
         );
         break;
       case ProductsSortBy.PriceHighToLow:
         setFilteredProducts(
-          [...filteredProducts].sort((a, b) => b.price - a.price)
+          [...filteredProducts].sort((a, b) => b.price - a.price),
         );
         break;
       case ProductsSortBy.NameAZ:
         setFilteredProducts(
-          [...filteredProducts].sort((a, b) => a.name.localeCompare(b.name))
+          [...filteredProducts].sort((a, b) => a.name.localeCompare(b.name)),
         );
         break;
       case ProductsSortBy.NameZA:
         setFilteredProducts(
-          [...filteredProducts].sort((a, b) => b.name.localeCompare(a.name))
+          [...filteredProducts].sort((a, b) => b.name.localeCompare(a.name)),
         );
         break;
       case ProductsSortBy.TopRated:
         setFilteredProducts(
-          [...filteredProducts].sort((a, b) => b.rating - a.rating)
+          [...filteredProducts].sort((a, b) => b.rating - a.rating),
         );
         break;
       case ProductsSortBy.Review:
         setFilteredProducts(
           [...filteredProducts].sort(
-            (a, b) => b.reviews.length - a.reviews.length
-          )
+            (a, b) => b.reviews.length - a.reviews.length,
+          ),
         );
         break;
       default:
@@ -82,7 +82,7 @@ const Shop = () => {
   const fetchData = useCallback(async () => {
     if (id) {
       const [err, data] = await to(
-        getProductsByCategoryId(parseInt(id), isDelProductShow, token)
+        getProductsByCategoryId(parseInt(id), isDelProductShow, token),
       );
       if (err) {
         console.log(err);
@@ -119,8 +119,8 @@ const Shop = () => {
     if (search.length > 2) {
       setProducts(
         [...filteredProducts].filter((product) =>
-          product.name.toLowerCase().includes(search.toLowerCase())
-        )
+          product.name.toLowerCase().includes(search.toLowerCase()),
+        ),
       );
     } else if (search.length === 0) {
       setProducts([...filteredProducts].slice(first, first + rows));
@@ -131,7 +131,7 @@ const Shop = () => {
     setFirst(event.first);
     setRows(event.rows);
     setProducts(
-      [...filteredProducts].slice(event.first, event.first + event.rows)
+      [...filteredProducts].slice(event.first, event.first + event.rows),
     );
   };
 

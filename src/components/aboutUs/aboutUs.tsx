@@ -69,8 +69,9 @@ const AboutUs = () => {
               </h2>
               <div className="md:w-11 w-full bg-black h-1" />
             </div>
-            <p dangerouslySetInnerHTML={{ __html: about }}
-                className="md:w-3/4 w-full text-gray-800 text-center text-sm px-10"
+            <p
+              dangerouslySetInnerHTML={{ __html: about }}
+              className="md:w-3/4 w-full text-gray-800 text-center text-sm px-10"
             />
           </div>
           {/* iletişim */}
@@ -127,7 +128,7 @@ const AboutUs = () => {
         <Messages ref={msgs} className="lg:w-2/3 w-full mx-auto" />
       );
     },
-    []
+    [],
   );
 
   return (
