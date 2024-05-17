@@ -47,7 +47,7 @@
     "prettier": "3.2.4",
     "tailwindcss": "^3.3.3",
     "typescript": "^5.0.2",
-    "vite": "^4.4.5"
+    "vite": "^4.5.2"
   },
   "description": "This is a [React](https://reactjs.org) + [TypeScript](https://www.typescriptlang.org/) boilerplate built with [Vite](https://vitejs.dev).",
   "main": "postcss.config.js",
