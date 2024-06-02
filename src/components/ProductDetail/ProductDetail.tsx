@@ -7,13 +7,8 @@ import { FaCommentAlt, FaHeart, FaInfoCircle, FaMinus, FaPencilAlt, FaPlus, FaSh
 import { MdDescription } from 'react-icons/md'
 import { TabView, TabPanel } from 'primereact/tabview'
 import { Messages } from 'primereact/messages'
-import { Link, useParams } from 'react-router-dom'
 import { getProductById, getReviewsByProductId } from '@/services/product/product.service'
 import { setProductCookie } from '@/helper/cookieUtils'
-import { useDispatch, useSelector } from 'react-redux'
-import { authSelector } from '@/store/auth'
-import { SET_TOAST } from '@/store/Toast'
-import { IToast } from '@/store/Toast/type'
 import { addToCart } from '@/services/order/order.service'
 import { IaddToCartRequest } from '@/services/order/types'
 import { InputNumber } from 'primereact/inputnumber'
@@ -24,10 +19,13 @@ import { favoritesService } from '@/services/favorites/favorites.service'
 import ProductReview from './productReview'
 import { productStatus } from '@/shared/constants'
 import { AnimatePresence } from 'framer-motion'
+import { useAuth } from '@/hooks/useAuth'
+import toast from 'react-hot-toast'
+import Link from 'next/link'
 
-const ProductDetail = () => {
+const ProductDetail = ({ productId }: { productId: string }) => {
   const [images, setImages] = useState<{ source: string }[] | string | undefined>(undefined)
-  const { id } = useParams()
+
   const [productLoading, setProductLoading] = useState<boolean>(false)
   const [addCartLoading, setAddCartLoading] = useState<boolean>(false)
   const [product, setProduct] = useState<IProduct | null>(null)
@@ -39,12 +37,12 @@ const ProductDetail = () => {
   const msgs = useRef<Messages>(null)
   const [sizes, setSizes] = useState<{ name: string; key: string }[] | undefined>(undefined)
   const [colors, setColors] = useState<{ name: string; key: string }[] | undefined>(undefined)
-  const dispatch = useDispatch()
+
   const [isUpdate, setIsUpdate] = useState<boolean>(false)
 
   // kullanıcı giriş yapmış mı konrol et ve hangi üründe ne kadar gezindiğini cooki ye kaydet
 
-  const { auth, isAuthorized, token } = useSelector(authSelector)
+  const { auth, isAuthorized, token } = useAuth()
 
   useEffect(() => {
     if (auth && product) {
@@ -70,16 +68,7 @@ const ProductDetail = () => {
     async (productId: number) => {
       if (!productId) return
       const [err, data] = await to(getReviewsByProductId(productId, token))
-      if (err) {
-        const toast: IToast = {
-          severity: 'error',
-          summary: 'Hata',
-          detail: err.message,
-          life: 3000
-        }
-        dispatch(SET_TOAST(toast))
-        return
-      }
+      if (err) return toast.error(err.message)
       if (data.data) {
         const reviews = data.data as IReview[]
         setReviews(reviews)
@@ -90,13 +79,13 @@ const ProductDetail = () => {
           })
       }
     },
-    [dispatch, product, token]
+    [product, token]
   )
 
   const fetchData = useCallback(async () => {
     setProductLoading(true)
-    if (!id) return
-    const [err, data] = await to(getProductById(parseInt(id), token))
+    if (!productId) return
+    const [err, data] = await to(getProductById(parseInt(productId), token))
     if (err) {
       msgs.current?.clear()
       msgs.current?.show([
@@ -126,16 +115,16 @@ const ProductDetail = () => {
           key: color
         }))
       )
-      const imagesSources = []
+      const imagesSources: string[] = []
       fetchedProduct.images?.forEach((image: string) => {
-        imagesSources.push(image)
+        return imagesSources.push(image)
       })
       if (fetchedProduct.image) imagesSources.push(fetchedProduct.image)
       setImages(imagesSources.map((source: string) => ({ source: source })))
       fetchProductReviews(fetchedProduct.id)
     }
     setProductLoading(false)
-  }, [fetchProductReviews, id, token])
+  }, [fetchProductReviews, productId, token])
 
   useEffect(() => {
     fetchData()
@@ -162,27 +151,10 @@ const ProductDetail = () => {
 
   const handleAddToCart = async () => {
     if (!product) return
-    if (!isAuthorized) {
-      const toast: IToast = {
-        severity: 'error',
-        summary: 'Hata',
-        detail: 'Sepete eklemek için giriş yapmalısınız',
-        life: 3000
-      }
-      dispatch(SET_TOAST(toast))
-      return
-    }
+    if (!isAuthorized) return toast.error('Lütfen giriş yapınız')
 
-    if ((sizes && sizes?.length > 0 && !selectSize) || (colors && colors?.length > 0 && !selectColor)) {
-      const toast: IToast = {
-        severity: 'error',
-        summary: 'Hata',
-        detail: 'Lütfen renk ve beden seçiniz',
-        life: 3000
-      }
-      dispatch(SET_TOAST(toast))
-      return
-    }
+    if ((sizes && sizes?.length > 0 && !selectSize) || (colors && colors?.length > 0 && !selectColor))
+      return toast.error('Lütfen renk ve beden seçiniz')
 
     const cartAdd: IaddToCartRequest = {
       quantity: quantity,
@@ -192,23 +164,11 @@ const ProductDetail = () => {
     setAddCartLoading(true)
     const [err, data] = await to(addToCart(product.id, cartAdd, token))
     if (err) {
-      const toast: IToast = {
-        severity: 'error',
-        summary: 'Hata',
-        detail: err.message,
-        life: 3000
-      }
-      dispatch(SET_TOAST(toast))
+      toast.error(err.message)
       setAddCartLoading(false)
       return
     }
-    const toast: IToast = {
-      severity: 'success',
-      summary: 'Başarılı',
-      detail: addToCartSuccessTemplete(data.message),
-      life: 5000
-    }
-    dispatch(SET_TOAST(toast))
+    toast.success(addToCartSuccessTemplete(data.message))
     setAddCartLoading(false)
   }
 
@@ -226,10 +186,10 @@ const ProductDetail = () => {
           </div>
         </div>
         <div className='mt-4 flex flex-row gap-x-2'>
-          <Link to='/cart' className='rounded-md bg-primary px-3 py-2 text-white'>
+          <Link href='/cart' className='rounded-md bg-primary px-3 py-2 text-white'>
             Sepete Git
           </Link>
-          <Link to={`/shop/${product?.categoryId}`} className='rounded-md bg-primary px-3 py-2 text-white'>
+          <Link href={`/shop/${product?.categoryId}`} className='rounded-md bg-primary px-3 py-2 text-white'>
             Alışverişe Devam Et
           </Link>
         </div>
@@ -239,14 +199,8 @@ const ProductDetail = () => {
 
   const handleAddFavorite = async (id: number) => {
     const [err, data] = await to(favoritesService.addFavorite(token, id))
-    if (err) return console.log(err)
-    const toast: IToast = {
-      severity: 'success',
-      summary: 'Başarılı',
-      detail: data?.message,
-      life: 3000
-    }
-    dispatch(SET_TOAST(toast))
+    if (err) return
+    toast.success(data.message)
   }
 
   return (
@@ -279,15 +233,13 @@ const ProductDetail = () => {
                   {isUpdate && <UpdateProduct productUpdateId={product.id} setIsUpdate={setIsUpdate} />}
                 </AnimatePresence>
                 {isAuthorized && auth.id == product?.userId && (
-                  <>
-                    <button
-                      className='text-primary transition-all duration-300 ease-in-out hover:text-primaryDark'
-                      onClick={() => setIsUpdate(true)}
-                    >
-                      <FaPencilAlt className='mr-2 inline' />
-                      Ürünü Düzenle
-                    </button>
-                  </>
+                  <button
+                    className='text-primary transition-all duration-300 ease-in-out hover:text-primaryDark'
+                    onClick={() => setIsUpdate(true)}
+                  >
+                    <FaPencilAlt className='mr-2 inline' />
+                    Ürünü Düzenle
+                  </button>
                 )}
               </div>
               {/* rating */}
@@ -359,6 +311,7 @@ const ProductDetail = () => {
                   ))}
                 </div>
               )}
+              {/* quantity */}
               <div className='mt-5 flex flex-wrap items-center gap-6'>
                 <div className='relative flex max-w-[130px] flex-nowrap'>
                   <div>

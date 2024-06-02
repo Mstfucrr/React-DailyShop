@@ -1,35 +1,33 @@
 import { createOrder, getCart } from '@/services/order/order.service'
 import { ICartItem } from '@/shared/types'
-import { authSelector } from '@/store/auth'
 import to from 'await-to-js'
 import { Messages } from 'primereact/messages'
 import { useEffect, useRef, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
 import OrderAddress from './orderAddress'
 import { Button } from 'primereact/button'
 import { AnimatePresence } from 'framer-motion'
 import OrderPayment from './orderPayment'
 import { IUserAddress } from '@/services/auth/types'
 import { IOrderAddress, IOrderRequest } from '@/services/order/types'
-import { IToast } from '@/store/Toast/type'
-import { SET_TOAST } from '@/store/Toast'
-import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '@/hooks/useAuth'
+import toast from 'react-hot-toast'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 const Order = () => {
   const msgs = useRef<Messages>(null)
   const [cartItems, setCartItems] = useState<[] | ICartItem[]>([])
   const [cartTotal, setCartTotal] = useState(0)
   const [selectAddress, setSelectAddress] = useState<IOrderAddress>()
-  const [IsAddressSelectionconfirmed, setIsAddressSelectionconfirmed] = useState(false)
+  const [isAddressSelectionConfirmed, setIsAddressSelectionConfirmed] = useState(false)
   const [cardValues, setCardValues] = useState({
     cardNumber: '',
     cardOwner: '',
     LastDate: '',
     cvv: ''
   })
-  const navigate = useNavigate()
-  const dispacth = useDispatch()
-  const { isAuthorized, auth, token } = useSelector(authSelector)
+  const router = useRouter()
+  const { isAuthorized, auth, token } = useAuth()
   const [user, setUser] = useState(auth)
   useEffect(() => {
     setUser(auth)
@@ -89,26 +87,9 @@ const Order = () => {
     console.log(orderReq)
 
     const [err, data] = await to(createOrder(orderReq, token))
-    if (err) {
-      const toast: IToast = {
-        severity: 'error',
-        summary: 'Hata',
-        detail: err.message,
-        life: 5000
-      }
-      dispacth(SET_TOAST(toast))
-      return
-    }
-    const toast: IToast = {
-      severity: 'success',
-      summary: 'Başarılı',
-      detail: data.message,
-      life: 5000
-    }
-    dispacth(SET_TOAST(toast))
-    setTimeout(() => {
-      navigate('/account/Siparişlerim')
-    }, 1500)
+    if (err) return toast.error(err.message)
+    toast.success(data.message)
+    setTimeout(() => router.push('/account/Siparişlerim'), 1500)
   }
 
   return (
@@ -118,7 +99,7 @@ const Order = () => {
           <div className='flex flex-col items-center gap-5'>
             <h1 className='text-3xl font-semibold'>Adresiniz Bulunmamaktadır</h1>
             <Link
-              to={'/account'}
+              href={'/account'}
               className='flex w-full justify-center rounded-xl border border-solid border-transparent !bg-primary
                             px-3 py-4 text-[#212529]
                             transition duration-300 ease-in-out hover:!border-primaryDark hover:!bg-primaryDark hover:text-white'
@@ -132,11 +113,11 @@ const Order = () => {
           <OrderAddress
             key={'orderAddress'}
             addresses={user?.addresses}
-            IsAddressSelectionconfirmed={IsAddressSelectionconfirmed}
+            IsAddressSelectionconfirmed={isAddressSelectionConfirmed}
             selectAddress={selectAddress as IUserAddress}
             setSelectAddress={setSelectAddress}
           />
-          {IsAddressSelectionconfirmed && (
+          {isAddressSelectionConfirmed && (
             <OrderPayment
               key={'orderPayment'}
               cardValues={cardValues}
@@ -148,10 +129,7 @@ const Order = () => {
       )}
 
       <div className='flex basis-4/12 p-2'>
-        <div
-          className='relative flex h-min w-full
-                        flex-col border border-solid border-secondary'
-        >
+        <div className='relative flex h-min w-full flex-col border border-solid border-secondary'>
           {/* card header */}
           <div className='bg-secondary px-5 py-3'>
             <h4 className='text-2xl font-semibold text-black'>Sipariş Özeti</h4>
@@ -179,20 +157,20 @@ const Order = () => {
               <h5 className='text-xl font-bold'>{cartTotal} ₺</h5>
             </div>
 
-            {!IsAddressSelectionconfirmed ? (
+            {!isAddressSelectionConfirmed ? (
               <Button
                 className='flex w-full justify-center border border-solid border-transparent !bg-primary px-3
                             py-4 text-[#212529] transition
                             duration-300 ease-in-out hover:!border-primaryDark hover:!bg-primaryDark hover:text-white'
                 disabled={cartItems.length === 0 || !selectAddress}
-                onClick={() => setIsAddressSelectionconfirmed(true)}
+                onClick={() => setIsAddressSelectionConfirmed(true)}
               >
                 Ödeme İşlemine Geçin
               </Button>
             ) : (
               <Button
                 className='flex w-full justify-center border border-solid border-transparent px-3 py-4 text-[#212529] hover:text-white'
-                onClick={() => setIsAddressSelectionconfirmed(false)}
+                onClick={() => setIsAddressSelectionConfirmed(false)}
                 severity='secondary'
                 icon='pi pi-arrow-left'
                 iconPos='left'

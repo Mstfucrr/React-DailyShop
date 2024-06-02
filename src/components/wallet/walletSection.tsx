@@ -6,11 +6,9 @@ import { useState } from 'react'
 import { InputNumber } from 'primereact/inputnumber'
 import { SelectButton } from 'primereact/selectbutton'
 import { addMoneyToWallet } from '@/services/wallet/wallet.service'
-import { SET_TOAST } from '@/store/Toast'
-import { IToast } from '@/store/Toast/type'
 import to from 'await-to-js'
-import { useDispatch, useSelector } from 'react-redux'
-import { authSelector } from '@/store/auth'
+import { useAuth } from '@/hooks/useAuth'
+import toast from 'react-hot-toast'
 
 type Props = {
   setIsShowWalletScreen: (value: boolean) => void
@@ -25,40 +23,14 @@ const WalletSection = ({ setIsShowWalletScreen }: Props) => {
   })
 
   const [addMoneyValue, setAddMoneyValue] = useState(0)
-  const { token } = useSelector(authSelector)
-  const dispatch = useDispatch()
+  const { token } = useAuth()
 
   const handleSubmit = async () => {
-    if (addMoneyValue <= 5) {
-      const toast: IToast = {
-        severity: 'error',
-        summary: 'Hata',
-        detail: 'En az 5 TL yükleyebilirsiniz',
-        life: 3000
-      }
-      dispatch(SET_TOAST(toast))
-      return
-    }
+    if (addMoneyValue <= 5) return toast.error('En az 5 TL yükleyebilirsiniz')
 
-    const [err, res] = await to(addMoneyToWallet({ Balance: addMoneyValue }, token))
-    if (err) {
-      console.log(err)
-      const toast: IToast = {
-        severity: 'error',
-        summary: 'Hata',
-        detail: err.message,
-        life: 3000
-      }
-      dispatch(SET_TOAST(toast))
-      return
-    }
-    const toast: IToast = {
-      severity: 'success',
-      summary: 'Başarılı',
-      detail: res.message,
-      life: 3000
-    }
-    dispatch(SET_TOAST(toast))
+    const [err, data] = await to(addMoneyToWallet({ Balance: addMoneyValue }, token))
+    if (err) return toast.error(err.message)
+    toast.success(data?.message)
     setIsShowWalletScreen(false)
   }
 

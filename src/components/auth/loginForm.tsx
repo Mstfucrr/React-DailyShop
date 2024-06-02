@@ -1,24 +1,14 @@
-import { useState } from 'react'
-import { authService } from '@/services/auth/auth.service'
 import { InputText } from 'primereact/inputtext'
 import { Password } from 'primereact/password'
 
 import * as Yup from 'yup'
 import { useFormik } from 'formik'
 import { emailRegex, passwordRegex } from '@/helper/regex'
-import { Link, useNavigate } from 'react-router-dom'
-import { useDispatch } from 'react-redux'
-import { SET_TOAST } from '@/store/Toast'
-import { IToast } from '@/store/Toast/type'
-import { SET_ADMIN_AUTH, SET_AUTH } from '@/store/auth'
-import to from 'await-to-js'
+import Link from 'next/link'
+import { useAuth } from '@/hooks/useAuth'
 
 const LoginForm = () => {
-  const [isLoading, setIsLoading] = useState(false)
-
-  const dispatch = useDispatch()
-
-  const navigate = useNavigate()
+  const { loading: isLoading, login } = useAuth()
 
   const validationSchema = Yup.object().shape({
     email: Yup.string()
@@ -40,40 +30,7 @@ const LoginForm = () => {
       password: ''
     },
     validationSchema,
-    onSubmit: async values => {
-      setIsLoading(true)
-      const [err, data] = await to(authService.login(values))
-      if (err) {
-        const toast: IToast = {
-          severity: 'error',
-          summary: 'Hata',
-          detail: err.message,
-          life: 3000
-        }
-        dispatch(SET_TOAST(toast))
-        setIsLoading(false)
-        return
-      }
-      const { authorization, user, message } = data
-      setIsLoading(false)
-      if (user != undefined) {
-        dispatch(SET_AUTH({ user: user, token: authorization }))
-        const toast: IToast = {
-          severity: 'success',
-          summary: 'Başarılı',
-          detail: message,
-          life: 3000
-        }
-        dispatch(SET_TOAST(toast))
-        if (user.role == 'admin') {
-          dispatch(SET_ADMIN_AUTH())
-          navigate('/admin')
-        }
-        const from = localStorage.getItem('from') || '/'
-        localStorage.removeItem('from')
-        navigate(from)
-      }
-    }
+    onSubmit: async values => await login(values)
   })
 
   return (
@@ -137,12 +94,10 @@ const LoginForm = () => {
       {/* forgot pass */}
       <div className='mx-auto mt-4 flex flex-col'>
         <Link
-          to={'/forgot-password'}
-          className='text-sm font-thin underline
-                            transition duration-300 ease-in-out hover:text-black
-                        '
+          href='/forgot-password'
+          className='text-sm font-thin underline transition duration-300 ease-in-out hover:text-black'
         >
-          Parolanızı mı unuttunuz ?{' '}
+          Parolanızı mı unuttunuz ?
         </Link>
       </div>
 

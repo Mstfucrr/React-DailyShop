@@ -3,18 +3,15 @@ import { FaMinus, FaPlus, FaTimes, FaTrash } from 'react-icons/fa'
 import { ICartItem } from '@/shared/types'
 import { removeFromCart, updateCart } from '@/services/order/order.service'
 import to from 'await-to-js'
-import { authSelector } from '@/store/auth'
-import { useDispatch, useSelector } from 'react-redux'
-import { SET_TOAST } from '@/store/Toast'
-import { IToast } from '@/store/Toast/type'
-import { Link } from 'react-router-dom'
+import { useAuth } from '@/hooks/useAuth'
+import toast from 'react-hot-toast'
+import Link from 'next/link'
 
 const CartListItem = ({ cartItem, fetchCart }: { cartItem: ICartItem; fetchCart: () => void }) => {
   const [quantity, setQuantity] = useState(cartItem.quantity)
   const [total, setTotal] = useState(0)
 
-  const { token } = useSelector(authSelector)
-  const dispatch = useDispatch()
+  const { token } = useAuth()
 
   useEffect(() => {
     setTotal(cartItem.product.price * quantity)
@@ -23,42 +20,14 @@ const CartListItem = ({ cartItem, fetchCart }: { cartItem: ICartItem; fetchCart:
   const handleUpdateItem = async (quantity: number) => {
     setQuantity(quantity)
     const [err, data] = await to(updateCart(cartItem.id, { quantity: quantity }, token))
-    if (err) {
-      const toast: IToast = {
-        severity: 'error',
-        summary: 'Hata',
-        detail: err.message,
-        life: 3000
-      }
-      dispatch(SET_TOAST(toast))
-    }
-    const toast: IToast = {
-      severity: 'success',
-      summary: 'Başarılı',
-      detail: data.message,
-      life: 3000
-    }
-    dispatch(SET_TOAST(toast))
+    if (err) toast.error(err.message)
+    toast.success(data.message)
   }
 
   const handleRemoveItem = async () => {
     const [err, data] = await to(removeFromCart(cartItem.id, token))
-    if (err) {
-      const toast: IToast = {
-        severity: 'error',
-        summary: 'Hata',
-        detail: err.message,
-        life: 3000
-      }
-      dispatch(SET_TOAST(toast))
-    }
-    const toast: IToast = {
-      severity: 'success',
-      summary: 'Başarılı',
-      detail: data.message,
-      life: 3000
-    }
-    dispatch(SET_TOAST(toast))
+    if (err) toast.error(err.message)
+    toast.success(data.message)
   }
 
   return (
@@ -66,7 +35,7 @@ const CartListItem = ({ cartItem, fetchCart }: { cartItem: ICartItem; fetchCart:
       <td className='border border-solid border-secondary p-3 pl-10 text-left '>
         <div className='flex h-full flex-row flex-wrap items-center justify-between gap-6'>
           <Link
-            to={`/product/${cartItem?.product?.id}`}
+            href={`/product/${cartItem?.product?.id}`}
             className='text-primary transition-all duration-300 ease-in-out hover:scale-105 hover:text-red-800'
           >
             <img

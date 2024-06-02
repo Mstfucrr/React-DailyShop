@@ -1,20 +1,21 @@
 import { useEffect, useRef, useState } from 'react'
 import CartListItem from './CartListItem'
 import { ICartItem } from '@/shared/types'
-import { Link } from 'react-router-dom'
 import { getCart } from '@/services/order/order.service'
 import { Messages } from 'primereact/messages'
 import to from 'await-to-js'
-import { useSelector } from 'react-redux'
-import { authSelector } from '@/store/auth'
+import { useAuth } from '@/hooks/useAuth'
+import Link from 'next/link'
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState<[] | ICartItem[]>([])
   const [cartTotal, setCartTotal] = useState(0)
   const msgs = useRef<Messages>(null)
 
-  const { token } = useSelector(authSelector)
+  const { token } = useAuth()
   const fetchCart = async () => {
+    if (!token) return
+    console.log('token', token)
     const [err, data] = await to(getCart(token))
     if (err) {
       msgs.current?.clear()
@@ -104,7 +105,7 @@ const Cart = () => {
                   className='mt-4 flex w-full justify-center border border-solid border-transparent bg-primary px-3
                                 py-4 text-[#212529] transition
                                 duration-300 ease-in-out hover:border-primaryDark hover:bg-primaryDark hover:text-white'
-                  to='/checkout'
+                  href='/checkout'
                 >
                   Sepeti Onayla
                 </Link>

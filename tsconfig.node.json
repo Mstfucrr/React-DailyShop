@@ -6,5 +6,5 @@
     "moduleResolution": "Node",
     "allowSyntheticDefaultImports": true
   },
-  "include": ["vite.config.ts"]
+  "include": ["./dist/types/**/*.ts", "./next-env.d.ts"]
 }

@@ -5,18 +5,16 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { IProduct, IShopResponse } from '@/shared/types'
 import { Paginator, PaginatorPageChangeEvent } from 'primereact/paginator'
 import { getProductsByCategoryId } from '@/services/shop/shop.service'
-import { useParams } from 'react-router-dom'
 import { InputSwitch } from 'primereact/inputswitch'
 import to from 'await-to-js'
 import { Messages } from 'primereact/messages'
 import { ProgressSpinner } from 'primereact/progressspinner'
-import { useSelector } from 'react-redux'
-import { authSelector } from '@/store/auth'
 import { sortBy } from '@/shared/constants'
 import { ProductsSortBy } from '@/services/shop/types'
 import ProductCard from './productCard'
+import { useAuth } from '@/hooks/useAuth'
 
-const Shop = () => {
+const Shop = ({ shopId }: { shopId: string }) => {
   const [selectSortBy, setSelectSortBy] = useState<{
     name: string
     code: string
@@ -29,10 +27,10 @@ const Shop = () => {
   const [rows, setRows] = useState(6)
   const [loading, setLoading] = useState<boolean>(false)
   const [isDelProductShow, setIsDelProductShow] = useState<boolean>(true)
-  const { id } = useParams<{ id: string }>()
+
   const msgs = useRef<Messages>(null)
 
-  const { token } = useSelector(authSelector)
+  const { token } = useAuth()
 
   useEffect(() => {
     switch (selectSortBy.code) {
@@ -64,8 +62,8 @@ const Shop = () => {
   }, [selectSortBy])
 
   const fetchData = useCallback(async () => {
-    if (id) {
-      const [err, data] = await to(getProductsByCategoryId(parseInt(id), isDelProductShow, token))
+    if (shopId) {
+      const [err, data] = await to(getProductsByCategoryId(parseInt(shopId), isDelProductShow, token))
       if (err) {
         console.log(err)
         msgs.current?.clear()
@@ -78,13 +76,13 @@ const Shop = () => {
         return
       }
       if (data) {
+        console.log(data.data)
         setFilteredProducts(data.data)
         setProducts(data.data.slice(first, first + rows))
         setResponseData(data)
-        console.log(data)
       }
     }
-  }, [first, id, isDelProductShow, rows, token])
+  }, [first, shopId, isDelProductShow, rows, token])
 
   useEffect(() => {
     setLoading(true)

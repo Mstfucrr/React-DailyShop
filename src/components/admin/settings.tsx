@@ -1,8 +1,5 @@
 import { settingsService } from '@/services/admin/admin.service'
 import { ISiteSettings } from '@/services/admin/types'
-import { SET_TOAST } from '@/store/Toast'
-import { IToast } from '@/store/Toast/type'
-import { authSelector } from '@/store/auth'
 import to from 'await-to-js'
 import { Button } from 'primereact/button'
 import { Editor } from 'primereact/editor'
@@ -10,10 +7,11 @@ import { InputMask } from 'primereact/inputmask'
 import { InputText } from 'primereact/inputtext'
 import { InputTextarea } from 'primereact/inputtextarea'
 import { useEffect, useState, useRef } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
 import { ProgressSpinner } from 'primereact/progressspinner'
 import { ConfirmPopup, confirmPopup } from 'primereact/confirmpopup'
 import { Fieldset } from 'primereact/fieldset'
+import { useAuth } from '@/hooks/useAuth'
+import toast from 'react-hot-toast'
 
 const Settings = () => {
   // hakkımızda, iletişim bilgileri , adres bilgileri ve site icon ayarları
@@ -25,28 +23,11 @@ const Settings = () => {
   const [siteIcon, setSiteIcon] = useState<File | string | undefined>(undefined)
   const [loading, setLoading] = useState<boolean>(false)
   const [saveLoading, setSaveLoading] = useState<boolean>(false)
-  const { token } = useSelector(authSelector)
-  const dispatch = useDispatch()
+  const { token } = useAuth()
   const inputRef = useRef(null)
 
-  const showErrorMessage = (err: Error) => {
-    const toast: IToast = {
-      severity: 'error',
-      summary: 'Hata',
-      detail: err.message,
-      life: 3000
-    }
-    dispatch(SET_TOAST(toast))
-  }
-  const showSuccess = (message: string) => {
-    const toast: IToast = {
-      severity: 'success',
-      summary: 'Başarılı',
-      detail: message,
-      life: 3000
-    }
-    dispatch(SET_TOAST(toast))
-  }
+  const showErrorMessage = (err: Error) => toast.error(err.message)
+  const showSuccess = (message: string) => toast.success(message)
 
   const fetchDatas = async () => {
     setLoading(true)
@@ -166,11 +147,7 @@ const Settings = () => {
           {/* Hakkımızda */}
           <div className='flex flex-col gap-y-6'>
             <h3 className='text-2xl'>Hakkımızda</h3>
-            <Editor
-              style={{ height: '320px' }}
-              value={about == null ? '' : (about as string)}
-              onTextChange={e => setAbout(e.htmlValue as any)}
-            />
+            <Editor style={{ height: '320px' }} value={about ?? ''} onTextChange={e => setAbout(e.htmlValue as any)} />
           </div>
           {/* test show about */}
           <Fieldset legend='Hakkımızda Önizleme' toggleable collapsed={true}>

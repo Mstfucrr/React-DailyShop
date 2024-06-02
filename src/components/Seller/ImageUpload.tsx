@@ -1,10 +1,8 @@
 import { Tooltip } from 'primereact/tooltip'
 import { Button } from 'primereact/button'
-import { useDispatch } from 'react-redux'
-import { SET_TOAST } from '@/store/Toast'
-import { IToast } from '@/store/Toast/type'
-import { FaTimes } from 'react-icons/fa'
 import { useCallback } from 'react'
+import { FaTimes } from 'react-icons/fa'
+import toast from 'react-hot-toast'
 
 type Props = {
   setcoverImage: React.Dispatch<React.SetStateAction<File | null>>
@@ -21,46 +19,44 @@ const ImageUpload = ({ setcoverImage, setImages, productImages, coverImage }: Pr
 
   const RenderCoverImage = useCallback(() => {
     return (
-      <>
-        <div className='relative flex h-80 justify-center'>
-          {coverImage !== null ? (
-            <img
-              src={URL.createObjectURL(coverImage)}
-              alt={coverImage.name || 'resim'}
-              className='h-auto w-[350px] object-contain'
-            />
-          ) : (
-            <div className='flex h-[350px] w-[350px] items-center justify-center bg-gray-200'>
-              <i className='pi pi-image' style={{ fontSize: '5em' }}></i>
-            </div>
-          )}
-          <div
-            className='absolute top-2/3 mt-28 transform rounded-full
+      <div className='relative flex h-80 justify-center'>
+        {coverImage !== null ? (
+          <img
+            src={URL.createObjectURL(coverImage)}
+            alt={coverImage.name || 'resim'}
+            className='h-auto w-[350px] object-contain'
+          />
+        ) : (
+          <div className='flex h-[350px] w-[350px] items-center justify-center bg-gray-200'>
+            <i className='pi pi-image' style={{ fontSize: '5em' }}></i>
+          </div>
+        )}
+        <div
+          className='absolute top-2/3 mt-28 transform rounded-full
                               border border-dashed border-green-500 bg-white bg-opacity-60 transition-all
                               duration-300 ease-in-out hover:scale-110 hover:bg-opacity-80
                           '
+        >
+          <Button
+            icon='pi pi-upload'
+            severity='success'
+            rounded
+            text={true}
+            className='h-full w-full'
+            onClick={() => {
+              const input = document.createElement('input')
+              input.type = 'file'
+              input.accept = 'image/*'
+              input.onchange = handleCoverImage
+              input.click()
+            }}
           >
-            <Button
-              icon='pi pi-upload'
-              severity='success'
-              rounded
-              text={true}
-              className='h-full w-full'
-              onClick={() => {
-                const input = document.createElement('input')
-                input.type = 'file'
-                input.accept = 'image/*'
-                input.onchange = handleCoverImage
-                input.click()
-              }}
-            >
-              <div className='px-5'>
-                <span className='text-sm'>Kapak Fotoğrafı Yükle</span>
-              </div>
-            </Button>
-          </div>
+            <div className='px-5'>
+              <span className='text-sm'>Kapak Fotoğrafı Yükle</span>
+            </div>
+          </Button>
         </div>
-      </>
+      </div>
     )
   }, [coverImage])
 
@@ -106,34 +102,20 @@ const ImageUpload = ({ setcoverImage, setImages, productImages, coverImage }: Pr
     )
   }, [productImages])
 
-  const dispatch = useDispatch()
-
   const handleAddImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files == null) return
     if (e.target.files.length === 0) return
     // aynı dosya varsa hata ver
-    for (const file of e.target.files) {
-      if (productImages?.find(img => img.name === file.name)) {
-        const toast: IToast = {
-          severity: 'warn',
-          summary: 'Uyarı',
-          detail: 'Aynı dosyadan var',
-          life: 5000
-        }
-        dispatch(SET_TOAST(toast))
-        return
-      }
-    }
+    for (const file of Array.from(e.target.files))
+      if (productImages?.find(img => img.name === file.name)) return toast.error('Aynı dosya var')
+
     const files = Array.from(e.target.files)
     setImages(prev => [...prev, ...files])
   }
 
   const handleRemoveImage = (image: File) => {
     if (productImages === null) return
-    if (typeof image === 'string') {
-      setImages(productImages.filter(img => img !== image))
-      return
-    }
+    if (typeof image === 'string') return setImages(productImages.filter(img => img !== image))
     setImages(productImages.filter(img => img !== image))
   }
 

@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import Settings from './settings'
-import UserSettings from './users'
+import UserSettings from './UserSettings'
 import ProductSettings from './ProductSettings'
-import { useNavigate } from 'react-router-dom'
 import { Button } from 'primereact/button'
-import Reports from './reports'
+import Reports from './Reports'
+import { useRouter } from 'next/navigation'
 
 enum AdminPage {
   Settings = 'settings',
@@ -13,67 +13,60 @@ enum AdminPage {
   Reports = 'reports'
 }
 
-const Admin: React.FC = () => {
-  const [selectedPage, setSelectedPage] = useState<AdminPage>(AdminPage.Settings)
+type AdminSlug = {
+  pathName: string
+}
 
-  const navigate = useNavigate()
+const Admin = ({ pathName }: AdminSlug) => {
+  const router = useRouter()
 
-  useEffect(() => {
-    switch (window.location.pathname) {
-      case '/admin/settings':
-        setSelectedPage(AdminPage.Settings)
-        break
-      case '/admin/users':
-        setSelectedPage(AdminPage.Users)
-        break
-      case '/admin/products':
-        setSelectedPage(AdminPage.Products)
-        break
-      case '/admin/reports':
-        setSelectedPage(AdminPage.Reports)
-        break
+  const renderAdminComponent = () => {
+    switch (pathName) {
+      case AdminPage.Settings:
+        return <Settings />
+      case AdminPage.Users:
+        return <UserSettings />
+      case AdminPage.Products:
+        return <ProductSettings />
+      case AdminPage.Reports:
+        return <Reports />
       default:
-        setSelectedPage(AdminPage.Settings)
-        break
+        return <Settings />
     }
-  }, [])
+  }
 
   const items = [
     {
       label: 'Site Ayarları',
       icon: 'pi pi-fw pi-home',
       command: () => {
-        setSelectedPage(AdminPage.Settings)
-        navigate('/admin/settings') // Navigate to /admin/settings
+        router.push('/admin/settings')
       },
-      className: `${selectedPage === AdminPage.Settings ? '!bg-primary' : ''}`
+      className: `${pathName === AdminPage.Settings ? '!bg-primary' : ''}`
     },
     {
       label: 'Kullanıcı Ayarları',
       icon: 'pi pi-fw pi-users',
       command: () => {
-        setSelectedPage(AdminPage.Users)
-        navigate('/admin/users') // Navigate to /admin/users
+        router.push('/admin/users')
       },
-      className: `${selectedPage === AdminPage.Users ? '!bg-primary' : ''}`
+      className: `${pathName === AdminPage.Users ? '!bg-primary' : ''}`
     },
     {
       label: 'Ürün Ayarları',
       icon: 'pi pi-fw pi-shopping-cart',
       command: () => {
-        setSelectedPage(AdminPage.Products)
-        navigate('/admin/products') // Navigate to /admin/products
+        router.push('/admin/products')
       },
-      className: `${selectedPage === AdminPage.Products ? '!bg-primary' : ''}`
+      className: `${pathName === AdminPage.Products ? '!bg-primary' : ''}`
     },
     {
       label: 'Raporlar',
       icon: 'pi pi-fw pi-chart-bar',
       command: () => {
-        setSelectedPage(AdminPage.Reports)
-        navigate('/admin/reports') // Navigate to /admin/reports
+        router.push('/admin/reports')
       },
-      className: `${selectedPage === AdminPage.Reports ? '!bg-primary' : ''}`
+      className: `${pathName === AdminPage.Reports ? '!bg-primary' : ''}`
     }
   ]
 
@@ -111,12 +104,7 @@ const Admin: React.FC = () => {
             />
           ))}
         </div>
-        <div className='flex w-full pl-6 md:w-4/5'>
-          {selectedPage === AdminPage.Settings && <Settings />}
-          {selectedPage === AdminPage.Users && <UserSettings />}
-          {selectedPage === AdminPage.Products && <ProductSettings />}
-          {selectedPage === AdminPage.Reports && <Reports />}
-        </div>
+        <div className='flex w-full pl-6 md:w-4/5'>{renderAdminComponent()}</div>
       </div>
     </div>
   )

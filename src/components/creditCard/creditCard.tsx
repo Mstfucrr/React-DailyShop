@@ -62,80 +62,86 @@ const CreditCard = ({ setCardValues, cardValues, handleSubmit }: Props) => {
           </Button>
 
           <div className='flex flex-col gap-y-4'>
-            <label className='text-lg font-semibold text-primaryDark'>Kart Numarası</label>
-            <InputMask
-              name='cardNumber'
-              value={values.cardNumber}
-              onChange={e => {
-                handleChange(e)
-                handleChangeValue(e)
-              }}
-              onBlur={handleBlur}
-              className='w-full'
-              mask='9999 9999 9999 9999'
-            />
-            {errors.cardNumber && touched.cardNumber && <div className='text-red-500'>{errors.cardNumber}</div>}
-          </div>
-          <div className='flex flex-col gap-y-4'>
-            <label className='text-lg font-semibold text-primaryDark'>Kart Üzerindeki İsim</label>
-            <InputText
-              name='cardOwner'
-              value={values.cardOwner}
-              onChange={e => {
-                handleChange(e)
-                handleChangeValue(e)
-              }}
-              onBlur={handleBlur}
-              className='w-full'
-            />
-            {errors.cardOwner && touched.cardOwner && <div className='text-red-500'>{errors.cardOwner}</div>}
-          </div>
-          <div className='flex gap-x-4'>
-            <div className='flex flex-col gap-y-4'>
-              <label className='text-lg font-semibold text-primaryDark'>Son Kullanma Tarihi</label>
-              <div className='flex gap-x-4'>
-                <Calendar
-                  name='LastDate'
-                  value={values.LastDate}
-                  onChange={e => {
-                    handleChange(e)
-                    handleChangeValue(e)
-                  }}
-                  onBlur={handleBlur}
-                  className='w-full'
-                  dateFormat='mm/yy'
-                  mask='99/9999'
-                  placeholder='mm/yy'
-                  yearRange='2023:2030'
-                  showIcon
-                  view='month'
-                  minDate={new Date()}
-                  maxDate={new Date(new Date().getFullYear() + 10, 11, 31)}
-                />
-              </div>
-              {errors.LastDate && touched.LastDate && <div className='text-red-500'>{errors.LastDate}</div>}
-            </div>
-            <div className='flex flex-col gap-y-4'>
-              <label className='text-lg font-semibold text-primaryDark'>CVV</label>
+            <label className='text-lg font-semibold text-primaryDark'>
               <InputMask
-                name='cvv'
-                value={values.cvv}
+                name='cardNumber'
+                value={values.cardNumber}
                 onChange={e => {
                   handleChange(e)
                   handleChangeValue(e)
                 }}
                 onBlur={handleBlur}
                 className='w-full'
-                mask='999'
+                mask='9999 9999 9999 9999'
               />
-              {errors.cvv && touched.cvv && <div className='text-red-500'>{errors.cvv}</div>}
+              Kart Numarası
+            </label>
+            {errors.cardNumber && touched.cardNumber && <div className='text-red-500'>{String(errors.cardNumber)}</div>}
+          </div>
+          <div className='flex flex-col gap-y-4'>
+            <label className='text-lg font-semibold text-primaryDark'>
+              <InputText
+                name='cardOwner'
+                value={values.cardOwner}
+                onChange={e => {
+                  handleChange(e)
+                  handleChangeValue(e)
+                }}
+                onBlur={handleBlur}
+                className='w-full'
+              />
+              Kart Üzerindeki İsim
+            </label>
+            {errors.cardOwner && touched.cardOwner && <div className='text-red-500'>{String(errors.cardOwner)}</div>}
+          </div>
+          <div className='flex gap-x-4'>
+            <div className='flex flex-col gap-y-4'>
+              <div className='flex gap-x-4'>
+                <label className='text-lg font-semibold text-primaryDark'>
+                  <Calendar
+                    name='LastDate'
+                    value={values.LastDate}
+                    onChange={e => {
+                      handleChange(e)
+                      handleChangeValue(e)
+                    }}
+                    onBlur={handleBlur}
+                    className='w-full'
+                    dateFormat='mm/yy'
+                    mask='99/9999'
+                    placeholder='mm/yy'
+                    yearRange='2023:2030'
+                    showIcon
+                    view='month'
+                    minDate={new Date()}
+                    maxDate={new Date(new Date().getFullYear() + 10, 11, 31)}
+                  />
+                  Son Kullanma Tarihi
+                </label>
+              </div>
+              {errors.LastDate && touched.LastDate && <div className='text-red-500'>{String(errors.LastDate)}</div>}
+            </div>
+            <div className='flex flex-col gap-y-4'>
+              <label className='text-lg font-semibold text-primaryDark'>
+                <InputMask
+                  name='cvv'
+                  value={values.cvv}
+                  onChange={e => {
+                    handleChange(e)
+                    handleChangeValue(e)
+                  }}
+                  onBlur={handleBlur}
+                  className='w-full'
+                  mask='999'
+                />
+                CVV
+              </label>
+              {errors.cvv && touched.cvv && <div className='text-red-500'>{String(errors.cvv)}</div>}
             </div>
           </div>
           <button
             type='submit'
-            className='rounded-lg border border-primaryDark bg-primary px-4
-                                        py-2 text-white transition duration-300 ease-in-out
-                                        hover:border-primaryDark hover:bg-white hover:text-primaryDark'
+            className='rounded-lg border border-primaryDark bg-primary px-4 py-2 text-white transition duration-300 ease-in-out hover:border-primaryDark hover:bg-white hover:text-primaryDark'
           >
             Ödeme Yap
           </button>

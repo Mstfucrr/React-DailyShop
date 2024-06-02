@@ -11,22 +11,20 @@ import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog'
 import { ProgressSpinner } from 'primereact/progressspinner'
 
 import RenderAddressFields from './renderAddressFields'
-import { useDispatch, useSelector } from 'react-redux'
-import { authSelector, SET_LOGOUT } from '@/store/auth'
 import { authService } from '@/services/auth/auth.service'
 import to from 'await-to-js'
-import { SET_TOAST } from '@/store/Toast'
-import { IToast } from '@/store/Toast/type'
-import { useNavigate } from 'react-router-dom'
+import { useAuth } from '@/hooks/useAuth'
+import toast from 'react-hot-toast'
+import { useRouter } from 'next/navigation'
 
-const UserInformation = ({ user }: { user: IUser }) => {
+const UserInformation = () => {
+  const { token, logout, auth: user } = useAuth()
   const [userState, setUserState] = useState<IUser>(user)
   const [addressesState, setAddressesState] = useState(user.addresses)
   const [loading, setLoading] = useState(false)
-  const { token } = useSelector(authSelector)
   const [profileImage, setProfileImage] = useState<string | File>(user.profileImage)
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
+
+  const router = useRouter()
 
   useEffect(() => {
     setUserState(user)
@@ -79,25 +77,13 @@ const UserInformation = ({ user }: { user: IUser }) => {
       setLoading(true)
       const [err, res] = await to(authService.updateAccount(formData, token))
       if (err) {
-        const toast: IToast = {
-          severity: 'error',
-          summary: 'Hata',
-          detail: err.message,
-          life: 3000
-        }
+        toast.error(err.message)
         setLoading(false)
-        dispatch(SET_TOAST(toast))
         formik.resetForm()
         return
       }
       if (res) {
-        const toast: IToast = {
-          severity: 'success',
-          summary: 'Başarılı',
-          detail: res.message,
-          life: 3000
-        }
-        dispatch(SET_TOAST(toast))
+        toast.success(res.message)
         setTimeout(() => {
           window.location.reload()
           setLoading(false)
@@ -108,25 +94,10 @@ const UserInformation = ({ user }: { user: IUser }) => {
 
   const handleAccountDelete = async () => {
     const [err, data] = await to(authService.deleteAccount(token))
-    if (err) {
-      const toast: IToast = {
-        severity: 'error',
-        summary: 'Hata',
-        detail: err.message,
-        life: 3000
-      }
-      dispatch(SET_TOAST(toast))
-      return
-    }
-    const toast: IToast = {
-      severity: 'success',
-      summary: 'Başarılı',
-      detail: data.message,
-      life: 3000
-    }
-    dispatch(SET_TOAST(toast))
-    dispatch(SET_LOGOUT())
-    navigate('/')
+    if (err) return toast.error(err.message)
+    toast.success(data.message)
+    logout()
+    router.push('/')
   }
 
   // bu formik yapısını 3 ayrı formik yapısına ayır ( base, iletişim, adres bilgileri şeklinde)
@@ -380,9 +351,7 @@ const UserInformation = ({ user }: { user: IUser }) => {
         toggleable
       >
         <div className='flex flex-col'>
-          {addressesState.map(address => (
-            <RenderAddressFields key={address.id} address={address} />
-          ))}
+          {addressesState?.map(address => <RenderAddressFields key={address.id} address={address} />)}
 
           {/* address ekle  */}
 

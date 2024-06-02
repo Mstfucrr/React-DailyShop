@@ -56,71 +56,84 @@ const AboutUs = () => {
     fetchContact()
   }, [])
 
-  const renderAbout = useCallback((about = '', address = '', phone = '', email = '') => {
-    return about ? (
-      <div className='mx-auto flex w-full flex-col items-center justify-center lg:w-2/3'>
-        <div className='my-10 flex flex-col items-center justify-center'>
-          <div className='my-10 flex items-center gap-7 '>
-            <div className='h-1 w-full bg-black md:w-11' />
-
-            <h2 className='text-center text-4xl font-bold text-gray-800'>
-              <span className='px-20'>Hakkımızda</span>
-            </h2>
-            <div className='h-1 w-full bg-black md:w-11' />
-          </div>
-          <p
-            dangerouslySetInnerHTML={{ __html: about }}
-            className='w-full px-10 text-center text-sm text-gray-800 md:w-3/4'
-          />
-        </div>
-        {/* iletişim */}
-        <div className='my-10 flex flex-col items-center justify-center'>
-          <div className='flex items-center gap-7 '>
-            <div className='h-1 w-full bg-black md:w-11' />
-
-            <h2 className='text-center text-4xl font-bold text-gray-800'>
-              <span className='px-20'>İletişim</span>
-            </h2>
-            <div className='h-1 w-full bg-black md:w-11' />
-          </div>
-
+  const renderAbout = useCallback(
+    (about: string | null, address: string | null, phone: string | null, email: string | null) => {
+      return (
+        <div className='mx-auto flex w-full flex-col items-center justify-center lg:w-2/3'>
           <div className='my-10 flex flex-col items-center justify-center'>
-            <div className='my-10 flex flex-col justify-center gap-9'>
-              <span className='text-center text-lg font-bold text-gray-800'>Adres</span>
-              <div className='flex gap-4'>
-                <FaLocationArrow className='text-2xl' />
-                <p>{address}</p>
-              </div>
+            <div className='my-10 flex items-center gap-7 '>
+              <div className='h-1 w-full bg-black md:w-11' />
 
-              <span className='text-center text-lg font-bold text-gray-800'>Telefon</span>
-              <div className='flex gap-4'>
-                <FaPhone className='text-2xl' />
+              <h2 className='text-center text-4xl font-bold text-gray-800'>
+                <span className='px-20'>Hakkımızda</span>
+              </h2>
+              <div className='h-1 w-full bg-black md:w-11' />
+            </div>
+            {about ? (
+              <p
+                dangerouslySetInnerHTML={{ __html: about }}
+                className='w-full px-10 text-center text-sm text-gray-800 md:w-3/4'
+              />
+            ) : (
+              <p className='w-full px-10 text-center text-sm text-gray-800 md:w-3/4'>Hakkımızda bilgi bulunamadı.</p>
+            )}
+          </div>
+          {/* iletişim */}
+          <div className='my-10 flex flex-col items-center justify-center'>
+            <div className='flex items-center gap-7 '>
+              <div className='h-1 w-full bg-black md:w-11' />
 
-                <p>{phone}</p>
+              <h2 className='text-center text-4xl font-bold text-gray-800'>
+                <span className='px-20'>İletişim</span>
+              </h2>
+              <div className='h-1 w-full bg-black md:w-11' />
+            </div>
 
-                <a href={`tel:${phone}`} className='text-primary'>
-                  Aramak için tıklayın
-                </a>
-              </div>
+            <div className='my-10 flex flex-col items-center justify-center'>
+              <div className='my-10 flex flex-col justify-center gap-9'>
+                <span className='text-center text-lg font-bold text-gray-800'>Adres</span>
+                <div className='flex gap-4'>
+                  <FaLocationArrow className='text-2xl' />
+                  {address ? <p>{address}</p> : <p>Adres bilgisi bulunamadı.</p>}
+                </div>
 
-              <span className='text-center text-lg font-bold text-gray-800'>Email</span>
-              <div className='flex gap-4'>
-                <MdMail className='text-2xl' />
+                <span className='text-center text-lg font-bold text-gray-800'>Telefon</span>
+                <div className='flex gap-4'>
+                  <FaPhone className='text-2xl' />
+                  {phone ? (
+                    <>
+                      <p>{phone}</p>
+                      <a href={`tel:${phone}`} className='text-primary'>
+                        Aramak için tıklayın
+                      </a>
+                    </>
+                  ) : (
+                    <p>Telefon bilgisi bulunamadı.</p>
+                  )}
+                </div>
 
-                <p>{email}</p>
-
-                <a href={`mailto:${email}`} className='text-primary'>
-                  Mail atmak için tıklayın
-                </a>
+                <span className='text-center text-lg font-bold text-gray-800'>Email</span>
+                <div className='flex gap-4'>
+                  <MdMail className='text-2xl' />
+                  {email ? (
+                    <>
+                      <p>{email}</p>
+                      <a href={`mailto:${email}`} className='text-primary'>
+                        Mail atmak için tıklayın
+                      </a>
+                    </>
+                  ) : (
+                    <p>Email bilgisi bulunamadı.</p>
+                  )}
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    ) : (
-      <Messages ref={msgs} className='mx-auto w-full lg:w-2/3' />
-    )
-  }, [])
+      )
+    },
+    []
+  )
 
   return (
     <>
@@ -129,7 +142,7 @@ const AboutUs = () => {
           <ProgressSpinner />
         </div>
       ) : (
-        renderAbout(about ?? '', address ?? '', phone ?? '', email ?? '')
+        renderAbout(about, address, phone, email)
       )}
     </>
   )

@@ -12,12 +12,10 @@ import { ICategory } from '@/shared/types'
 import categoryService from '@/services/category/category.service'
 import to from 'await-to-js'
 import { IProductInfo } from '@/services/product/types'
-import { IToast } from '@/store/Toast/type'
-import { useDispatch } from 'react-redux'
-import { SET_TOAST } from '@/store/Toast'
 import { ProgressSpinner } from 'primereact/progressspinner'
 import { colors, productStatus, sizes } from '@/shared/constants'
 import { get_quote } from '@/services/ai/get_quote.service'
+import toast from 'react-hot-toast'
 
 type Props = {
   productInfo: IProductInfo
@@ -33,7 +31,7 @@ const ProductInfo = ({ formik, setProductInfo, productInfo, loading }: Props) =>
   const [selectedSizes, setSelectedSizes] = useState<string[] | undefined>([])
   const [priceQuated, setPriceQuated] = useState<{ min: number; max: number } | undefined>(undefined)
   const [getPriceQuatedLoading, setGetPriceQuatedLoading] = useState<boolean>(false)
-  const dispatch = useDispatch()
+
   const colorTemplete = (option: any) => {
     return (
       <div className='align-items-center flex'>
@@ -43,35 +41,13 @@ const ProductInfo = ({ formik, setProductInfo, productInfo, loading }: Props) =>
     )
   }
 
-  const showErrorMessage = useCallback(
-    (err: Error) => {
-      const toast: IToast = {
-        severity: 'error',
-        summary: 'Hata',
-        detail: err.message,
-        life: 3000
-      }
-      dispatch(SET_TOAST(toast))
-    },
-    [dispatch]
-  )
+  const showErrorMessage = (err: string) => toast.error(err)
 
-  const showSuccessMessage = useCallback(
-    (message: string) => {
-      const toast: IToast = {
-        severity: 'success',
-        summary: 'Başarılı',
-        detail: message,
-        life: 3000
-      }
-      dispatch(SET_TOAST(toast))
-    },
-    [dispatch]
-  )
+  const showSuccessMessage = (msg: string) => toast.success(msg)
 
   const getCategories = useCallback(async () => {
     const [err, data] = await to(categoryService.fetchCategories())
-    if (err) return showErrorMessage(err)
+    if (err) return showErrorMessage(err.message)
     if (data) setTreeNodes(convertCategoriesToTreeSelectModel(data))
   }, [showErrorMessage])
 
@@ -96,7 +72,7 @@ const ProductInfo = ({ formik, setProductInfo, productInfo, loading }: Props) =>
     }
     const [err, data] = await to(get_quote(input))
     if (err) {
-      showErrorMessage(err)
+      showErrorMessage(err.message)
       setGetPriceQuatedLoading(false)
       return
     }
@@ -134,7 +110,7 @@ const ProductInfo = ({ formik, setProductInfo, productInfo, loading }: Props) =>
           />
           <label htmlFor='ts-category'>Bir Kategori Seç</label>
 
-          {formik.touched.category && showFormErrorMessage(formik.errors.category!)}
+          {formik.touched.category && showFormErrorMessage(formik.errors.category)}
         </span>
 
         {/* product name and pierce */}
@@ -150,7 +126,7 @@ const ProductInfo = ({ formik, setProductInfo, productInfo, loading }: Props) =>
               value={formik.values.name}
               onChange={e => formik.setFieldValue('name', e.target.value)}
             />
-            {formik.touched.name && showFormErrorMessage(formik.errors.name!)}
+            {formik.touched.name && showFormErrorMessage(formik.errors.name)}
           </div>
           <div className='flex w-full flex-col gap-x-3 md:w-1/2'>
             <label htmlFor='in-product-price' className='mb-2 block font-bold'>
@@ -167,7 +143,7 @@ const ProductInfo = ({ formik, setProductInfo, productInfo, loading }: Props) =>
               onChange={e => formik.setFieldValue('price', e.value as any)}
               value={formik.values.price}
             />
-            {formik.touched.price && showFormErrorMessage(formik.errors.price!)}
+            {formik.touched.price && showFormErrorMessage(formik.errors.price)}
 
             {/* fiyat önerisi getir */}
             <div className='flex flex-row flex-wrap items-center gap-x-2'>
@@ -214,7 +190,7 @@ const ProductInfo = ({ formik, setProductInfo, productInfo, loading }: Props) =>
               itemTemplate={colorTemplete}
               className={`w-full ${formik.touched.colors && formik.errors.colors ? 'p-invalid' : ''}`}
             />
-            {formik.touched.colors && showFormErrorMessage(formik.errors.colors!)}
+            {formik.touched.colors && showFormErrorMessage(formik.errors.colors)}
           </div>
           <div className='w-full md:w-1/3'>
             <label htmlFor='dd-sizes' className='mb-2 block font-bold'>
@@ -249,7 +225,7 @@ const ProductInfo = ({ formik, setProductInfo, productInfo, loading }: Props) =>
               className={`w-full ${formik.touched.status && formik.errors.status ? 'p-invalid' : ''}`}
             />
 
-            {formik.touched.status && showFormErrorMessage(formik.errors.status!)}
+            {formik.touched.status && showFormErrorMessage(formik.errors.status)}
           </div>
 
           <div className='w-full md:w-1/3'>
@@ -284,7 +260,7 @@ const ProductInfo = ({ formik, setProductInfo, productInfo, loading }: Props) =>
               }`}
             />
 
-            {formik.touched.description && showFormErrorMessage(formik.errors.description!)}
+            {formik.touched.description && showFormErrorMessage(formik.errors.description)}
           </div>
         </div>
 

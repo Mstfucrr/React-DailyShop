@@ -1,22 +1,21 @@
 import { getProductByUser } from '@/services/product/product.service'
 import { IProduct } from '@/shared/types'
-import { authSelector } from '@/store/auth'
 import to from 'await-to-js'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Messages } from 'primereact/messages'
 import { ProgressSpinner } from 'primereact/progressspinner'
 import { useEffect, useRef, useState } from 'react'
-import { useSelector } from 'react-redux'
-import { Link } from 'react-router-dom'
 import ProductCard from './ProductCard'
 import UpdateProduct from './UpdateProduct'
+import { useAuth } from '@/hooks/useAuth'
+import Link from 'next/link'
 
 const UserProducts = () => {
   const [products, setProducts] = useState<any[]>([])
   const [loading, setLoading] = useState<boolean>(false)
   const [updateProductId, setUpdateProductId] = useState<number | null>(null)
   const [isUpdate, setIsUpdate] = useState<boolean>(false)
-  const { token } = useSelector(authSelector)
+  const { token } = useAuth()
   const msgs = useRef<Messages>(null)
 
   useEffect(() => {
@@ -65,7 +64,7 @@ const UserProducts = () => {
       {!loading && products.length === 0 && (
         <>
           <p className='text-center'>Henüz ürününüz bulunmamaktadır.</p>
-          <Link to='/seller' className='block text-center text-primaryDark underline'>
+          <Link href='/seller' className='block text-center text-primaryDark underline'>
             Hemen Satış Yap
           </Link>
         </>

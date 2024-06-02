@@ -1,4 +1,3 @@
-// import Swiper from 'swiper';
 import { Autoplay, Navigation, Pagination } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
 
@@ -41,7 +40,7 @@ const HeaderCarousel = () => {
       >
         {slide.map((item, index) => (
           <SwiperSlide key={index}>
-            <img src={item.img} alt='' className='h-full w-full object-cover' />
+            <img src={item.img.src} alt='' className='h-full w-full object-cover' />
             <div className='absolute left-0 top-0 h-full w-full bg-black bg-opacity-30'></div>
             <div className='absolute left-0 top-0 flex h-full w-full flex-col items-center justify-center'>
               <h1 className='text-4xl font-bold text-white'>{item.title}</h1>

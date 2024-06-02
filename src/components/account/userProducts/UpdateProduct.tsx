@@ -1,11 +1,9 @@
+import { useAuth } from '@/hooks/useAuth'
 import categoryService from '@/services/category/category.service'
 import { getProductById, updateProduct } from '@/services/product/product.service'
 import { colors, productStatus, sizes } from '@/shared/constants'
 import { ICategory, IProduct } from '@/shared/types'
 import { productInfoValidationSchema } from '@/shared/validationSchemas'
-import { authSelector } from '@/store/auth'
-import { SET_TOAST } from '@/store/Toast'
-import { IToast } from '@/store/Toast/type'
 import { convertCategoriesToTreeSelectModel, findCategoryByKeyInTreeSelectModel } from '@/utils/categoryTreeModel'
 import to from 'await-to-js'
 import { Form, Formik } from 'formik'
@@ -22,8 +20,8 @@ import { TreeNode } from 'primereact/treenode'
 import { TreeSelect, TreeSelectChangeEvent } from 'primereact/treeselect'
 import { classNames } from 'primereact/utils'
 import { useCallback, useEffect, useState } from 'react'
+import toast from 'react-hot-toast'
 import { FaTimes } from 'react-icons/fa'
-import { useDispatch, useSelector } from 'react-redux'
 
 type Props = {
   productUpdateId: number | null
@@ -38,20 +36,12 @@ const UpdateProduct = ({ productUpdateId, setIsUpdate }: Props) => {
   const [selectedCategory, setSelectedCategory] = useState<ICategory>()
   const [selectedNodeKey, setSelectedNodeKey] = useState<string | undefined>(product?.categoryId?.toString())
 
-  const dispatch = useDispatch()
-
-  const { token } = useSelector(authSelector)
+  const { token } = useAuth()
   const fetchProduct = useCallback(async () => {
     if (productUpdateId == null) return setProduct(null)
     const [err, data] = await to(getProductById(productUpdateId, token))
     if (err) {
-      const toast: IToast = {
-        severity: 'error',
-        summary: 'Hata',
-        detail: err.message,
-        life: 5000
-      }
-      dispatch(SET_TOAST(toast))
+      toast.error(err.message)
       setProduct(null)
       setIsUpdate(false)
       return
@@ -61,22 +51,18 @@ const UpdateProduct = ({ productUpdateId, setIsUpdate }: Props) => {
     setProductImages(data.data.images || [])
     setSelectedNodeKey(data.data?.category?.id?.toString())
     setSelectedCategory(data.data?.category)
-  }, [productUpdateId, token, dispatch, setIsUpdate])
+  }, [productUpdateId, token, setIsUpdate])
 
   const getCategories = async () => {
     const [err, data] = await to(categoryService.fetchCategories())
     if (err) return console.log(err)
-    if (data) {
-      setTreeNodes(convertCategoriesToTreeSelectModel(data))
-    }
+    if (data) setTreeNodes(convertCategoriesToTreeSelectModel(data))
   }
 
   useEffect(() => {
     if (treeNodes && selectedNodeKey)
       setSelectedCategory(findCategoryByKeyInTreeSelectModel(treeNodes, selectedNodeKey))
   }, [selectedCategory, selectedNodeKey, treeNodes])
-
-  useEffect(() => {}, [])
 
   useEffect(() => {
     setProduct(null)
@@ -92,15 +78,9 @@ const UpdateProduct = ({ productUpdateId, setIsUpdate }: Props) => {
     if (e.target.files == null) return
     if (e.target.files.length === 0) return
     // aynı dosya varsa hata ver
-    for (const file of e.target.files) {
+    for (const file of Array.from(e.target.files)) {
       if (productImages.find(img => img.name === file.name)) {
-        const toast: IToast = {
-          severity: 'warn',
-          summary: 'Uyarı',
-          detail: 'Aynı dosyadan var',
-          life: 5000
-        }
-        dispatch(SET_TOAST(toast))
+        toast.error('Aynı dosya zaten ekli')
         return
       }
     }
@@ -137,27 +117,10 @@ const UpdateProduct = ({ productUpdateId, setIsUpdate }: Props) => {
     })
 
     const [err, data] = await to(updateProduct(product?.id as number, formData, token))
-    if (err) {
-      const toast: IToast = {
-        severity: 'error',
-        summary: 'Hata',
-        detail: err.message,
-        life: 5000
-      }
-      dispatch(SET_TOAST(toast))
-      return
-    }
-    const toast: IToast = {
-      severity: 'success',
-      summary: 'Başarılı',
-      detail: data.message,
-      life: 5000
-    }
-    dispatch(SET_TOAST(toast))
+    if (err) return toast.error(err.message)
+    toast.success(data.message)
     setIsUpdate(false)
-    setTimeout(() => {
-      window.location.reload()
-    }, 2500)
+    setTimeout(() => window.location.reload(), 2500)
   }
 
   return (
@@ -199,7 +162,7 @@ const UpdateProduct = ({ productUpdateId, setIsUpdate }: Props) => {
                       onChange={handleChange}
                       onBlur={handleBlur}
                     />
-                    {errors.name && touched.name && <div className='text-red-500'>{errors.name}</div>}
+                    {errors.name && touched.name && <div className='text-red-500'>{String(errors.name)}</div>}
 
                     <Fieldset legend='Ürün Resmleri' className='w-full' toggleable>
                       <>
@@ -308,7 +271,7 @@ const UpdateProduct = ({ productUpdateId, setIsUpdate }: Props) => {
                           />
 
                           {touched.categoryId && errors.categoryId && (
-                            <div className='text-red-500'>{errors.categoryId}</div>
+                            <div className='text-red-500'>{String(errors.categoryId)}</div>
                           )}
                         </>
                       )}
@@ -331,7 +294,7 @@ const UpdateProduct = ({ productUpdateId, setIsUpdate }: Props) => {
                         mode='currency'
                         currency='TRY'
                       />
-                      {errors.price && touched.price && <div className='text-red-500'>{errors.price}</div>}
+                      {errors.price && touched.price && <div className='text-red-500'>{String(errors.price)}</div>}
                     </div>
 
                     {/* Bedenler, Renkler, Durum ve stok */}
@@ -359,7 +322,7 @@ const UpdateProduct = ({ productUpdateId, setIsUpdate }: Props) => {
                           onChange={handleChange}
                           onBlur={handleBlur}
                         />
-                        {errors.colors && touched.colors && <div className='text-red-500'>{errors.colors}</div>}
+                        {errors.colors && touched.colors && <div className='text-red-500'>{String(errors.colors)}</div>}
                       </div>
                       <div className='flex flex-col'>
                         <label htmlFor='status'>Durum</label>
@@ -372,7 +335,7 @@ const UpdateProduct = ({ productUpdateId, setIsUpdate }: Props) => {
                           onChange={handleChange}
                           onBlur={handleBlur}
                         />
-                        {errors.status && touched.status && <div className='text-red-500'>{errors.status}</div>}
+                        {errors.status && touched.status && <div className='text-red-500'>{String(errors.status)}</div>}
                       </div>
                       {/* stok adeti */}
                       <div className='flex flex-col'>
@@ -389,7 +352,7 @@ const UpdateProduct = ({ productUpdateId, setIsUpdate }: Props) => {
                           }}
                           onBlur={handleBlur}
                         />
-                        {errors.stock && touched.stock && <div className='text-red-500'>{errors.stock}</div>}
+                        {errors.stock && touched.stock && <div className='text-red-500'>{String(errors.stock)}</div>}
                       </div>
                     </div>
 
@@ -413,7 +376,7 @@ const UpdateProduct = ({ productUpdateId, setIsUpdate }: Props) => {
                           }}
                         />
                         {errors.description && touched.description && (
-                          <div className='text-red-500'>{errors.description}</div>
+                          <div className='text-red-500'>{String(errors.description)}</div>
                         )}
                       </Fieldset>
                     </div>

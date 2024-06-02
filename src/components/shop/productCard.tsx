@@ -1,32 +1,23 @@
+import { useAuth } from '@/hooks/useAuth'
 import { favoritesService } from '@/services/favorites/favorites.service'
 import { IProduct } from '@/shared/types'
-import { SET_TOAST } from '@/store/Toast'
-import { IToast } from '@/store/Toast/type'
-import { authSelector } from '@/store/auth'
 import to from 'await-to-js'
+import Link from 'next/link'
 import { Card } from 'primereact/card'
+import toast from 'react-hot-toast'
 import { FaEye, FaHeart } from 'react-icons/fa'
-import { useDispatch, useSelector } from 'react-redux'
-import { Link } from 'react-router-dom'
 
 type Props = {
   product: IProduct
 }
 
 const ProductCard = ({ product }: Props) => {
-  const dispatch = useDispatch()
-  const { token } = useSelector(authSelector)
+  const { token } = useAuth()
 
   const handleAddFavorite = async (id: number) => {
     const [err, data] = await to(favoritesService.addFavorite(token, id))
-    if (err) return console.log(err)
-    const toast: IToast = {
-      severity: 'success',
-      summary: 'Başarılı',
-      detail: data?.message,
-      life: 3000
-    }
-    dispatch(SET_TOAST(toast))
+    if (err) return
+    toast.success(data?.message)
   }
 
   return (
@@ -41,7 +32,7 @@ const ProductCard = ({ product }: Props) => {
         header={
           <div className='relative'>
             <div className='overflow-hidden rounded-md border border-gray-200'>
-              <Link to={`/product/${product.id}`}>
+              <Link href={`/product/${product.id}`}>
                 <img
                   src={product.image?.toString()}
                   alt={product.name}

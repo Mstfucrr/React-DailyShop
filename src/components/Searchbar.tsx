@@ -1,45 +1,25 @@
 import { getCart } from '@/services/order/order.service'
-import { SET_TOAST } from '@/store/Toast'
-import { IToast } from '@/store/Toast/type'
-import { authSelector } from '@/store/auth'
 import to from 'await-to-js'
 import { OverlayPanel } from 'primereact/overlaypanel'
 import { useEffect, useRef, useState } from 'react'
 import { FaHeart, FaShoppingCart, FaWallet } from 'react-icons/fa'
-import { useDispatch, useSelector } from 'react-redux'
-import { Link } from 'react-router-dom'
 import { Tooltip } from 'primereact/tooltip'
 import { getWalletByUser } from '@/services/wallet/wallet.service'
 import WalletSection from './wallet/walletSection'
 import { favoritesService } from '@/services/favorites/favorites.service'
+import { useAuth } from '@/hooks/useAuth'
+import toast from 'react-hot-toast'
+import Link from 'next/link'
 
 const Searchbar = () => {
-  const { token, isAuthorized } = useSelector(authSelector)
+  const { token, isAuthorized } = useAuth()
   const [cartCount, setCartCount] = useState<number>(0)
   const [balance, setBalance] = useState<number>(0)
   const [favoritesList, setFavoritesList] = useState<any[]>([])
   const [isShowWalletScreen, setIsShowWalletScreen] = useState<boolean>(false)
 
-  const dispatch = useDispatch()
-
-  const showErrorMessage = (message: string) => {
-    const toast: IToast = {
-      severity: 'error',
-      summary: 'Hata',
-      detail: message,
-      life: 2000
-    }
-    dispatch(SET_TOAST(toast))
-  }
-  const showSuccess = (message: string) => {
-    const toast: IToast = {
-      severity: 'success',
-      summary: 'Başarılı',
-      detail: message,
-      life: 2000
-    }
-    dispatch(SET_TOAST(toast))
-  }
+  const showErrorMessage = (message: string) => toast.error(message)
+  const showSuccess = (message: string) => toast.success(message)
 
   const fetchCart = async () => {
     const [err, data] = await to(getCart(token))
@@ -127,7 +107,7 @@ const Searchbar = () => {
                       <div className='flex flex-col'>
                         <h1 className='text-lg font-semibold'>Bakiyeyi görmek için </h1>
                         <span className='text-sm text-gray-500'>
-                          <Link to='/login' className='text-primary'>
+                          <Link href='/login' className='text-primary'>
                             Giriş Yap
                           </Link>
                         </span>
@@ -183,7 +163,7 @@ const Searchbar = () => {
                   {favoritesList?.map(item => (
                     <div className='flex flex-row items-center justify-between' key={item.id}>
                       <Link
-                        to={`/product/${item.product.id}`}
+                        href={`/product/${item.product.id}`}
                         className='flex flex-row items-center justify-between gap-8 overflow-hidden rounded-md'
                       >
                         <img src={item.product.image} alt='' className='h-[50px] w-[50px] rounded-md' />
@@ -204,7 +184,7 @@ const Searchbar = () => {
           <div className=''>
             <Link
               className='inline-block select-none rounded-none border border-secondary px-3 py-[.375rem] text-center align-middle'
-              to={`/cart`}
+              href={`/cart`}
             >
               <FaShoppingCart className='inline-block h-auto w-6 text-primary' />
               <span className='relative -top-[1px] inline-block px-[.6em] py-[.25em] text-[75%] font-bold'>

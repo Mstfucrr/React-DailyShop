@@ -1,8 +1,5 @@
 import { addAnswerToReview, addReviewToProduct, deleteReviewFromProduct } from '@/services/product/product.service'
 import { IAnswer, IProduct, IReview } from '@/shared/types'
-import { SET_TOAST } from '@/store/Toast'
-import { IToast } from '@/store/Toast/type'
-import { authSelector } from '@/store/auth'
 import to from 'await-to-js'
 import { Avatar } from 'primereact/avatar'
 import { InputText } from 'primereact/inputtext'
@@ -10,8 +7,6 @@ import { InputTextarea } from 'primereact/inputtextarea'
 import { Rating } from 'primereact/rating'
 import { useState } from 'react'
 import { FaComment, FaTrashAlt, FaSpinner, FaCommentAlt, FaCommentSlash } from 'react-icons/fa'
-import { useDispatch, useSelector } from 'react-redux'
-import { Link } from 'react-router-dom'
 import { Form, Formik } from 'formik'
 import { reviewValidationSchema } from '@/shared/validationSchemas'
 import { classNames } from 'primereact/utils'
@@ -22,6 +17,9 @@ import { Dialog } from 'primereact/dialog'
 import { Button } from 'primereact/button'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Fieldset } from 'primereact/fieldset'
+import { useAuth } from '@/hooks/useAuth'
+import toast from 'react-hot-toast'
+import Link from 'next/link'
 
 type Props = {
   reviews: IReview[] | undefined
@@ -30,7 +28,7 @@ type Props = {
 
 const ProductReview = ({ reviews, product }: Props) => {
   const [addReviewLoading, setAddReviewLoading] = useState<boolean>(false)
-  const { token, isAuthorized, auth } = useSelector(authSelector)
+  const { token, isAuthorized, auth } = useAuth()
   const [answerReview, setAnswerReview] = useState<number | undefined>(undefined)
   const [answerReviewText, setAnswerReviewText] = useState<string>('')
   const [reportMessage, setReportMessage] = useState<string>('')
@@ -39,27 +37,8 @@ const ProductReview = ({ reviews, product }: Props) => {
   const [repUserId, setRepUserId] = useState<number>(0)
   const [repReviewId, setRepReviewId] = useState<number>(0)
 
-  const showErrorMessage = (message: string) => {
-    const toast: IToast = {
-      severity: 'error',
-      summary: 'Hata',
-      detail: message,
-      life: 3000
-    }
-    dispatch(SET_TOAST(toast))
-  }
-  const showSuccess = (message: string) => {
-    const toast: IToast = {
-      severity: 'success',
-      summary: 'Başarılı',
-      detail: message,
-      life: 3000
-    }
-    dispatch(SET_TOAST(toast))
-  }
-
-  const dispatch = useDispatch()
-  // validate for review
+  const showErrorMessage = (message: string) => toast.error(message)
+  const showSuccess = (message: string) => toast.success(message)
 
   // Yorum Yap
   const handleAddReview = async (values: any) => {
@@ -71,25 +50,11 @@ const ProductReview = ({ reviews, product }: Props) => {
     setAddReviewLoading(true)
     const [err, data] = await to(addReviewToProduct(product.id, review, token))
     if (err) {
-      const toast: IToast = {
-        severity: 'error',
-        summary: 'Hata',
-        detail: err.message,
-        life: 3000
-      }
-      dispatch(SET_TOAST(toast))
+      showErrorMessage(err.message)
       setAddReviewLoading(false)
       return
     }
-    if (data) {
-      const toast: IToast = {
-        severity: 'success',
-        summary: 'Başarılı',
-        detail: data.message,
-        life: 3000
-      }
-      dispatch(SET_TOAST(toast))
-    }
+    if (data) showSuccess(data.message)
     setAddReviewLoading(false)
   }
 
@@ -100,25 +65,8 @@ const ProductReview = ({ reviews, product }: Props) => {
       comment: answerReviewText
     }
     const [err, data] = await to(addAnswerToReview(product.id, answerReview, token))
-    if (err) {
-      const toast: IToast = {
-        severity: 'error',
-        summary: 'Hata',
-        detail: err.message,
-        life: 3000
-      }
-      dispatch(SET_TOAST(toast))
-      return
-    }
-    if (data) {
-      const toast: IToast = {
-        severity: 'success',
-        summary: 'Başarılı',
-        detail: data.message,
-        life: 3000
-      }
-      dispatch(SET_TOAST(toast))
-    }
+    if (err) return showErrorMessage(err.message)
+    if (data) showSuccess(data.message)
     setAnswerReview(undefined)
     setAnswerReviewText('')
   }
@@ -564,7 +512,7 @@ const ProductReview = ({ reviews, product }: Props) => {
           <div className='flex h-32 w-full flex-col items-center justify-center rounded-xl bg-gray-100 bg-opacity-50'>
             <h1 className='text-center text-2xl'>Yorum yapabilmek için giriş yapmalısınız</h1>
             <Link
-              to='/login'
+              href='/login'
               className='text-xl text-primary transition-all duration-300 ease-in-out hover:text-primaryDark'
             >
               Giriş Yap

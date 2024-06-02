@@ -1,22 +1,20 @@
+'use client'
 import { InputText } from 'primereact/inputtext'
 import { Password } from 'primereact/password'
 import * as Yup from 'yup'
 import { useFormik } from 'formik'
 
 import { useState } from 'react'
-import { useDispatch } from 'react-redux'
 import { emailRegex, passwordRegex } from '@/helper/regex'
-import { useNavigate } from 'react-router-dom'
 import { authService } from '@/services/auth/auth.service'
-import { SET_TOAST } from '@/store/Toast'
 
-import { IToast } from '@/store/Toast/type'
 import to from 'await-to-js'
 import { InputMask } from 'primereact/inputmask'
+import toast from 'react-hot-toast'
+import { useRouter } from 'next/navigation'
 
 const RegisterForm = () => {
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
+  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
 
   const validationSchema = Yup.object().shape({
@@ -58,49 +56,25 @@ const RegisterForm = () => {
       setIsLoading(true)
       if (values.password !== values.confirmPassword) {
         setIsLoading(false)
-        const toast: IToast = {
-          severity: 'warn',
-          summary: 'Uyarı',
-          detail: 'Parola ve Parola Doğrulama aynı değil',
-          life: 3000
-        }
-        dispatch(SET_TOAST(toast))
+        toast.error('Şifreler eşleşmiyor')
         return
       }
 
       const [err, data] = await to(authService.register(values))
       if (err) {
-        const toast: IToast = {
-          severity: 'error',
-          summary: 'Hata',
-          detail: err.message,
-          life: 3000
-        }
-        dispatch(SET_TOAST(toast))
+        toast.error(err.message)
         setIsLoading(false)
         return
       }
       setIsLoading(false)
-      const toast: IToast = {
-        severity: 'success',
-        summary: 'Başarılı',
-        detail: data.message,
-        life: 3000
-      }
-      dispatch(SET_TOAST(toast))
-      setTimeout(() => {
-        navigate('/login')
-      }, 2000)
+      toast.success(data.message)
+      setTimeout(() => router.push('/login'), 2000)
     }
   })
 
-  const errorTemplate = (frm: any) => {
-    return <>{frm ? <small className='p-error p-d-block '> {frm} </small> : null}</>
-  }
+  const errorTemplate = (frm: any) => <>{frm ? <small className='p-error p-d-block '> {frm} </small> : null}</>
 
-  const inputClassName = (frm: any) => {
-    return 'w-full !my-2 p-inputtext-sm ' + (frm ? 'p-invalid' : '')
-  }
+  const inputClassName = (frm: any) => 'w-full !my-2 p-inputtext-sm ' + (frm ? 'p-invalid' : '')
 
   return (
     <form className='flex h-auto w-4/5 flex-col' action='' onSubmit={formik.handleSubmit}>

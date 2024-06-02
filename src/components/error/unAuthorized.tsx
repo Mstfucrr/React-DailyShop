@@ -12,8 +12,7 @@ const UnAuthorized = ({ msgs }: Props) => {
         <a href='/' className=' w-full text-black'>
           {/* font-size: calc(1.375rem + 1.5vw); */}
           <h1 className='m-0 text-4xl font-semibold' style={{ fontSize: 'calc(1.375rem + 1.5vw)' }}>
-            <span className='mr-1 border px-4 font-bold text-primary'>D</span>
-            ailyShop
+            <span className='mr-1 border px-4 font-bold text-primary'>D</span>ailyShop
           </h1>
         </a>
 
@@ -23,7 +22,7 @@ const UnAuthorized = ({ msgs }: Props) => {
             <Messages ref={msgs} className='w-full' />
           </h3>
         </div>
-        <img src={un401} alt='' className='mx-auto w-3/4 max-w-4xl' />
+        <img src={un401.src} alt='' className='mx-auto w-3/4 max-w-4xl' />
       </div>
     </div>
   )

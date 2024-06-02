@@ -43,7 +43,7 @@ const Card = ({ values }: Props) => {
     >
       <img
         className='relative h-full w-full rounded-xl object-cover'
-        src={bg}
+        src={bg.src}
         alt='card'
         style={cardType === 'visa' ? { filter: 'none' } : { filter: 'grayscale(1)' }}
       />

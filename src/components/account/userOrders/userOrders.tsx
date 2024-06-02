@@ -1,9 +1,9 @@
 import { orderStatus } from '@/shared/constants'
-import { authSelector } from '@/store/auth'
+
 import { motion } from 'framer-motion'
 import { Messages } from 'primereact/messages'
 import { useEffect, useRef, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+
 import { DataView } from 'primereact/dataview'
 import { Fieldset } from 'primereact/fieldset'
 import { Steps } from 'primereact/steps'
@@ -11,15 +11,15 @@ import { Rating } from 'primereact/rating'
 import { cancelOrder, getOrders } from '@/services/order/order.service'
 import to from 'await-to-js'
 import { IOrder, IOrderAddress, IOrderItem, OrderStatus } from '@/services/order/types'
-import { Link } from 'react-router-dom'
 import { Button } from 'primereact/button'
 import { ConfirmPopup, confirmPopup } from 'primereact/confirmpopup'
-import { SET_TOAST } from '@/store/Toast'
-import { IToast } from '@/store/Toast/type'
+import { useAuth } from '@/hooks/useAuth'
+import toast from 'react-hot-toast'
+import Link from 'next/link'
 
 const UserOrders = () => {
   const [orders, setOrders] = useState<IOrder[]>([])
-  const { token } = useSelector(authSelector)
+  const { token } = useAuth()
   const steps = orderStatus.map(item => ({ label: item.label }))
 
   const msgs = useRef<Messages>(null)
@@ -39,9 +39,7 @@ const UserOrders = () => {
       ])
       return
     }
-    if (data.data) {
-      setOrders(data.data)
-    }
+    if (data.data) setOrders(data.data)
   }
 
   useEffect(() => {
@@ -81,28 +79,11 @@ const UserOrders = () => {
     )
   }
 
-  const dispatch = useDispatch()
-
   const handleCancelOrder = async (orderId: number) => {
     const [err, data] = await to(cancelOrder(orderId, OrderStatus.Cancelled, token))
-    if (err) {
-      const toast: IToast = {
-        severity: 'error',
-        summary: 'Hata',
-        detail: err.message,
-        life: 5000
-      }
-      dispatch(SET_TOAST(toast))
-      return
-    }
+    if (err) return toast.error(err.message)
     if (data) {
-      const toast: IToast = {
-        severity: 'success',
-        summary: 'Başarılı',
-        detail: data.message,
-        life: 5000
-      }
-      dispatch(SET_TOAST(toast))
+      toast.success(data.message)
       fetchOrders()
     }
   }
@@ -133,7 +114,7 @@ const UserOrders = () => {
         <div className='flex flex-row flex-wrap items-center gap-5'>
           <Link
             className='w-full transition duration-300 hover:scale-110 sm:w-1/3'
-            to={`/product/${orderItem.product.id}`}
+            href={`/product/${orderItem.product.id}`}
           >
             <img
               src={orderItem.product.image}

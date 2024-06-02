@@ -1,8 +1,6 @@
+import { useAuth } from '@/hooks/useAuth'
 import { authService } from '@/services/auth/auth.service'
 import { IUserAddress } from '@/services/auth/types'
-import { SET_TOAST } from '@/store/Toast'
-import { IToast } from '@/store/Toast/type'
-import { authSelector } from '@/store/auth'
 import to from 'await-to-js'
 import { useFormik } from 'formik'
 import { Button } from 'primereact/button'
@@ -13,7 +11,7 @@ import { InputText } from 'primereact/inputtext'
 import { InputTextarea } from 'primereact/inputtextarea'
 import { ProgressSpinner } from 'primereact/progressspinner'
 import { useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import toast from 'react-hot-toast'
 import * as Yup from 'yup'
 
 type Props = {
@@ -23,8 +21,7 @@ type Props = {
 const RenderAddressFields = ({ address }: Props) => {
   const [loading, setLoading] = useState(false)
 
-  const { token } = useSelector(authSelector)
-  const dispatch = useDispatch()
+  const { token } = useAuth()
 
   const addressValidationSchema = Yup.object().shape({
     title: Yup.string().required('Başlık alanı zorunludur'),
@@ -49,23 +46,11 @@ const RenderAddressFields = ({ address }: Props) => {
     onSubmit: async values => {
       const [err, data] = await to(authService.updateAddress(values, token))
       if (err) {
-        const toast: IToast = {
-          severity: 'error',
-          summary: 'Hata',
-          detail: err.message,
-          life: 3000
-        }
-        dispatch(SET_TOAST(toast))
+        toast.error(err.message)
         return setLoading(false)
       }
       if (data.data) {
-        const toast: IToast = {
-          severity: 'success',
-          summary: 'Başarılı',
-          detail: data.message,
-          life: 3000
-        }
-        dispatch(SET_TOAST(toast))
+        toast.success(data.message)
         setTimeout(() => {
           window.location.reload()
         }, 1400)
@@ -78,22 +63,10 @@ const RenderAddressFields = ({ address }: Props) => {
     setLoading(true)
     const [err, data] = await to(authService.deleteAddress(address.id, token))
     if (err) {
-      const toast: IToast = {
-        severity: 'error',
-        summary: 'Hata',
-        detail: err.message,
-        life: 3000
-      }
-      dispatch(SET_TOAST(toast))
+      toast.error(err.message)
       return setLoading(false)
     }
-    const toast: IToast = {
-      severity: 'success',
-      summary: 'Başarılı',
-      detail: data.message,
-      life: 3000
-    }
-    dispatch(SET_TOAST(toast))
+    toast.success(data.message)
     setTimeout(() => {
       window.location.reload()
     }, 1400)

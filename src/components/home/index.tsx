@@ -1,26 +1,20 @@
-import { useEffect, useState } from 'react'
+'use client'
+import { useState } from 'react'
 import ProductCard from '../shop/productCard'
-import { getProductsFromCookie } from '@/helper/cookieUtils'
 import { IProduct } from '@/shared/types'
-import { useSelector } from 'react-redux'
-import to from 'await-to-js'
-import { authSelector } from '@/store/auth'
-import { getSuggestions } from '@/services/home/Suggestions.service'
 
 const HomeComponent = () => {
   const [products, setProducts] = useState<IProduct[]>([])
 
-  const { token } = useSelector(authSelector)
-
-  const fetchProducts = async () => {
-    const productCookie = getProductsFromCookie() || []
-    const [err, data] = await to(getSuggestions(token, productCookie))
-    if (err) return
-    if (data) setProducts(data.data)
-  }
-  useEffect(() => {
-    fetchProducts()
-  }, [])
+  // const fetchProducts = async () => {
+  //   const productCookie = getProductsFromCookie() || []
+  //   const [err, data] = await to(getSuggestions(token, productCookie))
+  //   if (err) return
+  //   if (data) setProducts(data.data)
+  // }
+  // useEffect(() => {
+  //   fetchProducts()
+  // }, [])
 
   return (
     <div>

@@ -5,8 +5,8 @@ import { Button } from 'primereact/button'
 import { IProduct } from '@/shared/types'
 
 const SideBar = ({ data, setData }: { data: IProduct[]; setData: (filteredProducts: IProduct[]) => void }) => {
-  const maxProductPrice = data.reduce((max, product) => (product.price > max ? product.price : max), 0) as number
-  const minProductPrice = data.reduce((min, product) => (product.price <= min ? product.price : min), 0) as number
+  const maxProductPrice = data.reduce((max, product) => (product.price > max ? product.price : max), 0)
+  const minProductPrice = data.reduce((min, product) => (product.price <= min ? product.price : min), 0)
   const [[min, max], setMinMax] = useState<number[]>([minProductPrice, maxProductPrice])
 
   const [colors, setColors] = useState<string[]>([])
@@ -21,7 +21,7 @@ const SideBar = ({ data, setData }: { data: IProduct[]; setData: (filteredProduc
   }
 
   useEffect(() => {
-    const colors = data.map(product => (product.colors !== undefined ? product.colors : []))
+    const colors = data.map(product => product.colors ?? [])
     const uniqueColors = [...new Set(colors.flat())]
     setColors(uniqueColors)
   }, [])
