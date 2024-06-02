@@ -1,6 +1,7 @@
 import axios, { AxiosResponse, Method } from 'axios'
 
-const apiBaseUrl = 'https://dailyshopapi20240517220441.azurewebsites.net/api'
+// const apiBaseUrl = 'https://dailyshopapi20240517220441.azurewebsites.net/api'
+const apiBaseUrl = 'http://localhost:22498/api'
 
 export const makeRequest = async <T>(
   url: string,
