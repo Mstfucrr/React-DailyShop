@@ -13,7 +13,8 @@ export const useAddReviewToProduct = () =>
     mutationKey: ['AddReviewToProduct'],
     mutationFn: ({ productId, input }: { productId: number; input: any }) =>
       reviewService.addReviewToProduct(productId, input),
-    onSuccess: () => reactQueryConfig.invalidateQueries({ queryKey: ['GetReviewByProductId'] })
+    onSuccess: (_, { productId }) =>
+      reactQueryConfig.invalidateQueries({ queryKey: ['GetReviewByProductId', productId] })
   })
 
 export const useAddAnswerToReview = () =>
@@ -21,7 +22,8 @@ export const useAddAnswerToReview = () =>
     mutationKey: ['AddAnswerToReview'],
     mutationFn: ({ productId, input }: { productId: number; input: any }) =>
       reviewService.addAnswerToReview(productId, input),
-    onSuccess: () => reactQueryConfig.invalidateQueries({ queryKey: ['GetReviewByProductId'] })
+    onSuccess: (_, { productId }) =>
+      reactQueryConfig.invalidateQueries({ queryKey: ['GetReviewByProductId', productId] })
   })
 
 export const useDeleteReviewFromProduct = () =>

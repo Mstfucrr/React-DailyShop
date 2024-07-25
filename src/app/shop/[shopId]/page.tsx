@@ -1,7 +1,7 @@
 import PageBanner from '@/components/Header/PageBanner'
 import ShopComponent from '@/components/shop'
 
-const Shop = ({ params }: { params: { shopId: string } }) => {
+const Shop = ({ params }) => {
   return (
     <>
       <PageBanner title='Mağaza' link='/shop' />
