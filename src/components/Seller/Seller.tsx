@@ -1,7 +1,5 @@
 'use client'
-import { addProduct } from '@/services/product/product.service'
 import { IProductInfo } from '@/services/product/types'
-import to from 'await-to-js'
 import { useFormik } from 'formik'
 import { useCallback, useState } from 'react'
 import ImageUpload from './ImageUpload'
@@ -11,12 +9,12 @@ import { Button } from 'primereact/button'
 import { productInfoValidationSchema } from '@/shared/validationSchemas'
 import { useAuth } from '@/hooks/useAuth'
 import toast from 'react-hot-toast'
+import { useAddProduct } from '@/services/product/use-product-service'
 
 const Seller = () => {
   const [coverImage, setCoverImage] = useState<File | null>(null)
   const [images, setImages] = useState<File[] | null>([])
-  const [loading, setLoading] = useState<boolean>(false)
-  const { token } = useAuth()
+  const { mutate: addProductMutation, isPending: loading } = useAddProduct()
 
   const [productInfo, setProductInfo] = useState<IProductInfo>({
     name: '',
@@ -41,33 +39,36 @@ const Seller = () => {
     },
     validationSchema: productInfoValidationSchema,
     onSubmit: async () => {
-      setLoading(true)
+      if (coverImage !== null && images && images?.length !== 0) {
+        const formData = new FormData()
 
-      await handleAddProduct().then(() => setLoading(false))
+        Object.entries(productInfo).forEach(([key, value]) => {
+          if (key === 'colors' || key === 'sizes') return
+          formData.append(key, value)
+        })
+        productInfo.colors?.forEach(color => formData.append('Colors', color))
+        productInfo.sizes?.forEach(size => formData.append('Sizes', size))
+        formData.append('BodyImage', coverImage, coverImage.name)
+        images.forEach(async image => {
+          formData.append(`ProductImages`, image, image.name)
+        })
+        // const [err, data] = await to(addProduct(formData, token))
+        // if (err) return toast.error(err.message)
+        // toast.success(data.message)
+        addProductMutation(formData, {
+          onSuccess: () => {
+            toast.success('Ürün başarıyla eklendi')
+            formik.resetForm()
+            setCoverImage(null)
+            setImages([])
+          },
+          onError: error => toast.error(error.message)
+        })
+      } else {
+        toast.error('Lütfen tüm alanları doldurunuz')
+      }
     }
   })
-
-  const handleAddProduct = async () => {
-    if (coverImage !== null && images && images?.length !== 0) {
-      const formData = new FormData()
-
-      Object.entries(productInfo).forEach(([key, value]) => {
-        if (key === 'colors' || key === 'sizes') return
-        formData.append(key, value)
-      })
-      productInfo.colors?.forEach(color => formData.append('Colors', color))
-      productInfo.sizes?.forEach(size => formData.append('Sizes', size))
-      formData.append('BodyImage', coverImage, coverImage.name)
-      images.forEach(async image => {
-        formData.append(`ProductImages`, image, image.name)
-      })
-      const [err, data] = await to(addProduct(formData, token))
-      if (err) return toast.error(err.message)
-      toast.success(data.message)
-    } else {
-      toast.error('Lütfen tüm alanları doldurunuz')
-    }
-  }
 
   const LoadingTemplete = useCallback(() => {
     // tüm sayfayı kapsayacak şekilde spinner göster
@@ -79,7 +80,16 @@ const Seller = () => {
           {' '}
           D{' '}
         </span>
-        <Button severity='warning' label='İptal et' className='w-1/5 !text-xl' onClick={() => setLoading(false)} />
+        <Button
+          severity='warning'
+          label='İptal et'
+          className='w-1/5 !text-xl'
+          onClick={() => {
+            formik.resetForm()
+            setCoverImage(null)
+            setImages([])
+          }}
+        />
       </div>
     )
   }, [])

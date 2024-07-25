@@ -5,10 +5,8 @@ import Card from '../creditCard/Card'
 import { useState } from 'react'
 import { InputNumber } from 'primereact/inputnumber'
 import { SelectButton } from 'primereact/selectbutton'
-import { addMoneyToWallet } from '@/services/wallet/wallet.service'
-import to from 'await-to-js'
-import { useAuth } from '@/hooks/useAuth'
 import toast from 'react-hot-toast'
+import { useAddMoneyToWallet } from '@/services/wallet/use-wallet'
 
 type Props = {
   setIsShowWalletScreen: (value: boolean) => void
@@ -23,15 +21,25 @@ const WalletSection = ({ setIsShowWalletScreen }: Props) => {
   })
 
   const [addMoneyValue, setAddMoneyValue] = useState(0)
-  const { token } = useAuth()
+
+  const { mutate: addMoneyToWallet } = useAddMoneyToWallet()
 
   const handleSubmit = async () => {
     if (addMoneyValue <= 5) return toast.error('En az 5 TL yükleyebilirsiniz')
 
-    const [err, data] = await to(addMoneyToWallet({ Balance: addMoneyValue }, token))
-    if (err) return toast.error(err.message)
-    toast.success(data?.message)
-    setIsShowWalletScreen(false)
+    addMoneyToWallet(
+      { Balance: addMoneyValue },
+      {
+        onSuccess: () => {
+          setIsShowWalletScreen(false)
+          toast.success('Başarılı bir şekilde para yüklendi')
+        },
+        onError: () => {
+          setIsShowWalletScreen(false)
+          toast.error('Bir hata oluştu')
+        }
+      }
+    )
   }
 
   return (

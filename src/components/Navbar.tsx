@@ -1,28 +1,25 @@
 import useMediaQuery from '@/hooks/useMedia'
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 
 import { IoIosArrowDown, IoIosMenu } from 'react-icons/io'
 import HeaderCarousel from './Header/HeaderCarousel'
 import { useOnClickOutside } from 'usehooks-ts'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Button } from 'primereact/button'
-import categoryService from '@/services/category/category.service'
-import to from 'await-to-js'
-import { ICategory } from '@/shared/types'
+import { useGetCategories } from '@/services/category/category.service'
 import { useAuth } from '@/hooks/useAuth'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import CategoryTree from './categoryTree'
+import NavbarLink from './navbarLink'
 
 const Navbar = () => {
   const pathName = usePathname()
 
-  const [categories, setCategories] = useState([] as ICategory[])
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(true)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const isAboveMediumScreen = useMediaQuery('(min-width: 1060px)')
-
-  const navItemsStyle =
-    'border-b-[1px] border-solid border-secondary text-black outline-none block py-[10px] lx:py-[20px] px-[10px]'
+  const { data: categoryData } = useGetCategories()
 
   const isHomePage = pathName === '/'
 
@@ -32,30 +29,8 @@ const Navbar = () => {
   })
 
   const { isAuthorized, isAdminAuthorized, logout } = useAuth()
-  const handleLogout = () => {
-    logout()
-  }
 
-  const getCategories = async () => {
-    const [err, data] = await to(categoryService.fetchCategories())
-    if (err) return console.log(err)
-    setCategories(data)
-  }
-
-  const renderCategory = (category: ICategory) => (
-    <div key={'category-' + category.id}>
-      <a href={`/shop/${category.id}`} className={navItemsStyle + ' px-[30px] py-[8px]'}>
-        {category.name}
-      </a>
-      {category.subCategories && (
-        <div className='pl-[20px]'>{category.subCategories.map(subcategory => renderCategory(subcategory))}</div>
-      )}
-    </div>
-  )
-
-  useEffect(() => {
-    getCategories()
-  }, [])
+  const handleLogout = () => logout()
 
   return (
     <div className='mx-auto w-full px-4'>
@@ -86,7 +61,7 @@ const Navbar = () => {
                     visible: { opacity: 1, height: 'auto' }
                   }}
                 >
-                  {categories.map(category => renderCategory(category))}
+                  {categoryData?.data.map(category => <CategoryTree category={category} key={category.id} />)}
                 </motion.div>
               )}
             </AnimatePresence>
@@ -94,12 +69,12 @@ const Navbar = () => {
         </div>
         <div className='col-span-12 px-[15px] lg:col-span-9'>
           <nav className='relative flex flex-row flex-wrap items-center justify-between px-0 py-4 lg:justify-start lg:py-0'>
-            <a href='/' className='block text-black lg:hidden'>
+            <Link href='/' className='block text-black lg:hidden'>
               {/* font-size: calc(1.375rem + 1.5vw); */}
               <h1 className='m-0 text-4xl font-semibold' style={{ fontSize: 'calc(1.375rem + 1.5vw)' }}>
                 <span className='mr-1 border px-4 font-bold text-primary'>D</span>ailyShop
               </h1>
-            </a>
+            </Link>
             <button
               className='border border-solid bg-transparent px-3 py-1 text-[1.25rem] lg:hidden'
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -120,12 +95,8 @@ const Navbar = () => {
                   transition={{ duration: 0.3 }}
                 >
                   <div className='mb-0 mr-auto mt-4 flex flex-col py-0 pl-0 lg:flex-row'>
-                    <Link href='/' className={navItemsStyle}>
-                      Ana Sayfa
-                    </Link>
-                    <Link href='/about-us' className={navItemsStyle}>
-                      Hakkımızda ve İletişim
-                    </Link>
+                    <NavbarLink href='/'>Ana Sayfa</NavbarLink>
+                    <NavbarLink href='/about-us'>Hakkımızda ve İletişim</NavbarLink>
                   </div>
                   <div className='m-5 mb-0 ml-auto flex flex-col gap-5 py-0 pl-0 lg:flex-row'>
                     {/* login register links */}

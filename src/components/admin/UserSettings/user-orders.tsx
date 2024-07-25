@@ -14,7 +14,7 @@ type Props = {
 }
 
 const UserOrders = ({ refreshButton }: Props) => {
-  const { selectUserOrders, orderLoading, fetchUserOrders, handleChangeOrderStatus } = useAdimnUser()
+  const { selectUserOrders, orderLoading, handleChangeOrderStatus } = useAdimnUser()
   const renderselectUserOrders = useCallback(
     (data: IOrder) => (
       <div className='my-5 flex w-full items-center'>
@@ -31,7 +31,7 @@ const UserOrders = ({ refreshButton }: Props) => {
               style={{ backgroundColor: 'transparent' }}
               onSelect={(e: any) => {
                 if (data.id) {
-                  handleChangeOrderStatus(data.id, e.item.value as OrderStatus)
+                  handleChangeOrderStatus({ orderId: data.id, status: e.item.value as OrderStatus })
                 }
               }}
             />
@@ -63,7 +63,7 @@ const UserOrders = ({ refreshButton }: Props) => {
       legend={<h3 className='text-center text-xl font-semibold uppercase text-primary'>Kullanıcı siparişleri</h3>}
       toggleable
     >
-      {refreshButton(fetchUserOrders as any)}
+      {/* {refreshButton(fetchUserOrders as any)} */}
       {/* // ürünler tablosu */}
 
       {selectUserOrders && selectUserOrders.length > 0 ? (

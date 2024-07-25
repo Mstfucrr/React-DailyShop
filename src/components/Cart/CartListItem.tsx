@@ -1,34 +1,27 @@
 import { useEffect, useState } from 'react'
 import { FaMinus, FaPlus, FaTimes, FaTrash } from 'react-icons/fa'
 import { ICartItem } from '@/shared/types'
-import { removeFromCart, updateCart } from '@/services/order/order.service'
-import to from 'await-to-js'
-import { useAuth } from '@/hooks/useAuth'
-import toast from 'react-hot-toast'
 import Link from 'next/link'
+import { useRemoveFromCart, useUpdateCart } from '@/services/order/use-cart-service'
 
-const CartListItem = ({ cartItem, fetchCart }: { cartItem: ICartItem; fetchCart: () => void }) => {
+const CartListItem = ({ cartItem }: { cartItem: ICartItem }) => {
   const [quantity, setQuantity] = useState(cartItem.quantity)
   const [total, setTotal] = useState(0)
 
-  const { token } = useAuth()
+  const { mutate: updateCart } = useUpdateCart()
+  const { mutate: removeFromCart } = useRemoveFromCart()
 
   useEffect(() => {
     setTotal(cartItem.product.price * quantity)
   }, [quantity, cartItem])
 
-  const handleUpdateItem = async (quantity: number) => {
+  const handleUpdateItem = (quantity: number) => {
+    if (quantity === 0) return handleRemoveItem()
     setQuantity(quantity)
-    const [err, data] = await to(updateCart(cartItem.id, { quantity: quantity }, token))
-    if (err) toast.error(err.message)
-    toast.success(data.message)
+    updateCart({ id: cartItem.id, input: { quantity } })
   }
 
-  const handleRemoveItem = async () => {
-    const [err, data] = await to(removeFromCart(cartItem.id, token))
-    if (err) toast.error(err.message)
-    toast.success(data.message)
-  }
+  const handleRemoveItem = () => removeFromCart({ id: cartItem.id })
 
   return (
     <tr className='bg-white'>
@@ -61,8 +54,7 @@ const CartListItem = ({ cartItem, fetchCart }: { cartItem: ICartItem; fetchCart:
                   transition-all duration-300 ease-in-out
                   hover:bg-primaryDark hover:text-white'
               onClick={() => {
-                if (quantity > 1) handleUpdateItem(quantity - 1).then(fetchCart)
-                else handleRemoveItem().then(fetchCart)
+                handleUpdateItem(quantity - 1)
               }}
             >
               {quantity === 1 ? <FaTrash /> : <FaMinus />}
@@ -81,7 +73,7 @@ const CartListItem = ({ cartItem, fetchCart }: { cartItem: ICartItem; fetchCart:
                   transition-all duration-300 ease-in-out
                   hover:bg-primaryDark hover:text-white'
               onClick={() => {
-                handleUpdateItem(quantity + 1).then(fetchCart)
+                handleUpdateItem(quantity + 1)
               }}
             >
               <FaPlus className='' />
@@ -95,9 +87,7 @@ const CartListItem = ({ cartItem, fetchCart }: { cartItem: ICartItem; fetchCart:
           className='inline-block border-primary bg-primary px-2 py-2 leading-6 text-[#212529]
               transition-all duration-300 ease-in-out
               hover:bg-primaryDark hover:text-white'
-          onClick={() => {
-            handleRemoveItem().then(fetchCart)
-          }}
+          onClick={handleRemoveItem}
         >
           <FaTimes className='' />
         </button>

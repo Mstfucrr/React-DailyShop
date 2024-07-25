@@ -9,13 +9,12 @@ import { MultiSelect } from 'primereact/multiselect'
 import { Editor, EditorTextChangeEvent } from 'primereact/editor'
 import { Button } from 'primereact/button'
 import { ICategory } from '@/shared/types'
-import categoryService from '@/services/category/category.service'
-import to from 'await-to-js'
+import { useGetCategories } from '@/services/category/category.service'
 import { IProductInfo } from '@/services/product/types'
 import { ProgressSpinner } from 'primereact/progressspinner'
 import { colors, productStatus, sizes } from '@/shared/constants'
-import { get_quote } from '@/services/ai/get_quote.service'
 import toast from 'react-hot-toast'
+import GetQuote from '@/services/ai/get_quote.service'
 
 type Props = {
   productInfo: IProductInfo
@@ -30,7 +29,6 @@ const ProductInfo = ({ formik, setProductInfo, productInfo, loading }: Props) =>
   const [selectedNodeKey, setSelectedNodeKey] = useState<string | undefined>(undefined)
   const [selectedSizes, setSelectedSizes] = useState<string[] | undefined>([])
   const [priceQuated, setPriceQuated] = useState<{ min: number; max: number } | undefined>(undefined)
-  const [getPriceQuatedLoading, setGetPriceQuatedLoading] = useState<boolean>(false)
 
   const colorTemplete = (option: any) => {
     return (
@@ -41,49 +39,43 @@ const ProductInfo = ({ formik, setProductInfo, productInfo, loading }: Props) =>
     )
   }
 
+  const { data, isError, error } = useGetCategories()
+
   const showErrorMessage = (err: string) => toast.error(err)
 
   const showSuccessMessage = (msg: string) => toast.success(msg)
 
-  const getCategories = useCallback(async () => {
-    const [err, data] = await to(categoryService.fetchCategories())
-    if (err) return showErrorMessage(err.message)
-    if (data) setTreeNodes(convertCategoriesToTreeSelectModel(data))
-  }, [showErrorMessage])
-
   useEffect(() => {
-    getCategories()
-  }, [getCategories])
+    if (isError) {
+      showErrorMessage(error.message)
+      return
+    }
+    if (data) setTreeNodes(convertCategoriesToTreeSelectModel(data.data))
+  }, [data])
 
   useEffect(() => {
     if (treeNodes && selectedNodeKey)
       setSelectedCategory(findCategoryByKeyInTreeSelectModel(treeNodes, selectedNodeKey))
+    console.log('treeNodes', treeNodes)
   }, [selectedCategory, selectedNodeKey, treeNodes])
 
+  const { mutate: GetQuatedPrice, isPending: getPriceQuatedLoading } = GetQuote()
+
   const handleGetQuatedPrice = useCallback(async () => {
-    setGetPriceQuatedLoading(true)
-    if (!selectedCategory?.id) {
-      setGetPriceQuatedLoading(false)
-      return
-    }
+    if (!selectedCategory?.id) return
+
     const input = {
       category: selectedCategory?.id ?? 0,
       status: formik.values.status
     }
-    const [err, data] = await to(get_quote(input))
-    if (err) {
-      showErrorMessage(err.message)
-      setGetPriceQuatedLoading(false)
-      return
-    }
-    if (data.status === 200) {
-      showSuccessMessage(data.message)
-      setPriceQuated(data.data)
-      setGetPriceQuatedLoading(false)
-    } else {
-      showErrorMessage(data)
-      setGetPriceQuatedLoading(false)
-    }
+
+    GetQuatedPrice(input, {
+      onSuccess: data => {
+        showSuccessMessage(data.message)
+        setPriceQuated(data.data)
+      },
+      onError: err => showErrorMessage(err.message)
+    })
   }, [formik.values, showErrorMessage, showSuccessMessage])
 
   const showFormErrorMessage = (err: string) => {
@@ -183,7 +175,6 @@ const ProductInfo = ({ formik, setProductInfo, productInfo, loading }: Props) =>
             <MultiSelect
               id='dd-colors'
               name='dd-colors'
-              multiple
               options={colors}
               value={formik.values.colors}
               onChange={(e: DropdownChangeEvent) => formik.setFieldValue('colors', e.value)}
@@ -200,7 +191,6 @@ const ProductInfo = ({ formik, setProductInfo, productInfo, loading }: Props) =>
               id='dd-sizes'
               name='dd-sizes'
               className='w-full '
-              multiple
               options={sizes}
               value={selectedSizes}
               onChange={(e: DropdownChangeEvent) => setSelectedSizes(e.value)}

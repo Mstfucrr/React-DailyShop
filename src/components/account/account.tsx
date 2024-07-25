@@ -2,12 +2,8 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import UserInformation from './userSettings/userInformation'
 import UserProducts from './userProducts/userProducts'
-import UserOrders from './userOrders/userOrders'
-import to from 'await-to-js'
-import { authService } from '@/services/auth/auth.service'
-import { ProgressSpinner } from 'primereact/progressspinner'
+import UserOrders from './userOrders'
 import { useAuth } from '@/hooks/useAuth'
-import toast from 'react-hot-toast'
 import { AccountTabs } from '@/app/account/[tab]/page'
 import Link from 'next/link'
 
@@ -42,29 +38,9 @@ const TabButtons = ({ label, value, activeTab }: { label: string; value: Account
 }
 
 const Account = ({ tab }: { tab: AccountTabs }) => {
-  const [loading, setLoading] = useState<boolean>(false)
-
   const [activeTab, setActiveTab] = useState<AccountTabs>(AccountTabs.USER_INFO)
 
-  const { isAuthorized, token, setUser, auth: user } = useAuth()
-
-  const fetchUser = async () => {
-    if (isAuthorized) {
-      setLoading(true)
-      const [err, data] = await to(authService.getAccount(token))
-      if (err) {
-        setLoading(false)
-        toast.error(err.message)
-        return
-      }
-      setUser(data.data)
-      setLoading(false)
-    } else toast.error('Bu sayfayı görüntülemek için giriş yapmalısınız.')
-  }
-
-  useEffect(() => {
-    fetchUser()
-  }, [])
+  const { auth: user } = useAuth()
 
   useEffect(() => {
     if (tab) {
@@ -110,25 +86,9 @@ const Account = ({ tab }: { tab: AccountTabs }) => {
           </div>
           <div className=' w-full'>
             <AnimatePresence>
-              {loading ? (
-                <motion.div
-                  key='loading'
-                  className='flex h-full w-full items-center justify-center'
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                >
-                  <ProgressSpinner />
-                </motion.div>
-              ) : (
-                user && (
-                  <>
-                    {activeTab === AccountTabs.USER_INFO && <UserInformation />}
-                    {activeTab === AccountTabs.USER_ORDERS && <UserOrders />}
-                    {activeTab === AccountTabs.USER_PRODUCTS && <UserProducts />}
-                  </>
-                )
-              )}
+              {activeTab === AccountTabs.USER_INFO && <UserInformation />}
+              {activeTab === AccountTabs.USER_ORDERS && <UserOrders />}
+              {activeTab === AccountTabs.USER_PRODUCTS && <UserProducts />}
             </AnimatePresence>
           </div>
         </div>

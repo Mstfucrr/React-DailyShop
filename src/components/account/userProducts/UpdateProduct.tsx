@@ -1,11 +1,10 @@
 import { useAuth } from '@/hooks/useAuth'
-import categoryService from '@/services/category/category.service'
-import { getProductById, updateProduct } from '@/services/product/product.service'
+import { useGetCategories } from '@/services/category/category.service'
+import { useGetProductById, useUpdateProduct } from '@/services/product/use-product-service'
 import { colors, productStatus, sizes } from '@/shared/constants'
 import { ICategory, IProduct } from '@/shared/types'
 import { productInfoValidationSchema } from '@/shared/validationSchemas'
 import { convertCategoriesToTreeSelectModel, findCategoryByKeyInTreeSelectModel } from '@/utils/categoryTreeModel'
-import to from 'await-to-js'
 import { Form, Formik } from 'formik'
 import { motion } from 'framer-motion'
 import { Button } from 'primereact/button'
@@ -30,32 +29,41 @@ type Props = {
 
 const UpdateProduct = ({ productUpdateId, setIsUpdate }: Props) => {
   const [product, setProduct] = useState<IProduct | null>(null)
-  const [productCoverImage, setProductCoverImage] = useState<File | null>(null)
+  const [productCoverImage, setProductCoverImage] = useState<string | File | null>(null)
   const [productImages, setProductImages] = useState<any[]>([])
   const [treeNodes, setTreeNodes] = useState<TreeNode[] | undefined>(undefined)
   const [selectedCategory, setSelectedCategory] = useState<ICategory>()
   const [selectedNodeKey, setSelectedNodeKey] = useState<string | undefined>(product?.categoryId?.toString())
 
   const { token } = useAuth()
+
+  const { data: productData, error: productError } = useGetProductById(productUpdateId as number)
+
+  const { data: categoryData, error: categoryError } = useGetCategories()
+
+  const { mutate: updateProduct } = useUpdateProduct()
+
   const fetchProduct = useCallback(async () => {
     if (productUpdateId == null) return setProduct(null)
-    const [err, data] = await to(getProductById(productUpdateId, token))
-    if (err) {
-      toast.error(err.message)
+
+    if (productError) {
+      toast.error(productError.message)
       setProduct(null)
       setIsUpdate(false)
       return
     }
-    setProduct(data.data)
-    setProductCoverImage(data.data.image || null)
-    setProductImages(data.data.images || [])
-    setSelectedNodeKey(data.data?.category?.id?.toString())
-    setSelectedCategory(data.data?.category)
+    const fetchedProduct = productData?.data.data
+    if (fetchedProduct == null) return
+    if (fetchedProduct.image) setProductCoverImage(fetchedProduct.image)
+    setProduct(fetchedProduct)
+    setProductImages(fetchedProduct.images || [])
+    setSelectedNodeKey(fetchedProduct.category?.id?.toString())
+    setSelectedCategory(fetchedProduct.category)
   }, [productUpdateId, token, setIsUpdate])
 
   const getCategories = async () => {
-    const [err, data] = await to(categoryService.fetchCategories())
-    if (err) return console.log(err)
+    if (categoryError) return toast.error(categoryError.message)
+    const data = categoryData?.data
     if (data) setTreeNodes(convertCategoriesToTreeSelectModel(data))
   }
 
@@ -112,15 +120,16 @@ const UpdateProduct = ({ productUpdateId, setIsUpdate }: Props) => {
     values.colors?.forEach((color: string) => formData.append('Colors', color))
     values.sizes?.forEach((size: string) => formData.append('Sizes', size))
 
-    formData.forEach((value, key) => {
-      console.log(key, value)
-    })
-
-    const [err, data] = await to(updateProduct(product?.id as number, formData, token))
-    if (err) return toast.error(err.message)
-    toast.success(data.message)
-    setIsUpdate(false)
-    setTimeout(() => window.location.reload(), 2500)
+    updateProduct(
+      { id: productUpdateId as number, input: formData },
+      {
+        onSuccess: data => {
+          toast.success(data.data.message)
+          setIsUpdate(false)
+        },
+        onError: err => toast.error(err.message)
+      }
+    )
   }
 
   return (
@@ -245,6 +254,7 @@ const UpdateProduct = ({ productUpdateId, setIsUpdate }: Props) => {
                       </>
                     </Fieldset>
                   </div>
+                  {/* Kategori ve Fiyat */}
                   <div className='flex w-full flex-col gap-4 p-4 md:w-5/6'>
                     <span className='p-float-label'>
                       {product.category?.id != null && selectedNodeKey != undefined && (

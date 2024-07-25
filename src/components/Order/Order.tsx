@@ -1,6 +1,4 @@
-import { createOrder, getCart } from '@/services/order/order.service'
 import { ICartItem } from '@/shared/types'
-import to from 'await-to-js'
 import { Messages } from 'primereact/messages'
 import { useEffect, useRef, useState } from 'react'
 import OrderAddress from './orderAddress'
@@ -10,9 +8,10 @@ import OrderPayment from './orderPayment'
 import { IUserAddress } from '@/services/auth/types'
 import { IOrderAddress, IOrderRequest } from '@/services/order/types'
 import { useAuth } from '@/hooks/useAuth'
-import toast from 'react-hot-toast'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useGetCart } from '@/services/order/use-cart-service'
+import { useCreateOrder } from '@/services/order/use-order-service'
+import { ProgressSpinner } from 'primereact/progressspinner'
 
 const Order = () => {
   const msgs = useRef<Messages>(null)
@@ -26,46 +25,36 @@ const Order = () => {
     LastDate: '',
     cvv: ''
   })
-  const router = useRouter()
-  const { isAuthorized, auth, token } = useAuth()
-  const [user, setUser] = useState(auth)
-  useEffect(() => {
-    setUser(auth)
-  }, [])
+  const { data: getCartData, error: getCartError, isLoading: getCartLoading } = useGetCart()
+  const { mutate: createOrder, isPending: createOrderLoading, error: createOrderError } = useCreateOrder()
 
-  const fetchCart = async () => {
-    const [err, data] = await to(getCart(token))
-    if (err) {
+  const { auth: user } = useAuth()
+
+  useEffect(() => {
+    if (getCartError) {
       msgs.current?.clear()
       msgs.current?.show([
         {
           sticky: true,
           severity: 'error',
           summary: 'Sistematik Hata',
-          detail: err.message
+          detail: getCartError.message
         }
       ])
       return
     }
-    if (data.data) {
-      setCartItems(data.data)
+    const cartData = getCartData?.data.data
+    if (cartData) {
+      setCartItems(cartData)
       let total = 0
-      data.data.map((item: ICartItem) => {
+      cartData.map((item: ICartItem) => {
         total += item.product.price * item.quantity
       })
       setCartTotal(total)
     }
-  }
-
-  useEffect(() => {
-    if (isAuthorized) fetchCart()
-  }, [])
+  }, [getCartData, getCartError])
 
   const handleSubmitOrder = async () => {
-    console.log(selectAddress)
-    console.log(cardValues)
-    console.log(cartItems)
-    console.log(cartTotal)
     if (!selectAddress) return
     const orderReq: IOrderRequest = {
       addressId: selectAddress?.id,
@@ -84,12 +73,7 @@ const Order = () => {
         }
       })
     }
-    console.log(orderReq)
-
-    const [err, data] = await to(createOrder(orderReq, token))
-    if (err) return toast.error(err.message)
-    toast.success(data.message)
-    setTimeout(() => router.push('/account/Siparişlerim'), 1500)
+    createOrder({ orderReq: orderReq })
   }
 
   return (
@@ -147,6 +131,12 @@ const Order = () => {
                     <div className=''>{cartItem.product.price * cartItem.quantity} ₺</div>
                   </div>
                 ))}
+                {cartItems.length === 0 && <div className='text-center'>Sepetinizde ürün bulunmamaktadır.</div>}
+                {getCartLoading && (
+                  <div className='flex justify-center'>
+                    <ProgressSpinner />
+                  </div>
+                )}
               </div>
             </div>
           </div>

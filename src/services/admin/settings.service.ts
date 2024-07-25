@@ -1,7 +1,37 @@
-import { makeRequest } from '../base/base'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { privateAxiosInstance } from '../base/base'
+import reactQueryConfig from '@/configs/react-query-config'
 
-export const fetchSettings = async (token: string) =>
-  await makeRequest<any>(`Admin/WebSiteSettings`, 'GET', null, token)
+type Settings = {
+  data: {
+    about: string
+    email: string
+    phone: string
+    address: string
+    siteIcon: string
+  }
+}
 
-export const saveSettings = async (val: any, token: string) =>
-  await makeRequest<any>(`Admin/WebSiteSettings`, 'PUT', val, token, true)
+const getSettings = async () => privateAxiosInstance.get<Settings>(`Admin/WebSiteSettings`)
+
+const saveSettings = async (val: FormData) =>
+  privateAxiosInstance.put(`Admin/WebSiteSettings`, val, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
+
+export const useGetSettings = () =>
+  useQuery({
+    queryKey: ['settings'],
+    queryFn: getSettings
+  })
+
+export const useSaveSettings = () =>
+  useMutation({
+    mutationKey: ['saveSettings'],
+    mutationFn: saveSettings,
+    onSuccess: () => {
+      reactQueryConfig.invalidateQueries({ queryKey: ['settings'] })
+    }
+  })

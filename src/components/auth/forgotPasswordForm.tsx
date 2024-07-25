@@ -1,50 +1,23 @@
 import { emailRegex, passwordRegex } from '@/helper/regex'
-import { authService } from '@/services/auth/auth.service'
-import to from 'await-to-js'
 import { Formik } from 'formik'
 import { InputText } from 'primereact/inputtext'
 import { Password } from 'primereact/password'
-import { useState } from 'react'
-import toast from 'react-hot-toast'
 import * as Yup from 'yup'
 import { useSearchParams } from 'next/navigation'
+import useAuthService from '@/services/auth/use-auth-service'
 
 const ForgotPasswordForm = () => {
-  const [isLoading, setIsLoading] = useState(false)
+  const { resetPassword, forgotPassword, isForgotPasswordLoading, isResetPasswordLoading } = useAuthService()
 
-  // const token = new URLSearchParams(window.location.search).get('token')
+  const isLoading = isForgotPasswordLoading || isResetPasswordLoading
+
   const searchParams = useSearchParams()
 
   const token = searchParams.get('token')
-  const handleSubmit = async (values: { email: string }) => {
-    setIsLoading(true)
-    const [err, data] = await to(authService.forgotPassword(values.email))
-    if (err) {
-      toast.error(err.message)
-      setIsLoading(false)
-      return
-    }
-    const { message } = data
-    toast.success(message)
-    setIsLoading(false)
-  }
 
-  const handleResetPassword = async (values: { password: string }) => {
-    setIsLoading(true)
-    if (token == null) return setIsLoading(false)
-    const [err, data] = await to(authService.resetPassword({ Password: values.password }, token))
-    if (err) {
-      toast.error(err.message)
-      setIsLoading(false)
-      return
-    }
-    const { message } = data
-    toast.success(message)
-    setIsLoading(false)
-    setTimeout(() => {
-      window.location.href = '/login'
-    }, 1000)
-  }
+  const handleSubmit = async (values: { email: string }) => forgotPassword(values.email)
+
+  const handleResetPassword = async (values: { password: string }) => resetPassword({ Password: values.password })
 
   return (
     <div

@@ -1,12 +1,17 @@
-import { makeRequest } from '../base/base'
+import { IProduct } from '@/shared/types'
+import { privateAxiosInstance } from '../base/base'
 
-const getFavorites = async (token: string) => await makeRequest<any>('Favorites/GetFavorites', 'GET', null, token)
+type GetFavoritesResponse = {
+  data: IProduct[]
+}
 
-const addFavorite = async (token: string, productId: number) =>
-  await makeRequest<any>(`Favorites/AddFavorite?productId=${productId}`, 'POST', null, token)
+const getFavorites = async () => await privateAxiosInstance.get<GetFavoritesResponse>('Favorites/GetFavorites')
 
-const deleteFavorite = async (token: string, favoriteId: number) =>
-  await makeRequest<any>(`Favorites/DeleteFavorite?favoriteId=${favoriteId}`, 'DELETE', null, token)
+const addFavorite = async (productId: number) =>
+  await privateAxiosInstance.post<any>(`Favorites/AddFavorite?productId=${productId}`)
+
+const deleteFavorite = async (favoriteId: number) =>
+  await privateAxiosInstance.delete<any>(`Favorites/DeleteFavorite?favoriteId=${favoriteId}`)
 
 export const favoritesService = {
   getFavorites,

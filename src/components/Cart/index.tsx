@@ -1,43 +1,35 @@
 import { useEffect, useRef, useState } from 'react'
 import CartListItem from './CartListItem'
 import { ICartItem } from '@/shared/types'
-import { getCart } from '@/services/order/order.service'
 import { Messages } from 'primereact/messages'
-import to from 'await-to-js'
-import { useAuth } from '@/hooks/useAuth'
 import Link from 'next/link'
+import { useGetCart } from '@/services/order/use-cart-service'
+import { ProgressSpinner } from 'primereact/progressspinner'
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState<[] | ICartItem[]>([])
   const [cartTotal, setCartTotal] = useState(0)
   const msgs = useRef<Messages>(null)
+  const { data, error, isLoading } = useGetCart()
 
-  const { token } = useAuth()
-  const fetchCart = async () => {
-    if (!token) return
-    console.log('token', token)
-    const [err, data] = await to(getCart(token))
-    if (err) {
+  useEffect(() => {
+    if (error) {
       msgs.current?.clear()
       msgs.current?.show([
         {
           sticky: true,
           severity: 'error',
           summary: 'Sistematik Hata',
-          detail: err.message
+          detail: error.message
         }
       ])
       return
     }
-    setCartItems(data.data)
-    console.log(data.data)
-    if (data.data && data.data.length > 0) {
-      let total = 0
-      data.data.map((item: ICartItem) => {
-        total += item.product.price * item.quantity
-      })
-      setCartTotal(total)
-    } else {
+    const cartData = data?.data.data
+    setCartItems(cartData ?? [])
+    if (cartData && cartData.length > 0)
+      setCartTotal(cartData.reduce((acc: number, item: ICartItem) => acc + item.product.price * item.quantity, 0))
+    else if (cartData?.length === 0) {
       setCartTotal(0)
       msgs.current?.clear()
       msgs.current?.show([
@@ -50,15 +42,18 @@ const Cart = () => {
         }
       ])
     }
-  }
+  }, [data, error])
 
-  useEffect(() => {
-    fetchCart()
-  }, [])
+  if (isLoading)
+    return (
+      <div className='flex w-full justify-center'>
+        <ProgressSpinner />
+      </div>
+    )
 
   return (
     <div className='my-24 flex w-full flex-col flex-wrap gap-y-9 px-[15px] md:flex-row lg:px-16'>
-      {cartItems && cartItems.length > 0 && (
+      {cartItems.length > 0 && (
         <>
           <div className='w-2/3 md:px-9'>
             <table className='mb-0 w-full border-collapse border-0 text-center text-[#6F6F6F]'>
@@ -73,7 +68,7 @@ const Cart = () => {
               </thead>
               <tbody className='align-middle'>
                 {cartItems.map(cartItem => (
-                  <CartListItem key={cartItem.id} cartItem={cartItem} fetchCart={fetchCart} />
+                  <CartListItem key={cartItem.id} cartItem={cartItem} />
                 ))}
               </tbody>
             </table>
@@ -114,7 +109,8 @@ const Cart = () => {
           </div>
         </>
       )}
-      {msgs && <Messages ref={msgs} className='ml-24 w-1/2' />}
+
+      {(cartItems.length <= 0 || msgs) && <Messages ref={msgs} className='ml-24 w-1/2' />}
     </div>
   )
 }

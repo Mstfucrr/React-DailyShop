@@ -3,12 +3,12 @@ import { ILogin, IUser } from '@/services/auth/types'
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
 // ** Axios
-import { ErrCallbackType, IAuthContext } from './types'
+import { IAuthContext } from './types'
 import { authService } from '@/services/auth/auth.service'
-import to from 'await-to-js'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import { jwtDecode } from 'jwt-decode'
+import { useMutation, useQuery } from '@tanstack/react-query'
 
 export const defaultProvider: IAuthContext = {
   auth: {} as IUser,
@@ -16,7 +16,7 @@ export const defaultProvider: IAuthContext = {
   isAuthorized: false,
   loading: false,
   login: () => Promise.resolve(),
-  logout: () => Promise.resolve(),
+  logout: () => null,
   token: '',
   setToken: () => null,
   setUser: () => null
@@ -30,12 +30,30 @@ type props = {
 
 const AuthProvider = ({ children }: props) => {
   const [user, setUser] = useState<IUser | null>(null)
-  const [loading, setLoading] = useState<boolean>(defaultProvider.loading)
   const [token, setToken] = useState<string>(defaultProvider.token)
   const router = useRouter()
+  const {
+    isLoading: isGetAccountLoading,
+    data: getAccountData,
+    isSuccess: isGetAccountSuccess
+  } = useQuery({
+    queryKey: ['getAccount'],
+    queryFn: authService.getAccount,
+    enabled: !!token
+  })
+  const { mutate: login, isPending: isLoginLoading } = useMutation({
+    mutationFn: authService.login,
+    onSuccess: data => {
+      toast.success(data.data.message)
+      window.localStorage.setItem('user', data.data.authorization)
+      setToken(data.data.authorization)
+      setUser(data.data.user)
+      router.push('/')
+    },
+    onError: error => toast.error(error.message)
+  })
 
   useEffect(() => {
-    setLoading(true)
     const storedUser = window.localStorage.getItem('user')
     if (storedUser) {
       const decodedToken = jwtDecode(storedUser)
@@ -44,52 +62,30 @@ const AuthProvider = ({ children }: props) => {
         window.localStorage.removeItem('user')
         return
       }
-      console.log('storedUser', storedUser)
       setToken(storedUser)
-      getAuth({ token: storedUser })
     }
-    setLoading(false)
   }, [])
 
-  const handleLogin = useCallback(async (params: ILogin, errorCallback?: ErrCallbackType) => {
-    setLoading(true)
-    const [err, data] = await to(authService.login(params))
-    if (err) {
-      errorCallback && errorCallback(err)
-      setLoading(false)
-      return
-    }
-    const { authorization, message, user } = data
-    window.localStorage.setItem('user', authorization)
-    setToken(authorization)
-    setUser(user)
-    setLoading(false)
-    toast.success(message)
-    router.push('/')
-  }, [])
+  useEffect(() => {
+    if (isGetAccountSuccess) setUser(getAccountData.data.data)
+  }, [isGetAccountSuccess, getAccountData])
 
-  const getAuth = useCallback(
-    async ({ token }: { token: string }) => {
-      setLoading(true)
-      const [err, data] = await to(authService.getAccount(token))
-      if (err) return toast.error(err.message)
-      setUser(data.data)
-      setLoading(false)
-    },
-    [token]
-  )
+  const loading = useMemo(() => isGetAccountLoading || isLoginLoading, [isGetAccountLoading, isLoginLoading])
 
-  const handleLogout = useCallback(async () => {
+  const handleLogin = async (params: ILogin) => login(params)
+
+  const handleLogout = () => {
     window.localStorage.removeItem('user')
     setUser(null)
+    toast.success('Çıkış yapıldı')
     router.push('/')
-  }, [])
+  }
 
   const providerValue = useMemo(() => {
     return {
       isAuthorized: !!user, // if user is not null, then it is authorized
       isAdminAuthorized: user?.role === 'admin',
-      auth: user || defaultProvider.auth,
+      auth: user ?? defaultProvider.auth,
       loading: loading,
       login: handleLogin,
       logout: handleLogout,

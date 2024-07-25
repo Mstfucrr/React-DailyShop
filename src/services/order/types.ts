@@ -1,4 +1,4 @@
-import { IProduct } from '@/shared/types'
+import { ICartItem, IProduct } from '@/shared/types'
 import { IUser } from '../auth/types'
 
 export interface IaddToCartRequest {
@@ -8,7 +8,7 @@ export interface IaddToCartRequest {
 }
 
 export interface IOrder {
-  id: number | undefined
+  id: number
   address: IOrderAddress
   status: OrderStatus
   user: IUser
@@ -67,4 +67,18 @@ export interface IOrderItemRequest {
   quantity: number
   size: string
   color: string
+}
+
+export type CartListResponse = {
+  data: ICartItem[]
+  message: string
+}
+
+export type MessageResponse = {
+  message: string
+}
+
+export type OrderListResponse = {
+  message: string
+  data: IOrder[]
 }

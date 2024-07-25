@@ -1,6 +1,4 @@
-import { categoryService } from '@/services/admin/admin.service'
 import { ICategory } from '@/shared/types'
-import to from 'await-to-js'
 import { Button } from 'primereact/button'
 import { InputText } from 'primereact/inputtext'
 import { TreeSelect } from 'primereact/treeselect'
@@ -13,19 +11,25 @@ import { ConfirmDialog } from 'primereact/confirmdialog'
 import { ICategoryRequest } from '@/services/admin/types'
 import NodeTemplate from './NodeTemplate'
 import { ProgressSpinner } from 'primereact/progressspinner'
-import { useAuth } from '@/hooks/useAuth'
 import toast from 'react-hot-toast'
 import UpdateCategory from './update-category'
+import { useAddCategory, useDeleteCategory, useUpdateCategory } from '@/services/admin/category/use-admin-category'
+import { useGetCategories } from '@/services/category/category.service'
 
 const CategorySettings = () => {
   const [treeNodes, setTreeNodes] = useState<any>(null)
   const [selectedNodeKey, setSelectedNodeKey] = useState<any>(null)
   const [selectedCategory, setSelectedCategory] = useState<ICategory | undefined>(undefined)
-  const [loading, setLoading] = useState(true)
   const [updateCategoryActive, setUpdateCategoryActive] = useState<boolean>(false)
   const [updateCategory, setUpdateCategory] = useState<ICategory | null>(null)
 
-  const { token } = useAuth()
+  const { data: categoriesData, error: categoriesError } = useGetCategories()
+
+  const { mutate: addCategory, isPending: isAddCategoryPendig } = useAddCategory()
+
+  const { mutate: updateCategoryById, isPending: isUpdateCategoryPendig } = useUpdateCategory()
+
+  const { mutate: deleteCategoryById, isPending: isDeleteategoryPendig } = useDeleteCategory()
 
   useEffect(() => {
     if (treeNodes && selectedNodeKey)
@@ -33,11 +37,15 @@ const CategorySettings = () => {
   }, [selectedCategory, selectedNodeKey])
 
   useEffect(() => {
-    const getAllCategories = async () => {
-      await handleGetAllCategories()
+    if (categoriesError) {
+      toast.error(categoriesError.message)
+      return
     }
-    getAllCategories()
-  }, [])
+    setSelectedNodeKey(null)
+    setSelectedCategory(undefined)
+    setUpdateCategory(null)
+    setTreeNodes(convertCategoriesToTreeSelectModel(categoriesData?.data ?? []))
+  }, [categoriesData, categoriesError])
 
   const showErrorMessage = (err: Error) => toast.error(err.message)
   const showSuccess = (message: string) => toast.success(message)
@@ -49,23 +57,14 @@ const CategorySettings = () => {
       .max(50, 'Kategori adı en fazla 50 karakter olmalıdır')
   })
 
-  const handleAddCategory = async (val: ICategoryRequest) => {
-    const [err, data] = await to(categoryService.addCategory(val, token))
-    if (err) return showErrorMessage(err)
-    showSuccess(data.message)
-    handleGetAllCategories()
-    formik.resetForm()
-  }
-
-  const handleGetAllCategories = async () => {
-    const [err, data] = await to(categoryService.getAllCategories())
-    console.log(data)
-    if (err) return showErrorMessage(err)
-    setSelectedNodeKey(null)
-    setSelectedCategory(undefined)
-    setUpdateCategory(null)
-    setTreeNodes(convertCategoriesToTreeSelectModel(data))
-    setLoading(false)
+  const handleAddCategory = (val: ICategoryRequest) => {
+    addCategory(val, {
+      onSuccess: () => {
+        showSuccess('Kategori başarıyla eklendi')
+        formik.resetForm()
+      },
+      onError: (err: Error) => showErrorMessage(err)
+    })
   }
 
   const formik = useFormik({
@@ -74,25 +73,25 @@ const CategorySettings = () => {
     },
     validationSchema: validationSchema,
     onSubmit: async values => {
-      setLoading(true)
       const val: ICategoryRequest = {
         name: values.categoryName,
         parentCategoryId: selectedCategory?.id ?? null
       }
-      await handleAddCategory(val)
-      setLoading(false)
+      handleAddCategory(val)
     }
   })
 
-  // update selec category
-
-  const handleUpdateCategory = async (id: number, val: any) => {
-    console.log(val)
-    const [err, data] = await to(categoryService.updateCategoryById(id, val, token))
-    if (err) return showErrorMessage(err)
-    showSuccess(data.message)
-    handleGetAllCategories()
-    updateCategoryFormik.resetForm()
+  const handleUpdateCategory = (id: number, val: any) => {
+    updateCategoryById(
+      { id, category: val },
+      {
+        onSuccess: () => {
+          showSuccess('Kategori başarıyla güncellendi')
+          updateCategoryFormik.resetForm()
+        },
+        onError: (err: Error) => showErrorMessage(err)
+      }
+    )
   }
 
   const updateCategoryValidationSchema = Yup.object({
@@ -108,23 +107,22 @@ const CategorySettings = () => {
     },
     validationSchema: updateCategoryValidationSchema,
     onSubmit: async values => {
-      setLoading(true)
       const val: ICategoryRequest = {
         name: values.categoryName,
         parentCategoryId: updateCategory?.parentCategoryId ?? null
       }
-      if (updateCategory) await handleUpdateCategory(updateCategory?.id, val)
-      setLoading(false)
+      if (updateCategory) handleUpdateCategory(updateCategory?.id, val)
     }
   })
 
-  const handleDeleteCategory = async (id: number) => {
-    const [err, data] = await to(categoryService.deleteCategoryById(id, token))
-    if (err) return showErrorMessage(err)
-    showSuccess(data.message)
-    handleGetAllCategories()
-    updateCategoryFormik.resetForm()
-    setLoading(false)
+  const handleDeleteCategory = (id: number) => {
+    deleteCategoryById(id, {
+      onSuccess: () => {
+        showSuccess('Kategori başarıyla silindi')
+        updateCategoryFormik.resetForm()
+      },
+      onError: (err: Error) => showErrorMessage(err)
+    })
   }
 
   const renderNodeTemplate = (node: any) => (
@@ -133,11 +131,13 @@ const CategorySettings = () => {
 
   return (
     <>
-      {loading && (
-        <div className='flex h-full w-full items-center justify-center'>
-          <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth='8' animationDuration='.9s' />
-        </div>
-      )}
+      {isAddCategoryPendig ||
+        isUpdateCategoryPendig ||
+        (isDeleteategoryPendig && (
+          <div className='flex h-full w-full items-center justify-center'>
+            <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth='8' animationDuration='.9s' />
+          </div>
+        ))}
       <div className='flex w-full flex-col gap-4'>
         <h1 className='mb-3 text-4xl'>Kategori İşlemleri</h1>
         <div className='w-full text-center'>
@@ -231,12 +231,10 @@ const CategorySettings = () => {
               onSelectionChange={e => setSelectedNodeKey(e.value)}
               dragdropScope='demo'
               onDragDrop={e => {
-                setLoading(true)
                 handleUpdateCategory(e.dragNode.data.id, {
                   name: e.dragNode.data.name,
                   parentCategoryId: e.dropNode?.data.id || null
                 })
-                setLoading(false)
               }}
               nodeTemplate={renderNodeTemplate}
             />

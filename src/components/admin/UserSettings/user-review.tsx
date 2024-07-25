@@ -14,44 +14,35 @@ import React, { useCallback } from 'react'
 type Props = {}
 
 const UserReviews = (props: Props) => {
-  const { selectedUserReviews, reviewLoading, fetchUserReviews, handleReviewStatusChange } = useAdimnUser()
+  const { selectedUserReviews, reviewLoading, handleReviewStatusChange } = useAdimnUser()
 
-  const renderProductImage = useCallback(
-    (data: IReview) => (
-      <Link href={`/product/${data?.product?.id}`} className='flex items-center justify-center'>
-        {data.product?.image ? <img src={data.product?.image} alt='' className='h-20 w-20' /> : <span>Resim Yok</span>}
-      </Link>
-    ),
-    []
+  const renderProductImage = (data: IReview) => (
+    <Link href={`/product/${data?.product?.id}`} className='flex items-center justify-center'>
+      {data.product?.image ? <img src={data.product?.image} alt='' className='h-20 w-20' /> : <span>Resim Yok</span>}
+    </Link>
   )
 
   const renderRating = useCallback((data: IReview) => <Rating value={data.rating} readOnly cancel={false} />, [])
 
-  const renderStatusDropdown = useCallback(
-    (data: IReview) => (
-      <Dropdown
-        options={reviewStatus}
-        value={data.status ?? 'New'}
-        onChange={e => {
-          handleReviewStatusChange(data, e.value).then(fetchUserReviews)
-        }}
-      />
-    ),
-    [fetchUserReviews, handleReviewStatusChange]
+  const renderStatusDropdown = (data: IReview) => (
+    <Dropdown
+      options={reviewStatus}
+      value={data.status ?? 'New'}
+      onChange={e => {
+        handleReviewStatusChange({ id: data.id, status: e.value })
+      }}
+    />
   )
 
-  const refreshButton = useCallback(
-    (refreshFunction: () => Promise<void>) => (
-      <div className='my-3 flex justify-end'>
-        <Button
-          label='Yenile'
-          icon='pi pi-refresh'
-          className='p-button-raised p-button-rounded p-button-text'
-          onClick={refreshFunction}
-        />
-      </div>
-    ),
-    [selectedUserReviews]
+  const refreshButton = (refreshFunction: () => Promise<void>) => (
+    <div className='my-3 flex justify-end'>
+      <Button
+        label='Yenile'
+        icon='pi pi-refresh'
+        className='p-button-raised p-button-rounded p-button-text'
+        onClick={refreshFunction}
+      />
+    </div>
   )
 
   return (
@@ -62,7 +53,7 @@ const UserReviews = (props: Props) => {
           toggleable
         >
           {/* Yenile */}
-          {refreshButton(fetchUserReviews as any)}
+          {/* {refreshButton(fetchUserReviews as any)} */}
 
           {/* Yorumlar tablosu */}
           {reviewLoading ? (

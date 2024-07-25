@@ -3,19 +3,12 @@ import { InputText } from 'primereact/inputtext'
 import { Password } from 'primereact/password'
 import * as Yup from 'yup'
 import { useFormik } from 'formik'
-
-import { useState } from 'react'
 import { emailRegex, passwordRegex } from '@/helper/regex'
-import { authService } from '@/services/auth/auth.service'
-
-import to from 'await-to-js'
 import { InputMask } from 'primereact/inputmask'
-import toast from 'react-hot-toast'
-import { useRouter } from 'next/navigation'
+import useAuthService from '@/services/auth/use-auth-service'
 
 const RegisterForm = () => {
-  const router = useRouter()
-  const [isLoading, setIsLoading] = useState(false)
+  const { register, isRegisterLoading } = useAuthService()
 
   const validationSchema = Yup.object().shape({
     name: Yup.string().required('Ad alanı zorunludur').max(50, 'Ad çok uzun').min(2, 'Ad çok kısa'),
@@ -52,24 +45,7 @@ const RegisterForm = () => {
       PhoneNumber: ''
     },
     validationSchema,
-    onSubmit: async values => {
-      setIsLoading(true)
-      if (values.password !== values.confirmPassword) {
-        setIsLoading(false)
-        toast.error('Şifreler eşleşmiyor')
-        return
-      }
-
-      const [err, data] = await to(authService.register(values))
-      if (err) {
-        toast.error(err.message)
-        setIsLoading(false)
-        return
-      }
-      setIsLoading(false)
-      toast.success(data.message)
-      setTimeout(() => router.push('/login'), 2000)
-    }
+    onSubmit: async values => register(values)
   })
 
   const errorTemplate = (frm: any) => <>{frm ? <small className='p-error p-d-block '> {frm} </small> : null}</>
@@ -193,7 +169,7 @@ const RegisterForm = () => {
                          hover:border-primary hover:bg-white hover:text-primary active:scale-95'
           type='submit'
         >
-          {isLoading ? (
+          {isRegisterLoading ? (
             <div className='flex w-full items-center justify-center'>
               <div className='h-6 w-6 animate-spin rounded-full border-b-2 border-white'></div>
             </div>

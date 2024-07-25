@@ -1,7 +1,5 @@
-import { useAuth } from '@/hooks/useAuth'
-import { favoritesService } from '@/services/favorites/favorites.service'
+import { useAddFavorite } from '@/services/favorites/use-favorites'
 import { IProduct } from '@/shared/types'
-import to from 'await-to-js'
 import Link from 'next/link'
 import { Card } from 'primereact/card'
 import toast from 'react-hot-toast'
@@ -12,12 +10,13 @@ type Props = {
 }
 
 const ProductCard = ({ product }: Props) => {
-  const { token } = useAuth()
+  const { mutate: addFavorite } = useAddFavorite()
 
-  const handleAddFavorite = async (id: number) => {
-    const [err, data] = await to(favoritesService.addFavorite(token, id))
-    if (err) return
-    toast.success(data?.message)
+  const handleAddFavorite = async (productId: number) => {
+    addFavorite(productId, {
+      onSuccess: () => toast.success('Ürün favorilere eklendi'),
+      onError: () => toast.error('Ürün favorilere eklenemedi')
+    })
   }
 
   return (
@@ -41,13 +40,14 @@ const ProductCard = ({ product }: Props) => {
                 />
               </Link>
             </div>
-            <div className='absolute left-0 top-0 -z-10 h-full w-full border border-gray-200 opacity-0 transition-opacity duration-500 hover:opacity-100'></div>
           </div>
         }
         footer={
           <div className='flex flex-col justify-between'>
             <div className='flex flex-col'>
-              <h6 className='text-truncate mb-3 pt-3 text-center font-bold'>{product.name}</h6>
+              <Link href={`/product/${product.id}`} className='flex items-center justify-center hover:underline'>
+                <h6 className='text-truncate mb-3 pt-3 text-center font-bold'>{product.name}</h6>
+              </Link>
               <div className='flex justify-center py-2'>
                 <h6>
                   <b>{product.price} ₺</b>
@@ -55,10 +55,10 @@ const ProductCard = ({ product }: Props) => {
               </div>
             </div>
             <div className='flex flex-row justify-between border-t-[1px] pt-2'>
-              <a href={`/product/${product.id}`} className='flex items-center'>
+              <Link href={`/product/${product.id}`} className='flex items-center'>
                 <FaEye className='mr-2 text-primary' />
                 Detaylı gör
-              </a>
+              </Link>
 
               {/* add favorite */}
               <button className='flex items-center hover:scale-105' onClick={() => handleAddFavorite(product.id)}>

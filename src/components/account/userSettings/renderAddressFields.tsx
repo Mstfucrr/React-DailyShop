@@ -1,7 +1,6 @@
-import { useAuth } from '@/hooks/useAuth'
-import { authService } from '@/services/auth/auth.service'
+import reactQueryConfig from '@/configs/react-query-config'
 import { IUserAddress } from '@/services/auth/types'
-import to from 'await-to-js'
+import useAuthService from '@/services/auth/use-auth-service'
 import { useFormik } from 'formik'
 import { Button } from 'primereact/button'
 import { confirmDialog } from 'primereact/confirmdialog'
@@ -10,8 +9,6 @@ import { InputNumber } from 'primereact/inputnumber'
 import { InputText } from 'primereact/inputtext'
 import { InputTextarea } from 'primereact/inputtextarea'
 import { ProgressSpinner } from 'primereact/progressspinner'
-import { useState } from 'react'
-import toast from 'react-hot-toast'
 import * as Yup from 'yup'
 
 type Props = {
@@ -19,9 +16,9 @@ type Props = {
 }
 
 const RenderAddressFields = ({ address }: Props) => {
-  const [loading, setLoading] = useState(false)
+  const { deleteAddress, updateAddress, isDeleteAddressLoading, isUpdateAddressLoading } = useAuthService()
 
-  const { token } = useAuth()
+  const loading = isDeleteAddressLoading || isUpdateAddressLoading
 
   const addressValidationSchema = Yup.object().shape({
     title: Yup.string().required('Başlık alanı zorunludur'),
@@ -43,34 +40,23 @@ const RenderAddressFields = ({ address }: Props) => {
       zipCode: address.zipCode.toString()
     },
     validationSchema: addressValidationSchema,
-    onSubmit: async values => {
-      const [err, data] = await to(authService.updateAddress(values, token))
-      if (err) {
-        toast.error(err.message)
-        return setLoading(false)
-      }
-      if (data.data) {
-        toast.success(data.message)
-        setTimeout(() => {
-          window.location.reload()
-        }, 1400)
-        setLoading(false)
-      }
+    onSubmit: values => {
+      updateAddress(values, {
+        onSuccess: () => {
+          reactQueryConfig.prefetchQuery({ queryKey: ['getAccount'] })
+          if (values.id === 0) addressFormik.resetForm()
+          else addressFormik.resetForm({ values: values })
+        }
+      })
     }
   })
 
-  const handleDeleteAddress = async () => {
-    setLoading(true)
-    const [err, data] = await to(authService.deleteAddress(address.id, token))
-    if (err) {
-      toast.error(err.message)
-      return setLoading(false)
-    }
-    toast.success(data.message)
-    setTimeout(() => {
-      window.location.reload()
-    }, 1400)
-    setLoading(false)
+  const handleDeleteAddress = () => {
+    deleteAddress(address.id, {
+      onSuccess: () => {
+        reactQueryConfig.prefetchQuery({ queryKey: ['getAccount'] })
+      }
+    })
   }
 
   const errorTemplate = (frm: any) => {

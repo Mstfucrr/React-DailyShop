@@ -5,6 +5,7 @@ import { IUser } from '@/services/auth/types'
 import { motion } from 'framer-motion'
 import ReportedReviews from './reported-reviews'
 import ReportedUsers from './reported-users'
+import Link from 'next/link'
 
 const Reports = () => {
   const renderRepUserPanel = (user: IUser) => {
@@ -13,9 +14,9 @@ const Reports = () => {
         <Avatar image={user.profileImage} size='large' shape='circle' className='mr-3 mt-2' />
         <div className='flex flex-wrap'>
           <span> {user.name + ' ' + user.surname + ' (' + user.email + ') '}</span>
-          <a href={`http://localhost:5173/admin/users?userId=${user.id}`} target='_blank' className='text-blue-500'>
+          <Link href={`http://localhost:5173/admin/users?userId=${user.id}`} target='_blank' className='text-blue-500'>
             Kullanıcıyı Görüntüle
-          </a>
+          </Link>
         </div>
       </div>
     )

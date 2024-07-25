@@ -6,7 +6,7 @@ export interface IAuthContext {
   auth: IUser
   loading: boolean
   login: (params: ILogin, errorCallback?: ErrCallbackType) => Promise<void>
-  logout: () => Promise<void>
+  logout: () => void
   token: string
   setToken: (token: string) => void
   setUser: (user: IUser) => void

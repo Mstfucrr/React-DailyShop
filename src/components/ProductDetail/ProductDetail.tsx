@@ -1,48 +1,43 @@
-import { IProduct, IReview } from '@/shared/types'
+import { IProduct } from '@/shared/types'
 import { Galleria } from 'primereact/galleria'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Rating } from 'primereact/rating'
 import { RadioButton } from 'primereact/radiobutton'
-import { FaCommentAlt, FaHeart, FaInfoCircle, FaMinus, FaPencilAlt, FaPlus, FaShoppingCart } from 'react-icons/fa'
+import { FaCommentAlt, FaInfoCircle, FaMinus, FaPencilAlt, FaPlus, FaShoppingCart } from 'react-icons/fa'
 import { MdDescription } from 'react-icons/md'
 import { TabView, TabPanel } from 'primereact/tabview'
 import { Messages } from 'primereact/messages'
-import { getProductById, getReviewsByProductId } from '@/services/product/product.service'
 import { setProductCookie } from '@/helper/cookieUtils'
-import { addToCart } from '@/services/order/order.service'
 import { IaddToCartRequest } from '@/services/order/types'
 import { InputNumber } from 'primereact/inputnumber'
-import to from 'await-to-js'
 import { ProgressSpinner } from 'primereact/progressspinner'
 import UpdateProduct from '../account/userProducts/UpdateProduct'
-import { favoritesService } from '@/services/favorites/favorites.service'
 import ProductReview from './productReview'
 import { productStatus } from '@/shared/constants'
 import { AnimatePresence } from 'framer-motion'
 import { useAuth } from '@/hooks/useAuth'
 import toast from 'react-hot-toast'
 import Link from 'next/link'
+import { useGetProductById } from '@/services/product/use-product-service'
+import { useAddToCart } from '@/services/order/use-cart-service'
 
 const ProductDetail = ({ productId }: { productId: string }) => {
   const [images, setImages] = useState<{ source: string }[] | string | undefined>(undefined)
 
-  const [productLoading, setProductLoading] = useState<boolean>(false)
-  const [addCartLoading, setAddCartLoading] = useState<boolean>(false)
-  const [product, setProduct] = useState<IProduct | null>(null)
   const [selectSize, setSelectSize] = useState<string | undefined>(undefined)
   const [selectColor, setSelectColor] = useState<string | undefined>(undefined)
-  const [reviews, setReviews] = useState<IReview[]>([])
   // const size = [{ name: "S", key: "s" }]
   const [quantity, setQuantity] = useState(1)
   const msgs = useRef<Messages>(null)
   const [sizes, setSizes] = useState<{ name: string; key: string }[] | undefined>(undefined)
   const [colors, setColors] = useState<{ name: string; key: string }[] | undefined>(undefined)
+  const [isUpdate, setIsUpdate] = useState(false)
 
-  const [isUpdate, setIsUpdate] = useState<boolean>(false)
+  const { data: product, isPending: productLoading, error } = useGetProductById(parseInt(productId))
 
-  // kullanıcı giriş yapmış mı konrol et ve hangi üründe ne kadar gezindiğini cooki ye kaydet
+  const { mutate: addToCart, isPending: addCartLoading } = useAddToCart()
 
-  const { auth, isAuthorized, token } = useAuth()
+  const { auth, isAuthorized } = useAuth()
 
   useEffect(() => {
     if (auth && product) {
@@ -64,90 +59,59 @@ const ProductDetail = ({ productId }: { productId: string }) => {
     }
   }, [auth, product])
 
-  const fetchProductReviews = useCallback(
-    async (productId: number) => {
-      if (!productId) return
-      const [err, data] = await to(getReviewsByProductId(productId, token))
-      if (err) return toast.error(err.message)
-      if (data.data) {
-        const reviews = data.data as IReview[]
-        setReviews(reviews)
-        if (product)
-          setProduct({
-            ...product,
-            rating: reviews.reduce((a, b) => a + b.rating, 0) / reviews.length
-          })
-      }
-    },
-    [product, token]
-  )
-
-  const fetchData = useCallback(async () => {
-    setProductLoading(true)
+  useEffect(() => {
     if (!productId) return
-    const [err, data] = await to(getProductById(parseInt(productId), token))
-    if (err) {
+    if (error) {
       msgs.current?.clear()
       msgs.current?.show([
         {
           sticky: true,
           severity: 'error',
           summary: 'Hata',
-          detail: err.message,
+          detail: error.message,
           closable: false
         }
       ])
-      setProductLoading(false)
       return
     }
-    if (data.data) {
-      const fetchedProduct = (await data.data) as IProduct
-      setProduct(fetchedProduct)
+    if (product) {
       setSizes(
-        fetchedProduct.sizes?.map((size: string) => ({
+        product.sizes?.map((size: string) => ({
           name: size,
           key: size
         }))
       )
       setColors(
-        fetchedProduct.colors?.map((color: string) => ({
+        product.colors?.map((color: string) => ({
           name: color,
           key: color
         }))
       )
       const imagesSources: string[] = []
-      fetchedProduct.images?.forEach((image: string) => {
+      product.images?.forEach((image: string) => {
         return imagesSources.push(image)
       })
-      if (fetchedProduct.image) imagesSources.push(fetchedProduct.image)
+      if (product.image) imagesSources.push(product.image)
       setImages(imagesSources.map((source: string) => ({ source: source })))
-      fetchProductReviews(fetchedProduct.id)
     }
-    setProductLoading(false)
-  }, [fetchProductReviews, productId, token])
+  }, [productId, product, error])
 
-  useEffect(() => {
-    fetchData()
-  }, [])
+  const itemTemplate = (item: any) => (
+    <img src={item.source} alt={item.alt} style={{ width: '100%', display: 'block' }} />
+  )
 
-  const itemTemplate = (item: any) => {
-    return <img src={item.source} alt={item.alt} style={{ width: '100%', display: 'block' }} />
-  }
-
-  const thumbnailTemplate = (item: any) => {
-    return (
-      <img
-        src={item.source}
-        alt={item.alt}
-        style={{
-          display: 'block',
-          width: 'auto',
-          height: 90,
-          objectFit: 'cover'
-        }}
-      />
-    )
-  }
+  const thumbnailTemplate = (item: any) => (
+    <img
+      src={item.source}
+      alt={item.alt}
+      style={{
+        display: 'block',
+        width: 'auto',
+        height: 90,
+        objectFit: 'cover'
+      }}
+    />
+  )
 
   const handleAddToCart = async () => {
     if (!product) return
@@ -161,15 +125,13 @@ const ProductDetail = ({ productId }: { productId: string }) => {
       size: selectSize,
       color: selectColor
     }
-    setAddCartLoading(true)
-    const [err, data] = await to(addToCart(product.id, cartAdd, token))
-    if (err) {
-      toast.error(err.message)
-      setAddCartLoading(false)
-      return
-    }
-    toast.success(addToCartSuccessTemplete(data.message))
-    setAddCartLoading(false)
+    addToCart(
+      { productId: product.id, input: cartAdd },
+      {
+        onSuccess: data => toast.success(addToCartSuccessTemplete(data.data.message)),
+        onError: err => toast.error(err.message)
+      }
+    )
   }
 
   const addToCartSuccessTemplete = (message: string) => {
@@ -195,12 +157,6 @@ const ProductDetail = ({ productId }: { productId: string }) => {
         </div>
       </div>
     )
-  }
-
-  const handleAddFavorite = async (id: number) => {
-    const [err, data] = await to(favoritesService.addFavorite(token, id))
-    if (err) return
-    toast.success(data.message)
   }
 
   return (
@@ -252,7 +208,7 @@ const ProductDetail = ({ productId }: { productId: string }) => {
                     onIcon: { className: '!text-primary' }
                   }}
                 />
-                ( {reviews?.length} İzlenim )
+                {/* ( {reviews?.length} İzlenim ) */}
               </div>
               {/* price */}
               <h2 className='my-2 text-3xl font-semibold text-black'>{product.price}₺</h2>
@@ -364,13 +320,13 @@ const ProductDetail = ({ productId }: { productId: string }) => {
                     )}
                   </button>
 
-                  <button
+                  {/* <button
                     className='inline-block border-primary bg-primary px-3 py-2 leading-6 text-[#212529] transition-all duration-300 ease-in-out hover:bg-primaryDark hover:text-white'
                     onClick={() => handleAddFavorite(product.id)}
                   >
                     <FaHeart className='mr-3 inline' />
                     Favorilere Ekle
-                  </button>
+                  </button> */}
                 </div>
               </div>
             </div>
@@ -427,7 +383,7 @@ const ProductDetail = ({ productId }: { productId: string }) => {
                     </div>
                   }
                 >
-                  <ProductReview reviews={reviews} product={product} />
+                  <ProductReview productId={product.id} productName={product.name} />
                 </TabPanel>
               </TabView>
             </div>

@@ -1,6 +1,4 @@
 import Link from 'next/link'
-import { Button } from 'primereact/button'
-import { InputText } from 'primereact/inputtext'
 import { FaMapMarkerAlt, FaPhone } from 'react-icons/fa'
 
 import { IoChevronForwardSharp, IoMailSharp } from 'react-icons/io5'
@@ -10,12 +8,12 @@ const Footer = () => {
     <footer className='mx-auto mt-36 w-full bg-secondary px-[15px] pt-12 text-black'>
       <div className='grid grid-cols-1 grid-rows-3 gap-x-10 py-10 md:grid-rows-2 lg:grid-cols-3 lg:grid-rows-1 xl:px-12'>
         <div className=''>
-          <a href='/' className='text-black'>
+          <Link href='/' className='text-black'>
             {/* font-size: calc(1.375rem + 1.5vw); */}
             <h1 className='m-0 mb-4 text-2xl font-semibold sm:text-4xl'>
               <span className='mr-1 border px-4 font-bold text-primary'>D</span>ailyShop
             </h1>
-          </a>
+          </Link>
           <p className='mb-2'>
             Dolore erat dolor sit lorem vero amet. Sed sit lorem magna, ipsum no sit erat lorem et magna ipsum dolore
             amet erat.

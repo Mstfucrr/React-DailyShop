@@ -1,18 +1,16 @@
 import { InputText } from 'primereact/inputtext'
 import SideBar from './sideBar'
 import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown'
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { IProduct, IShopResponse } from '@/shared/types'
+import { useEffect, useRef, useState } from 'react'
+import { IProduct } from '@/shared/types'
 import { Paginator, PaginatorPageChangeEvent } from 'primereact/paginator'
-import { getProductsByCategoryId } from '@/services/shop/shop.service'
+import { GetProductsResponse, useGetProductsByCategoryId } from '@/services/shop/shop.service'
 import { InputSwitch } from 'primereact/inputswitch'
-import to from 'await-to-js'
 import { Messages } from 'primereact/messages'
 import { ProgressSpinner } from 'primereact/progressspinner'
 import { sortBy } from '@/shared/constants'
 import { ProductsSortBy } from '@/services/shop/types'
 import ProductCard from './productCard'
-import { useAuth } from '@/hooks/useAuth'
 
 const Shop = ({ shopId }: { shopId: string }) => {
   const [selectSortBy, setSelectSortBy] = useState<{
@@ -21,16 +19,24 @@ const Shop = ({ shopId }: { shopId: string }) => {
   }>({ name: '', code: '' })
   const [filteredProducts, setFilteredProducts] = useState<IProduct[]>([])
   const [search, setSearch] = useState<string>('')
-  const [responseData, setResponseData] = useState<IShopResponse | undefined>(undefined)
+  const [responseData, setResponseData] = useState<GetProductsResponse | undefined>(undefined)
   const [products, setProducts] = useState<IProduct[]>([]) // tüm ürünlerin listesi
   const [first, setFirst] = useState(0)
   const [rows, setRows] = useState(6)
-  const [loading, setLoading] = useState<boolean>(false)
   const [isDelProductShow, setIsDelProductShow] = useState<boolean>(true)
 
   const msgs = useRef<Messages>(null)
-
-  const { token } = useAuth()
+  const { data, isError, isPending } = useGetProductsByCategoryId(
+    {
+      id: Number(shopId),
+      isDeletedDatas: isDelProductShow
+    },
+    {
+      queryKey: ['getProductsByCategoryId', { id: Number(shopId), isDeletedDatas: isDelProductShow }],
+      gcTime: 0,
+      refetchInterval: 60000 // 60 seconds refetch
+    }
+  )
 
   useEffect(() => {
     switch (selectSortBy.code) {
@@ -61,35 +67,23 @@ const Shop = ({ shopId }: { shopId: string }) => {
     }
   }, [selectSortBy])
 
-  const fetchData = useCallback(async () => {
-    if (shopId) {
-      const [err, data] = await to(getProductsByCategoryId(parseInt(shopId), isDelProductShow, token))
-      if (err) {
-        console.log(err)
-        msgs.current?.clear()
-        msgs.current?.show({
-          severity: 'error',
-          summary: 'Hata',
-          detail: err.message,
-          sticky: true
-        })
-        return
-      }
-      if (data) {
-        console.log(data.data)
-        setFilteredProducts(data.data)
-        setProducts(data.data.slice(first, first + rows))
-        setResponseData(data)
-      }
-    }
-  }, [first, shopId, isDelProductShow, rows, token])
-
   useEffect(() => {
-    setLoading(true)
-    fetchData().then(() => setLoading(false))
-  }, [fetchData, isDelProductShow])
-
-  // gelen datalar pagnition ile listelencek
+    if (isError) {
+      msgs.current?.clear()
+      msgs.current?.show({
+        severity: 'error',
+        summary: 'Hata',
+        detail: 'Bir hata oluştu',
+        sticky: true
+      })
+      return
+    }
+    if (data) {
+      setFilteredProducts(data.data.data)
+      setProducts(data.data.data.slice(first, first + rows))
+      setResponseData(data.data)
+    }
+  }, [isDelProductShow, data, isError, isPending])
 
   useEffect(() => {
     setProducts(filteredProducts.slice(first, first + rows))
@@ -111,10 +105,9 @@ const Shop = ({ shopId }: { shopId: string }) => {
 
   return (
     <div className='gap-x-10 px-14 pt-16'>
-      {loading ? (
+      {isPending ? (
         <div className='mx-auto flex w-full'>
-          {' '}
-          <ProgressSpinner />{' '}
+          <ProgressSpinner />
         </div>
       ) : (
         <>

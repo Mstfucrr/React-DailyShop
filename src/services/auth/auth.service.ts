@@ -1,36 +1,47 @@
-import { ILogin, IRegister } from './types'
-import { makeRequest } from '../base/base'
+import { ILogin, IRegister, IUser } from './types'
+import { makeRequest, privateAxiosInstance, publicAxiosInstance } from '../base/base'
+import { AxiosResponse } from 'axios'
 
-const login = async (input: ILogin) => await makeRequest<any>('Auths/Login', 'POST', input)
+type LoginResponse = {
+  authorization: string
+  message: string
+  user: IUser
+}
 
-const register = async (input: IRegister) => await makeRequest<any>('Auths/Register', 'POST', input)
+type GetAccountResponse = {
+  data: IUser
+  message: string
+}
 
-const forgotPassword = async (email: string) => await makeRequest<any>(`Auths/ForgotPassword?email=${email}`, 'POST')
+const login = async (input: ILogin) => await publicAxiosInstance.post<LoginResponse>('Auths/Login', input)
 
-const resetPassword = async (input: any, token: string) =>
-  await makeRequest<any>('Auths/ResetPassword', 'POST', input, token)
+const register = async (input: IRegister) => await publicAxiosInstance.post('Auths/Register', input)
 
-const getAccount = async (token: string) => await makeRequest<any>('Profiles/GetUser', 'GET', null, token)
+const forgotPassword = async (email: string) => await publicAxiosInstance.post(`Auths/ForgotPassword?email=${email}`)
 
-const updateAccount = async (input: any, token: string) =>
-  await makeRequest<any>('Profiles/Update', 'PUT', input, token, true)
+const resetPassword = async (input: any) => await privateAxiosInstance.post('Auths/ResetPassword', input)
 
-const updateAddress = async (input: any, token: string) =>
-  await makeRequest<any>('Profiles/UpdateAddress', 'PUT', input, token)
+const getAccount = async () => await privateAxiosInstance.get<GetAccountResponse>('Profiles/GetUser')
 
-const deleteAddress = async (addressId: number, token: string) =>
-  await makeRequest<any>(`Profiles/DeleteAddress?addressId=${addressId}`, 'DELETE', null, token)
+const updateAccount = async (input: FormData) =>
+  await privateAxiosInstance.put('Profiles/Update', input, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
 
-const logout = async (token: string) => await makeRequest<any>('Auths/Logout', 'POST', null, token)
+const updateAddress = async (input: any) => await privateAxiosInstance.put('Profiles/UpdateAddress', input)
 
-const deleteAccount = async (token: string) => await makeRequest<any>('Profiles/Delete', 'DELETE', null, token)
+const deleteAddress = async (addressId: number) =>
+  await privateAxiosInstance.delete(`Profiles/DeleteAddress?addressId=${addressId}`)
+
+const deleteAccount = async () => await privateAxiosInstance.delete('Profiles/Delete')
 
 export const authService = {
   login,
   register,
   forgotPassword,
   resetPassword,
-  logout,
   updateAccount,
   deleteAccount,
   updateAddress,

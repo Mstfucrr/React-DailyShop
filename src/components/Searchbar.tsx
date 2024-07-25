@@ -1,18 +1,17 @@
-import { getCart } from '@/services/order/order.service'
-import to from 'await-to-js'
 import { OverlayPanel } from 'primereact/overlaypanel'
 import { useEffect, useRef, useState } from 'react'
 import { FaHeart, FaShoppingCart, FaWallet } from 'react-icons/fa'
 import { Tooltip } from 'primereact/tooltip'
-import { getWalletByUser } from '@/services/wallet/wallet.service'
 import WalletSection from './wallet/walletSection'
-import { favoritesService } from '@/services/favorites/favorites.service'
 import { useAuth } from '@/hooks/useAuth'
 import toast from 'react-hot-toast'
 import Link from 'next/link'
+import { useGetCart } from '@/services/order/use-cart-service'
+import { useGetWalletByUser } from '@/services/wallet/use-wallet'
+import { useDeleteFavorite, useGetFavorites } from '@/services/favorites/use-favorites'
 
 const Searchbar = () => {
-  const { token, isAuthorized } = useAuth()
+  const { isAuthorized } = useAuth()
   const [cartCount, setCartCount] = useState<number>(0)
   const [balance, setBalance] = useState<number>(0)
   const [favoritesList, setFavoritesList] = useState<any[]>([])
@@ -21,39 +20,32 @@ const Searchbar = () => {
   const showErrorMessage = (message: string) => toast.error(message)
   const showSuccess = (message: string) => toast.success(message)
 
-  const fetchCart = async () => {
-    const [err, data] = await to(getCart(token))
-    if (err) return showErrorMessage(err.message)
-    setCartCount(data.data?.length > 0 ? data.data.length : 0)
-  }
+  const { data: CartData } = useGetCart()
 
-  const fetchWallet = async () => {
-    const [err, data] = await to(getWalletByUser(token))
-    if (err) return
-    if (data.data) setBalance(data.data.balance ?? 0)
-  }
+  const { data: walletData } = useGetWalletByUser()
 
-  const fetchFavorites = async () => {
-    const [err, data] = await to(favoritesService.getFavorites(token))
-    if (err) return showErrorMessage(err.message)
-    setFavoritesList(data.data)
-  }
+  const { data: favoritesData } = useGetFavorites()
 
-  const deleteFavorite = async (id: number) => {
-    const [err, data] = await to(favoritesService.deleteFavorite(token, id))
-    if (err) return showErrorMessage(err.message)
-    setFavoritesList(data.data)
-    fetchFavorites()
-    showSuccess(data.message)
-  }
+  const { mutate: deleteFavorite } = useDeleteFavorite()
 
   useEffect(() => {
-    if (isAuthorized) {
-      fetchCart()
-      fetchWallet()
-      fetchFavorites()
-    }
-  }, [])
+    if (CartData) setCartCount(CartData.data?.data.length > 0 ? CartData.data?.data.length : 0)
+  }, [CartData])
+
+  useEffect(() => {
+    if (favoritesData) setFavoritesList(favoritesData.data.data)
+  }, [favoritesData])
+
+  useEffect(() => {
+    if (walletData) setBalance(walletData.data.data.balance)
+  }, [walletData])
+
+  const handleDeleteFavorite = async (id: number) => {
+    deleteFavorite(id, {
+      onSuccess: () => showSuccess('Favori ürün başarıyla silindi'),
+      onError: (err: any) => showErrorMessage(err.message)
+    })
+  }
 
   const op = useRef(null)
   const opWallet = useRef(null)
@@ -64,11 +56,11 @@ const Searchbar = () => {
         {/* col-lg-3 d-none d-lg-block */}
         <div className=' hidden w-1/2 lg:block'>
           {/* text-decoration-none */}
-          <a href='/' style={{ textDecoration: 'none' }}>
+          <Link href='/' style={{ textDecoration: 'none' }}>
             <h1 className='m-0 text-4xl font-semibold text-black'>
               <span className='mr-1 border px-3 font-bold text-primary'>D</span> aily Shop
             </h1>
-          </a>
+          </Link>
         </div>
         {/* col-lg-3 col-6 text-right */}
         <div className='flex w-full justify-end text-right'>
@@ -81,7 +73,6 @@ const Searchbar = () => {
               //@ts-ignore
               onClick={e => {
                 ;(opWallet.current as any)?.toggle(e)
-                fetchWallet()
               }}
             >
               <FaWallet className='inline-block h-auto w-6 text-primary' />
@@ -144,7 +135,6 @@ const Searchbar = () => {
               //@ts-ignore
               onClick={e => {
                 ;(op.current as any)?.toggle(e)
-                fetchFavorites()
               }}
             >
               <FaHeart className='inline-block h-auto w-6 text-primary' />
@@ -171,7 +161,7 @@ const Searchbar = () => {
                           <h1 className='text-lg font-semibold'>{item.product.name}</h1>
                         </div>
                       </Link>
-                      <button className='text-primary' onClick={() => deleteFavorite(item.id)}>
+                      <button className='text-primary' onClick={() => handleDeleteFavorite(item.id)}>
                         <FaHeart className='inline-block h-auto w-6 text-primary' />
                       </button>
                     </div>

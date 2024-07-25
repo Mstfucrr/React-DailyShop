@@ -1,3 +1,5 @@
+'use client'
+
 import PageBanner from '@/components/Header/PageBanner'
 import Order from '@/components/Order/Order'
 

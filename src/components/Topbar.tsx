@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { FaFacebookF, FaTwitter, FaLinkedinIn, FaInstagram, FaYoutube } from 'react-icons/fa'
 
 const Topbar = () => {
@@ -18,21 +19,21 @@ const Topbar = () => {
         {/* col-lg-6 text-center text-lg-right */}
         <div className='col-span-12 px-[15px] text-center lg:col-span-6 lg:text-right'>
           <div className='inline-flex items-center'>
-            <a href='' className='px-2 text-black'>
+            <Link href='' className='px-2 text-black'>
               <FaFacebookF />
-            </a>
-            <a href='' className='px-2 text-black'>
+            </Link>
+            <Link href='' className='px-2 text-black'>
               <FaTwitter />
-            </a>
-            <a href='' className='px-2 text-black'>
+            </Link>
+            <Link href='' className='px-2 text-black'>
               <FaLinkedinIn />
-            </a>
-            <a href='' className='px-2 text-black'>
+            </Link>
+            <Link href='' className='px-2 text-black'>
               <FaInstagram />
-            </a>
-            <a href='' className='px-2 text-black'>
+            </Link>
+            <Link href='' className='px-2 text-black'>
               <FaYoutube />
-            </a>
+            </Link>
           </div>
         </div>
       </div>

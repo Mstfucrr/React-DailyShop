@@ -1,28 +1,25 @@
-import { makeRequest } from '../base/base'
+import { privateAxiosInstance, publicAxiosInstance } from '../base/base'
+import { GetListProduct, GetProductById, ProductResponse } from './types'
 
-export const addProduct = async (input: any, token: string) =>
-  await makeRequest<any>('Products', 'POST', input, token, true)
+const addProduct = async (input: FormData) =>
+  await privateAxiosInstance.post<ProductResponse>('Products', input, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
 
-export const getProductById = async (id: number, token: string | undefined) =>
-  await makeRequest<any>(`Products/${id}`, 'GET', null, token)
+const getProductById = async (id: number) => await publicAxiosInstance.get<GetProductById>(`Products/${id}`)
 
-export const getProductByUser = async (token: string) =>
-  await makeRequest<any>(`Products/GetListProductByUser`, 'GET', null, token)
+const getProductByUser = async () => await privateAxiosInstance.get<GetListProduct>('Products/GetListProductByUser')
 
-export const deleteProduct = async (id: number, token: string) =>
-  await makeRequest<any>(`Products/DeleteProduct/${id}`, 'DELETE', null, token)
+const deleteProduct = async (id: number) =>
+  await privateAxiosInstance.delete<ProductResponse>(`Products/DeleteProduct/${id}`)
 
-export const updateProduct = async (id: number, input: any, token: string) =>
-  await makeRequest<any>(`Products/${id}`, 'PUT', input, token, true)
+const updateProduct = async (id: number, input: FormData) =>
+  await privateAxiosInstance.put<ProductResponse>(`Products/${id}`, input, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
 
-export const getReviewsByProductId = async (productId: number, token: string) =>
-  await makeRequest<any>(`Reviews/GetReviewByProductId/${productId}`, 'GET', null, token)
-
-export const addReviewToProduct = async (productId: number, input: any, token: string) =>
-  await makeRequest<any>(`/Reviews/AddReviewToProduct/${productId}`, 'POST', input, token)
-
-export const addAnswerToReview = async (productId: number, input: any, token: string) =>
-  await makeRequest<any>(`/Reviews/AddReviewToReview/${productId}`, 'POST', input, token)
-
-export const deleteReviewFromProduct = async (reviewId: number, token: string) =>
-  await makeRequest<any>(`Reviews/${reviewId}`, 'DELETE', null, token)
+export default { addProduct, getProductById, getProductByUser, deleteProduct, updateProduct }

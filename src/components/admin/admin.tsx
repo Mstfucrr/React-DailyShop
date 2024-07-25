@@ -5,6 +5,7 @@ import ProductSettings from './ProductSettings'
 import { Button } from 'primereact/button'
 import Reports from './Reports'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 enum AdminPage {
   Settings = 'settings',
@@ -73,12 +74,12 @@ const Admin = ({ pathName }: AdminSlug) => {
   return (
     <div className='mx-auto flex h-auto w-5/6 flex-col pt-10'>
       <div className='flex flex-wrap justify-between gap-5 py-7'>
-        <a href='/' className=' text-black'>
+        <Link href='/' className=' text-black'>
           <div className='m-0 text-4xl font-semibold' style={{ fontSize: 'calc(1.375rem + 1.5vw)' }}>
             <span className='mr-1 border px-4 font-bold text-primary'>D</span>
             {`ailyShop`}
           </div>
-        </a>
+        </Link>
 
         <div className='flex items-center justify-end'>
           <div className='flex flex-col'>

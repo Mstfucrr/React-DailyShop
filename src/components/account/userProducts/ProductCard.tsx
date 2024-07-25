@@ -1,7 +1,5 @@
-import { useAuth } from '@/hooks/useAuth'
-import { productService } from '@/services/admin/admin.service'
+import { useDeleteProduct } from '@/services/product/use-product-service'
 import { IProduct } from '@/shared/types'
-import to from 'await-to-js'
 import Link from 'next/link'
 import { Button } from 'primereact/button'
 import { Card } from 'primereact/card'
@@ -15,8 +13,24 @@ type Props = {
   setIsUpdate: (isUpdate: boolean) => void
 }
 
+const IsApprovedRender = ({ product }: { product: IProduct }) => {
+  if (product.isApproved == null) return <p className='text-yellow-400'>Onay Bekliyor</p>
+  else if (product.isApproved)
+    return (
+      <div className='flex h-auto flex-row flex-wrap items-center gap-7'>
+        <p className='text-green-400'>Onaylandı</p>
+        <Link href={`/product/${product.id}`} target='_blank'>
+          <Button label='Ürünü Görüntüle' className='w-56' rounded severity='help' icon='pi pi-eye'>
+            {/* yeni sayfada ürünü göster */}
+          </Button>
+        </Link>
+      </div>
+    )
+  else return <p className='text-red-400'>Onaylanmadı</p>
+}
+
 const ProductCard = ({ product, setUpdateProductId, setIsUpdate }: Props) => {
-  const { token } = useAuth()
+  const { mutate: deleteProduct } = useDeleteProduct()
 
   const handleUpdate = useCallback(() => {
     setUpdateProductId(product?.id)
@@ -24,11 +38,15 @@ const ProductCard = ({ product, setUpdateProductId, setIsUpdate }: Props) => {
   }, [product])
 
   const handleDetleteProduct = async (id: number) => {
-    const [err, data] = await to(productService.deleteProduct(id, token))
-    if (err) return toast.error(err.message)
-    toast.success(data.message)
-    setTimeout(() => window.location.reload(), 2500)
+    deleteProduct(id, {
+      onSuccess: () => {
+        toast.success('Ürün başarıyla silindi')
+        setTimeout(() => window.location.reload(), 2500)
+      },
+      onError: err => toast.error(err.message)
+    })
   }
+
   const confirmDelete = (event: any, id: number) => {
     confirmPopup({
       target: event.currentTarget,
@@ -43,22 +61,6 @@ const ProductCard = ({ product, setUpdateProductId, setIsUpdate }: Props) => {
       acceptClassName: 'p-button-danger'
     })
   }
-
-  const isApprovedRender = useCallback(() => {
-    if (product.isApproved == null) return <p className='text-yellow-400'>Onay Bekliyor</p>
-    else if (product.isApproved)
-      return (
-        <div className='flex h-auto flex-row flex-wrap items-center gap-7'>
-          <p className='text-green-400'>Onaylandı</p>
-          <Link href={`/product/${product.id}`} target='_blank'>
-            <Button label='Ürünü Görüntüle' className='w-56' rounded severity='help' icon='pi pi-eye'>
-              {/* yeni sayfada ürünü göster */}
-            </Button>
-          </Link>
-        </div>
-      )
-    else return <p className='text-red-400'>Onaylanmadı</p>
-  }, [product.isApproved])
 
   return (
     <Card
@@ -82,7 +84,7 @@ const ProductCard = ({ product, setUpdateProductId, setIsUpdate }: Props) => {
       className='max-h-[500px] w-full overflow-y-auto'
     >
       <div className='my-4 flex flex-col gap-1'>
-        {isApprovedRender()}
+        <IsApprovedRender product={product} />
         <p className='text-primaryDark'>Stok: {product.stock}</p>
       </div>
 

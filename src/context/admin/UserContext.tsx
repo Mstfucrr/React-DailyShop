@@ -1,17 +1,20 @@
 'use client'
-// src\context\admin\UserContext.tsx
-import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { useAuth } from '@/hooks/useAuth'
+import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { IUser, IUserAddress } from '@/services/auth/types'
 import { IProduct, IReview } from '@/shared/types'
 import { IOrder, OrderStatus } from '@/services/order/types'
-import to from 'await-to-js'
-import { productService, userService } from '@/services/admin/admin.service'
+import { userService } from '@/services/admin/admin.service'
+import { useDeleteProduct } from '@/services/product/use-product-service'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { fetchReviewsByUserId, updateReviewStatus } from '@/services/admin/user/review.service'
+import { productService } from '@/services/admin/user/produt.service'
+import { fetchOrdersByUserId, updateOrderStatus } from '@/services/admin/user/order.service'
+import reactQueryConfig from '@/configs/react-query-config'
 
 export type UserContextType = {
-  users: IUser[]
+  users: IUser[] | undefined
   selectedUser: IUser | undefined
   selectedUserAddress: IUserAddress[]
   selectedUserReviews: IReview[]
@@ -22,207 +25,139 @@ export type UserContextType = {
   reviewLoading: boolean
   orderLoading: boolean
   setSelectedUser: (user: IUser) => void
-  fetchUserReviews: () => Promise<void>
-  fetchUserProducts: () => Promise<void>
-  fetchUserOrders: () => Promise<void>
-  handleReviewStatusChange: (data: IReview, status: string) => Promise<void>
-  handleProductApprovalStatusChange: (data: IProduct, status: boolean) => Promise<void>
-  handleBlockUser: (id: number) => Promise<void>
-  handleDetleteProduct: (id: number) => Promise<void>
-  handleChangeOrderStatus: (orderId: number, status: OrderStatus) => Promise<void>
+  handleReviewStatusChange: ({ id, status }: { id: number; status: string }) => void
+  handleProductApprovalStatusChange: ({ id, status }: { id: number; status: boolean }) => void
+  handleBlockUser: (id: number) => void
+  handleDetleteProduct: (id: number) => void
+  handleChangeOrderStatus: ({ orderId, status }: { orderId: number; status: OrderStatus }) => void
 }
 
-const initialState: UserContextType = {
-  users: [],
-  selectedUser: undefined,
-  selectedUserAddress: [],
-  selectedUserReviews: [],
-  selectUserProducts: [],
-  selectUserOrders: [],
-  loading: false,
-  productLoading: false,
-  reviewLoading: false,
-  orderLoading: false,
-  setSelectedUser: () => null,
-  fetchUserReviews: () => Promise.resolve(),
-  fetchUserProducts: () => Promise.resolve(),
-  fetchUserOrders: () => Promise.resolve(),
-  handleReviewStatusChange: () => Promise.resolve(),
-  handleProductApprovalStatusChange: () => Promise.resolve(),
-  handleBlockUser: () => Promise.resolve(),
-  handleDetleteProduct: () => Promise.resolve(),
-  handleChangeOrderStatus: () => Promise.resolve()
-}
-
-export const UserContext = createContext<UserContextType>(initialState)
+export const UserContext = createContext<UserContextType>({} as UserContextType)
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
-  const { token } = useAuth()
-
-  const [users, setUsers] = useState<IUser[]>([])
   const [selectedUser, setSelectedUser] = useState<IUser>()
-  const [selectedUserAddress, setSelectedUserAddress] = useState<IUserAddress[]>([])
-  const [selectedUserReviews, setSelectedUserReviews] = useState<IReview[]>([])
-  const [selectUserProducts, setSelectUserProducts] = useState<IProduct[]>([])
-  const [selectUserOrders, setSelectUserOrders] = useState<IOrder[]>([])
-  const [loading, setLoading] = useState<boolean>(false)
-  const [productLoading, setProductLoading] = useState<boolean>(false)
-  const [reviewLoading, setReviewLoading] = useState<boolean>(false)
-  const [orderLoading, setOrderLoading] = useState<boolean>(false)
   const params = useSearchParams()
   const router = useRouter()
   const showErrorMessage = (err: Error) => toast.error(err.message)
 
   const showSuccess = (message: string) => toast.success(message)
 
-  const fetchUsers = useCallback(async () => {
-    console.log('fetching users')
-    const [err, data] = await to(userService.fetchUsers(token))
-    if (err) {
-      showErrorMessage(err)
-      return
-    }
-    setUsers(data.data)
-    setLoading(false)
-  }, [showErrorMessage, token])
+  const {
+    data: users,
+    error: usersError,
+    isLoading: usersLoading
+  } = useQuery({
+    queryKey: ['fetchUsers'],
+    queryFn: () => userService.fetchUsers().then(res => res.data.data)
+  })
 
   useEffect(() => {
-    setLoading(true)
-    fetchUsers()
+    if (usersError) {
+      showErrorMessage(usersError)
+      return
+    }
     const userId = params.get('userId')
-    if (userId && users.length > 0 && !selectedUser) {
+    if (userId && users && users.length > 0 && !selectedUser) {
       const user = users.find(u => u.id === Number(userId))
       setSelectedUser(user)
     }
-  }, [])
+  }, [users, params])
 
-  const fetchUserAddress = useCallback(async () => {
-    if (!selectedUser) return
-    const [err, data] = await to(userService.fetchAddressByUserId(selectedUser?.id, token))
-    if (err) {
-      showErrorMessage(err)
-      return
-    }
-    setSelectedUserAddress(data)
-  }, [])
+  const { data: selectedUserAddress } = useQuery({
+    queryKey: ['fetchUserAddress', selectedUser?.id],
+    queryFn: () => userService.fetchAddressByUserId(selectedUser?.id ?? 0).then(res => res.data.data),
+    enabled: !!selectedUser
+  })
 
-  const fetchUserReviews = useCallback(async () => {
-    setSelectedUserReviews([])
-    setReviewLoading(true)
-    if (!selectedUser) return
-    const [err, data] = await to(userService.fetchReviewsByUserId(selectedUser?.id, token))
-    if (err) {
-      setReviewLoading(false)
-      showErrorMessage(err)
-      return
-    }
-    setReviewLoading(false)
-    setSelectedUserReviews(data.data)
-  }, [])
+  const { data: selectedUserReviews } = useQuery({
+    queryKey: ['fetchUserReviews', selectedUser?.id],
+    queryFn: () => fetchReviewsByUserId(selectedUser?.id ?? 0).then(res => res.data.data),
+    enabled: !!selectedUser
+  })
 
-  const fetchUserProducts = useCallback(async () => {
-    setProductLoading(true)
-    setSelectUserProducts([])
-    if (!selectedUser) return
-    const [err, data] = await to(userService.fetchPaddingProductByUserId(selectedUser?.id, token))
-    if (err) {
-      setProductLoading(false)
-      showErrorMessage(err)
-      return
-    }
-    setProductLoading(false)
-    setSelectUserProducts(data.data)
-  }, [selectedUser])
+  const { data: selectUserProducts } = useQuery({
+    queryKey: ['fetchUserProducts', selectedUser?.id],
+    queryFn: () => productService.fetchPaddingProductByUserId(selectedUser?.id ?? 0).then(res => res.data.data),
+    enabled: !!selectedUser
+  })
 
-  const fetchUserOrders = useCallback(async () => {
-    setOrderLoading(true)
-    setSelectUserOrders([])
-    if (!selectedUser) return
-    const [err, data] = await to(userService.fetchOrdersByUserId(selectedUser?.id, token))
-    if (err) {
-      setOrderLoading(false)
-      showErrorMessage(err)
-      return
-    }
-    setOrderLoading(false)
-    setSelectUserOrders(data.data)
-  }, [])
+  const { data: selectUserOrders } = useQuery({
+    queryKey: ['fetchUserOrders', selectedUser?.id],
+    queryFn: () => fetchOrdersByUserId(selectedUser?.id ?? 0).then(res => res.data.data),
+    enabled: !!selectedUser
+  })
 
   useEffect(() => {
-    if (selectedUser) {
-      fetchUserAddress()
-      fetchUserReviews()
-      fetchUserProducts()
-      fetchUserOrders()
-      router.push(`/admin/users?userId=${selectedUser.id}`)
-    }
+    if (selectedUser) router.push(`/admin/users?userId=${selectedUser.id}`)
   }, [])
 
-  const handleReviewStatusChange = async (data: IReview, status: string) => {
-    const [err, data2] = await to(userService.updateReviewStatus(data.id, status, token))
-    if (err) {
-      showErrorMessage(err)
-      return
-    }
-    showSuccess(data2.message)
-  }
+  const { mutate: handleReviewStatusChange, isPending: reviewLoading } = useMutation({
+    mutationKey: ['updateReviewStatus'],
+    mutationFn: async ({ id, status }: { id: number; status: string }) => updateReviewStatus(id, status),
+    onSuccess: () => {
+      reactQueryConfig.invalidateQueries({ queryKey: ['fetchUserReviews', selectedUser?.id] })
+      showSuccess('Yorum başarıyla güncellendi')
+    },
+    onError: err => showErrorMessage(err)
+  })
 
-  const handleProductApprovalStatusChange = useCallback(async (data: IProduct, status: boolean) => {
-    const [err, data2] = await to(userService.updateProductApprovalStatus(data.id, status, token))
-    if (err) {
-      showErrorMessage(err)
-      return
-    }
-    showSuccess(data2.message)
-    fetchUserProducts()
-  }, [])
+  const { mutate: handleProductApprovalStatusChange, isPending: productLoading } = useMutation({
+    mutationKey: ['updateProductApprovalStatus', selectedUser?.id],
+    mutationFn: ({ id, status }: { id: number; status: boolean }) =>
+      productService.updateProductApprovalStatus(id, status),
+    onSuccess: () => {
+      reactQueryConfig.invalidateQueries({ queryKey: ['fetchUserProducts', selectedUser?.id] })
+      showSuccess('Ürün başarıyla güncellendi')
+    },
+    onError: err => showErrorMessage(err)
+  })
 
-  const handleBlockUser = useCallback(async (id: number) => {
-    const [err, data] = await to(userService.blockUser(id, token))
-    if (err) {
-      showErrorMessage(err)
-      return
-    }
-    showSuccess(data.message)
-    fetchUsers()
-  }, [])
+  const { mutate: handleBlockUser } = useMutation({
+    mutationKey: ['blockUser', selectedUser?.id],
+    mutationFn: (id: number) => userService.blockUser(id),
+    onSuccess: () => {
+      reactQueryConfig.invalidateQueries({ queryKey: ['fetchUsers'] })
+      showSuccess('Kullanıcı başarıyla engellendi')
+    },
+    onError: err => showErrorMessage(err)
+  })
+
+  const { mutate: deleteProduct } = useDeleteProduct()
 
   const handleDetleteProduct = async (id: number) => {
-    const [err, data] = await to(productService.deleteProduct(id, token))
-    if (err) {
-      showErrorMessage(err)
-      return
-    }
-    showSuccess(data.message)
-    fetchUserProducts()
+    deleteProduct(id, {
+      onSuccess: () => {
+        reactQueryConfig.invalidateQueries({ queryKey: ['fetchUserProducts', selectedUser?.id] })
+        showSuccess('Ürün başarıyla silindi')
+        setTimeout(() => window.location.reload(), 2500)
+      },
+      onError: err => toast.error(err.message)
+    })
   }
 
-  const handleChangeOrderStatus = async (orderId: number, status: OrderStatus) => {
-    const [err, data2] = await to(userService.updateOrderStatus(orderId, status, token))
-    if (err) {
-      showErrorMessage(err)
-      return
-    }
-    showSuccess(data2.message)
-    fetchUserOrders()
-  }
+  const { mutate: handleChangeOrderStatus } = useMutation({
+    mutationKey: ['updateOrderStatus', selectedUser?.id],
+    mutationFn: ({ orderId, status }: { orderId: number; status: OrderStatus }) => updateOrderStatus(orderId, status),
+    onSuccess: () => {
+      reactQueryConfig.invalidateQueries({ queryKey: ['fetchUserOrders', selectedUser?.id] })
+      showSuccess('Sipariş başarıyla güncellendi')
+    },
+    onError: err => showErrorMessage(err)
+  })
 
-  const value: UserContextType = useMemo(() => {
+  const value = useMemo(() => {
     return {
       users,
       selectedUser,
-      selectedUserAddress,
-      selectedUserReviews,
-      selectUserProducts,
-      selectUserOrders,
-      loading,
+      selectedUserAddress: selectedUserAddress ?? [],
+      selectedUserReviews: selectedUserReviews ?? [],
+      selectUserProducts: selectUserProducts ?? [],
+      selectUserOrders: selectUserOrders ?? [],
+      loading: usersLoading,
       productLoading,
       reviewLoading,
-      orderLoading,
+      orderLoading: false,
       setSelectedUser,
-      fetchUserReviews,
-      fetchUserProducts,
-      fetchUserOrders,
       handleReviewStatusChange,
       handleProductApprovalStatusChange,
       handleBlockUser,
@@ -236,19 +171,9 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     selectedUserReviews,
     selectUserProducts,
     selectUserOrders,
-    loading,
+    usersLoading,
     productLoading,
-    reviewLoading,
-    orderLoading,
-    setSelectedUser,
-    fetchUserReviews,
-    fetchUserProducts,
-    fetchUserOrders,
-    handleReviewStatusChange,
-    handleProductApprovalStatusChange,
-    handleBlockUser,
-    handleDetleteProduct,
-    handleChangeOrderStatus
+    reviewLoading
   ])
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>

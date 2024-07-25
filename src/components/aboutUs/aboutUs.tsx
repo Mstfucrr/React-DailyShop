@@ -1,64 +1,59 @@
-import { getAbout } from '@/services/about/about'
-import { getContact } from '@/services/contact/contact'
-import to from 'await-to-js'
+import { useGetAbout } from '@/services/about/about'
+import { useGetContact } from '@/services/contact/contact'
+import Link from 'next/link'
 import { Messages } from 'primereact/messages'
 import { ProgressSpinner } from 'primereact/progressspinner'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { FaLocationArrow, FaPhone } from 'react-icons/fa'
 import { MdMail } from 'react-icons/md'
 
 const AboutUs = () => {
-  const [about, setAbout] = useState<string | null>(null)
+  const [about, setAbout] = useState<string | undefined>(undefined)
   const [address, setAddress] = useState<string | null>(null)
   const [phone, setPhone] = useState<string | null>(null)
   const [email, setEmail] = useState<string | null>(null)
-  const [loading, setLoading] = useState<boolean>(false)
   const msgs = useRef<Messages>(null)
 
-  const fetchAbout = async () => {
-    setLoading(true)
-    const [err, data] = await to(getAbout())
-    if (err) {
-      msgs.current?.show({
-        severity: 'error',
-        summary: 'Hata',
-        detail: err.message,
-        life: 3000
-      })
-      return setLoading(false)
-    }
-    setAbout(data.data)
-    setLoading(false)
-  }
+  const { data: contactData, isLoading: isContactLoading, error: contactError } = useGetContact()
 
-  const fetchContact = async () => {
-    setLoading(true)
-    const [err, data] = await to(getContact())
-    console.log('contact', data)
-    if (err) {
-      msgs.current?.show({
-        severity: 'error',
-        summary: 'Hata',
-        detail: err.message,
-        life: 3000
-      })
-      return setLoading(false)
-    }
-    if (!data.data) return
-    setAddress(data.data.address)
-    setPhone(data.data.phone)
-    setEmail(data.data.email)
-    setLoading(false)
-  }
+  const { data: aboutData, isLoading: isAboutLoading, error: aboutError } = useGetAbout()
 
   useEffect(() => {
-    fetchAbout()
-    fetchContact()
-  }, [])
+    if (aboutError) {
+      msgs.current?.show({
+        severity: 'error',
+        summary: 'Hata',
+        detail: aboutError.message,
+        life: 3000
+      })
+      return
+    }
+    console.log(aboutData)
+    setAbout(aboutData?.data)
+  }, [aboutData, aboutError])
 
-  const renderAbout = useCallback(
-    (about: string | null, address: string | null, phone: string | null, email: string | null) => {
-      return (
+  useEffect(() => {
+    if (contactError) {
+      msgs.current?.show({
+        severity: 'error',
+        summary: 'Hata',
+        detail: contactError.message,
+        life: 3000
+      })
+    }
+    if (!contactData) return
+    setAddress(contactData.data.address)
+    setPhone(contactData.data.phone)
+    setEmail(contactData.data.email)
+  }, [contactData, contactError])
+
+  return (
+    <>
+      {isContactLoading || isAboutLoading ? (
+        <div className='flex w-full justify-start'>
+          <ProgressSpinner />
+        </div>
+      ) : (
         <div className='mx-auto flex w-full flex-col items-center justify-center lg:w-2/3'>
           <div className='my-10 flex flex-col items-center justify-center'>
             <div className='my-10 flex items-center gap-7 '>
@@ -94,7 +89,7 @@ const AboutUs = () => {
                 <span className='text-center text-lg font-bold text-gray-800'>Adres</span>
                 <div className='flex gap-4'>
                   <FaLocationArrow className='text-2xl' />
-                  {address ? <p>{address}</p> : <p>Adres bilgisi bulunamadı.</p>}
+                  <span>{address ?? 'Adres bilgisi bulunamadı.'}</span>
                 </div>
 
                 <span className='text-center text-lg font-bold text-gray-800'>Telefon</span>
@@ -103,9 +98,9 @@ const AboutUs = () => {
                   {phone ? (
                     <>
                       <p>{phone}</p>
-                      <a href={`tel:${phone}`} className='text-primary'>
+                      <Link href={`tel:${phone}`} className='text-primary'>
                         Aramak için tıklayın
-                      </a>
+                      </Link>
                     </>
                   ) : (
                     <p>Telefon bilgisi bulunamadı.</p>
@@ -118,9 +113,9 @@ const AboutUs = () => {
                   {email ? (
                     <>
                       <p>{email}</p>
-                      <a href={`mailto:${email}`} className='text-primary'>
+                      <Link href={`mailto:${email}`} className='text-primary'>
                         Mail atmak için tıklayın
-                      </a>
+                      </Link>
                     </>
                   ) : (
                     <p>Email bilgisi bulunamadı.</p>
@@ -130,19 +125,6 @@ const AboutUs = () => {
             </div>
           </div>
         </div>
-      )
-    },
-    []
-  )
-
-  return (
-    <>
-      {loading ? (
-        <div className='flex w-full justify-start'>
-          <ProgressSpinner />
-        </div>
-      ) : (
-        renderAbout(about, address, phone, email)
       )}
     </>
   )

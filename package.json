@@ -7,17 +7,15 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\""
   },
   "dependencies": {
-    "@types/swiper": "^6.0.0",
-    "await-to-js": "^3.0.0",
     "axios": "^1.4.0",
+    "clsx": "^2.1.1",
     "formik": "^2.4.3",
     "framer-motion": "^10.16.4",
     "jwt-decode": "^4.0.0",
-    "next": "^14.2.3",
+    "next": "^14.2.5",
     "prettier-plugin-tailwindcss": "^0.5.11",
     "primeicons": "^6.0.1",
     "primereact": "^9.6.2",
@@ -28,17 +26,19 @@
     "react-hot-toast": "^2.4.1",
     "react-icons": "^4.10.1",
     "swiper": "^10.0.4",
+    "tailwind-merge": "^2.4.0",
     "usehooks-ts": "^2.9.1",
     "yup": "^1.2.0"
   },
   "devDependencies": {
+    "@tanstack/react-query": "^5.40.0",
+    "@tanstack/react-query-devtools": "^5.40.0",
     "@types/node": "^20.4.4",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@types/react-helmet": "^6.1.11",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
-    "@vitejs/plugin-react": "^4.0.3",
     "autoprefixer": "^10.4.14",
     "eslint": "^8.45.0",
     "eslint-plugin-react-hooks": "^4.6.0",
@@ -46,10 +46,9 @@
     "postcss": "^8.4.27",
     "prettier": "3.2.4",
     "tailwindcss": "^3.3.3",
-    "typescript": "^5.0.2",
-    "vite": "^4.5.2"
+    "typescript": "^5.0.2"
   },
-  "description": "This is a [React](https://reactjs.org) + [TypeScript](https://www.typescriptlang.org/) boilerplate built with [Vite](https://vitejs.dev).",
+  "description": "This is a [React](https://reactjs.org) + [TypeScript](https://www.typescriptlang.org/).",
   "main": "postcss.config.js",
   "author": "",
   "license": "ISC"
