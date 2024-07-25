@@ -8,11 +8,7 @@ import { Fieldset } from 'primereact/fieldset'
 import { ProgressSpinner } from 'primereact/progressspinner'
 import React, { useCallback } from 'react'
 
-type Props = {
-  refreshButton: (fetchUserProducts: () => Promise<void>) => JSX.Element
-}
-
-const UserProducts = ({ refreshButton }: Props) => {
+const UserProducts = () => {
   const { selectUserProducts, productLoading, handleProductApprovalStatusChange, handleDetleteProduct } = useAdimnUser()
 
   const handleProductApprovalFalse = (id: number) => {

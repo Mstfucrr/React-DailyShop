@@ -1,4 +1,3 @@
-import { useCallback } from 'react'
 import { DataTable } from 'primereact/datatable'
 import { Column } from 'primereact/column'
 import { IUser } from '@/services/auth/types'
@@ -10,50 +9,32 @@ import UserProducts from './user-products'
 import UserOrders from './user-orders'
 
 const UserSettings = () => {
-  const { users, selectedUser, selectedUserReviews, selectUserProducts, loading, setSelectedUser, handleBlockUser } =
-    useAdimnUser()
+  const { users, selectedUser, loading, setSelectedUser, handleBlockUser } = useAdimnUser()
 
-  const renderUserBlockButton = useCallback(
-    (data: IUser) => (
-      <>
-        {data.status ? (
-          <Button
-            onClick={() => {
-              handleBlockUser(data.id)
-            }}
-            icon='pi pi-ban'
-            className='p-button-danger p-button-outlined'
-            label='Engelle'
-            size='small'
-          />
-        ) : (
-          <Button
-            onClick={() => {
-              handleBlockUser(data.id)
-            }}
-            icon='pi pi-check'
-            className='p-button-success p-button-outlined'
-            label='Engeli kaldır'
-            size='small'
-          />
-        )}
-      </>
-    ),
-    [handleBlockUser]
-  )
-
-  const refreshButton = useCallback(
-    (refreshFunction: () => Promise<void>) => (
-      <div className='my-3 flex justify-end'>
+  const renderUserBlockButton = (data: IUser) => (
+    <>
+      {data.status ? (
         <Button
-          label='Yenile'
-          icon='pi pi-refresh'
-          className='p-button-raised p-button-rounded p-button-text'
-          onClick={refreshFunction}
+          onClick={() => {
+            handleBlockUser(data.id)
+          }}
+          icon='pi pi-ban'
+          className='p-button-danger p-button-outlined'
+          label='Engelle'
+          size='small'
         />
-      </div>
-    ),
-    [users, selectedUserReviews, selectUserProducts]
+      ) : (
+        <Button
+          onClick={() => {
+            handleBlockUser(data.id)
+          }}
+          icon='pi pi-check'
+          className='p-button-success p-button-outlined'
+          label='Engeli kaldır'
+          size='small'
+        />
+      )}
+    </>
   )
 
   return (
@@ -104,9 +85,9 @@ const UserSettings = () => {
           {/* Yorumlar */}
           <UserReviews />
           {/* Ürünler */}
-          <UserProducts refreshButton={refreshButton} />
+          <UserProducts />
           {/* Siparişler */}
-          <UserOrders refreshButton={refreshButton} />
+          <UserOrders />
         </div>
       )}
     </div>

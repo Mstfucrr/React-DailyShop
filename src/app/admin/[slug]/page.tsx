@@ -1,4 +1,4 @@
-// src\app\admin\[slug]\page.tsx
+'use client'
 import UnAuthorized from '@/components/error/unAuthorized'
 import Admin from '@/components/admin/admin'
 import { useAuth } from '@/hooks/useAuth'

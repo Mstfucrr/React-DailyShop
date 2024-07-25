@@ -19,23 +19,23 @@ type AdminSlug = {
   pathName: string
 }
 
+const RenderAdminComponent = ({ pathName }: AdminSlug) => {
+  switch (pathName) {
+    case AdminPage.Settings:
+      return <Settings />
+    case AdminPage.Users:
+      return <UserSettings />
+    case AdminPage.Products:
+      return <ProductSettings />
+    case AdminPage.Reports:
+      return <Reports />
+    default:
+      return <Settings />
+  }
+}
+
 const Admin = ({ pathName }: AdminSlug) => {
   const router = useRouter()
-
-  const renderAdminComponent = () => {
-    switch (pathName) {
-      case AdminPage.Settings:
-        return <Settings />
-      case AdminPage.Users:
-        return <UserSettings />
-      case AdminPage.Products:
-        return <ProductSettings />
-      case AdminPage.Reports:
-        return <Reports />
-      default:
-        return <Settings />
-    }
-  }
 
   const items = [
     {
@@ -106,7 +106,9 @@ const Admin = ({ pathName }: AdminSlug) => {
             />
           ))}
         </div>
-        <div className='flex w-full pl-6 md:w-4/5'>{renderAdminComponent()}</div>
+        <div className='flex w-full pl-6 md:w-4/5'>
+          <RenderAdminComponent pathName={pathName} />
+        </div>
       </div>
     </div>
   )

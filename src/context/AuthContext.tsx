@@ -1,6 +1,6 @@
 'use client'
 import { ILogin, IUser } from '@/services/auth/types'
-import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
+import { createContext, useEffect, useMemo, useState } from 'react'
 
 // ** Axios
 import { IAuthContext } from './types'
