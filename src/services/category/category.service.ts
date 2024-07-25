@@ -1,7 +1,14 @@
-import { makeRequest } from '../base/base'
+import { useQuery } from '@tanstack/react-query'
+import { publicAxiosInstance } from '../base/base'
+import { ICategory } from '@/shared/types'
+import { AxiosResponse } from 'axios'
 
-const fetchCategories = async () => await makeRequest<any>('Categories/GetList', 'GET')
+export const fetchCategories = async (): Promise<AxiosResponse<ICategory[]>> =>
+  await publicAxiosInstance.get('/Categories/GetList')
 
-export default {
-  fetchCategories
+export const useGetCategories = () => {
+  return useQuery({
+    queryKey: ['categories'],
+    queryFn: fetchCategories
+  })
 }

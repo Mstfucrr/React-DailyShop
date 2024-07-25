@@ -1,24 +1,20 @@
-import { addProduct } from '@/services/product/product.service'
+'use client'
 import { IProductInfo } from '@/services/product/types'
-import { authSelector } from '@/store/auth'
-import { SET_TOAST } from '@/store/Toast'
-import { IToast } from '@/store/Toast/type'
-import to from 'await-to-js'
 import { useFormik } from 'formik'
 import { useCallback, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
 import ImageUpload from './ImageUpload'
 import ProductInfo from './ProductInfo'
 import { ProgressSpinner } from 'primereact/progressspinner'
 import { Button } from 'primereact/button'
 import { productInfoValidationSchema } from '@/shared/validationSchemas'
+import { useAuth } from '@/hooks/useAuth'
+import toast from 'react-hot-toast'
+import { useAddProduct } from '@/services/product/use-product-service'
 
 const Seller = () => {
   const [coverImage, setCoverImage] = useState<File | null>(null)
   const [images, setImages] = useState<File[] | null>([])
-  const [loading, setLoading] = useState<boolean>(false)
-  const { token } = useSelector(authSelector)
-  const dispatch = useDispatch()
+  const { mutate: addProductMutation, isPending: loading } = useAddProduct()
 
   const [productInfo, setProductInfo] = useState<IProductInfo>({
     name: '',
@@ -43,55 +39,36 @@ const Seller = () => {
     },
     validationSchema: productInfoValidationSchema,
     onSubmit: async () => {
-      setLoading(true)
+      if (coverImage !== null && images && images?.length !== 0) {
+        const formData = new FormData()
 
-      await handleAddProduct().then(() => setLoading(false))
+        Object.entries(productInfo).forEach(([key, value]) => {
+          if (key === 'colors' || key === 'sizes') return
+          formData.append(key, value)
+        })
+        productInfo.colors?.forEach(color => formData.append('Colors', color))
+        productInfo.sizes?.forEach(size => formData.append('Sizes', size))
+        formData.append('BodyImage', coverImage, coverImage.name)
+        images.forEach(async image => {
+          formData.append(`ProductImages`, image, image.name)
+        })
+        // const [err, data] = await to(addProduct(formData, token))
+        // if (err) return toast.error(err.message)
+        // toast.success(data.message)
+        addProductMutation(formData, {
+          onSuccess: () => {
+            toast.success('Ürün başarıyla eklendi')
+            formik.resetForm()
+            setCoverImage(null)
+            setImages([])
+          },
+          onError: error => toast.error(error.message)
+        })
+      } else {
+        toast.error('Lütfen tüm alanları doldurunuz')
+      }
     }
   })
-
-  const handleAddProduct = async () => {
-    if (coverImage !== null && images && images?.length !== 0) {
-      const formData = new FormData()
-
-      Object.entries(productInfo).forEach(([key, value]) => {
-        if (key === 'colors' || key === 'sizes') return
-        formData.append(key, value)
-      })
-      productInfo.colors?.forEach(color => formData.append('Colors', color))
-      productInfo.sizes?.forEach(size => formData.append('Sizes', size))
-      formData.append('BodyImage', coverImage, coverImage.name)
-      images.forEach(async image => {
-        formData.append(`ProductImages`, image, image.name)
-      })
-      const [err, res] = await to(addProduct(formData, token))
-      if (err) {
-        const toast: IToast = {
-          severity: 'error',
-          summary: 'Hata',
-          detail: err.message,
-          life: 3000
-        } // service çalışmadı
-        dispatch(SET_TOAST(toast))
-        return
-      }
-      const toast: IToast = {
-        severity: 'success',
-        summary: 'Başarılı',
-        detail: res?.message,
-        life: 3000
-      }
-      dispatch(SET_TOAST(toast))
-    } else {
-      console.log(coverImage, ' \n', images, ' \n', productInfo.name)
-      const toast: IToast = {
-        severity: 'info',
-        summary: 'Uyarı',
-        detail: 'Lütfen tüm alanları doldurduğunuzdan emin olun.',
-        life: 3000
-      } // service çalışmadı
-      dispatch(SET_TOAST(toast))
-    }
-  }
 
   const LoadingTemplete = useCallback(() => {
     // tüm sayfayı kapsayacak şekilde spinner göster
@@ -103,7 +80,16 @@ const Seller = () => {
           {' '}
           D{' '}
         </span>
-        <Button severity='warning' label='İptal et' className='w-1/5 !text-xl' onClick={() => setLoading(false)} />
+        <Button
+          severity='warning'
+          label='İptal et'
+          className='w-1/5 !text-xl'
+          onClick={() => {
+            formik.resetForm()
+            setCoverImage(null)
+            setImages([])
+          }}
+        />
       </div>
     )
   }, [])

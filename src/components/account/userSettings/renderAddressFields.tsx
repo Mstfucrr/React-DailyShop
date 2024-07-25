@@ -1,9 +1,6 @@
-import { authService } from '@/services/auth/auth.service'
+import reactQueryConfig from '@/configs/react-query-config'
 import { IUserAddress } from '@/services/auth/types'
-import { SET_TOAST } from '@/store/Toast'
-import { IToast } from '@/store/Toast/type'
-import { authSelector } from '@/store/auth'
-import to from 'await-to-js'
+import useAuthService from '@/services/auth/use-auth-service'
 import { useFormik } from 'formik'
 import { Button } from 'primereact/button'
 import { confirmDialog } from 'primereact/confirmdialog'
@@ -12,8 +9,6 @@ import { InputNumber } from 'primereact/inputnumber'
 import { InputText } from 'primereact/inputtext'
 import { InputTextarea } from 'primereact/inputtextarea'
 import { ProgressSpinner } from 'primereact/progressspinner'
-import { useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
 import * as Yup from 'yup'
 
 type Props = {
@@ -21,10 +16,9 @@ type Props = {
 }
 
 const RenderAddressFields = ({ address }: Props) => {
-  const [loading, setLoading] = useState(false)
+  const { deleteAddress, updateAddress, isDeleteAddressLoading, isUpdateAddressLoading } = useAuthService()
 
-  const { token } = useSelector(authSelector)
-  const dispatch = useDispatch()
+  const loading = isDeleteAddressLoading || isUpdateAddressLoading
 
   const addressValidationSchema = Yup.object().shape({
     title: Yup.string().required('Başlık alanı zorunludur'),
@@ -46,58 +40,23 @@ const RenderAddressFields = ({ address }: Props) => {
       zipCode: address.zipCode.toString()
     },
     validationSchema: addressValidationSchema,
-    onSubmit: async values => {
-      const [err, data] = await to(authService.updateAddress(values, token))
-      if (err) {
-        const toast: IToast = {
-          severity: 'error',
-          summary: 'Hata',
-          detail: err.message,
-          life: 3000
+    onSubmit: values => {
+      updateAddress(values, {
+        onSuccess: () => {
+          reactQueryConfig.prefetchQuery({ queryKey: ['getAccount'] })
+          if (values.id === 0) addressFormik.resetForm()
+          else addressFormik.resetForm({ values: values })
         }
-        dispatch(SET_TOAST(toast))
-        return setLoading(false)
-      }
-      if (data.data) {
-        const toast: IToast = {
-          severity: 'success',
-          summary: 'Başarılı',
-          detail: data.message,
-          life: 3000
-        }
-        dispatch(SET_TOAST(toast))
-        setTimeout(() => {
-          window.location.reload()
-        }, 1400)
-        setLoading(false)
-      }
+      })
     }
   })
 
-  const handleDeleteAddress = async () => {
-    setLoading(true)
-    const [err, data] = await to(authService.deleteAddress(address.id, token))
-    if (err) {
-      const toast: IToast = {
-        severity: 'error',
-        summary: 'Hata',
-        detail: err.message,
-        life: 3000
+  const handleDeleteAddress = () => {
+    deleteAddress(address.id, {
+      onSuccess: () => {
+        reactQueryConfig.prefetchQuery({ queryKey: ['getAccount'] })
       }
-      dispatch(SET_TOAST(toast))
-      return setLoading(false)
-    }
-    const toast: IToast = {
-      severity: 'success',
-      summary: 'Başarılı',
-      detail: data.message,
-      life: 3000
-    }
-    dispatch(SET_TOAST(toast))
-    setTimeout(() => {
-      window.location.reload()
-    }, 1400)
-    setLoading(false)
+    })
   }
 
   const errorTemplate = (frm: any) => {

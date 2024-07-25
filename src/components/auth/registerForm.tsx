@@ -1,23 +1,14 @@
+'use client'
 import { InputText } from 'primereact/inputtext'
 import { Password } from 'primereact/password'
 import * as Yup from 'yup'
 import { useFormik } from 'formik'
-
-import { useState } from 'react'
-import { useDispatch } from 'react-redux'
 import { emailRegex, passwordRegex } from '@/helper/regex'
-import { useNavigate } from 'react-router-dom'
-import { authService } from '@/services/auth/auth.service'
-import { SET_TOAST } from '@/store/Toast'
-
-import { IToast } from '@/store/Toast/type'
-import to from 'await-to-js'
 import { InputMask } from 'primereact/inputmask'
+import useAuthService from '@/services/auth/use-auth-service'
 
 const RegisterForm = () => {
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
-  const [isLoading, setIsLoading] = useState(false)
+  const { register, isRegisterLoading } = useAuthService()
 
   const validationSchema = Yup.object().shape({
     name: Yup.string().required('Ad alanı zorunludur').max(50, 'Ad çok uzun').min(2, 'Ad çok kısa'),
@@ -54,53 +45,12 @@ const RegisterForm = () => {
       PhoneNumber: ''
     },
     validationSchema,
-    onSubmit: async values => {
-      setIsLoading(true)
-      if (values.password !== values.confirmPassword) {
-        setIsLoading(false)
-        const toast: IToast = {
-          severity: 'warn',
-          summary: 'Uyarı',
-          detail: 'Parola ve Parola Doğrulama aynı değil',
-          life: 3000
-        }
-        dispatch(SET_TOAST(toast))
-        return
-      }
-
-      const [err, data] = await to(authService.register(values))
-      if (err) {
-        const toast: IToast = {
-          severity: 'error',
-          summary: 'Hata',
-          detail: err.message,
-          life: 3000
-        }
-        dispatch(SET_TOAST(toast))
-        setIsLoading(false)
-        return
-      }
-      setIsLoading(false)
-      const toast: IToast = {
-        severity: 'success',
-        summary: 'Başarılı',
-        detail: data.message,
-        life: 3000
-      }
-      dispatch(SET_TOAST(toast))
-      setTimeout(() => {
-        navigate('/login')
-      }, 2000)
-    }
+    onSubmit: async values => register(values)
   })
 
-  const errorTemplate = (frm: any) => {
-    return <>{frm ? <small className='p-error p-d-block '> {frm} </small> : null}</>
-  }
+  const errorTemplate = (frm: any) => <>{frm ? <small className='p-error p-d-block '> {frm} </small> : null}</>
 
-  const inputClassName = (frm: any) => {
-    return 'w-full !my-2 p-inputtext-sm ' + (frm ? 'p-invalid' : '')
-  }
+  const inputClassName = (frm: any) => 'w-full !my-2 p-inputtext-sm ' + (frm ? 'p-invalid' : '')
 
   return (
     <form className='flex h-auto w-4/5 flex-col' action='' onSubmit={formik.handleSubmit}>
@@ -219,7 +169,7 @@ const RegisterForm = () => {
                          hover:border-primary hover:bg-white hover:text-primary active:scale-95'
           type='submit'
         >
-          {isLoading ? (
+          {isRegisterLoading ? (
             <div className='flex w-full items-center justify-center'>
               <div className='h-6 w-6 animate-spin rounded-full border-b-2 border-white'></div>
             </div>

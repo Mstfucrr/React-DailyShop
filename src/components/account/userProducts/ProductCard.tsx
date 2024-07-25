@@ -1,15 +1,11 @@
-import { productService } from '@/services/admin/admin.service'
+import { useDeleteProduct } from '@/services/product/use-product-service'
 import { IProduct } from '@/shared/types'
-import { SET_TOAST } from '@/store/Toast'
-import { IToast } from '@/store/Toast/type'
-import { authSelector } from '@/store/auth'
-import to from 'await-to-js'
+import Link from 'next/link'
 import { Button } from 'primereact/button'
 import { Card } from 'primereact/card'
 import { ConfirmPopup, confirmPopup } from 'primereact/confirmpopup'
 import { useCallback } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { Link } from 'react-router-dom'
+import toast from 'react-hot-toast'
 
 type Props = {
   product: IProduct
@@ -17,28 +13,24 @@ type Props = {
   setIsUpdate: (isUpdate: boolean) => void
 }
 
-const ProductCard = ({ product, setUpdateProductId, setIsUpdate }: Props) => {
-  const { token } = useSelector(authSelector)
-  const dispatch = useDispatch()
+const IsApprovedRender = ({ product }: { product: IProduct }) => {
+  if (product.isApproved == null) return <p className='text-yellow-400'>Onay Bekliyor</p>
+  else if (product.isApproved)
+    return (
+      <div className='flex h-auto flex-row flex-wrap items-center gap-7'>
+        <p className='text-green-400'>Onaylandı</p>
+        <Link href={`/product/${product.id}`} target='_blank'>
+          <Button label='Ürünü Görüntüle' className='w-56' rounded severity='help' icon='pi pi-eye'>
+            {/* yeni sayfada ürünü göster */}
+          </Button>
+        </Link>
+      </div>
+    )
+  else return <p className='text-red-400'>Onaylanmadı</p>
+}
 
-  const showErrorMessage = (err: Error) => {
-    const toast: IToast = {
-      severity: 'error',
-      summary: 'Hata',
-      detail: err.message,
-      life: 3000
-    }
-    dispatch(SET_TOAST(toast))
-  }
-  const showSuccess = (message: string) => {
-    const toast: IToast = {
-      severity: 'success',
-      summary: 'Başarılı',
-      detail: message,
-      life: 3000
-    }
-    dispatch(SET_TOAST(toast))
-  }
+const ProductCard = ({ product, setUpdateProductId, setIsUpdate }: Props) => {
+  const { mutate: deleteProduct } = useDeleteProduct()
 
   const handleUpdate = useCallback(() => {
     setUpdateProductId(product?.id)
@@ -46,13 +38,15 @@ const ProductCard = ({ product, setUpdateProductId, setIsUpdate }: Props) => {
   }, [product])
 
   const handleDetleteProduct = async (id: number) => {
-    const [err, data] = await to(productService.deleteProduct(id, token))
-    if (err) return showErrorMessage(err)
-    showSuccess(data.message)
-    setTimeout(() => {
-      window.location.reload()
-    }, 2500)
+    deleteProduct(id, {
+      onSuccess: () => {
+        toast.success('Ürün başarıyla silindi')
+        setTimeout(() => window.location.reload(), 2500)
+      },
+      onError: err => toast.error(err.message)
+    })
   }
+
   const confirmDelete = (event: any, id: number) => {
     confirmPopup({
       target: event.currentTarget,
@@ -67,22 +61,6 @@ const ProductCard = ({ product, setUpdateProductId, setIsUpdate }: Props) => {
       acceptClassName: 'p-button-danger'
     })
   }
-
-  const isApprovedRender = useCallback(() => {
-    if (product.isApproved == null) return <p className='text-yellow-400'>Onay Bekliyor</p>
-    else if (product.isApproved)
-      return (
-        <div className='flex h-auto flex-row flex-wrap items-center gap-7'>
-          <p className='text-green-400'>Onaylandı</p>
-          <Link to={`/product/${product.id}`} target='_blank'>
-            <Button label='Ürünü Görüntüle' className='w-56' rounded severity='help' icon='pi pi-eye'>
-              {/* yeni sayfada ürünü göster */}
-            </Button>
-          </Link>
-        </div>
-      )
-    else return <p className='text-red-400'>Onaylanmadı</p>
-  }, [product.isApproved])
 
   return (
     <Card
@@ -106,7 +84,7 @@ const ProductCard = ({ product, setUpdateProductId, setIsUpdate }: Props) => {
       className='max-h-[500px] w-full overflow-y-auto'
     >
       <div className='my-4 flex flex-col gap-1'>
-        {isApprovedRender()}
+        <IsApprovedRender product={product} />
         <p className='text-primaryDark'>Stok: {product.stock}</p>
       </div>
 

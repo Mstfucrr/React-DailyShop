@@ -1,80 +1,24 @@
+'use client'
 import { emailRegex, passwordRegex } from '@/helper/regex'
-import { authService } from '@/services/auth/auth.service'
-import { SET_TOAST } from '@/store/Toast'
-import { IToast } from '@/store/Toast/type'
-import to from 'await-to-js'
 import { Formik } from 'formik'
 import { InputText } from 'primereact/inputtext'
 import { Password } from 'primereact/password'
-import { useEffect, useState } from 'react'
-import { useDispatch } from 'react-redux'
 import * as Yup from 'yup'
+import useAuthService from '@/services/auth/use-auth-service'
+import { useParams } from 'next/navigation'
 
 const ForgotPasswordForm = () => {
-  const [isLoading, setIsLoading] = useState(false)
-  const dispatch = useDispatch()
-  const [token, setToken] = useState<string | null>(null)
+  const { resetPassword, forgotPassword, isForgotPasswordLoading, isResetPasswordLoading } = useAuthService()
 
-  const handleSubmit = async (values: { email: string }) => {
-    setIsLoading(true)
-    const [err, data] = await to(authService.forgotPassword(values.email))
-    if (err) {
-      const toast: IToast = {
-        severity: 'error',
-        summary: 'Hata',
-        detail: err.message,
-        life: 3000
-      }
-      dispatch(SET_TOAST(toast))
-      setIsLoading(false)
-      return
-    }
-    const { message } = data
-    const toast: IToast = {
-      severity: 'success',
-      summary: 'Başarılı',
-      detail: message,
-      life: 3000
-    }
-    dispatch(SET_TOAST(toast))
-    setIsLoading(false)
-  }
+  const isLoading = isForgotPasswordLoading || isResetPasswordLoading
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    if (params.has('token')) {
-      setToken(params.get('token') as string)
-    }
-  }, [])
+  const router = useParams()
 
-  const handleResetPassword = async (values: { password: string }) => {
-    setIsLoading(true)
-    if (token == null) return setIsLoading(false)
-    const [err, data] = await to(authService.resetPassword({ Password: values.password }, token))
-    if (err) {
-      const toast: IToast = {
-        severity: 'error',
-        summary: 'Hata',
-        detail: err.message,
-        life: 3000
-      }
-      dispatch(SET_TOAST(toast))
-      setIsLoading(false)
-      return
-    }
-    const { message } = data
-    const toast: IToast = {
-      severity: 'success',
-      summary: 'Başarılı',
-      detail: message,
-      life: 3000
-    }
-    dispatch(SET_TOAST(toast))
-    setIsLoading(false)
-    setTimeout(() => {
-      window.location.href = '/login'
-    }, 1000)
-  }
+  const token = router.token
+
+  const handleSubmit = async (values: { email: string }) => forgotPassword(values.email)
+
+  const handleResetPassword = async (values: { password: string }) => resetPassword({ Password: values.password })
 
   return (
     <div

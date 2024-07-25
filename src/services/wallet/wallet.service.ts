@@ -1,7 +1,18 @@
-import { makeRequest } from '../base/base'
+import { privateAxiosInstance } from '../base/base'
 
-export const getWalletByUser = async (token: string) =>
-  await makeRequest<any>(`Wallets/GetWalletByUser`, 'GET', null, token)
+type GetWalletByUser = {
+  data: {
+    balance: number
+  }
+}
 
-export const addMoneyToWallet = async (input: any, token: string) =>
-  await makeRequest<any>(`Wallets/AddMoneyToWallet`, 'POST', input, token)
+const getWalletByUser = async () => await privateAxiosInstance.get<GetWalletByUser>('Wallets/GetWalletByUser')
+
+type AddMoneyToWallet = {
+  amount: number
+}
+
+const addMoneyToWallet = async (input: any) =>
+  await privateAxiosInstance.post<AddMoneyToWallet>('Wallets/AddMoneyToWallet', input)
+
+export default { getWalletByUser, addMoneyToWallet }

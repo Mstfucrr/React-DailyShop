@@ -1,7 +1,21 @@
-import { makeRequest } from '../base/base'
+import { privateAxiosInstance } from '../base/base'
 
-export const reportReview = async (reviewId: number, input: any, token: string) =>
-  await makeRequest<any>(`/Reviews/ReportReview/${reviewId}`, 'POST', input, token)
+interface IReportResponse {
+  message: string
+}
 
-export const reportUser = async (userId: number, input: any, token: string) =>
-  await makeRequest<any>(`/Users/ReportUser/${userId}`, 'POST', input, token)
+type ReportReviewInput = {
+  message: string
+}
+
+type ReportUserInput = {
+  message: string
+}
+
+const reportReview = async (reviewId: number, input: ReportReviewInput) =>
+  await privateAxiosInstance.post<IReportResponse>(`Reviews/ReportReview/${reviewId}`, input)
+
+const reportUser = async (userId: number, input: ReportUserInput) =>
+  await privateAxiosInstance.post<IReportResponse>(`Users/ReportUser/${userId}`, input)
+
+export default { reportReview, reportUser }

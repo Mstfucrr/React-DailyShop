@@ -1,72 +1,36 @@
 import useMediaQuery from '@/hooks/useMedia'
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 
 import { IoIosArrowDown, IoIosMenu } from 'react-icons/io'
 import HeaderCarousel from './Header/HeaderCarousel'
 import { useOnClickOutside } from 'usehooks-ts'
-import { Link, useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Button } from 'primereact/button'
-import { authSelector, SET_LOGOUT } from '@/store/auth'
-import { useDispatch, useSelector } from 'react-redux'
-import { SET_TOAST } from '@/store/Toast'
-import { IToast } from '@/store/Toast/type'
-import categoryService from '@/services/category/category.service'
-import to from 'await-to-js'
-import { ICategory } from '@/shared/types'
+import { useGetCategories } from '@/services/category/category.service'
+import { useAuth } from '@/hooks/useAuth'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import CategoryTree from './categoryTree'
+import NavbarLink from './navbarLink'
 
 const Navbar = () => {
-  const navigate = useNavigate()
+  const pathName = usePathname()
 
-  const [categories, setCategories] = useState([] as ICategory[])
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(true)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const isAboveMediumScreen = useMediaQuery('(min-width: 1060px)')
+  const { data: categoryData } = useGetCategories()
 
-  const navItemsStyle =
-    'border-b-[1px] border-solid border-secondary text-black outline-none block py-[10px] lx:py-[20px] px-[10px]'
-
-  const isHomePage = location.pathname === '/' // Assuming the home page path is '/'
+  const isHomePage = pathName === '/'
 
   const categoriesBox = useRef(null)
   useOnClickOutside(categoriesBox, () => {
     setIsCategoryMenuOpen(true)
   })
 
-  const dispatch = useDispatch()
-  const { isAuthorized, isAdminAuthorized } = useSelector(authSelector)
-  const handleLogout = () => {
-    dispatch(SET_LOGOUT())
-    const toast: IToast = {
-      severity: 'success',
-      summary: 'Başarılı',
-      detail: 'Başarıyla çıkış yaptınız.',
-      life: 3000
-    }
-    dispatch(SET_TOAST(toast))
-    navigate('/')
-  }
+  const { isAuthorized, isAdminAuthorized, logout } = useAuth()
 
-  const getCategories = async () => {
-    const [err, data] = await to(categoryService.fetchCategories())
-    if (err) return console.log(err)
-    setCategories(data)
-  }
-
-  const renderCategory = (category: ICategory) => (
-    <div key={'category-' + category.id}>
-      <a href={`/shop/${category.id}`} className={navItemsStyle + ' px-[30px] py-[8px]'}>
-        {category.name}
-      </a>
-      {category.subCategories && (
-        <div className='pl-[20px]'>{category.subCategories.map(subcategory => renderCategory(subcategory))}</div>
-      )}
-    </div>
-  )
-
-  useEffect(() => {
-    getCategories()
-  }, [])
+  const handleLogout = () => logout()
 
   return (
     <div className='mx-auto w-full px-4'>
@@ -97,7 +61,7 @@ const Navbar = () => {
                     visible: { opacity: 1, height: 'auto' }
                   }}
                 >
-                  {categories.map(category => renderCategory(category))}
+                  {categoryData?.data.map(category => <CategoryTree category={category} key={category.id} />)}
                 </motion.div>
               )}
             </AnimatePresence>
@@ -105,13 +69,12 @@ const Navbar = () => {
         </div>
         <div className='col-span-12 px-[15px] lg:col-span-9'>
           <nav className='relative flex flex-row flex-wrap items-center justify-between px-0 py-4 lg:justify-start lg:py-0'>
-            <a href='/' className='block text-black lg:hidden'>
+            <Link href='/' className='block text-black lg:hidden'>
               {/* font-size: calc(1.375rem + 1.5vw); */}
               <h1 className='m-0 text-4xl font-semibold' style={{ fontSize: 'calc(1.375rem + 1.5vw)' }}>
-                <span className='mr-1 border px-4 font-bold text-primary'>D</span>
-                ailyShop
+                <span className='mr-1 border px-4 font-bold text-primary'>D</span>ailyShop
               </h1>
-            </a>
+            </Link>
             <button
               className='border border-solid bg-transparent px-3 py-1 text-[1.25rem] lg:hidden'
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -132,12 +95,8 @@ const Navbar = () => {
                   transition={{ duration: 0.3 }}
                 >
                   <div className='mb-0 mr-auto mt-4 flex flex-col py-0 pl-0 lg:flex-row'>
-                    <a href='/' className={navItemsStyle}>
-                      Ana Sayfa
-                    </a>
-                    <a href='/about' className={navItemsStyle}>
-                      Hakkımızda ve İletişim
-                    </a>
+                    <NavbarLink href='/'>Ana Sayfa</NavbarLink>
+                    <NavbarLink href='/about-us'>Hakkımızda ve İletişim</NavbarLink>
                   </div>
                   <div className='m-5 mb-0 ml-auto flex flex-col gap-5 py-0 pl-0 lg:flex-row'>
                     {/* login register links */}
@@ -146,19 +105,19 @@ const Navbar = () => {
                     {isAuthorized ? (
                       <>
                         {isAdminAuthorized && (
-                          <Link to='/admin'>
-                            <Button text={location.pathname !== '/admin'} severity='help'>
+                          <Link href='/admin/settings'>
+                            <Button text={!pathName.includes('admin')} severity='help'>
                               Admin
                             </Button>
                           </Link>
                         )}
-                        <Link to='/account'>
-                          <Button text={location.pathname !== '/account'} severity='info'>
+                        <Link href='/account/user-info'>
+                          <Button text={!pathName.includes('/account')} severity='info'>
                             Hesap
                           </Button>
                         </Link>
-                        <Link to='/seller'>
-                          <Button text={location.pathname !== '/seller'} severity='warning'>
+                        <Link href='/seller'>
+                          <Button text={pathName !== '/seller'} severity='warning'>
                             Satış Yap{' '}
                           </Button>
                         </Link>
@@ -168,13 +127,13 @@ const Navbar = () => {
                       </>
                     ) : (
                       <>
-                        <Link to='/login'>
-                          <Button text={location.pathname !== '/login'} severity='info'>
+                        <Link href='/login'>
+                          <Button text={pathName !== '/login'} severity='info'>
                             Giriş Yap
                           </Button>
                         </Link>
-                        <Link to='/register'>
-                          <Button text={location.pathname !== '/register'} severity='warning'>
+                        <Link href='/register'>
+                          <Button text={pathName !== '/register'} severity='warning'>
                             Kayıt Ol{' '}
                           </Button>
                         </Link>

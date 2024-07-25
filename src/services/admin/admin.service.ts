@@ -1,8 +1,8 @@
 // admin.service.ts
 import * as SettingsService from './settings.service'
-import * as CategoryService from './category.service'
-import * as ProductService from './products.service'
-import * as UserService from './user.service'
+import * as CategoryService from './category/category.service'
+import * as ProductService from './product/products.service'
+import * as UserService from './user/user.service'
 
 export const categoryService = { ...CategoryService }
 

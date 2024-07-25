@@ -1,36 +1,36 @@
-import { addAnswerToReview, addReviewToProduct, deleteReviewFromProduct } from '@/services/product/product.service'
-import { IAnswer, IProduct, IReview } from '@/shared/types'
-import { SET_TOAST } from '@/store/Toast'
-import { IToast } from '@/store/Toast/type'
-import { authSelector } from '@/store/auth'
-import to from 'await-to-js'
 import { Avatar } from 'primereact/avatar'
 import { InputText } from 'primereact/inputtext'
 import { InputTextarea } from 'primereact/inputtextarea'
 import { Rating } from 'primereact/rating'
 import { useState } from 'react'
 import { FaComment, FaTrashAlt, FaSpinner, FaCommentAlt, FaCommentSlash } from 'react-icons/fa'
-import { useDispatch, useSelector } from 'react-redux'
-import { Link } from 'react-router-dom'
 import { Form, Formik } from 'formik'
 import { reviewValidationSchema } from '@/shared/validationSchemas'
 import { classNames } from 'primereact/utils'
 import { MdReportProblem } from 'react-icons/md'
-import { reportReview, reportUser } from '@/services/report/report.service'
 import { SelectButton } from 'primereact/selectbutton'
 import { Dialog } from 'primereact/dialog'
 import { Button } from 'primereact/button'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Fieldset } from 'primereact/fieldset'
+import { useAuth } from '@/hooks/useAuth'
+import toast from 'react-hot-toast'
+import Link from 'next/link'
+import {
+  useAddAnswerToReview,
+  useAddReviewToProduct,
+  useDeleteReviewFromProduct,
+  useGetReviewsByProductId
+} from '@/services/review/use-review-service'
+import useReportService from '@/services/report/use-report-service'
 
 type Props = {
-  reviews: IReview[] | undefined
-  product: IProduct
+  productId: number
+  productName: string
 }
 
-const ProductReview = ({ reviews, product }: Props) => {
-  const [addReviewLoading, setAddReviewLoading] = useState<boolean>(false)
-  const { token, isAuthorized, auth } = useSelector(authSelector)
+const ProductReview = ({ productId, productName }: Props) => {
+  const { isAuthorized, auth } = useAuth()
   const [answerReview, setAnswerReview] = useState<number | undefined>(undefined)
   const [answerReviewText, setAnswerReviewText] = useState<string>('')
   const [reportMessage, setReportMessage] = useState<string>('')
@@ -39,58 +39,30 @@ const ProductReview = ({ reviews, product }: Props) => {
   const [repUserId, setRepUserId] = useState<number>(0)
   const [repReviewId, setRepReviewId] = useState<number>(0)
 
-  const showErrorMessage = (message: string) => {
-    const toast: IToast = {
-      severity: 'error',
-      summary: 'Hata',
-      detail: message,
-      life: 3000
-    }
-    dispatch(SET_TOAST(toast))
-  }
-  const showSuccess = (message: string) => {
-    const toast: IToast = {
-      severity: 'success',
-      summary: 'Başarılı',
-      detail: message,
-      life: 3000
-    }
-    dispatch(SET_TOAST(toast))
-  }
+  const showErrorMessage = (message: string) => toast.error(message)
+  const showSuccess = (message: string) => toast.success(message)
 
-  const dispatch = useDispatch()
-  // validate for review
+  const { data: reviews } = useGetReviewsByProductId(productId)
+
+  const { mutate: addReviewToProduct, isPending: addReviewLoading } = useAddReviewToProduct()
+
+  const { mutate: addAnswerToReview } = useAddAnswerToReview()
+
+  const { mutate: deleteReviewFromProduct } = useDeleteReviewFromProduct()
 
   // Yorum Yap
   const handleAddReview = async (values: any) => {
-    if (!product) return
     const review = {
       rating: values.rating,
       comment: values.comment
     }
-    setAddReviewLoading(true)
-    const [err, data] = await to(addReviewToProduct(product.id, review, token))
-    if (err) {
-      const toast: IToast = {
-        severity: 'error',
-        summary: 'Hata',
-        detail: err.message,
-        life: 3000
+    addReviewToProduct(
+      { productId: productId, input: review },
+      {
+        onSuccess: () => showSuccess('Yorumunuz başarıyla eklendi'),
+        onError: err => showErrorMessage(err.message)
       }
-      dispatch(SET_TOAST(toast))
-      setAddReviewLoading(false)
-      return
-    }
-    if (data) {
-      const toast: IToast = {
-        severity: 'success',
-        summary: 'Başarılı',
-        detail: data.message,
-        life: 3000
-      }
-      dispatch(SET_TOAST(toast))
-    }
-    setAddReviewLoading(false)
+    )
   }
 
   // Yorumu Yanıtla
@@ -99,69 +71,53 @@ const ProductReview = ({ reviews, product }: Props) => {
       parentReviewId: parentReviewId,
       comment: answerReviewText
     }
-    const [err, data] = await to(addAnswerToReview(product.id, answerReview, token))
-    if (err) {
-      const toast: IToast = {
-        severity: 'error',
-        summary: 'Hata',
-        detail: err.message,
-        life: 3000
+    addAnswerToReview(
+      { input: answerReview, productId: productId },
+      {
+        onSuccess: () => {
+          showSuccess('Yorumunuz başarıyla eklendi')
+          setAnswerReview(undefined)
+          setAnswerReviewText('')
+        },
+        onError: err => showErrorMessage(err.message)
       }
-      dispatch(SET_TOAST(toast))
-      return
-    }
-    if (data) {
-      const toast: IToast = {
-        severity: 'success',
-        summary: 'Başarılı',
-        detail: data.message,
-        life: 3000
-      }
-      dispatch(SET_TOAST(toast))
-    }
-    setAnswerReview(undefined)
-    setAnswerReviewText('')
+    )
   }
+
+  const { ReportReview, ReportUser } = useReportService()
 
   // Yorumu Şikayet Et
   const handleReportReview = async (reviewId: number, reportMessage: string) => {
-    // report review
     if (!reportMessage) return showErrorMessage('Şikayet sebebi boş olamaz')
-    const repVal = {
-      message: reportMessage
-    }
-    console.log(repVal)
-    const [err, data] = await to(reportReview(reviewId, repVal, token))
-    if (err) return showErrorMessage(err.message)
-    if (data) return showSuccess(data.message)
+    const repVal = { message: reportMessage }
+    ReportReview(
+      { reviewId, input: repVal },
+      {
+        onSuccess: () => showSuccess('Yorum başarıyla şikayet edildi'),
+        onError: err => showErrorMessage(err.message)
+      }
+    )
   }
 
   // Kullanıcıyı Şikayet Et
   const handleReportUser = async (userId: number, reportMessage: string) => {
-    // report user
     if (!reportMessage) return showErrorMessage('Şikayet sebebi boş olamaz')
-    const repVal = {
-      message: reportMessage
-    }
-    console.log(repVal)
-    const [err, data] = await to(reportUser(userId, repVal, token))
-    if (err) return showErrorMessage(err.message)
-    if (data) return showSuccess(data.message)
+    const repVal = { message: reportMessage }
+    ReportUser(
+      { userId, input: repVal },
+      {
+        onSuccess: () => showSuccess('Kullanıcı başarıyla şikayet edildi'),
+        onError: err => showErrorMessage(err.message)
+      }
+    )
   }
 
   // Yorumu Sil
-  const handleDeleteReview = async (rewId: number) => {
-    if (!product) return
-
-    const [err, data] = await to(deleteReviewFromProduct(rewId, token))
-    if (err) return showErrorMessage(err.message)
-    if (data) {
-      showSuccess(data.message)
-      setTimeout(() => {
-        window.location.reload()
-      }, 1500)
-    }
-  }
+  const handleDeleteReview = async (rewId: number) =>
+    deleteReviewFromProduct(rewId, {
+      onSuccess: () => showSuccess('Yorum başarıyla silindi'),
+      onError: err => showErrorMessage(err.message)
+    })
 
   // Yorumu Yanıtla
   const answerReviewTemplete = (review: any) => {
@@ -233,158 +189,6 @@ const ProductReview = ({ reviews, product }: Props) => {
     )
   }
 
-  // Yorum Templete
-  const reviewTemplete = (review: IReview) => {
-    return (
-      <motion.div
-        className='mx-4 my-2 flex items-start'
-        key={review.date}
-        // elemanların sıralı gelmesi için
-        variants={variants}
-      >
-        {review.userPurchasedThisProduct ? (
-          userPurchasedThisProductTemplete(review.user?.profileImage ?? '')
-        ) : (
-          <Avatar image={review.user?.profileImage} size={'large'} className='m-2' />
-        )}
-        <div className='flex-1'>
-          <div className='flex flex-row flex-wrap items-center gap-1 text-xs sm:gap-7'>
-            <h6 className='text-lg'> {review.user?.name} </h6>
-            {/* eğer yorumu yazan kişi bu ürünü Almışsa icon */}
-
-            {review?.date?.split('T')[0]}
-          </div>
-          <small>{review.user?.email}</small>
-
-          <Rating
-            value={review.rating}
-            readOnly
-            cancel={false}
-            className='my-2'
-            pt={{
-              onIcon: { className: '!text-primary' }
-            }}
-          />
-          <p>{review.comment}</p>
-          {/* Yanıtla */}
-
-          <div className='mt-2 flex flex-row gap-x-2'>
-            <button
-              className='text-primary transition-all duration-300 ease-in-out hover:text-primaryDark'
-              onClick={() => setAnswerReview(review.id)}
-            >
-              <FaComment className='mr-2 inline' />
-              Yanıtla
-            </button>
-            {/* iptal */}
-            {answerReview == review.id && (
-              <button
-                className='text-primary transition-all duration-300 ease-in-out hover:text-primaryDark'
-                onClick={() => {
-                  setAnswerReview(undefined)
-                  setAnswerReviewText('')
-                }}
-              >
-                <FaCommentSlash className='mr-2 inline w-6' />
-                İptal
-              </button>
-            )}
-          </div>
-
-          {answerReview == review.id && answerReviewTemplete(review)}
-
-          <Fieldset
-            className='mt-4'
-            toggleable
-            collapsed
-            legend={
-              <div className='flex flex-row gap-x-2 text-primary transition-all duration-300 ease-in-out hover:text-primaryDark'>
-                <FaComment className='mr-2 inline' />
-                Yanıtlar ({review.answers?.length ?? 0})
-              </div>
-            }
-            collapseIcon='null'
-            expandIcon='null'
-            pt={{
-              toggler: { className: 'bg-white !px-4 !py-3' }
-            }}
-          >
-            {/* Answers */}
-            {review.answers?.map(answer => reviewAnswersTemplete(answer))}
-          </Fieldset>
-        </div>
-
-        {/* eğer yorumu yazan kişi giriş yapmışsa ve yorumu silmek istiyorsa */}
-        <div className='flex'>
-          {isAuthorized && (
-            <div className='flex flex-row flex-wrap items-center justify-center gap-6'>
-              {review.user?.id == auth.id && deleteReviewTemplete(review.id)}
-              {/* Şikayet Et */}
-              {review.user?.id != auth.id && reportTemplete(review.id, review.user?.id)}
-            </div>
-          )}
-        </div>
-      </motion.div>
-    )
-  }
-
-  // Yorum Yanıt Templete
-  const reviewAnswersTemplete = (answer: IAnswer) => {
-    return (
-      <div className='mx-4 my-4 flex items-start border-l-4' key={'answer-' + answer.id}>
-        {/* ürünü satın aldıysa border var ve sol üstünde tik yanında ürünü satın aldı yazısı */}
-        {answer.userPurchasedThisProduct ? (
-          userPurchasedThisProductTemplete(answer.user?.profileImage ?? '')
-        ) : (
-          <Avatar image={answer.user?.profileImage} size={'large'} className='m-2' />
-        )}
-        <div className='flex-1'>
-          <div className='flex flex-row flex-wrap items-center gap-1 text-xs sm:gap-7'>
-            <h6 className='text-lg'> {answer.user?.name} </h6>
-            {/* eğer yorumu yazan kişi bu ürünü Almışsa icon */}
-            {answer?.date?.split('T')[0]}
-          </div>
-          <small>{answer.user?.email}</small>
-          <p> {answer.comment} </p>
-
-          <div className='mt-2 flex flex-row gap-x-2'>
-            <button
-              className='text-primary transition-all duration-300 ease-in-out hover:text-primaryDark'
-              onClick={() => setAnswerReview(answer.id)}
-            >
-              <FaComment className='mr-2 inline' />
-              Yanıtla
-            </button>
-            {/* iptal */}
-            {answerReview == answer.id && (
-              <button
-                className='text-primary transition-all duration-300 ease-in-out hover:text-primaryDark'
-                onClick={() => {
-                  setAnswerReview(undefined)
-                  setAnswerReviewText('')
-                }}
-              >
-                <FaCommentSlash className='mr-2 inline w-6' />
-                İptal
-              </button>
-            )}
-          </div>
-          {answerReview == answer.id && answerReviewTemplete(answer)}
-        </div>
-        {/* eğer yorumu yazan kişi giriş yapmışsa ve yorumu silmek istiyorsa */}
-        <div className='flex'>
-          {isAuthorized && (
-            <div className='flex flex-row flex-wrap items-center justify-center gap-6'>
-              {answer.user?.id == auth.id && deleteReviewTemplete(answer.id)}
-              {/* Şikayet Et */}
-              {answer.user?.id != auth.id && reportTemplete(answer.id, answer.user?.id)}
-            </div>
-          )}
-        </div>
-      </div>
-    )
-  }
-
   const variants = {
     animate: {
       opacity: 1,
@@ -403,7 +207,7 @@ const ProductReview = ({ reviews, product }: Props) => {
     <div className='mt-6 flex w-full flex-col gap-x-3 gap-y-4 px-5 lg:flex-row'>
       <div className='flex w-full flex-col'>
         <h1 className='text-3xl'>
-          "{product.name}" için {reviews?.length} Yorum
+          "{productName}" için {reviews?.length} Yorum
         </h1>
         <Dialog
           header='Şikayet Et'
@@ -471,7 +275,153 @@ const ProductReview = ({ reviews, product }: Props) => {
         </Dialog>
         <AnimatePresence>
           <motion.div className='flex w-full flex-col' variants={variants} animate='animate' initial='initial'>
-            {reviews?.filter(review => review.status == 'approved').map(review => reviewTemplete(review))}
+            {reviews
+              ?.filter(review => review.status == 'approved')
+              .map(review => (
+                <motion.div
+                  className='mx-4 my-2 flex items-start'
+                  key={review.date}
+                  // elemanların sıralı gelmesi için
+                  variants={variants}
+                >
+                  {review.userPurchasedThisProduct ? (
+                    userPurchasedThisProductTemplete(review.user?.profileImage ?? '')
+                  ) : (
+                    <Avatar image={review.user?.profileImage} size={'large'} className='m-2' />
+                  )}
+                  <div className='flex-1'>
+                    <div className='flex flex-row flex-wrap items-center gap-1 text-xs sm:gap-7'>
+                      <h6 className='text-lg'> {review.user?.name} </h6>
+                      {/* eğer yorumu yazan kişi bu ürünü Almışsa icon */}
+
+                      {review?.date?.split('T')[0]}
+                    </div>
+                    <small>{review.user?.email}</small>
+
+                    <Rating
+                      value={review.rating}
+                      readOnly
+                      cancel={false}
+                      className='my-2'
+                      pt={{
+                        onIcon: { className: '!text-primary' }
+                      }}
+                    />
+                    <p>{review.comment}</p>
+                    {/* Yanıtla */}
+
+                    <div className='mt-2 flex flex-row gap-x-2'>
+                      <button
+                        className='text-primary transition-all duration-300 ease-in-out hover:text-primaryDark'
+                        onClick={() => setAnswerReview(review.id)}
+                      >
+                        <FaComment className='mr-2 inline' />
+                        Yanıtla
+                      </button>
+                      {/* iptal */}
+                      {answerReview == review.id && (
+                        <button
+                          className='text-primary transition-all duration-300 ease-in-out hover:text-primaryDark'
+                          onClick={() => {
+                            setAnswerReview(undefined)
+                            setAnswerReviewText('')
+                          }}
+                        >
+                          <FaCommentSlash className='mr-2 inline w-6' />
+                          İptal
+                        </button>
+                      )}
+                    </div>
+
+                    {answerReview == review.id && answerReviewTemplete(review)}
+
+                    {review.answers && review.answers.length > 0 && (
+                      <Fieldset
+                        className='mt-4'
+                        toggleable
+                        collapsed
+                        legend={
+                          <div className='flex flex-row gap-x-2 text-primary transition-all duration-300 ease-in-out hover:text-primaryDark'>
+                            <FaComment className='mr-2 inline' />
+                            Yanıtlar ({review.answers?.length ?? 0})
+                          </div>
+                        }
+                        collapseIcon='null'
+                        expandIcon='null'
+                        pt={{
+                          toggler: { className: 'bg-white !px-4 !py-3' }
+                        }}
+                      >
+                        {/* Answers */}
+                        {review.answers?.map(answer => (
+                          <div className='mx-4 my-4 flex items-start border-l-4' key={'answer-' + answer.id}>
+                            {/* ürünü satın aldıysa border var ve sol üstünde tik yanında ürünü satın aldı yazısı */}
+                            {answer.userPurchasedThisProduct ? (
+                              userPurchasedThisProductTemplete(answer.user?.profileImage ?? '')
+                            ) : (
+                              <Avatar image={answer.user?.profileImage} size={'large'} className='m-2' />
+                            )}
+                            <div className='flex-1'>
+                              <div className='flex flex-row flex-wrap items-center gap-1 text-xs sm:gap-7'>
+                                <h6 className='text-lg'> {answer.user?.name} </h6>
+                                {/* eğer yorumu yazan kişi bu ürünü Almışsa icon */}
+                                {answer?.date?.split('T')[0]}
+                              </div>
+                              <small>{answer.user?.email}</small>
+                              <p> {answer.comment} </p>
+
+                              <div className='mt-2 flex flex-row gap-x-2'>
+                                <button
+                                  className='text-primary transition-all duration-300 ease-in-out hover:text-primaryDark'
+                                  onClick={() => setAnswerReview(answer.id)}
+                                >
+                                  <FaComment className='mr-2 inline' />
+                                  Yanıtla
+                                </button>
+                                {/* iptal */}
+                                {answerReview == answer.id && (
+                                  <button
+                                    className='text-primary transition-all duration-300 ease-in-out hover:text-primaryDark'
+                                    onClick={() => {
+                                      setAnswerReview(undefined)
+                                      setAnswerReviewText('')
+                                    }}
+                                  >
+                                    <FaCommentSlash className='mr-2 inline w-6' />
+                                    İptal
+                                  </button>
+                                )}
+                              </div>
+                              {answerReview == answer.id && answerReviewTemplete(answer)}
+                            </div>
+                            {/* eğer yorumu yazan kişi giriş yapmışsa ve yorumu silmek istiyorsa */}
+                            <div className='flex'>
+                              {isAuthorized && (
+                                <div className='flex flex-row flex-wrap items-center justify-center gap-6'>
+                                  {answer.user?.id == auth.id && deleteReviewTemplete(answer.id)}
+                                  {/* Şikayet Et */}
+                                  {answer.user?.id != auth.id && reportTemplete(answer.id, answer.user?.id)}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </Fieldset>
+                    )}
+                  </div>
+
+                  {/* eğer yorumu yazan kişi giriş yapmışsa ve yorumu silmek istiyorsa */}
+                  <div className='flex'>
+                    {isAuthorized && (
+                      <div className='flex flex-row flex-wrap items-center justify-center gap-6'>
+                        {review.user?.id == auth.id && deleteReviewTemplete(review.id)}
+                        {/* Şikayet Et */}
+                        {review.user?.id != auth.id && reportTemplete(review.id, review.user?.id)}
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              ))}
           </motion.div>
         </AnimatePresence>
       </div>
@@ -564,7 +514,7 @@ const ProductReview = ({ reviews, product }: Props) => {
           <div className='flex h-32 w-full flex-col items-center justify-center rounded-xl bg-gray-100 bg-opacity-50'>
             <h1 className='text-center text-2xl'>Yorum yapabilmek için giriş yapmalısınız</h1>
             <Link
-              to='/login'
+              href='/login'
               className='text-xl text-primary transition-all duration-300 ease-in-out hover:text-primaryDark'
             >
               Giriş Yap

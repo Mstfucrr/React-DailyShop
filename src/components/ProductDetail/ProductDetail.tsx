@@ -1,50 +1,43 @@
-import { IProduct, IReview } from '@/shared/types'
+'use client'
 import { Galleria } from 'primereact/galleria'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Rating } from 'primereact/rating'
 import { RadioButton } from 'primereact/radiobutton'
-import { FaCommentAlt, FaHeart, FaInfoCircle, FaMinus, FaPencilAlt, FaPlus, FaShoppingCart } from 'react-icons/fa'
+import { FaCommentAlt, FaInfoCircle, FaMinus, FaPencilAlt, FaPlus, FaShoppingCart } from 'react-icons/fa'
 import { MdDescription } from 'react-icons/md'
 import { TabView, TabPanel } from 'primereact/tabview'
 import { Messages } from 'primereact/messages'
-import { Link, useParams } from 'react-router-dom'
-import { getProductById, getReviewsByProductId } from '@/services/product/product.service'
 import { setProductCookie } from '@/helper/cookieUtils'
-import { useDispatch, useSelector } from 'react-redux'
-import { authSelector } from '@/store/auth'
-import { SET_TOAST } from '@/store/Toast'
-import { IToast } from '@/store/Toast/type'
-import { addToCart } from '@/services/order/order.service'
 import { IaddToCartRequest } from '@/services/order/types'
 import { InputNumber } from 'primereact/inputnumber'
-import to from 'await-to-js'
 import { ProgressSpinner } from 'primereact/progressspinner'
 import UpdateProduct from '../account/userProducts/UpdateProduct'
-import { favoritesService } from '@/services/favorites/favorites.service'
 import ProductReview from './productReview'
 import { productStatus } from '@/shared/constants'
 import { AnimatePresence } from 'framer-motion'
+import { useAuth } from '@/hooks/useAuth'
+import toast from 'react-hot-toast'
+import Link from 'next/link'
+import { useGetProductById } from '@/services/product/use-product-service'
+import { useAddToCart } from '@/services/order/use-cart-service'
 
-const ProductDetail = () => {
+const ProductDetail = ({ productId }: { productId: number }) => {
   const [images, setImages] = useState<{ source: string }[] | string | undefined>(undefined)
-  const { id } = useParams()
-  const [productLoading, setProductLoading] = useState<boolean>(false)
-  const [addCartLoading, setAddCartLoading] = useState<boolean>(false)
-  const [product, setProduct] = useState<IProduct | null>(null)
+
   const [selectSize, setSelectSize] = useState<string | undefined>(undefined)
   const [selectColor, setSelectColor] = useState<string | undefined>(undefined)
-  const [reviews, setReviews] = useState<IReview[]>([])
   // const size = [{ name: "S", key: "s" }]
   const [quantity, setQuantity] = useState(1)
   const msgs = useRef<Messages>(null)
   const [sizes, setSizes] = useState<{ name: string; key: string }[] | undefined>(undefined)
   const [colors, setColors] = useState<{ name: string; key: string }[] | undefined>(undefined)
-  const dispatch = useDispatch()
-  const [isUpdate, setIsUpdate] = useState<boolean>(false)
+  const [isUpdate, setIsUpdate] = useState(false)
 
-  // kullanıcı giriş yapmış mı konrol et ve hangi üründe ne kadar gezindiğini cooki ye kaydet
+  const { data: product, isPending: productLoading, error } = useGetProductById(productId)
 
-  const { auth, isAuthorized, token } = useSelector(authSelector)
+  const { mutate: addToCart, isPending: addCartLoading } = useAddToCart()
+
+  const { auth, isAuthorized } = useAuth()
 
   useEffect(() => {
     if (auth && product) {
@@ -66,150 +59,79 @@ const ProductDetail = () => {
     }
   }, [auth, product])
 
-  const fetchProductReviews = useCallback(
-    async (productId: number) => {
-      if (!productId) return
-      const [err, data] = await to(getReviewsByProductId(productId, token))
-      if (err) {
-        const toast: IToast = {
-          severity: 'error',
-          summary: 'Hata',
-          detail: err.message,
-          life: 3000
-        }
-        dispatch(SET_TOAST(toast))
-        return
-      }
-      if (data.data) {
-        const reviews = data.data as IReview[]
-        setReviews(reviews)
-        if (product)
-          setProduct({
-            ...product,
-            rating: reviews.reduce((a, b) => a + b.rating, 0) / reviews.length
-          })
-      }
-    },
-    [dispatch, product, token]
-  )
-
-  const fetchData = useCallback(async () => {
-    setProductLoading(true)
-    if (!id) return
-    const [err, data] = await to(getProductById(parseInt(id), token))
-    if (err) {
+  useEffect(() => {
+    if (!productId) return
+    if (error) {
       msgs.current?.clear()
       msgs.current?.show([
         {
           sticky: true,
           severity: 'error',
           summary: 'Hata',
-          detail: err.message,
+          detail: error.message,
           closable: false
         }
       ])
-      setProductLoading(false)
       return
     }
-    if (data.data) {
-      const fetchedProduct = (await data.data) as IProduct
-      setProduct(fetchedProduct)
+    if (product) {
       setSizes(
-        fetchedProduct.sizes?.map((size: string) => ({
+        product.sizes?.map((size: string) => ({
           name: size,
           key: size
         }))
       )
       setColors(
-        fetchedProduct.colors?.map((color: string) => ({
+        product.colors?.map((color: string) => ({
           name: color,
           key: color
         }))
       )
-      const imagesSources = []
-      fetchedProduct.images?.forEach((image: string) => {
-        imagesSources.push(image)
+      const imagesSources: string[] = []
+      product.images?.forEach((image: string) => {
+        return imagesSources.push(image)
       })
-      if (fetchedProduct.image) imagesSources.push(fetchedProduct.image)
+      if (product.image) imagesSources.push(product.image)
       setImages(imagesSources.map((source: string) => ({ source: source })))
-      fetchProductReviews(fetchedProduct.id)
     }
-    setProductLoading(false)
-  }, [fetchProductReviews, id, token])
+  }, [productId, product, error])
 
-  useEffect(() => {
-    fetchData()
-  }, [])
+  const itemTemplate = (item: any) => (
+    <img src={item.source} alt={item.alt} style={{ width: '100%', display: 'block' }} />
+  )
 
-  const itemTemplate = (item: any) => {
-    return <img src={item.source} alt={item.alt} style={{ width: '100%', display: 'block' }} />
-  }
-
-  const thumbnailTemplate = (item: any) => {
-    return (
-      <img
-        src={item.source}
-        alt={item.alt}
-        style={{
-          display: 'block',
-          width: 'auto',
-          height: 90,
-          objectFit: 'cover'
-        }}
-      />
-    )
-  }
+  const thumbnailTemplate = (item: any) => (
+    <img
+      src={item.source}
+      alt={item.alt}
+      style={{
+        display: 'block',
+        width: 'auto',
+        height: 90,
+        objectFit: 'cover'
+      }}
+    />
+  )
 
   const handleAddToCart = async () => {
     if (!product) return
-    if (!isAuthorized) {
-      const toast: IToast = {
-        severity: 'error',
-        summary: 'Hata',
-        detail: 'Sepete eklemek için giriş yapmalısınız',
-        life: 3000
-      }
-      dispatch(SET_TOAST(toast))
-      return
-    }
+    if (!isAuthorized) return toast.error('Lütfen giriş yapınız')
 
-    if ((sizes && sizes?.length > 0 && !selectSize) || (colors && colors?.length > 0 && !selectColor)) {
-      const toast: IToast = {
-        severity: 'error',
-        summary: 'Hata',
-        detail: 'Lütfen renk ve beden seçiniz',
-        life: 3000
-      }
-      dispatch(SET_TOAST(toast))
-      return
-    }
+    if ((sizes && sizes?.length > 0 && !selectSize) || (colors && colors?.length > 0 && !selectColor))
+      return toast.error('Lütfen renk ve beden seçiniz')
 
     const cartAdd: IaddToCartRequest = {
       quantity: quantity,
       size: selectSize,
       color: selectColor
     }
-    setAddCartLoading(true)
-    const [err, data] = await to(addToCart(product.id, cartAdd, token))
-    if (err) {
-      const toast: IToast = {
-        severity: 'error',
-        summary: 'Hata',
-        detail: err.message,
-        life: 3000
+    addToCart(
+      { productId: product.id, input: cartAdd },
+      {
+        onSuccess: data => toast.success(addToCartSuccessTemplete(data.data.message)),
+        onError: err => toast.error(err.message)
       }
-      dispatch(SET_TOAST(toast))
-      setAddCartLoading(false)
-      return
-    }
-    const toast: IToast = {
-      severity: 'success',
-      summary: 'Başarılı',
-      detail: addToCartSuccessTemplete(data.message),
-      life: 5000
-    }
-    dispatch(SET_TOAST(toast))
-    setAddCartLoading(false)
+    )
   }
 
   const addToCartSuccessTemplete = (message: string) => {
@@ -226,27 +148,15 @@ const ProductDetail = () => {
           </div>
         </div>
         <div className='mt-4 flex flex-row gap-x-2'>
-          <Link to='/cart' className='rounded-md bg-primary px-3 py-2 text-white'>
+          <Link href='/cart' className='rounded-md bg-primary px-3 py-2 text-white'>
             Sepete Git
           </Link>
-          <Link to={`/shop/${product?.categoryId}`} className='rounded-md bg-primary px-3 py-2 text-white'>
+          <Link href={`/shop/${product?.categoryId}`} className='rounded-md bg-primary px-3 py-2 text-white'>
             Alışverişe Devam Et
           </Link>
         </div>
       </div>
     )
-  }
-
-  const handleAddFavorite = async (id: number) => {
-    const [err, data] = await to(favoritesService.addFavorite(token, id))
-    if (err) return console.log(err)
-    const toast: IToast = {
-      severity: 'success',
-      summary: 'Başarılı',
-      detail: data?.message,
-      life: 3000
-    }
-    dispatch(SET_TOAST(toast))
   }
 
   return (
@@ -279,15 +189,13 @@ const ProductDetail = () => {
                   {isUpdate && <UpdateProduct productUpdateId={product.id} setIsUpdate={setIsUpdate} />}
                 </AnimatePresence>
                 {isAuthorized && auth.id == product?.userId && (
-                  <>
-                    <button
-                      className='text-primary transition-all duration-300 ease-in-out hover:text-primaryDark'
-                      onClick={() => setIsUpdate(true)}
-                    >
-                      <FaPencilAlt className='mr-2 inline' />
-                      Ürünü Düzenle
-                    </button>
-                  </>
+                  <button
+                    className='text-primary transition-all duration-300 ease-in-out hover:text-primaryDark'
+                    onClick={() => setIsUpdate(true)}
+                  >
+                    <FaPencilAlt className='mr-2 inline' />
+                    Ürünü Düzenle
+                  </button>
                 )}
               </div>
               {/* rating */}
@@ -300,7 +208,7 @@ const ProductDetail = () => {
                     onIcon: { className: '!text-primary' }
                   }}
                 />
-                ( {reviews?.length} İzlenim )
+                {/* ( {reviews?.length} İzlenim ) */}
               </div>
               {/* price */}
               <h2 className='my-2 text-3xl font-semibold text-black'>{product.price}₺</h2>
@@ -359,6 +267,7 @@ const ProductDetail = () => {
                   ))}
                 </div>
               )}
+              {/* quantity */}
               <div className='mt-5 flex flex-wrap items-center gap-6'>
                 <div className='relative flex max-w-[130px] flex-nowrap'>
                   <div>
@@ -411,13 +320,13 @@ const ProductDetail = () => {
                     )}
                   </button>
 
-                  <button
+                  {/* <button
                     className='inline-block border-primary bg-primary px-3 py-2 leading-6 text-[#212529] transition-all duration-300 ease-in-out hover:bg-primaryDark hover:text-white'
                     onClick={() => handleAddFavorite(product.id)}
                   >
                     <FaHeart className='mr-3 inline' />
                     Favorilere Ekle
-                  </button>
+                  </button> */}
                 </div>
               </div>
             </div>
@@ -474,7 +383,7 @@ const ProductDetail = () => {
                     </div>
                   }
                 >
-                  <ProductReview reviews={reviews} product={product} />
+                  <ProductReview productId={product.id} productName={product.name} />
                 </TabPanel>
               </TabView>
             </div>

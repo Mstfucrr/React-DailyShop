@@ -1,73 +1,60 @@
-import { createOrder, getCart } from '@/services/order/order.service'
 import { ICartItem } from '@/shared/types'
-import { authSelector } from '@/store/auth'
-import to from 'await-to-js'
 import { Messages } from 'primereact/messages'
 import { useEffect, useRef, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
 import OrderAddress from './orderAddress'
 import { Button } from 'primereact/button'
 import { AnimatePresence } from 'framer-motion'
 import OrderPayment from './orderPayment'
 import { IUserAddress } from '@/services/auth/types'
 import { IOrderAddress, IOrderRequest } from '@/services/order/types'
-import { IToast } from '@/store/Toast/type'
-import { SET_TOAST } from '@/store/Toast'
-import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '@/hooks/useAuth'
+import Link from 'next/link'
+import { useGetCart } from '@/services/order/use-cart-service'
+import { useCreateOrder } from '@/services/order/use-order-service'
+import { ProgressSpinner } from 'primereact/progressspinner'
 
 const Order = () => {
   const msgs = useRef<Messages>(null)
   const [cartItems, setCartItems] = useState<[] | ICartItem[]>([])
   const [cartTotal, setCartTotal] = useState(0)
   const [selectAddress, setSelectAddress] = useState<IOrderAddress>()
-  const [IsAddressSelectionconfirmed, setIsAddressSelectionconfirmed] = useState(false)
+  const [isAddressSelectionConfirmed, setIsAddressSelectionConfirmed] = useState(false)
   const [cardValues, setCardValues] = useState({
     cardNumber: '',
     cardOwner: '',
     LastDate: '',
     cvv: ''
   })
-  const navigate = useNavigate()
-  const dispacth = useDispatch()
-  const { isAuthorized, auth, token } = useSelector(authSelector)
-  const [user, setUser] = useState(auth)
-  useEffect(() => {
-    setUser(auth)
-  }, [])
+  const { data: getCartData, error: getCartError, isLoading: getCartLoading } = useGetCart()
+  const { mutate: createOrder, isPending: createOrderLoading, error: createOrderError } = useCreateOrder()
 
-  const fetchCart = async () => {
-    const [err, data] = await to(getCart(token))
-    if (err) {
+  const { auth: user } = useAuth()
+
+  useEffect(() => {
+    if (getCartError) {
       msgs.current?.clear()
       msgs.current?.show([
         {
           sticky: true,
           severity: 'error',
           summary: 'Sistematik Hata',
-          detail: err.message
+          detail: getCartError.message
         }
       ])
       return
     }
-    if (data.data) {
-      setCartItems(data.data)
+    const cartData = getCartData?.data.data
+    if (cartData) {
+      setCartItems(cartData)
       let total = 0
-      data.data.map((item: ICartItem) => {
+      cartData.map((item: ICartItem) => {
         total += item.product.price * item.quantity
       })
       setCartTotal(total)
     }
-  }
-
-  useEffect(() => {
-    if (isAuthorized) fetchCart()
-  }, [])
+  }, [getCartData, getCartError])
 
   const handleSubmitOrder = async () => {
-    console.log(selectAddress)
-    console.log(cardValues)
-    console.log(cartItems)
-    console.log(cartTotal)
     if (!selectAddress) return
     const orderReq: IOrderRequest = {
       addressId: selectAddress?.id,
@@ -86,29 +73,7 @@ const Order = () => {
         }
       })
     }
-    console.log(orderReq)
-
-    const [err, data] = await to(createOrder(orderReq, token))
-    if (err) {
-      const toast: IToast = {
-        severity: 'error',
-        summary: 'Hata',
-        detail: err.message,
-        life: 5000
-      }
-      dispacth(SET_TOAST(toast))
-      return
-    }
-    const toast: IToast = {
-      severity: 'success',
-      summary: 'Başarılı',
-      detail: data.message,
-      life: 5000
-    }
-    dispacth(SET_TOAST(toast))
-    setTimeout(() => {
-      navigate('/account/Siparişlerim')
-    }, 1500)
+    createOrder({ orderReq: orderReq })
   }
 
   return (
@@ -118,7 +83,7 @@ const Order = () => {
           <div className='flex flex-col items-center gap-5'>
             <h1 className='text-3xl font-semibold'>Adresiniz Bulunmamaktadır</h1>
             <Link
-              to={'/account'}
+              href={'/account'}
               className='flex w-full justify-center rounded-xl border border-solid border-transparent !bg-primary
                             px-3 py-4 text-[#212529]
                             transition duration-300 ease-in-out hover:!border-primaryDark hover:!bg-primaryDark hover:text-white'
@@ -132,11 +97,11 @@ const Order = () => {
           <OrderAddress
             key={'orderAddress'}
             addresses={user?.addresses}
-            IsAddressSelectionconfirmed={IsAddressSelectionconfirmed}
+            IsAddressSelectionconfirmed={isAddressSelectionConfirmed}
             selectAddress={selectAddress as IUserAddress}
             setSelectAddress={setSelectAddress}
           />
-          {IsAddressSelectionconfirmed && (
+          {isAddressSelectionConfirmed && (
             <OrderPayment
               key={'orderPayment'}
               cardValues={cardValues}
@@ -148,10 +113,7 @@ const Order = () => {
       )}
 
       <div className='flex basis-4/12 p-2'>
-        <div
-          className='relative flex h-min w-full
-                        flex-col border border-solid border-secondary'
-        >
+        <div className='relative flex h-min w-full flex-col border border-solid border-secondary'>
           {/* card header */}
           <div className='bg-secondary px-5 py-3'>
             <h4 className='text-2xl font-semibold text-black'>Sipariş Özeti</h4>
@@ -169,6 +131,12 @@ const Order = () => {
                     <div className=''>{cartItem.product.price * cartItem.quantity} ₺</div>
                   </div>
                 ))}
+                {cartItems.length === 0 && <div className='text-center'>Sepetinizde ürün bulunmamaktadır.</div>}
+                {getCartLoading && (
+                  <div className='flex justify-center'>
+                    <ProgressSpinner />
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -179,20 +147,20 @@ const Order = () => {
               <h5 className='text-xl font-bold'>{cartTotal} ₺</h5>
             </div>
 
-            {!IsAddressSelectionconfirmed ? (
+            {!isAddressSelectionConfirmed ? (
               <Button
                 className='flex w-full justify-center border border-solid border-transparent !bg-primary px-3
                             py-4 text-[#212529] transition
                             duration-300 ease-in-out hover:!border-primaryDark hover:!bg-primaryDark hover:text-white'
                 disabled={cartItems.length === 0 || !selectAddress}
-                onClick={() => setIsAddressSelectionconfirmed(true)}
+                onClick={() => setIsAddressSelectionConfirmed(true)}
               >
                 Ödeme İşlemine Geçin
               </Button>
             ) : (
               <Button
                 className='flex w-full justify-center border border-solid border-transparent px-3 py-4 text-[#212529] hover:text-white'
-                onClick={() => setIsAddressSelectionconfirmed(false)}
+                onClick={() => setIsAddressSelectionConfirmed(false)}
                 severity='secondary'
                 icon='pi pi-arrow-left'
                 iconPos='left'

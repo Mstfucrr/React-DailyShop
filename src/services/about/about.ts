@@ -1,3 +1,14 @@
-import { makeRequest } from '../base/base'
+import { useQuery } from '@tanstack/react-query'
+import { publicAxiosInstance } from '../base/base'
 
-export const getAbout = async () => await makeRequest<any>(`/Abouts/GetAbout`, 'GET')
+type About = {
+  data: string
+}
+
+const getAbout = async () => publicAxiosInstance.get<About>(`/Abouts/GetAbout`)
+
+export const useGetAbout = () =>
+  useQuery({
+    queryKey: ['getAbout'],
+    queryFn: () => getAbout().then(res => res.data)
+  })

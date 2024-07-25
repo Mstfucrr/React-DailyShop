@@ -32,7 +32,7 @@ const OrderPayment = ({ cardValues, setcardValues, handleSubmitOrder }: Props) =
       }}
     >
       <h3 className='text-3xl font-semibold text-primaryDark'>Ödeme Bilgileri</h3>
-      <div className='flex flex-row flex-wrap gap-7 rounded-lg p-5 shadow-lg'>
+      <div className='flex flex-row gap-7 rounded-lg p-5 shadow-lg max-lg:flex-wrap'>
         <CreditCard setCardValues={setcardValues} cardValues={cardValues} handleSubmit={handleSubmitOrder} />
         <Card values={cardValues} />
       </div>

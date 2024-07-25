@@ -1,23 +1,43 @@
-import { IOrderRequest, IaddToCartRequest } from './types'
-import { makeRequest } from '../base/base'
+import {
+  CartListResponse,
+  IOrderRequest,
+  IaddToCartRequest,
+  MessageResponse,
+  OrderListResponse,
+  OrderStatus
+} from './types'
+import { privateAxiosInstance } from '../base/base'
+import { AxiosResponse } from 'axios'
 
 // Cart
-export const getCart = async (token: string) => await makeRequest<any>('Carts', 'GET', null, token)
+const getCart = async (): Promise<AxiosResponse<CartListResponse>> =>
+  await privateAxiosInstance.get<CartListResponse>('Carts')
 
-export const addToCart = async (productId: number, input: IaddToCartRequest, token: string) =>
-  await makeRequest<any>(`Carts?productId=${productId}`, 'POST', input, token)
+const addToCart = async (productId: number, input: IaddToCartRequest): Promise<AxiosResponse<MessageResponse>> =>
+  await privateAxiosInstance.post<MessageResponse>(`Carts?productId=${productId}`, input)
 
-export const updateCart = async (id: number, input: any, token: string) =>
-  await makeRequest<any>(`Carts/Update/${id}`, 'PUT', input, token)
+const updateCart = async (id: number, input: any): Promise<AxiosResponse<MessageResponse>> =>
+  await privateAxiosInstance.put<MessageResponse>(`Carts/Update/${id}`, input)
 
-export const removeFromCart = async (id: number, token: string) =>
-  await makeRequest<any>(`Carts/Delete/${id}`, 'DELETE', null, token)
+const removeFromCart = async (id: number): Promise<AxiosResponse<MessageResponse>> =>
+  await privateAxiosInstance.delete<MessageResponse>(`Carts/Delete/${id}`)
 
 // Order
-export const getOrders = async (token: string) => await makeRequest<any>('Orders', 'GET', null, token)
+const getOrders = async (): Promise<AxiosResponse<OrderListResponse>> =>
+  await privateAxiosInstance.get<OrderListResponse>('Orders')
 
-export const createOrder = async (input: IOrderRequest, token: string) =>
-  await makeRequest<any>('Orders', 'POST', input, token)
+const createOrder = async (input: IOrderRequest): Promise<AxiosResponse<MessageResponse>> =>
+  await privateAxiosInstance.post<MessageResponse>('Orders', input)
 
-export const cancelOrder = async (orderId: number, status: string, token: string) =>
-  await makeRequest<any>(`Orders/${orderId}`, 'PUT', status, token)
+const cancelOrder = async (orderId: number): Promise<AxiosResponse<MessageResponse>> =>
+  await privateAxiosInstance.put<MessageResponse>(`Orders/${orderId}`, OrderStatus.Cancelled)
+
+export default {
+  getCart,
+  addToCart,
+  updateCart,
+  removeFromCart,
+  getOrders,
+  createOrder,
+  cancelOrder
+}

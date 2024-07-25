@@ -1,80 +1,45 @@
-import { settingsService } from '@/services/admin/admin.service'
 import { ISiteSettings } from '@/services/admin/types'
-import { SET_TOAST } from '@/store/Toast'
-import { IToast } from '@/store/Toast/type'
-import { authSelector } from '@/store/auth'
-import to from 'await-to-js'
 import { Button } from 'primereact/button'
 import { Editor } from 'primereact/editor'
 import { InputMask } from 'primereact/inputmask'
 import { InputText } from 'primereact/inputtext'
 import { InputTextarea } from 'primereact/inputtextarea'
 import { useEffect, useState, useRef } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
 import { ProgressSpinner } from 'primereact/progressspinner'
 import { ConfirmPopup, confirmPopup } from 'primereact/confirmpopup'
 import { Fieldset } from 'primereact/fieldset'
+import toast from 'react-hot-toast'
+import { useGetSettings, useSaveSettings } from '@/services/admin/settings.service'
 
 const Settings = () => {
-  // hakkımızda, iletişim bilgileri , adres bilgileri ve site icon ayarları
   const [about, setAbout] = useState<string | undefined>(undefined)
   const [email, setEmail] = useState<string | undefined>(undefined)
   const [phone, setPhone] = useState<string | undefined>(undefined)
   const [address, setAddress] = useState<string | undefined>(undefined)
-  const [siteSettings, setSiteSettings] = useState<ISiteSettings | null>()
   const [siteIcon, setSiteIcon] = useState<File | string | undefined>(undefined)
-  const [loading, setLoading] = useState<boolean>(false)
-  const [saveLoading, setSaveLoading] = useState<boolean>(false)
-  const { token } = useSelector(authSelector)
-  const dispatch = useDispatch()
   const inputRef = useRef(null)
 
-  const showErrorMessage = (err: Error) => {
-    const toast: IToast = {
-      severity: 'error',
-      summary: 'Hata',
-      detail: err.message,
-      life: 3000
-    }
-    dispatch(SET_TOAST(toast))
-  }
-  const showSuccess = (message: string) => {
-    const toast: IToast = {
-      severity: 'success',
-      summary: 'Başarılı',
-      detail: message,
-      life: 3000
-    }
-    dispatch(SET_TOAST(toast))
-  }
+  const showErrorMessage = (err: Error) => toast.error(err.message)
+  const showSuccess = (message: string) => toast.success(message)
 
-  const fetchDatas = async () => {
-    setLoading(true)
-    const [err, data] = await to(settingsService.fetchSettings(token))
-    if (err) {
-      showErrorMessage(err)
-      setLoading(false)
-    }
-    if (!data) {
-      setAbout(undefined)
-      setEmail(undefined)
-      setPhone(undefined)
-      setAddress(undefined)
-      setSiteIcon(undefined)
-      setLoading(false)
-    }
-    setSiteSettings(data.data)
-    setAbout(data.data.about)
-    setEmail(data.data.email)
-    setPhone(data.data.phone)
-    setAddress(data.data.address)
-    setSiteIcon(data.data.siteIcon)
-    setLoading(false)
-  }
+  const {
+    data: siteSettings,
+    refetch: refetchSiteSettings,
+    isLoading: isSiteSettingsLoading,
+    error: siteSettingsError
+  } = useGetSettings()
+
+  const { mutate: saveSettingsMutate, isPending: saveLoading } = useSaveSettings()
 
   useEffect(() => {
-    fetchDatas()
-  }, [])
+    if (siteSettingsError) showErrorMessage(siteSettingsError)
+    if (!siteSettings) return
+    setAbout(siteSettings.data.data.about)
+    setEmail(siteSettings.data.data.email)
+    setPhone(siteSettings.data.data.phone)
+    setAddress(siteSettings.data.data.address)
+    setSiteIcon(siteSettings.data.data.siteIcon)
+  }, [siteSettings, siteSettingsError])
 
   const SaveSettings = async () => {
     const val: ISiteSettings = {
@@ -85,32 +50,18 @@ const Settings = () => {
       siteIcon: siteIcon
     }
 
-    setSaveLoading(true)
     const formData = new FormData()
     formData.append('about', val.about ?? '')
     formData.append('email', val.email ?? '')
     formData.append('phone', val.phone ?? '')
     formData.append('address', val.address ?? '')
     formData.append('siteIcon', val.siteIcon ?? '')
-    const [err, data] = await to(settingsService.saveSettings(formData, token))
-    if (err) {
-      showErrorMessage(err)
-      return setSaveLoading(false)
-    }
-    showSuccess(data.message)
-    setSaveLoading(false)
-    fetchDatas()
-  }
 
-  useEffect(() => {
-    if (siteSettings) {
-      setAbout(siteSettings.about)
-      setEmail(siteSettings.email)
-      setPhone(siteSettings.phone)
-      setAddress(siteSettings.address)
-      setSiteIcon(siteSettings.siteIcon)
-    }
-  }, [siteSettings])
+    saveSettingsMutate(formData, {
+      onSuccess: () => showSuccess('Ayarlar başarıyla kaydedildi'),
+      onError: err => showErrorMessage(err)
+    })
+  }
 
   const handleFileChange = (e: any) => {
     const file = e?.target?.files[0]
@@ -144,7 +95,7 @@ const Settings = () => {
       target: event.currentTarget,
       message: 'Varsayılan ayarlara dönmek istediğinize emin misiniz?',
       icon: 'pi pi-exclamation-triangle',
-      accept: () => fetchDatas(),
+      accept: () => refetchSiteSettings(),
       reject: () => {},
       acceptLabel: 'Evet',
       rejectLabel: 'Hayır',
@@ -156,7 +107,7 @@ const Settings = () => {
 
   return (
     <>
-      {loading ? (
+      {isSiteSettingsLoading ? (
         <>
           <ProgressSpinner strokeWidth='4' style={{ width: '50px', height: '50px' }} />
           <span className='text-2xl'>Yükleniyor...</span>
@@ -166,11 +117,7 @@ const Settings = () => {
           {/* Hakkımızda */}
           <div className='flex flex-col gap-y-6'>
             <h3 className='text-2xl'>Hakkımızda</h3>
-            <Editor
-              style={{ height: '320px' }}
-              value={about == null ? '' : (about as string)}
-              onTextChange={e => setAbout(e.htmlValue as any)}
-            />
+            <Editor style={{ height: '320px' }} value={about ?? ''} onTextChange={e => setAbout(e.htmlValue as any)} />
           </div>
           {/* test show about */}
           <Fieldset legend='Hakkımızda Önizleme' toggleable collapsed={true}>
@@ -236,13 +183,18 @@ const Settings = () => {
           <div className='relative flex justify-end gap-3'>
             <ConfirmPopup />
 
-            <Button label='Kaydet' onClick={confirmSave} severity='success' loading={saveLoading || loading} />
+            <Button
+              label='Kaydet'
+              onClick={confirmSave}
+              severity='success'
+              loading={saveLoading || isSiteSettingsLoading}
+            />
             <Button
               label='Reset'
               onClick={confirmReset}
               className='ml-3'
               severity='danger'
-              loading={saveLoading || loading}
+              loading={saveLoading || isSiteSettingsLoading}
             />
           </div>
         </div>

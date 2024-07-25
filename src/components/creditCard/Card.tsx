@@ -43,7 +43,7 @@ const Card = ({ values }: Props) => {
     >
       <img
         className='relative h-full w-full rounded-xl object-cover'
-        src={bg}
+        src={bg.src}
         alt='card'
         style={cardType === 'visa' ? { filter: 'none' } : { filter: 'grayscale(1)' }}
       />
@@ -54,8 +54,11 @@ const Card = ({ values }: Props) => {
             <p className='font-light'>Kart Sahibi</p>
             <p className='font-medium tracking-widest'>{values.cardOwner ? values.cardOwner : '--------'}</p>
           </div>
-          {/* masetr : https://i.imgur.com/bbPHJVe.png , visa : https://upload.wikimedia.org/wikipedia/commons/d/d6/Visa_2021.svg*/}
-          <img className='h-16 w-16' src={cardType === 'visa' ? visa : master} alt='card type' />
+          {cardType === 'visa' ? (
+            <img className='h-16 w-16' src={visa.src} alt='card type' />
+          ) : cardType === 'master' ? (
+            <img className='h-16 w-16' src={master.src} alt='card type' />
+          ) : null}
         </div>
         <div className='pt-1'>
           <p className='font-light'>Kart Numarası</p>
