@@ -1,16 +1,23 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    esmExternals: true // Enables ESM externals support. (türkçe: ESM dış bağlantıları desteğini etkinleştirir.)
-  },
   typescript: {
     ignoreBuildErrors: true
   },
-  distDir: './dist', // Changes the build output directory to `./dist/`.
+  images: {
+    unoptimized: true
+  },
   // output: 'export',
   eslint: {
     ignoreDuringBuilds: true
-  }
+  },
+  reactStrictMode: false,
+
+  experimental: {
+    esmExternals: false,
+    forceSwcTransforms: true
+  },
+
+  distDir: './dist' // Changes the build output directory to `./dist/`.
 }
 
 export default nextConfig
