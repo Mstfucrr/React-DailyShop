@@ -1,5 +1,3 @@
-// import { makeRequest } from '../base/base'
-
 import { IReview } from '@/shared/types'
 import { privateAxiosInstance, publicAxiosInstance } from '../base/base'
 

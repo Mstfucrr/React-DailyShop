@@ -1,15 +1,3 @@
-/*
-
-import { makeRequest } from '../base/base'
-
-export const getWalletByUser = async (token: string) =>
-  await makeRequest<any>(`Wallets/GetWalletByUser`, 'GET', null, token)
-
-export const addMoneyToWallet = async (input: any, token: string) =>
-  await makeRequest<any>(`Wallets/AddMoneyToWallet`, 'POST', input, token)
-
-*/
-
 import { useQuery, useMutation } from '@tanstack/react-query'
 import walletService from './wallet.service'
 import reactQueryConfig from '@/configs/react-query-config'

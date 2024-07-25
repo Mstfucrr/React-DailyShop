@@ -1,6 +1,6 @@
 import { IReview } from '@/shared/types'
 import { IUser } from '../../auth/types'
-import { makeRequest, privateAxiosInstance } from '../../base/base'
+import { privateAxiosInstance } from '../../base/base'
 
 // Reportlanan kullanıcılar ve yorumlar için servisler
 
