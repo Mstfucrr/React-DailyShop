@@ -1,4 +1,4 @@
-import { IProduct } from '@/shared/types'
+'use client'
 import { Galleria } from 'primereact/galleria'
 import { useEffect, useRef, useState } from 'react'
 import { Rating } from 'primereact/rating'
@@ -21,7 +21,7 @@ import Link from 'next/link'
 import { useGetProductById } from '@/services/product/use-product-service'
 import { useAddToCart } from '@/services/order/use-cart-service'
 
-const ProductDetail = ({ productId }: { productId: string }) => {
+const ProductDetail = ({ productId }: { productId: number }) => {
   const [images, setImages] = useState<{ source: string }[] | string | undefined>(undefined)
 
   const [selectSize, setSelectSize] = useState<string | undefined>(undefined)
@@ -33,7 +33,7 @@ const ProductDetail = ({ productId }: { productId: string }) => {
   const [colors, setColors] = useState<{ name: string; key: string }[] | undefined>(undefined)
   const [isUpdate, setIsUpdate] = useState(false)
 
-  const { data: product, isPending: productLoading, error } = useGetProductById(parseInt(productId))
+  const { data: product, isPending: productLoading, error } = useGetProductById(productId)
 
   const { mutate: addToCart, isPending: addCartLoading } = useAddToCart()
 

@@ -1,6 +1,5 @@
 import { ILogin, IRegister, IUser } from './types'
-import { makeRequest, privateAxiosInstance, publicAxiosInstance } from '../base/base'
-import { AxiosResponse } from 'axios'
+import { privateAxiosInstance, publicAxiosInstance } from '../base/base'
 
 type LoginResponse = {
   authorization: string

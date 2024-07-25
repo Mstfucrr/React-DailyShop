@@ -1,12 +1,12 @@
-'use client'
 import PageBanner from '@/components/Header/PageBanner'
 import ProductDetail from '@/components/ProductDetail/ProductDetail'
+import { NextPage } from 'next'
 
-const ProductDetailPage = ({ params }: { params: { productId: string } }) => {
+const ProductDetailPage: NextPage = ({ params }: { params: { productId: string } }) => {
   return (
     <>
       <PageBanner title='Ürün Detayı' link='/productDetail' />
-      <ProductDetail productId={params.productId} />
+      <ProductDetail productId={Number(params.productId)} />
     </>
   )
 }

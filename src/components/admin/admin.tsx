@@ -1,3 +1,4 @@
+'use client'
 import React from 'react'
 import Settings from './settings'
 import UserSettings from './UserSettings'

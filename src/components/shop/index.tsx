@@ -1,5 +1,4 @@
 'use client'
-
 import { InputText } from 'primereact/inputtext'
 import SideBar from './sideBar'
 import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown'
@@ -14,7 +13,7 @@ import { sortBy } from '@/shared/constants'
 import { ProductsSortBy } from '@/services/shop/types'
 import ProductCard from './productCard'
 
-const Shop = ({ shopId }: { shopId: string }) => {
+const Shop = ({ shopId }: { shopId: number }) => {
   const [selectSortBy, setSelectSortBy] = useState<{
     name: string
     code: string
@@ -30,11 +29,11 @@ const Shop = ({ shopId }: { shopId: string }) => {
   const msgs = useRef<Messages>(null)
   const { data, isError, isPending } = useGetProductsByCategoryId(
     {
-      id: Number(shopId),
+      id: shopId,
       isDeletedDatas: isDelProductShow
     },
     {
-      queryKey: ['getProductsByCategoryId', { id: Number(shopId), isDeletedDatas: isDelProductShow }],
+      queryKey: ['getProductsByCategoryId', { id: shopId, isDeletedDatas: isDelProductShow }],
       gcTime: 0,
       refetchInterval: 60000 // 60 seconds refetch
     }

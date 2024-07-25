@@ -8,7 +8,6 @@ import { FaLocationArrow, FaPhone } from 'react-icons/fa'
 import { MdMail } from 'react-icons/md'
 
 const AboutUs = () => {
-  const [about, setAbout] = useState<string | undefined>(undefined)
   const [address, setAddress] = useState<string | null>(null)
   const [phone, setPhone] = useState<string | null>(null)
   const [email, setEmail] = useState<string | null>(null)
@@ -19,18 +18,14 @@ const AboutUs = () => {
   const { data: aboutData, isLoading: isAboutLoading, error: aboutError } = useGetAbout()
 
   useEffect(() => {
-    if (aboutError) {
+    if (aboutError)
       msgs.current?.show({
         severity: 'error',
         summary: 'Hata',
         detail: aboutError.message,
         life: 3000
       })
-      return
-    }
-    console.log(aboutData)
-    setAbout(aboutData?.data)
-  }, [aboutData, aboutError])
+  }, [aboutError])
 
   useEffect(() => {
     if (contactError) {
@@ -40,6 +35,7 @@ const AboutUs = () => {
         detail: contactError.message,
         life: 3000
       })
+      return
     }
     if (!contactData) return
     setAddress(contactData.data.address)
@@ -64,9 +60,9 @@ const AboutUs = () => {
               </h2>
               <div className='h-1 w-full bg-black md:w-11' />
             </div>
-            {about ? (
+            {aboutData?.data ? (
               <p
-                dangerouslySetInnerHTML={{ __html: about }}
+                dangerouslySetInnerHTML={{ __html: aboutData?.data }}
                 className='w-full px-10 text-center text-sm text-gray-800 md:w-3/4'
               />
             ) : (
