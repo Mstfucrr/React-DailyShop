@@ -1,7 +1,5 @@
 import ForgotPasswordForm from '@/components/auth/forgotPasswordForm'
 
-const ForgotPassword = () => {
-  return <ForgotPasswordForm />
-}
+const ForgotPassword = () => <ForgotPasswordForm />
 
 export default ForgotPassword

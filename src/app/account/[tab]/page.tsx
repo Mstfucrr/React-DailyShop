@@ -1,5 +1,3 @@
-'use client'
-
 import Account from '@/components/account/account'
 
 export enum AccountTabs {

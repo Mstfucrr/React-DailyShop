@@ -1,3 +1,5 @@
+'use client'
+
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import UserInformation from './userSettings/userInformation'
@@ -40,24 +42,8 @@ const TabButtons = ({ label, value, activeTab }: { label: string; value: Account
 const Account = ({ tab }: { tab: AccountTabs }) => {
   const [activeTab, setActiveTab] = useState<AccountTabs>(AccountTabs.USER_INFO)
 
-  const { auth: user } = useAuth()
-
   useEffect(() => {
-    if (tab) {
-      switch (tab) {
-        case AccountTabs.USER_INFO:
-          setActiveTab(AccountTabs.USER_INFO)
-          break
-        case AccountTabs.USER_ORDERS:
-          setActiveTab(AccountTabs.USER_ORDERS)
-          break
-        case AccountTabs.USER_PRODUCTS:
-          setActiveTab(AccountTabs.USER_PRODUCTS)
-          break
-        default:
-          break
-      }
-    }
+    if (tab) setActiveTab(tab)
   }, [tab])
 
   const container = {

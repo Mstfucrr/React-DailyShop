@@ -1,19 +1,20 @@
+'use client'
 import { emailRegex, passwordRegex } from '@/helper/regex'
 import { Formik } from 'formik'
 import { InputText } from 'primereact/inputtext'
 import { Password } from 'primereact/password'
 import * as Yup from 'yup'
-import { useSearchParams } from 'next/navigation'
 import useAuthService from '@/services/auth/use-auth-service'
+import { useParams } from 'next/navigation'
 
 const ForgotPasswordForm = () => {
   const { resetPassword, forgotPassword, isForgotPasswordLoading, isResetPasswordLoading } = useAuthService()
 
   const isLoading = isForgotPasswordLoading || isResetPasswordLoading
 
-  const searchParams = useSearchParams()
+  const router = useParams()
 
-  const token = searchParams.get('token')
+  const token = router.token
 
   const handleSubmit = async (values: { email: string }) => forgotPassword(values.email)
 

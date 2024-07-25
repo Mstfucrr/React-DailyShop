@@ -1,3 +1,5 @@
+'use client'
+
 import { InputText } from 'primereact/inputtext'
 import SideBar from './sideBar'
 import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown'
