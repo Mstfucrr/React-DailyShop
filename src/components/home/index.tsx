@@ -1,20 +1,24 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import ProductCard from '../shop/productCard'
 import { IProduct } from '@/shared/types'
+import { getProductsFromCookie } from '@/helper/cookieUtils'
+import { useGetSuggestions } from '@/services/home/Suggestions.service'
 
 const HomeComponent = () => {
   const [products, setProducts] = useState<IProduct[]>([])
+  const productCookie = getProductsFromCookie() || []
 
-  // const fetchProducts = async () => {
-  //   const productCookie = getProductsFromCookie() || []
-  //   const [err, data] = await to(getSuggestions(token, productCookie))
-  //   if (err) return
-  //   if (data) setProducts(data.data)
-  // }
-  // useEffect(() => {
-  //   fetchProducts()
-  // }, [])
+  const { data: productData } = useGetSuggestions(productCookie)
+
+  useEffect(() => {
+    if (productData)
+      setProducts(
+        productData.data
+          .filter((product, index, self) => self.findIndex(p => p.id === product.id) === index)
+          .slice(0, 4)
+      )
+  }, [productData])
 
   return (
     <div>

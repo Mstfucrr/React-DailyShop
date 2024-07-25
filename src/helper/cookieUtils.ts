@@ -10,6 +10,9 @@ export function getProductsFromCookie(): {
   productId: number
   durationInSeconds: number
 }[] {
+  if (typeof window === 'undefined') return []
+  if (!document.cookie) return []
+
   const cookies = document.cookie.split(';')
   const productIds: { productId: number; durationInSeconds: number }[] = []
 
