@@ -1,10 +1,7 @@
 import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from 'axios'
 
-// const apiBaseUrl = 'https://dailyshopapi20240517220441.azurewebsites.net/api'
-const apiBaseUrl = 'http://localhost:22498/api'
-
 export const publicAxiosInstance: AxiosInstance = axios.create({
-  baseURL: apiBaseUrl,
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': '*'
@@ -13,7 +10,7 @@ export const publicAxiosInstance: AxiosInstance = axios.create({
 })
 
 export const privateAxiosInstance: AxiosInstance = axios.create({
-  baseURL: apiBaseUrl,
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': '*'

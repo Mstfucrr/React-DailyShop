@@ -1,4 +1,3 @@
-import { useAuth } from '@/hooks/useAuth'
 import { useGetCategories } from '@/services/category/category.service'
 import { useGetProductById, useUpdateProduct } from '@/services/product/use-product-service'
 import { colors, productStatus, sizes } from '@/shared/constants'
@@ -35,8 +34,6 @@ const UpdateProduct = ({ productUpdateId, setIsUpdate }: Props) => {
   const [selectedCategory, setSelectedCategory] = useState<ICategory>()
   const [selectedNodeKey, setSelectedNodeKey] = useState<string | undefined>(product?.categoryId?.toString())
 
-  const { token } = useAuth()
-
   const { data: productData, error: productError } = useGetProductById(productUpdateId as number)
 
   const { data: categoryData, error: categoryError } = useGetCategories()
@@ -52,20 +49,19 @@ const UpdateProduct = ({ productUpdateId, setIsUpdate }: Props) => {
       setIsUpdate(false)
       return
     }
-    const fetchedProduct = productData?.data.data
-    if (fetchedProduct == null) return
-    if (fetchedProduct.image) setProductCoverImage(fetchedProduct.image)
-    setProduct(fetchedProduct)
-    setProductImages(fetchedProduct.images || [])
-    setSelectedNodeKey(fetchedProduct.category?.id?.toString())
-    setSelectedCategory(fetchedProduct.category)
-  }, [productUpdateId, token, setIsUpdate])
+    if (productData == null) return
+    if (productData.image) setProductCoverImage(productData.image)
+    setProduct(productData)
+    setProductImages(productData.images || [])
+    setSelectedNodeKey(productData.category?.id?.toString())
+    setSelectedCategory(productData.category)
+  }, [productData, productError, productUpdateId, setIsUpdate])
 
-  const getCategories = async () => {
+  const getCategories = useCallback(() => {
     if (categoryError) return toast.error(categoryError.message)
     const data = categoryData?.data
     if (data) setTreeNodes(convertCategoriesToTreeSelectModel(data))
-  }
+  }, [categoryData, categoryError])
 
   useEffect(() => {
     if (treeNodes && selectedNodeKey)
@@ -75,7 +71,7 @@ const UpdateProduct = ({ productUpdateId, setIsUpdate }: Props) => {
   useEffect(() => {
     setProduct(null)
     fetchProduct().then(getCategories)
-  }, [fetchProduct, productUpdateId])
+  }, [fetchProduct, productUpdateId, getCategories])
 
   const handleCoverImage = (e: any) => {
     if (e.target.files == null) return

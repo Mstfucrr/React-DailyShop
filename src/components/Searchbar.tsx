@@ -70,10 +70,7 @@ const Searchbar = () => {
 
             <button
               className='mr-1 inline-block select-none rounded-none border border-secondary px-3 py-[.375rem] text-center align-middle'
-              //@ts-ignore
-              onClick={e => {
-                ;(opWallet.current as any)?.toggle(e)
-              }}
+              onClick={e => (opWallet.current as any)?.toggle(e)}
             >
               <FaWallet className='inline-block h-auto w-6 text-primary' />
               <span className='relative -top-[1px] inline-block px-[.6em] py-[.25em] text-[75%] font-bold'>
@@ -115,11 +112,7 @@ const Searchbar = () => {
                     >
                       <FaWallet className=' inline-block h-auto w-6 text-primary' />
                     </button>
-                    <Tooltip
-                      target='.fawallet'
-                      position='bottom'
-                      //@ts-ignore
-                    >
+                    <Tooltip target='.fawallet' position='bottom'>
                       Para Ekle
                     </Tooltip>
                   </div>
@@ -132,10 +125,7 @@ const Searchbar = () => {
           <div className=''>
             <button
               className='mr-1 inline-block select-none rounded-none border border-secondary px-3 py-[.375rem] text-center align-middle'
-              //@ts-ignore
-              onClick={e => {
-                ;(op.current as any)?.toggle(e)
-              }}
+              onClick={e => (op.current as any)?.toggle(e)}
             >
               <FaHeart className='inline-block h-auto w-6 text-primary' />
               <span className='relative -top-[1px] inline-block px-[.6em] py-[.25em] text-[75%] font-bold'>

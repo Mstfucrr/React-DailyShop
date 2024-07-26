@@ -1,4 +1,5 @@
-import { useAdimnUser } from '@/context/admin/UserContext'
+import RefreshButton from '@/components/refreshButton'
+import { useAdminUser } from '@/hooks/useAdminUser'
 import useAdminReports from '@/services/admin/report/use-admin-reports'
 import { IUser } from '@/services/auth/types'
 import { Button } from 'primereact/button'
@@ -11,7 +12,6 @@ import toast from 'react-hot-toast'
 
 type Props = {
   renderRepUserPanel: (user: IUser) => JSX.Element
-  refreshButton: (fetchData: () => Promise<void>) => JSX.Element
 }
 
 const RenderCardFooterForUser = ({
@@ -23,7 +23,7 @@ const RenderCardFooterForUser = ({
   reportId: number
   handleDeleteReportForUser: (reportId: number) => void
 }) => {
-  const { handleBlockUser } = useAdimnUser()
+  const { handleBlockUser } = useAdminUser()
   return (
     <div className='flex flex-row justify-between gap-5'>
       {user.status ? (
@@ -99,7 +99,7 @@ const ReportedUsers = ({ renderRepUserPanel }: Props) => {
         ) : (
           <div className='flex max-h-[30rem] w-full flex-wrap gap-4 overflow-y-auto'>
             <div className='sticky top-0 z-20 flex w-full justify-end bg-transparent pr-10'>
-              {/* {refreshButton(fetchReportedUsers)} */}
+              <RefreshButton refreshFunction={refetch} />
             </div>
             {reportedUsers?.map(repUser => (
               <div key={'reportedUser-' + repUser.id} className='min-w-full'>

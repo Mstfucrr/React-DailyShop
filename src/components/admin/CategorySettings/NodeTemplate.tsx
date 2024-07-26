@@ -27,7 +27,7 @@ const NodeTemplate: React.FC<NodeTemplateProps> = ({ node, setUpdateCategory, ha
           className='p-button-rounded p-button-danger'
           icon='pi pi-trash'
           onClick={() => {
-            let co = confirmDialog({
+            const co = confirmDialog({
               message: (
                 <div className='flex flex-wrap items-center gap-2'>
                   <h4 className='text-lg font-bold'> {node.data.name} </h4>

@@ -5,9 +5,8 @@ import { useEffect, useState } from 'react'
 import UserInformation from './userSettings/userInformation'
 import UserProducts from './userProducts/userProducts'
 import UserOrders from './userOrders'
-import { useAuth } from '@/hooks/useAuth'
-import { AccountTabs } from '@/app/account/[tab]/page'
 import Link from 'next/link'
+import { AccountTabs } from './types'
 
 const TabButtons = ({ label, value, activeTab }: { label: string; value: AccountTabs; activeTab: AccountTabs }) => {
   return (

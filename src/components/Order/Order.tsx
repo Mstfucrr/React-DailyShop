@@ -26,7 +26,7 @@ const Order = () => {
     cvv: ''
   })
   const { data: getCartData, error: getCartError, isLoading: getCartLoading } = useGetCart()
-  const { mutate: createOrder, isPending: createOrderLoading, error: createOrderError } = useCreateOrder()
+  const { mutate: createOrder } = useCreateOrder()
 
   const { auth: user } = useAuth()
 

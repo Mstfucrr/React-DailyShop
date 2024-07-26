@@ -1,4 +1,4 @@
-import { useAdimnUser } from '@/context/admin/UserContext'
+import { useAdminUser } from '@/hooks/useAdminUser'
 import { IOrder, OrderStatus } from '@/services/order/types'
 import { orderStatus } from '@/shared/constants'
 import Link from 'next/link'
@@ -55,7 +55,7 @@ const OrderLoadingTemplate = ({ orderLoading }: { orderLoading: boolean }) => (
 )
 
 const UserOrders = () => {
-  const { selectUserOrders, orderLoading, handleChangeOrderStatus } = useAdimnUser()
+  const { selectUserOrders, orderLoading, handleChangeOrderStatus } = useAdminUser()
 
   return (
     <Fieldset

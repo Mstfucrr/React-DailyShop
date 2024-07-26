@@ -1,8 +1,8 @@
-import { useAdimnUser } from '@/context/admin/UserContext'
+import { useAdminUser } from '@/hooks/useAdminUser'
 import React from 'react'
 
 const UserAddress = () => {
-  const { selectedUserAddress } = useAdimnUser()
+  const { selectedUserAddress } = useAdminUser()
   return (
     <div className='mt-5'>
       <div className='flex flex-col'>

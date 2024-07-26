@@ -10,7 +10,7 @@ import { ProgressSpinner } from 'primereact/progressspinner'
 import { Button } from 'primereact/button'
 import toast from 'react-hot-toast'
 import { useGetAllProducts } from '@/services/admin/product/products.service'
-import { useAdimnUser } from '@/context/admin/UserContext'
+import { useAdminUser } from '@/hooks/useAdminUser'
 
 const ApprovedRowFilterTemplate = (options: ColumnFilterElementTemplateOptions) => {
   return (
@@ -101,24 +101,14 @@ const ProductSettings = () => {
     isApproved: { value: null, matchMode: FilterMatchMode.EQUALS }
   })
 
-  const showErrorMessage = (err: Error) => {
-    toast.error(err.message)
-    setLoading(false)
-  }
-  const showSuccess = (message: string) => {
-    toast.success(message)
-    setLoading(false)
-  }
-
-  const [loading, setLoading] = useState<boolean>(false)
   const [globalFilterValue, setGlobalFilterValue] = useState('')
 
-  const { data: productsData, error: productsError } = useGetAllProducts()
-  const { handleProductApprovalStatusChange } = useAdimnUser()
+  const { data: productsData, error: productsError, isLoading: loading } = useGetAllProducts()
+  const { handleProductApprovalStatusChange } = useAdminUser()
 
   useEffect(() => {
     if (productsError) {
-      showErrorMessage(productsError)
+      toast.error(productsError.message)
       return
     }
     if (productsData) setProducts(productsData.data.data)
@@ -126,9 +116,9 @@ const ProductSettings = () => {
 
   const onGlobalFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
-    let _filters = { ...filters }
+    const _filters = { ...filters }
 
-    //@ts-ignore
+    // @ts-expect-error: global filtresi doğrudan değiştiriliyor
     _filters['global'].value = value
 
     setFilters(_filters)

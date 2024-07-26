@@ -1,4 +1,4 @@
-import { useAdimnUser } from '@/context/admin/UserContext'
+import { useAdminUser } from '@/hooks/useAdminUser'
 import { reviewStatus } from '@/shared/constants'
 import { IReview } from '@/shared/types'
 import Link from 'next/link'
@@ -11,10 +11,8 @@ import { ProgressSpinner } from 'primereact/progressspinner'
 import { Rating } from 'primereact/rating'
 import React, { useCallback } from 'react'
 
-type Props = {}
-
-const UserReviews = (props: Props) => {
-  const { selectedUserReviews, reviewLoading, handleReviewStatusChange } = useAdimnUser()
+const UserReviews = () => {
+  const { selectedUserReviews, reviewLoading, handleReviewStatusChange } = useAdminUser()
 
   const renderProductImage = (data: IReview) => (
     <Link href={`/product/${data?.product?.id}`} className='flex items-center justify-center'>
@@ -53,7 +51,7 @@ const UserReviews = (props: Props) => {
           toggleable
         >
           {/* Yenile */}
-          {/* {refreshButton(fetchUserReviews as any)} */}
+          {refreshButton(() => null as any)}
 
           {/* Yorumlar tablosu */}
           {reviewLoading ? (

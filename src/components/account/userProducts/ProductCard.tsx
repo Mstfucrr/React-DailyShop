@@ -35,7 +35,7 @@ const ProductCard = ({ product, setUpdateProductId, setIsUpdate }: Props) => {
   const handleUpdate = useCallback(() => {
     setUpdateProductId(product?.id)
     setIsUpdate(true)
-  }, [product])
+  }, [product, setUpdateProductId, setIsUpdate])
 
   const handleDetleteProduct = async (id: number) => {
     deleteProduct(id, {

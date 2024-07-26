@@ -1,6 +1,6 @@
 'use client'
 import { ILogin, IUser } from '@/services/auth/types'
-import { createContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
 // ** Axios
 import { IAuthContext } from './types'
@@ -10,7 +10,7 @@ import toast from 'react-hot-toast'
 import { jwtDecode } from 'jwt-decode'
 import { useMutation, useQuery } from '@tanstack/react-query'
 
-export const defaultProvider: IAuthContext = {
+const defaultProvider: IAuthContext = {
   auth: {} as IUser,
   isAdminAuthorized: false,
   isAuthorized: false,
@@ -72,14 +72,15 @@ const AuthProvider = ({ children }: props) => {
 
   const loading = useMemo(() => isGetAccountLoading || isLoginLoading, [isGetAccountLoading, isLoginLoading])
 
-  const handleLogin = async (params: ILogin) => login(params)
+  // const handleLogin = async (params: ILogin) => login(params)
+  const handleLogin = useCallback(async (params: ILogin) => login(params), [login])
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     window.localStorage.removeItem('user')
     setUser(null)
     toast.success('Çıkış yapıldı')
     router.push('/')
-  }
+  }, [router])
 
   const providerValue = useMemo(() => {
     return {
@@ -93,7 +94,7 @@ const AuthProvider = ({ children }: props) => {
       setToken: setToken,
       setUser: setUser
     }
-  }, [user, loading, handleLogin, handleLogout])
+  }, [user, loading, handleLogin, handleLogout, token])
   return <AuthContext.Provider value={providerValue}>{children}</AuthContext.Provider>
 }
 

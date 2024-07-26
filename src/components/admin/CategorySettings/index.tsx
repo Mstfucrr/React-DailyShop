@@ -34,7 +34,7 @@ const CategorySettings = () => {
   useEffect(() => {
     if (treeNodes && selectedNodeKey)
       setSelectedCategory(findCategoryByKeyInTreeSelectModel(treeNodes, selectedNodeKey))
-  }, [selectedCategory, selectedNodeKey])
+  }, [selectedNodeKey, treeNodes])
 
   useEffect(() => {
     if (categoriesError) {

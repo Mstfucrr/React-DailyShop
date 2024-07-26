@@ -1,4 +1,4 @@
-import { useAdimnUser } from '@/context/admin/UserContext'
+import { useAdminUser } from '@/hooks/useAdminUser'
 import { IProduct } from '@/shared/types'
 import Link from 'next/link'
 import { Button } from 'primereact/button'
@@ -6,10 +6,10 @@ import { ConfirmPopup, confirmPopup } from 'primereact/confirmpopup'
 import { DataView } from 'primereact/dataview'
 import { Fieldset } from 'primereact/fieldset'
 import { ProgressSpinner } from 'primereact/progressspinner'
-import React, { useCallback } from 'react'
+import React from 'react'
 
 const UserProducts = () => {
-  const { selectUserProducts, productLoading, handleProductApprovalStatusChange, handleDetleteProduct } = useAdimnUser()
+  const { selectUserProducts, productLoading, handleProductApprovalStatusChange, handleDetleteProduct } = useAdminUser()
 
   const handleProductApprovalFalse = (id: number) => {
     handleProductApprovalStatusChange({ id, status: false })

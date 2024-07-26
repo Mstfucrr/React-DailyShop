@@ -1,17 +1,14 @@
 import { motion } from 'framer-motion'
 import { Messages } from 'primereact/messages'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 
-import { IOrder } from '@/services/order/types'
 import { useGetOrders } from '@/services/order/use-order-service'
 import OrderItem from './orderItem'
 
 const UserOrders = () => {
-  const [orders, setOrders] = useState<IOrder[] | null>(null)
-
   const msgs = useRef<Messages>(null)
 
-  const { data, error, refetch } = useGetOrders()
+  const { data: orderData, error, refetch } = useGetOrders()
 
   useEffect(() => {
     refetch()
@@ -28,9 +25,19 @@ const UserOrders = () => {
       ])
       return
     }
-    console.log(data?.data)
-    if (data?.data.data) setOrders(data.data.data)
-  }, [data, error])
+    if (orderData?.length === 0) {
+      msgs.current?.clear()
+      msgs.current?.show([
+        {
+          sticky: true,
+          severity: 'info',
+          summary: 'Sipariş Bulunamadı',
+          detail: 'Sipariş bulunamadı.',
+          closable: false
+        }
+      ])
+    }
+  }, [orderData, error, refetch])
 
   return (
     <motion.div
@@ -46,9 +53,9 @@ const UserOrders = () => {
       {/* order */}
 
       <div className='flex w-full flex-col gap-7'>
-        {orders &&
-          orders.length > 0 &&
-          orders.map(order => {
+        {orderData &&
+          orderData.length > 0 &&
+          orderData.map(order => {
             return <OrderItem key={order.id} order={order} />
           })}
       </div>

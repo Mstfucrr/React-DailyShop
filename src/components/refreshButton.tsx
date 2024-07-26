@@ -1,6 +1,11 @@
 import { Button } from 'primereact/button'
+import React from 'react'
 
-const RefreshButton = (refreshFunction: () => Promise<void>) => (
+type Props<T> = {
+  refreshFunction: () => T
+}
+
+const RefreshButton = ({ refreshFunction }: Props<void>) => (
   <div className='my-3 flex justify-end'>
     <Button
       label='Yenile'

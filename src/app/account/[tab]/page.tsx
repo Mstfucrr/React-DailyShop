@@ -1,10 +1,5 @@
 import Account from '@/components/account/account'
-
-export enum AccountTabs {
-  USER_INFO = 'user-info',
-  USER_ORDERS = 'user-orders',
-  USER_PRODUCTS = 'user-products'
-}
+import { AccountTabs } from '@/components/account/types'
 
 const AccountPage = ({ params }: Readonly<{ params: { tab: AccountTabs } }>) => {
   return <Account tab={params.tab} />
