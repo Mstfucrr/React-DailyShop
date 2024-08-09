@@ -2,14 +2,14 @@ import { DataTable } from 'primereact/datatable'
 import { Column } from 'primereact/column'
 import { IUser } from '@/services/auth/types'
 import { Button } from 'primereact/button'
-import { useAdimnUser } from '@/context/admin/UserContext'
+import { useAdminUser } from '@/hooks/useAdminUser'
 import UserAddress from './user-adress'
 import UserReviews from './user-review'
 import UserProducts from './user-products'
 import UserOrders from './user-orders'
 
 const UserSettings = () => {
-  const { users, selectedUser, loading, setSelectedUser, handleBlockUser } = useAdimnUser()
+  const { users, selectedUser, loading, setSelectedUser, handleBlockUser } = useAdminUser()
 
   const renderUserBlockButton = (data: IUser) => (
     <>

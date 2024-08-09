@@ -9,7 +9,7 @@ interface IProductContext {
   handleChangeOrderStatus: (orderId: number, status: any) => Promise<void>
 }
 
-export const defaultProvider: IProductContext = {
+const defaultProvider: IProductContext = {
   products: [],
   loading: false,
   fetchProducts: () => Promise.resolve(),

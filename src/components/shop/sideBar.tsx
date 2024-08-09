@@ -24,7 +24,7 @@ const SideBar = ({ data, setData }: { data: IProduct[]; setData: (filteredProduc
     const colors = data.map(product => product.colors ?? [])
     const uniqueColors = [...new Set(colors.flat())]
     setColors(uniqueColors)
-  }, [])
+  }, [data])
 
   const hanldeFilter = () => {
     const filteredPro = data.filter(product => {

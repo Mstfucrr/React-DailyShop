@@ -1,17 +1,8 @@
 // flask apiye bağlantı
-import axios from 'axios'
 import { privateAxiosInstance } from '../base/base'
 import { useMutation } from '@tanstack/react-query'
 
-const base_url = 'http://127.0.0.1:5000'
-
-// export const get_quote = async (data: any) => {
-//   const response: any = await axios.post(`${base_url}/get_quote`, {
-//     data: data
-//   })
-//   return await response.data
-// }
-
+const base_url = process.env.REACT_APP_AI_SERVICE_URL
 const get_quote = async (data: any) => await privateAxiosInstance.post<any>(`${base_url}/get_quote`, data)
 
 const GetQuote = () =>

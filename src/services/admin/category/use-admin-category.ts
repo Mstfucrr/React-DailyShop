@@ -1,19 +1,7 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import { addCategory, updateCategoryById, deleteCategoryById } from './category.service'
 import { ICategoryRequest } from '../types'
 import reactQueryConfig from '@/configs/react-query-config'
-
-/*
-
-export const addCategory = async (val: ICategoryRequest) =>
-  await privateAxiosInstance.post<any>(`Admin/Categories/Add`, val)
-
-export const updateCategoryById = async (id: number, val: ICategoryRequest) =>
-  await privateAxiosInstance.put<any>(`Admin/Categories/${id}`, val)
-
-export const deleteCategoryById = async (id: number) => await privateAxiosInstance.delete<any>(`Admin/Categories/${id}`)
-
-*/
 
 const useAddCategory = () =>
   useMutation({

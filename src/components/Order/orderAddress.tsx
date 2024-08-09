@@ -51,7 +51,7 @@ const OrderAddress = ({ addresses, IsAddressSelectionconfirmed, selectAddress, s
       })
       formik.setFieldValue('zipCode', zipCode)
     }
-  }, [selectAddress])
+  }, [selectAddress, formik])
 
   return (
     <motion.div

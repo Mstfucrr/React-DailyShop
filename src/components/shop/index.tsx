@@ -66,7 +66,7 @@ const Shop = ({ shopId }: { shopId: number }) => {
         setFilteredProducts([...products])
         break
     }
-  }, [selectSortBy])
+  }, [selectSortBy, products, filteredProducts])
 
   useEffect(() => {
     if (isError) {
@@ -84,7 +84,7 @@ const Shop = ({ shopId }: { shopId: number }) => {
       setProducts(data.data.data.slice(first, first + rows))
       setResponseData(data.data)
     }
-  }, [isDelProductShow, data, isError, isPending])
+  }, [isDelProductShow, data, isError, isPending, first, rows])
 
   useEffect(() => {
     setProducts(filteredProducts.slice(first, first + rows))
@@ -96,7 +96,7 @@ const Shop = ({ shopId }: { shopId: number }) => {
     } else if (search.length === 0) {
       setProducts([...filteredProducts].slice(first, first + rows))
     }
-  }, [search])
+  }, [search, filteredProducts, first, rows])
 
   const onPageChange = (event: PaginatorPageChangeEvent) => {
     setFirst(event.first)

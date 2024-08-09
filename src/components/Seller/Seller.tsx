@@ -1,15 +1,26 @@
 'use client'
 import { IProductInfo } from '@/services/product/types'
 import { useFormik } from 'formik'
-import { useCallback, useState } from 'react'
+import { useState } from 'react'
 import ImageUpload from './ImageUpload'
 import ProductInfo from './ProductInfo'
 import { ProgressSpinner } from 'primereact/progressspinner'
 import { Button } from 'primereact/button'
 import { productInfoValidationSchema } from '@/shared/validationSchemas'
-import { useAuth } from '@/hooks/useAuth'
 import toast from 'react-hot-toast'
 import { useAddProduct } from '@/services/product/use-product-service'
+
+const LoadingTemplete = ({ resetClick }: { resetClick: () => void }) => {
+  // tüm sayfayı kapsayacak şekilde spinner göster
+  return (
+    <div className='fixed left-0 top-0 z-50 flex h-screen w-screen flex-col items-center justify-center gap-4 bg-black bg-opacity-50'>
+      {/* ürün eklendi mi  */}
+      <ProgressSpinner className='!w-24' strokeWidth='5' animationDuration='.8s' fill='white' />
+      <span className='absolute bottom-1/2 animate-bounce text-5xl font-bold tracking-wider text-primaryDark'> D </span>
+      <Button severity='warning' label='İptal et' className='w-1/5 !text-xl' onClick={resetClick} />
+    </div>
+  )
+}
 
 const Seller = () => {
   const [coverImage, setCoverImage] = useState<File | null>(null)
@@ -70,33 +81,17 @@ const Seller = () => {
     }
   })
 
-  const LoadingTemplete = useCallback(() => {
-    // tüm sayfayı kapsayacak şekilde spinner göster
-    return (
-      <div className='fixed left-0 top-0 z-50 flex h-screen w-screen flex-col items-center justify-center gap-4 bg-black bg-opacity-50'>
-        {/* ürün eklendi mi  */}
-        <ProgressSpinner className='!w-24' strokeWidth='5' animationDuration='.8s' fill='white' />
-        <span className='absolute bottom-1/2 animate-bounce text-5xl font-bold tracking-wider text-primaryDark'>
-          {' '}
-          D{' '}
-        </span>
-        <Button
-          severity='warning'
-          label='İptal et'
-          className='w-1/5 !text-xl'
-          onClick={() => {
+  return (
+    <section className='my-10 h-auto px-5 lg:px-20'>
+      {loading && (
+        <LoadingTemplete
+          resetClick={() => {
             formik.resetForm()
             setCoverImage(null)
             setImages([])
           }}
         />
-      </div>
-    )
-  }, [])
-
-  return (
-    <section className='my-10 h-auto px-5 lg:px-20'>
-      {loading && LoadingTemplete()}
+      )}
       <div className='flex h-full w-full flex-col justify-around gap-10 md:flex-row'>
         {/* cover and another images */}
         <div className='flex h-full w-full basis-2/5'>

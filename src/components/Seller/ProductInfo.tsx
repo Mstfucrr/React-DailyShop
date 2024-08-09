@@ -39,19 +39,19 @@ const ProductInfo = ({ formik, setProductInfo, productInfo, loading }: Props) =>
     )
   }
 
-  const { data, isError, error } = useGetCategories()
+  const { data, error } = useGetCategories()
 
-  const showErrorMessage = (err: string) => toast.error(err)
+  const showErrorMessage = useCallback((errMsg: string) => toast.error(errMsg), [])
 
-  const showSuccessMessage = (msg: string) => toast.success(msg)
+  const showSuccessMessage = useCallback((msg: string) => toast.success(msg), [])
 
   useEffect(() => {
-    if (isError) {
+    if (error) {
       showErrorMessage(error.message)
       return
     }
     if (data) setTreeNodes(convertCategoriesToTreeSelectModel(data.data))
-  }, [data])
+  }, [data, error, showErrorMessage])
 
   useEffect(() => {
     if (treeNodes && selectedNodeKey)
@@ -75,7 +75,7 @@ const ProductInfo = ({ formik, setProductInfo, productInfo, loading }: Props) =>
       },
       onError: err => showErrorMessage(err.message)
     })
-  }, [formik.values, showErrorMessage, showSuccessMessage])
+  }, [formik.values.status, selectedCategory?.id, GetQuatedPrice, showErrorMessage, showSuccessMessage])
 
   const showFormErrorMessage = (err: string) => {
     return <small className='p-error mb-6 block h-0'> {err} </small>

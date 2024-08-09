@@ -1,5 +1,5 @@
-import { useAdimnUser } from '@/context/admin/UserContext'
-import { useAuth } from '@/hooks/useAuth'
+import RefreshButton from '@/components/refreshButton'
+import { useAdminUser } from '@/hooks/useAdminUser'
 import { IReportedReviews } from '@/services/admin/report/reports.service'
 import useAdminReports from '@/services/admin/report/use-admin-reports'
 import { IUser } from '@/services/auth/types'
@@ -16,12 +16,11 @@ import toast from 'react-hot-toast'
 
 type Props = {
   renderRepUserPanel: (user: IUser) => JSX.Element
-  refreshButton: (fetchData: () => Promise<void>) => JSX.Element
 }
 
-const ReportedReviews = ({ refreshButton, renderRepUserPanel }: Props) => {
+const ReportedReviews = ({ renderRepUserPanel }: Props) => {
   const msgsRepReview = useRef<Messages>(null)
-  const { handleReviewStatusChange } = useAdimnUser()
+  const { handleReviewStatusChange } = useAdminUser()
 
   const { useGetReportedReviews, DeleteReportForReview } = useAdminReports()
 
@@ -141,7 +140,7 @@ const ReportedReviews = ({ refreshButton, renderRepUserPanel }: Props) => {
         ) : (
           <div className='flex max-h-[30rem] w-full flex-wrap gap-4 overflow-y-auto'>
             <div className='sticky top-0 z-20 flex w-full justify-end bg-transparent pr-10'>
-              {/* {refreshButton(fetchReportedReviews)} */}
+              <RefreshButton refreshFunction={refetch} />
             </div>
             {reportedReviews?.map(repReview => (
               <div key={'reportedReview-' + repReview.review.id}>{renderReportedReviewsCard(repReview)}</div>

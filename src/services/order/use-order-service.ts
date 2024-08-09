@@ -7,7 +7,7 @@ import toast from 'react-hot-toast'
 export const useGetOrders = () => {
   return useQuery({
     queryKey: ['getOrders'],
-    queryFn: orderService.getOrders
+    queryFn: () => orderService.getOrders().then(res => res.data.data)
   })
 }
 

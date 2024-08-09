@@ -1,5 +1,5 @@
 'use client'
-import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { IUser, IUserAddress } from '@/services/auth/types'
@@ -61,7 +61,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       const user = users.find(u => u.id === Number(userId))
       setSelectedUser(user)
     }
-  }, [users, params])
+  }, [users, params, selectedUser, usersError])
 
   const { data: selectedUserAddress } = useQuery({
     queryKey: ['fetchUserAddress', selectedUser?.id],
@@ -81,7 +81,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     enabled: !!selectedUser
   })
 
-  const { data: selectUserOrders } = useQuery({
+  const { data: selectUserOrders, isLoading: orderLoading } = useQuery({
     queryKey: ['fetchUserOrders', selectedUser?.id],
     queryFn: () => fetchOrdersByUserId(selectedUser?.id ?? 0).then(res => res.data.data),
     enabled: !!selectedUser
@@ -126,16 +126,19 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
   const { mutate: deleteProduct } = useDeleteProduct()
 
-  const handleDetleteProduct = async (id: number) => {
-    deleteProduct(id, {
-      onSuccess: () => {
-        reactQueryConfig.invalidateQueries({ queryKey: ['fetchUserProducts', selectedUser?.id] })
-        showSuccess('Ürün başarıyla silindi')
-        setTimeout(() => window.location.reload(), 2500)
-      },
-      onError: err => toast.error(err.message)
-    })
-  }
+  const handleDetleteProduct = useCallback(
+    async (id: number) => {
+      deleteProduct(id, {
+        onSuccess: () => {
+          reactQueryConfig.invalidateQueries({ queryKey: ['fetchUserProducts', selectedUser?.id] })
+          showSuccess('Ürün başarıyla silindi')
+          setTimeout(() => window.location.reload(), 2500)
+        },
+        onError: err => toast.error(err.message)
+      })
+    },
+    [deleteProduct, selectedUser]
+  )
 
   const { mutate: handleChangeOrderStatus } = useMutation({
     mutationKey: ['updateOrderStatus', selectedUser?.id],
@@ -158,7 +161,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       loading: usersLoading,
       productLoading,
       reviewLoading,
-      orderLoading: false,
+      orderLoading,
       setSelectedUser,
       handleReviewStatusChange,
       handleProductApprovalStatusChange,
@@ -175,10 +178,15 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     selectUserOrders,
     usersLoading,
     productLoading,
-    reviewLoading
+    reviewLoading,
+    orderLoading,
+    setSelectedUser,
+    handleReviewStatusChange,
+    handleProductApprovalStatusChange,
+    handleBlockUser,
+    handleDetleteProduct,
+    handleChangeOrderStatus
   ])
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>
 }
-
-export const useAdimnUser = () => useContext(UserContext)
