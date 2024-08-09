@@ -12,8 +12,6 @@ import { fetchReviewsByUserId, updateReviewStatus } from '@/services/admin/user/
 import { productService } from '@/services/admin/user/produt.service'
 import { fetchOrdersByUserId, updateOrderStatus } from '@/services/admin/user/order.service'
 import reactQueryConfig from '@/configs/react-query-config'
-import { ProductResponse } from '@/services/product/types'
-import { IProductResponse } from '@/services/admin/product/products.service'
 
 export type UserContextType = {
   users: IUser[] | undefined
