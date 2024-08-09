@@ -6,7 +6,7 @@ import { ConfirmPopup, confirmPopup } from 'primereact/confirmpopup'
 import { DataView } from 'primereact/dataview'
 import { Fieldset } from 'primereact/fieldset'
 import { ProgressSpinner } from 'primereact/progressspinner'
-import React, { useCallback } from 'react'
+import React from 'react'
 
 const UserProducts = () => {
   const { selectUserProducts, productLoading, handleProductApprovalStatusChange, handleDetleteProduct } = useAdimnUser()

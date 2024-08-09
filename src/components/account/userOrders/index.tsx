@@ -28,7 +28,6 @@ const UserOrders = () => {
       ])
       return
     }
-    console.log(data?.data)
     if (data?.data.data) setOrders(data.data.data)
   }, [data, error])
 
