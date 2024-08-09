@@ -89,7 +89,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     if (selectedUser) router.push(`/admin/users?userId=${selectedUser.id}`)
-  }, [selectedUser, router])
+  }, [selectedUser])
 
   const { mutate: handleReviewStatusChange, isPending: reviewLoading } = useMutation({
     mutationKey: ['updateReviewStatus'],
@@ -107,6 +107,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       productService.updateProductApprovalStatus(id, status),
     onSuccess: () => {
       reactQueryConfig.invalidateQueries({ queryKey: ['fetchUserProducts', selectedUser?.id] })
+      reactQueryConfig.invalidateQueries({ queryKey: ['getAllProducts'] })
+
       showSuccess('Ürün başarıyla güncellendi')
     },
     onError: err => showErrorMessage(err)

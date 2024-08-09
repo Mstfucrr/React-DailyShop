@@ -8,10 +8,9 @@ import OrderItem from './orderItem'
 const UserOrders = () => {
   const msgs = useRef<Messages>(null)
 
-  const { data: orderData, error, refetch } = useGetOrders()
+  const { data: orderData, error } = useGetOrders()
 
   useEffect(() => {
-    refetch()
     if (error) {
       msgs.current?.clear()
       msgs.current?.show([
@@ -37,7 +36,7 @@ const UserOrders = () => {
         }
       ])
     }
-  }, [orderData, error, refetch])
+  }, [orderData, error])
 
   return (
     <motion.div

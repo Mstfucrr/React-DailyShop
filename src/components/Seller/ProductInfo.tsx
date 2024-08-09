@@ -56,7 +56,6 @@ const ProductInfo = ({ formik, setProductInfo, productInfo, loading }: Props) =>
   useEffect(() => {
     if (treeNodes && selectedNodeKey)
       setSelectedCategory(findCategoryByKeyInTreeSelectModel(treeNodes, selectedNodeKey))
-    console.log('treeNodes', treeNodes)
   }, [selectedCategory, selectedNodeKey, treeNodes])
 
   const { mutate: GetQuatedPrice, isPending: getPriceQuatedLoading } = GetQuote()

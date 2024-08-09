@@ -10,7 +10,7 @@ interface UpdateOrderStatusResponse {
 }
 
 export const fetchOrdersByUserId = async (id: number) =>
-  await privateAxiosInstance.get<FetchOrdersByUserIdResponse>(`/Orders/GetListByUserId?UserId=${id}`)
+  await privateAxiosInstance.get<FetchOrdersByUserIdResponse>(`/admin/Orders/${id}`)
 
 export const updateOrderStatus = async (orderId: number, status: string) =>
-  await privateAxiosInstance.put<UpdateOrderStatusResponse>(`/admin/Orders/UpdateStatus/${orderId}?status=${status}`)
+  await privateAxiosInstance.put<UpdateOrderStatusResponse>(`/Orders/${orderId}`, status)

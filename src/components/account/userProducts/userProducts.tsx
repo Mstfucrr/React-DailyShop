@@ -1,3 +1,4 @@
+'use client'
 import { IProduct } from '@/shared/types'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Messages } from 'primereact/messages'
