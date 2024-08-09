@@ -77,7 +77,7 @@ const Shop = ({ shopId }: { shopId: number }) => {
       setProducts(data.slice(first, first + rows))
       setResponseData(data)
     }
-  }, [isDelProductShow])
+  }, [isDelProductShow, isError, data])
 
   useEffect(() => {
     setProducts(filteredProducts.slice(first, first + rows))
