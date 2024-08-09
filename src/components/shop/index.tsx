@@ -5,7 +5,7 @@ import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown'
 import { useEffect, useRef, useState } from 'react'
 import { IProduct } from '@/shared/types'
 import { Paginator, PaginatorPageChangeEvent } from 'primereact/paginator'
-import { GetProductsResponse, useGetProductsByCategoryId } from '@/services/shop/shop.service'
+import { useGetProductsByCategoryId } from '@/services/shop/shop.service'
 import { InputSwitch } from 'primereact/inputswitch'
 import { Messages } from 'primereact/messages'
 import { ProgressSpinner } from 'primereact/progressspinner'
@@ -20,24 +20,17 @@ const Shop = ({ shopId }: { shopId: number }) => {
   }>({ name: '', code: '' })
   const [filteredProducts, setFilteredProducts] = useState<IProduct[]>([])
   const [search, setSearch] = useState<string>('')
-  const [responseData, setResponseData] = useState<GetProductsResponse | undefined>(undefined)
+  const [responseData, setResponseData] = useState<IProduct[] | undefined>(undefined)
   const [products, setProducts] = useState<IProduct[]>([]) // tüm ürünlerin listesi
   const [first, setFirst] = useState(0)
   const [rows, setRows] = useState(6)
   const [isDelProductShow, setIsDelProductShow] = useState<boolean>(true)
 
   const msgs = useRef<Messages>(null)
-  const { data, isError, isPending } = useGetProductsByCategoryId(
-    {
-      id: shopId,
-      isDeletedDatas: isDelProductShow
-    },
-    {
-      queryKey: ['getProductsByCategoryId', { id: shopId, isDeletedDatas: isDelProductShow }],
-      gcTime: 0,
-      refetchInterval: 60000 // 60 seconds refetch
-    }
-  )
+  const { data, isError, isPending } = useGetProductsByCategoryId({
+    id: shopId,
+    isDeletedDatas: isDelProductShow
+  })
 
   useEffect(() => {
     switch (selectSortBy.code) {
@@ -66,7 +59,7 @@ const Shop = ({ shopId }: { shopId: number }) => {
         setFilteredProducts([...products])
         break
     }
-  }, [selectSortBy, products, filteredProducts])
+  }, [selectSortBy])
 
   useEffect(() => {
     if (isError) {
@@ -80,22 +73,20 @@ const Shop = ({ shopId }: { shopId: number }) => {
       return
     }
     if (data) {
-      setFilteredProducts(data.data.data)
-      setProducts(data.data.data.slice(first, first + rows))
-      setResponseData(data.data)
+      setFilteredProducts(data)
+      setProducts(data.slice(first, first + rows))
+      setResponseData(data)
     }
-  }, [isDelProductShow, data, isError, isPending, first, rows])
+  }, [isDelProductShow])
 
   useEffect(() => {
     setProducts(filteredProducts.slice(first, first + rows))
-  }, [filteredProducts, first, rows])
+  }, [filteredProducts])
 
   useEffect(() => {
-    if (search.length > 2) {
+    if (search.length > 2)
       setProducts([...filteredProducts].filter(product => product.name.toLowerCase().includes(search.toLowerCase())))
-    } else if (search.length === 0) {
-      setProducts([...filteredProducts].slice(first, first + rows))
-    }
+    else if (search.length === 0) setProducts([...filteredProducts].slice(first, first + rows))
   }, [search, filteredProducts, first, rows])
 
   const onPageChange = (event: PaginatorPageChangeEvent) => {
@@ -112,11 +103,11 @@ const Shop = ({ shopId }: { shopId: number }) => {
         </div>
       ) : (
         <>
-          {responseData?.data ? (
+          {responseData ? (
             <>
               <div className='grid gap-x-10 md:grid-cols-4'>
                 {/* SideBar */}
-                {responseData?.data && <SideBar data={responseData.data} setData={setFilteredProducts} />}
+                {responseData && <SideBar data={responseData} setData={setFilteredProducts} />}
                 {/* Shop Product */}
                 <div className='col-span-1 row-span-4 md:col-span-3 md:row-span-1'>
                   <div className='flex flex-col items-start justify-between gap-y-2 md:flex-row'>
