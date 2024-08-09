@@ -3,10 +3,9 @@ import React from 'react'
 import Settings from './settings'
 import UserSettings from './UserSettings'
 import ProductSettings from './ProductSettings'
-import { Button } from 'primereact/button'
 import Reports from './Reports'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import AdminLinkButton from './AdminLinkButton'
 
 enum AdminPage {
   Settings = 'settings',
@@ -35,43 +34,6 @@ const RenderAdminComponent = ({ pathName }: AdminSlug) => {
 }
 
 const Admin = ({ pathName }: AdminSlug) => {
-  const router = useRouter()
-
-  const items = [
-    {
-      label: 'Site Ayarları',
-      icon: 'pi pi-fw pi-home',
-      command: () => {
-        router.push('/admin/settings')
-      },
-      className: `${pathName === AdminPage.Settings ? '!bg-primary' : ''}`
-    },
-    {
-      label: 'Kullanıcı Ayarları',
-      icon: 'pi pi-fw pi-users',
-      command: () => {
-        router.push('/admin/users')
-      },
-      className: `${pathName === AdminPage.Users ? '!bg-primary' : ''}`
-    },
-    {
-      label: 'Ürün Ayarları',
-      icon: 'pi pi-fw pi-shopping-cart',
-      command: () => {
-        router.push('/admin/products')
-      },
-      className: `${pathName === AdminPage.Products ? '!bg-primary' : ''}`
-    },
-    {
-      label: 'Raporlar',
-      icon: 'pi pi-fw pi-chart-bar',
-      command: () => {
-        router.push('/admin/reports')
-      },
-      className: `${pathName === AdminPage.Reports ? '!bg-primary' : ''}`
-    }
-  ]
-
   return (
     <div className='mx-auto flex h-auto w-5/6 flex-col pt-10'>
       <div className='flex flex-wrap justify-between gap-5 py-7'>
@@ -95,16 +57,30 @@ const Admin = ({ pathName }: AdminSlug) => {
 
       <div className='mx-auto flex w-full flex-wrap gap-y-6'>
         <div className='flex w-full flex-col gap-3 md:w-1/5'>
-          {items.map(item => (
-            <Button
-              key={item.label}
-              label={item.label}
-              icon={item.icon}
-              className={item.className}
-              onClick={item.command}
-              severity='secondary'
-            />
-          ))}
+          <AdminLinkButton
+            href='/admin/settings'
+            label='Site Ayarları'
+            icon='pi pi-fw pi-home'
+            isActive={pathName === AdminPage.Settings}
+          />
+          <AdminLinkButton
+            href='/admin/users'
+            label='Kullanıcı Ayarları'
+            icon='pi pi-fw pi-users'
+            isActive={pathName === AdminPage.Users}
+          />
+          <AdminLinkButton
+            href='/admin/products'
+            label='Ürün Ayarları'
+            icon='pi pi-fw pi-shopping-cart'
+            isActive={pathName === AdminPage.Products}
+          />
+          <AdminLinkButton
+            href='/admin/reports'
+            label='Raporlar'
+            icon='pi pi-fw pi-chart-bar'
+            isActive={pathName === AdminPage.Reports}
+          />
         </div>
         <div className='flex w-full pl-6 md:w-4/5'>
           <RenderAdminComponent pathName={pathName} />

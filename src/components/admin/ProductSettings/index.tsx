@@ -34,7 +34,7 @@ const RenderIsApproved = ({
   handleProductApprovalStatusChange
 }: {
   data: IProduct
-  handleProductApprovalStatusChange: any
+  handleProductApprovalStatusChange: (data: IProduct, status: boolean) => void
 }) => {
   if (data.isApproved === null)
     return (
@@ -57,34 +57,31 @@ const RenderIsApproved = ({
         />
       </>
     )
-  else if (data.isApproved)
-    return (
-      <div className='flex flex-row flex-wrap items-center gap-4'>
-        <span className='font-semibold text-green-500'>(Onaylandı)</span>
-        <Button
-          onClick={() => {
-            handleProductApprovalStatusChange(data, false)
-          }}
-          icon='pi pi-times'
-          className='p-button-danger p-button-outlined'
-          label='Reddet'
-          size='small'
-        />
-      </div>
-    )
-  else
-    return (
-      <div className='flex flex-row flex-wrap items-center gap-4'>
-        <Button
-          onClick={() => handleProductApprovalStatusChange(data, true)}
-          icon='pi pi-check'
-          label='Onayla'
-          className='p-button-success p-button-outlined'
-          size='small'
-        />
-        <span className='font-semibold text-red-500'>(Reddedildi)</span>
-      </div>
-    )
+  return data.isApproved ? (
+    <div className='flex flex-row flex-wrap items-center gap-4'>
+      <span className='font-semibold text-green-500'>(Onaylandı)</span>
+      <Button
+        onClick={() => {
+          handleProductApprovalStatusChange(data, false)
+        }}
+        icon='pi pi-times'
+        className='p-button-danger p-button-outlined'
+        label='Reddet'
+        size='small'
+      />
+    </div>
+  ) : (
+    <div className='flex flex-row flex-wrap items-center gap-4'>
+      <span className='font-semibold text-red-500'>(Reddedildi)</span>
+      <Button
+        onClick={() => handleProductApprovalStatusChange(data, true)}
+        icon='pi pi-check'
+        label='Onayla'
+        className='p-button-success p-button-outlined'
+        size='small'
+      />
+    </div>
+  )
 }
 
 const RenderStatusFilter = (props: any) => <InputText type='text' onChange={e => props.onChange(e.target.value)} />
@@ -103,17 +100,11 @@ const ProductSettings = () => {
 
   const showErrorMessage = (err: Error) => {
     toast.error(err.message)
-    setLoading(false)
-  }
-  const showSuccess = (message: string) => {
-    toast.success(message)
-    setLoading(false)
   }
 
-  const [loading, setLoading] = useState<boolean>(false)
   const [globalFilterValue, setGlobalFilterValue] = useState('')
 
-  const { data: productsData, error: productsError } = useGetAllProducts()
+  const { data: productsData, error: productsError, isLoading: loading } = useGetAllProducts()
   const { handleProductApprovalStatusChange } = useAdimnUser()
 
   useEffect(() => {
@@ -196,7 +187,15 @@ const ProductSettings = () => {
           <Column
             header='Onay'
             body={(rowData: any) => (
-              <RenderIsApproved data={rowData} handleProductApprovalStatusChange={handleProductApprovalStatusChange} />
+              <RenderIsApproved
+                data={rowData}
+                handleProductApprovalStatusChange={(data: IProduct, status: boolean) =>
+                  handleProductApprovalStatusChange({
+                    id: data.id,
+                    status: status
+                  })
+                }
+              />
             )}
             filter={false}
           />

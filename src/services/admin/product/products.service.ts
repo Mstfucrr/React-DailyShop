@@ -3,7 +3,7 @@ import { privateAxiosInstance } from '../../base/base'
 import { useQuery } from '@tanstack/react-query'
 import { IProduct } from '@/shared/types'
 
-type IProductResponse = {
+export type IProductResponse = {
   data: IProduct[]
 }
 
@@ -11,7 +11,7 @@ const fetchProducts = async () => await privateAxiosInstance.get<IProductRespons
 
 const useGetAllProducts = () =>
   useQuery({
-    queryKey: ['products'],
+    queryKey: ['getAllProducts'],
     queryFn: fetchProducts
   })
 

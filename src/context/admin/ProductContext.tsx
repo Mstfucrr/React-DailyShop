@@ -1,19 +1,3 @@
-/*
-  const handleDetleteProduct = async (id: number) => {
-    const [err, data] = await to(productService.deleteProduct(id, token))
-    if (err) return showErrorMessage(err)
-    showSuccess(data.message)
-    fetchUserProducts()
-  }
-
-  const handleChangeOrderStatus = async (orderId: number, status: OrderStatus) => {
-    const [err, data2] = await to(userService.updateOrderStatus(orderId, status, token))
-    if (err) return showErrorMessage(err)
-    showSuccess(data2.message)
-    fetchUserOrders()
-  }
-*/
-
 import { createContext } from 'react'
 
 interface IProductContext {

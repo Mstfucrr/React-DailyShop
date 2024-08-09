@@ -11,10 +11,9 @@ const UserOrders = () => {
 
   const msgs = useRef<Messages>(null)
 
-  const { data, error, refetch } = useGetOrders()
+  const { data, error } = useGetOrders()
 
   useEffect(() => {
-    refetch()
     if (error) {
       msgs.current?.clear()
       msgs.current?.show([

@@ -12,6 +12,8 @@ import { fetchReviewsByUserId, updateReviewStatus } from '@/services/admin/user/
 import { productService } from '@/services/admin/user/produt.service'
 import { fetchOrdersByUserId, updateOrderStatus } from '@/services/admin/user/order.service'
 import reactQueryConfig from '@/configs/react-query-config'
+import { ProductResponse } from '@/services/product/types'
+import { IProductResponse } from '@/services/admin/product/products.service'
 
 export type UserContextType = {
   users: IUser[] | undefined
@@ -89,7 +91,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     if (selectedUser) router.push(`/admin/users?userId=${selectedUser.id}`)
-  }, [])
+  }, [selectedUser])
 
   const { mutate: handleReviewStatusChange, isPending: reviewLoading } = useMutation({
     mutationKey: ['updateReviewStatus'],
@@ -107,6 +109,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       productService.updateProductApprovalStatus(id, status),
     onSuccess: () => {
       reactQueryConfig.invalidateQueries({ queryKey: ['fetchUserProducts', selectedUser?.id] })
+      reactQueryConfig.invalidateQueries({ queryKey: ['getAllProducts'] })
+
       showSuccess('Ürün başarıyla güncellendi')
     },
     onError: err => showErrorMessage(err)
