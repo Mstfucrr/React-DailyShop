@@ -92,9 +92,9 @@ const Seller = () => {
           }}
         />
       )}
-      <div className='flex h-full w-full flex-col justify-around gap-10 md:flex-row'>
+      <div className='flex size-full flex-col justify-around gap-10 md:flex-row'>
         {/* cover and another images */}
-        <div className='flex h-full w-full basis-2/5'>
+        <div className='flex size-full basis-2/5'>
           <ImageUpload
             setcoverImage={setCoverImage}
             setImages={setImages as React.Dispatch<React.SetStateAction<File[]>>}
@@ -103,7 +103,7 @@ const Seller = () => {
           />
         </div>
         {/* product informations */}
-        <div className='h-full w-full basis-3/5'>
+        <div className='size-full basis-3/5'>
           <ProductInfo
             formik={formik}
             setProductInfo={setProductInfo as any}

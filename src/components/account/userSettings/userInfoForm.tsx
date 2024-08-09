@@ -2,6 +2,7 @@ import reactQueryConfig from '@/configs/react-query-config'
 import { IUser } from '@/services/auth/types'
 import useAuthService from '@/services/auth/use-auth-service'
 import { useFormik } from 'formik'
+import Image from 'next/image'
 import { Button } from 'primereact/button'
 import { Fieldset } from 'primereact/fieldset'
 import { InputMask } from 'primereact/inputmask'
@@ -94,10 +95,12 @@ const UserInfoForm = ({ user, userState, profileImage, setProfileImage }: Props)
       >
         <div className='flex flex-col items-center'>
           {profileImage != null && (
-            <img
+            <Image
               src={typeof profileImage === 'string' ? profileImage : URL.createObjectURL(profileImage)}
               alt='profile'
               className='max-h-[250px] w-1/2 max-w-[250px] rounded-full object-cover lg:w-1/3'
+              width={250}
+              height={250}
             />
           )}
           <form method='post' encType='multipart/form-data' className='flex flex-col items-center'>

@@ -44,7 +44,7 @@ const WalletSection = ({ setIsShowWalletScreen }: Props) => {
 
   return (
     <motion.div
-      className='fixed left-0 top-0 z-[200] flex h-full w-full items-center justify-center overflow-y-auto bg-gray-500 bg-opacity-50'
+      className='fixed left-0 top-0 z-[200] flex size-full items-center justify-center overflow-y-auto bg-gray-500 bg-opacity-50'
       initial={{
         opacity: 0
       }}

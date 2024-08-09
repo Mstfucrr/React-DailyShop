@@ -1,11 +1,10 @@
-import { useGetCategories } from '@/services/category/category.service'
-import { useGetProductById, useUpdateProduct } from '@/services/product/use-product-service'
+import { useUpdateProductHook } from '@/hooks/useUpdateProductHook'
 import { colors, productStatus, sizes } from '@/shared/constants'
-import { ICategory, IProduct } from '@/shared/types'
 import { productInfoValidationSchema } from '@/shared/validationSchemas'
-import { convertCategoriesToTreeSelectModel, findCategoryByKeyInTreeSelectModel } from '@/utils/categoryTreeModel'
+import { findCategoryByKeyInTreeSelectModel } from '@/utils/categoryTreeModel'
 import { Form, Formik } from 'formik'
 import { motion } from 'framer-motion'
+import Image from 'next/image'
 import { Button } from 'primereact/button'
 import { Dropdown } from 'primereact/dropdown'
 import { Editor, EditorTextChangeEvent } from 'primereact/editor'
@@ -17,8 +16,6 @@ import { ProgressSpinner } from 'primereact/progressspinner'
 import { TreeNode } from 'primereact/treenode'
 import { TreeSelect, TreeSelectChangeEvent } from 'primereact/treeselect'
 import { classNames } from 'primereact/utils'
-import { useCallback, useEffect, useState } from 'react'
-import toast from 'react-hot-toast'
 import { FaTimes } from 'react-icons/fa'
 
 type Props = {
@@ -27,106 +24,19 @@ type Props = {
 }
 
 const UpdateProduct = ({ productUpdateId, setIsUpdate }: Props) => {
-  const [product, setProduct] = useState<IProduct | null>(null)
-  const [productCoverImage, setProductCoverImage] = useState<string | File | null>(null)
-  const [productImages, setProductImages] = useState<any[]>([])
-  const [treeNodes, setTreeNodes] = useState<TreeNode[] | undefined>(undefined)
-  const [selectedCategory, setSelectedCategory] = useState<ICategory>()
-  const [selectedNodeKey, setSelectedNodeKey] = useState<string | undefined>(product?.categoryId?.toString())
-
-  const { data: productData, error: productError } = useGetProductById(productUpdateId as number)
-
-  const { data: categoryData, error: categoryError } = useGetCategories()
-
-  const { mutate: updateProduct } = useUpdateProduct()
-
-  const fetchProduct = useCallback(async () => {
-    if (productUpdateId == null) return setProduct(null)
-
-    if (productError) {
-      toast.error(productError.message)
-      setProduct(null)
-      setIsUpdate(false)
-      return
-    }
-    if (productData == null) return
-    if (productData.image) setProductCoverImage(productData.image)
-    setProduct(productData)
-    setProductImages(productData.images || [])
-    setSelectedNodeKey(productData.category?.id?.toString())
-    setSelectedCategory(productData.category)
-  }, [productData, productError, productUpdateId, setIsUpdate])
-
-  const getCategories = useCallback(() => {
-    if (categoryError) return toast.error(categoryError.message)
-    const data = categoryData?.data
-    if (data) setTreeNodes(convertCategoriesToTreeSelectModel(data))
-  }, [categoryData, categoryError])
-
-  useEffect(() => {
-    if (treeNodes && selectedNodeKey)
-      setSelectedCategory(findCategoryByKeyInTreeSelectModel(treeNodes, selectedNodeKey))
-  }, [selectedCategory, selectedNodeKey, treeNodes])
-
-  useEffect(() => {
-    setProduct(null)
-    fetchProduct().then(getCategories)
-  }, [fetchProduct, productUpdateId, getCategories])
-
-  const handleCoverImage = (e: any) => {
-    if (e.target.files == null) return
-    setProductCoverImage(e.target.files[0])
-  }
-
-  const handleAddImage = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files == null) return
-    if (e.target.files.length === 0) return
-    // aynı dosya varsa hata ver
-    for (const file of Array.from(e.target.files)) {
-      if (productImages.find(img => img.name === file.name)) {
-        toast.error('Aynı dosya zaten ekli')
-        return
-      }
-    }
-    const files = Array.from(e.target.files)
-    setProductImages([...productImages, ...files])
-  }
-
-  const handleRemoveImage = (image: File | string) => {
-    if (typeof image === 'string') {
-      setProductImages(productImages.filter(img => img !== image))
-      return
-    }
-    setProductImages(productImages.filter(img => img !== image))
-  }
-
-  const hanldeSubmit = async (values: any) => {
-    const formData = new FormData()
-    formData.append('name', values.name)
-    formData.append('description', values.description)
-    formData.append('price', values.price)
-    formData.append('status', values.status)
-    formData.append('stock', values.stock)
-    formData.append('categoryId', values.category?.id)
-    if (productCoverImage != null) formData.append('BodyImage', productCoverImage)
-    if (productImages != null)
-      productImages.forEach(img => {
-        formData.append(typeof img === 'string' ? 'ProductImages' : 'ProductImagesFile', img)
-      })
-    values.colors?.forEach((color: string) => formData.append('Colors', color))
-    values.sizes?.forEach((size: string) => formData.append('Sizes', size))
-
-    updateProduct(
-      { id: productUpdateId as number, input: formData },
-      {
-        onSuccess: data => {
-          toast.success(data.data.message)
-          setIsUpdate(false)
-        },
-        onError: err => toast.error(err.message)
-      }
-    )
-  }
+  const {
+    product,
+    productCoverImage,
+    productImages,
+    treeNodes,
+    selectedNodeKey,
+    setSelectedNodeKey,
+    setSelectedCategory,
+    handleCoverImage,
+    handleAddImage,
+    handleRemoveImage,
+    hanldeSubmit
+  } = useUpdateProductHook({ productUpdateId, setIsUpdate })
 
   return (
     <motion.div
@@ -141,7 +51,7 @@ const UpdateProduct = ({ productUpdateId, setIsUpdate }: Props) => {
         damping: 20
       }}
     >
-      <div className='flex h-full w-full flex-col rounded-lg bg-white p-5 shadow-2xl md:h-3/4 md:w-2/3'>
+      <div className='flex size-full flex-col rounded-lg bg-white p-5 shadow-2xl md:h-3/4 md:w-2/3'>
         <div className='w-full pr-6 pt-6 text-right'>
           <button onClick={() => setIsUpdate(false)} className='text-2xl text-primaryDark'>
             <FaTimes />
@@ -149,7 +59,7 @@ const UpdateProduct = ({ productUpdateId, setIsUpdate }: Props) => {
         </div>
         {(product == null || selectedNodeKey == undefined) && <ProgressSpinner className='!w-full text-center' />}
         {product != null && selectedNodeKey != undefined && (
-          <div className='flex h-full w-full flex-col overflow-y-auto'>
+          <div className='flex size-full flex-col overflow-y-auto'>
             <div className='text-center'>
               <h3 className='my-4 text-4xl text-primaryDark'>Ürün Düzenle - {product?.name}</h3>
             </div>
@@ -173,14 +83,16 @@ const UpdateProduct = ({ productUpdateId, setIsUpdate }: Props) => {
                       <>
                         {productCoverImage != null && (
                           <div className='relative flex h-80 justify-center'>
-                            <img
+                            <Image
                               src={
                                 typeof productCoverImage == 'string'
                                   ? productCoverImage
                                   : URL.createObjectURL(productCoverImage)
                               }
+                              width={350}
+                              height={350}
                               alt={productCoverImage as any}
-                              className='h-auto w-[350px] object-contain'
+                              className='!h-auto w-[350px] object-contain'
                             />
                             <div
                               className='absolute top-2/3 mt-20 transform rounded-full
@@ -193,7 +105,7 @@ const UpdateProduct = ({ productUpdateId, setIsUpdate }: Props) => {
                                 severity='success'
                                 rounded
                                 text={true}
-                                className='h-full w-full'
+                                className='size-full'
                                 onClick={() => {
                                   const input = document.createElement('input')
                                   input.type = 'file'
@@ -221,10 +133,12 @@ const UpdateProduct = ({ productUpdateId, setIsUpdate }: Props) => {
                                     handleRemoveImage(image)
                                   }}
                                 />
-                                <img
+                                <Image
                                   src={typeof image == 'string' ? image : URL.createObjectURL(image)}
                                   alt='resim'
-                                  className=' object-contain p-2 '
+                                  className='object-contain p-2 '
+                                  width={300}
+                                  height={300}
                                 />
                               </div>
                             ))}
@@ -397,7 +311,7 @@ const UpdateProduct = ({ productUpdateId, setIsUpdate }: Props) => {
                       disabled={!dirty}
                       onClick={() => hanldeSubmit(values)}
                     />
-                    <Button onClick={() => handleReset} text>
+                    <Button onClick={handleReset} text>
                       Reset
                     </Button>
                   </div>

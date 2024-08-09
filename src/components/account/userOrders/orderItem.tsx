@@ -1,6 +1,7 @@
 import { IOrder, IOrderAddress, IOrderItem, OrderStatus } from '@/services/order/types'
 import { useCancelOrder } from '@/services/order/use-order-service'
 import { orderStatus } from '@/shared/constants'
+import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from 'primereact/button'
 import { ConfirmPopup, confirmPopup } from 'primereact/confirmpopup'
@@ -20,7 +21,13 @@ const OrderItemTemplate = ({ orderItem }: { orderItem: IOrderItem }) => {
           className='w-full transition duration-300 hover:scale-110 sm:w-1/3'
           href={`/product/${orderItemProduct.id}`}
         >
-          <img src={orderItemProduct.image} alt={orderItemProduct.name} className='h-auto w-full object-scale-down' />
+          <Image
+            src={orderItemProduct.image || '/images/no-image.png'}
+            alt={orderItemProduct.name}
+            width={200}
+            height={200}
+            className='h-auto w-full object-scale-down'
+          />
         </Link>
         <div className=''>
           <div className='product-name'>{orderItemProduct.name}</div>

@@ -1,5 +1,6 @@
 import { useAdminUser } from '@/hooks/useAdminUser'
 import { IProduct } from '@/shared/types'
+import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from 'primereact/button'
 import { ConfirmPopup, confirmPopup } from 'primereact/confirmpopup'
@@ -81,15 +82,19 @@ const UserProducts = () => {
   }
   const renderselectUserProducts = (data: IProduct) => (
     <div className='flex w-full items-center'>
-      <div className='ml-2 flex w-full flex-row items-center justify-evenly gap-2'>
-        {data.image ? <img src={data.image} alt='' className='h-20 w-20' /> : <span>Resim yok</span>}
-        <span className='font-semibold'>{data.name}</span>
+      <div className='ml-2 grid w-full grid-cols-6 items-center justify-items-center gap-3 py-4'>
+        <Link href={`/product/${data.id}`}>
+          {data.image ? (
+            <Image src={data.image} alt='' className='size-20' width={80} height={80} />
+          ) : (
+            <span>Resim yok</span>
+          )}
+        </Link>
+        <Link href={`/product/${data.id}`}>
+          <h2 className='col-span-2 font-semibold'>{data.name}</h2>
+        </Link>
         <span className='font-semibold'>{data.price} ₺</span>
         <span className='font-semibold'> {data.stock} adet</span>
-        {/* yeni onayla reddet */}
-        <Link href={`/product/${data.id}`}>
-          <Button label='Ürünü görüntüle' className='p-button-info p-button-outlined' size='small' />
-        </Link>
         <div className='card justify-content-center flex flex-wrap gap-2'>{renderIsApproved(data)}</div>
         <ConfirmPopup />
 

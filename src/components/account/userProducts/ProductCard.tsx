@@ -1,5 +1,6 @@
 import { useDeleteProduct } from '@/services/product/use-product-service'
 import { IProduct } from '@/shared/types'
+import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from 'primereact/button'
 import { Card } from 'primereact/card'
@@ -89,7 +90,13 @@ const ProductCard = ({ product, setUpdateProductId, setIsUpdate }: Props) => {
       </div>
 
       <div className='flex w-full flex-col items-start gap-6'>
-        <img src={product.image} alt={product.image} className='h-auto w-[350px] object-contain' />
+        <Image
+          src={product.image ?? '/images/no-image.png'}
+          alt={product.image ?? 'no image'}
+          width={350}
+          height={350}
+          className='!h-auto w-[350px] object-contain'
+        />
 
         <div className='ql-editor' dangerouslySetInnerHTML={{ __html: product.description }} />
       </div>

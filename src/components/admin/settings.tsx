@@ -10,6 +10,7 @@ import { ConfirmPopup, confirmPopup } from 'primereact/confirmpopup'
 import { Fieldset } from 'primereact/fieldset'
 import toast from 'react-hot-toast'
 import { useGetSettings, useSaveSettings } from '@/services/admin/settings.service'
+import Image from 'next/image'
 
 const Settings = () => {
   const [about, setAbout] = useState<string | undefined>(undefined)
@@ -155,10 +156,12 @@ const Settings = () => {
             <div className='relative flex'>
               {/* site icon */}
               {siteIcon !== undefined && (
-                <img
+                <Image
                   src={typeof siteIcon === 'string' ? siteIcon : URL.createObjectURL(siteIcon)}
                   alt='site icon'
                   className='h-auto max-h-52 w-60 object-cover'
+                  width={60}
+                  height={60}
                 />
               )}
 

@@ -46,14 +46,6 @@ const UserInformation = () => {
 
   const handleAccountDelete = () => deleteAccount
 
-  // const [err, data] = await to(authService.deleteAccount(token))
-  // if (err) return toast.error(err.message)
-  // toast.success(data.message)
-  // logout()
-  // router.push('/')
-
-  // bu formik yapısını 3 ayrı formik yapısına ayır ( base, iletişim, adres bilgileri şeklinde)
-
   return (
     <motion.div
       initial={{ opacity: 0, x: -100 }}
@@ -63,7 +55,7 @@ const UserInformation = () => {
       className='relative w-full px-[15px]'
     >
       {isLoading ? (
-        <div className='absolute left-0 top-0 z-50 flex h-full w-full items-center justify-center bg-white bg-opacity-90'>
+        <div className='absolute left-0 top-0 z-50 flex size-full items-center justify-center bg-white bg-opacity-90'>
           <ProgressSpinner
             style={{ width: '50px', height: '50px' }}
             strokeWidth='8'

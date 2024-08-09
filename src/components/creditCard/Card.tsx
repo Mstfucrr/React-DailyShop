@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import bg from '@/assets/images/card/bg.png'
 import master from '@/assets/images/card/master.png'
 import visa from '@/assets/images/card/visa.svg'
+import Image from 'next/image'
 
 type Props = {
   values: {
@@ -41,23 +42,25 @@ const Card = ({ values }: Props) => {
       animate={{ rotateY: 360, scale: 1 }}
       transition={{ duration: 1.7 }}
     >
-      <img
-        className='relative h-full w-full rounded-xl object-cover'
+      <Image
+        className='relative size-full rounded-xl object-cover'
         src={bg.src}
+        width={384}
+        height={256}
         alt='card'
         style={cardType === 'visa' ? { filter: 'none' } : { filter: 'grayscale(1)' }}
       />
 
       <div className='absolute top-8 w-full px-8'>
         <div className='flex justify-between'>
-          <div className=''>
+          <div>
             <p className='font-light'>Kart Sahibi</p>
             <p className='font-medium tracking-widest'>{values.cardOwner ? values.cardOwner : '--------'}</p>
           </div>
           {cardType === 'visa' ? (
-            <img className='h-16 w-16' src={visa.src} alt='card type' />
+            <Image className='size-16' width={64} height={64} src={visa.src} alt='card type' />
           ) : cardType === 'master' ? (
-            <img className='h-16 w-16' src={master.src} alt='card type' />
+            <Image className='size-16' width={64} height={64} src={master.src} alt='card type' />
           ) : null}
         </div>
         <div className='pt-1'>

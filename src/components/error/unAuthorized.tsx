@@ -3,6 +3,7 @@ import { Messages } from 'primereact/messages'
 import un401 from '@/assets/images/errors/hop.jpg'
 import Link from 'next/link'
 import { useEffect, useRef } from 'react'
+import Image from 'next/image'
 
 const UnAuthorized = () => {
   const msgs = useRef<Messages>(null)
@@ -33,7 +34,7 @@ const UnAuthorized = () => {
             <Messages ref={msgs} className='w-full' />
           </h3>
         </div>
-        <img src={un401.src} alt='' className='mx-auto w-3/4 max-w-4xl' />
+        <Image width={500} height={500} src={un401.src} alt='' className='mx-auto w-3/4 max-w-4xl' />
       </div>
     </div>
   )

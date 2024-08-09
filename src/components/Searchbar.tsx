@@ -9,6 +9,7 @@ import Link from 'next/link'
 import { useGetCart } from '@/services/order/use-cart-service'
 import { useGetWalletByUser } from '@/services/wallet/use-wallet'
 import { useDeleteFavorite, useGetFavorites } from '@/services/favorites/use-favorites'
+import Image from 'next/image'
 
 const Searchbar = () => {
   const { isAuthorized } = useAuth()
@@ -146,7 +147,7 @@ const Searchbar = () => {
                         href={`/product/${item.product.id}`}
                         className='flex flex-row items-center justify-between gap-8 overflow-hidden rounded-md'
                       >
-                        <img src={item.product.image} alt='' className='h-[50px] w-[50px] rounded-md' />
+                        <Image src={item.product.image} alt='' width={50} height={50} />
                         <div className='flex flex-col'>
                           <h1 className='text-lg font-semibold'>{item.product.name}</h1>
                         </div>

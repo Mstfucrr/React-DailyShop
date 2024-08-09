@@ -134,7 +134,7 @@ const CategorySettings = () => {
       {isAddCategoryPendig ||
         isUpdateCategoryPendig ||
         (isDeleteategoryPendig && (
-          <div className='flex h-full w-full items-center justify-center'>
+          <div className='flex size-full items-center justify-center'>
             <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth='8' animationDuration='.9s' />
           </div>
         ))}

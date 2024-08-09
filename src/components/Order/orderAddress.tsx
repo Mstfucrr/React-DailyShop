@@ -7,6 +7,10 @@ import { InputTextarea } from 'primereact/inputtextarea'
 import { useEffect } from 'react'
 import * as Yup from 'yup'
 
+const InputLabel = ({ text }: { text: string }) => {
+  return <label className='text-lg font-semibold text-primaryDark'>{text}</label>
+}
+
 type Props = {
   addresses: IOrderAddress[]
   IsAddressSelectionconfirmed: boolean
@@ -35,10 +39,6 @@ const OrderAddress = ({ addresses, IsAddressSelectionconfirmed, selectAddress, s
     }
   })
 
-  const inputLabel = (text: string) => {
-    return <label className='text-lg font-semibold text-primaryDark'>{text}</label>
-  }
-
   useEffect(() => {
     if (selectAddress) {
       const { id, city, country, address, zipCode } = selectAddress
@@ -51,7 +51,7 @@ const OrderAddress = ({ addresses, IsAddressSelectionconfirmed, selectAddress, s
       })
       formik.setFieldValue('zipCode', zipCode)
     }
-  }, [selectAddress, formik])
+  }, [selectAddress])
 
   return (
     <motion.div
@@ -88,22 +88,22 @@ const OrderAddress = ({ addresses, IsAddressSelectionconfirmed, selectAddress, s
       <div className='flex w-full flex-wrap items-start'>
         {/* ADRES */}
         <div className='flex w-full flex-col p-2 md:w-1/2'>
-          {inputLabel('Adres')}
+          <InputLabel text='Adres' />
           <InputTextarea name='address' value={formik.values.address} readOnly />
         </div>
         {/* ÜLKE */}
         <div className='flex w-full flex-col p-2 md:w-1/2'>
-          {inputLabel('Ülke')}
+          <InputLabel text='Ülke' />
           <InputText name='country' value={formik.values.country} readOnly />
         </div>
         {/* ŞEHİR */}
         <div className='flex w-full flex-col p-2 md:w-1/2'>
-          {inputLabel('Şehir')}
+          <InputLabel text='Şehir' />
           <InputText name='city' value={formik.values.city} readOnly />
         </div>
         {/* POSTA KODU */}
         <div className='flex w-full flex-col p-2 md:w-1/2'>
-          {inputLabel('Posta Kodu')}
+          <InputLabel text='Posta Kodu' />
           <InputText name='zipCode' value={formik.values.zipCode} readOnly />
         </div>
       </div>

@@ -1,4 +1,5 @@
 'use client'
+import { cn } from '@/utils/cn'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 
@@ -29,14 +30,10 @@ const TabButtons = ({ label, value, activeTab }: TabButtonsProps) => {
     >
       <Link
         href={`/account/${value}`}
-        className={`block w-full rounded-2xl border border-solid py-[15px] text-center text-lg font-medium
-                  ${
-                    activeTab == value
-                      ? 'border-[#ddd] bg-primary text-white'
-                      : 'border-primary bg-white text-primaryDark'
-                  }                    
-                  bg-primary hover:border-primary hover:bg-primary
-                  hover:text-white`}
+        className={cn(
+          'block w-full rounded-2xl border border-solid bg-primary py-[15px] text-center text-lg font-medium hover:border-primary hover:bg-primary hover:text-white',
+          activeTab == value ? 'border-[#ddd] bg-primary text-white' : 'border-primary bg-white text-primaryDark'
+        )}
       >
         {label}
       </Link>

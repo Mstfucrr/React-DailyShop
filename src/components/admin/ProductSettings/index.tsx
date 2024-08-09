@@ -11,6 +11,7 @@ import { Button } from 'primereact/button'
 import toast from 'react-hot-toast'
 import { useGetAllProducts } from '@/services/admin/product/products.service'
 import { useAdminUser } from '@/hooks/useAdminUser'
+import Image from 'next/image'
 
 const ApprovedRowFilterTemplate = (options: ColumnFilterElementTemplateOptions) => {
   return (
@@ -86,7 +87,9 @@ const RenderIsApproved = ({
 
 const RenderStatusFilter = (props: any) => <InputText type='text' onChange={e => props.onChange(e.target.value)} />
 
-const RenderImage = (rowData: any) => <img src={rowData.image} alt={rowData.name} className='h-20 w-20' />
+const RenderImage = (rowData: any) => (
+  <Image src={rowData.image} alt={rowData.name} className='h-20 w-20' width={80} height={80} />
+)
 
 const ProductSettings = () => {
   const [products, setProducts] = useState<IProduct[] | null>(null)

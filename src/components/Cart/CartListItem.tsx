@@ -3,6 +3,7 @@ import { FaMinus, FaPlus, FaTimes, FaTrash } from 'react-icons/fa'
 import { ICartItem } from '@/shared/types'
 import Link from 'next/link'
 import { useRemoveFromCart, useUpdateCart } from '@/services/order/use-cart-service'
+import Image from 'next/image'
 
 const CartListItem = ({ cartItem }: { cartItem: ICartItem }) => {
   const [quantity, setQuantity] = useState(cartItem.quantity)
@@ -31,9 +32,10 @@ const CartListItem = ({ cartItem }: { cartItem: ICartItem }) => {
             href={`/product/${cartItem?.product?.id}`}
             className='text-primary transition-all duration-300 ease-in-out hover:scale-105 hover:text-red-800'
           >
-            <img
+            <Image
               src={cartItem?.product?.image as string}
-              width={50}
+              width={64}
+              height={64}
               alt=''
               className='inline-block h-auto w-16 rounded-md object-cover'
             />

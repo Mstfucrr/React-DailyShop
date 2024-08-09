@@ -79,7 +79,7 @@ const Order = () => {
   return (
     <div className='mt-20 flex flex-col gap-3 px-3 lg:flex-row xl:px-10'>
       {user?.addresses?.length === 0 ? (
-        <div className='flex h-full w-full items-center justify-center'>
+        <div className='flex size-full items-center justify-center'>
           <div className='flex flex-col items-center gap-5'>
             <h1 className='text-3xl font-semibold'>Adresiniz Bulunmamaktadır</h1>
             <Link

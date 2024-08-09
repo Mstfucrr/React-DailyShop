@@ -1,6 +1,7 @@
 import { useAdminUser } from '@/hooks/useAdminUser'
 import { reviewStatus } from '@/shared/constants'
 import { IReview } from '@/shared/types'
+import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from 'primereact/button'
 import { Column } from 'primereact/column'
@@ -9,18 +10,20 @@ import { Dropdown } from 'primereact/dropdown'
 import { Fieldset } from 'primereact/fieldset'
 import { ProgressSpinner } from 'primereact/progressspinner'
 import { Rating } from 'primereact/rating'
-import React, { useCallback } from 'react'
+import React from 'react'
 
 const UserReviews = () => {
   const { selectedUserReviews, reviewLoading, handleReviewStatusChange } = useAdminUser()
 
   const renderProductImage = (data: IReview) => (
-    <Link href={`/product/${data?.product?.id}`} className='flex items-center justify-center'>
-      {data.product?.image ? <img src={data.product?.image} alt='' className='h-20 w-20' /> : <span>Resim Yok</span>}
+    <Link href={`/product/${data?.product?.id}`} className='flex w-max items-center'>
+      {data.product?.image ? (
+        <Image src={data.product?.image} alt='' className='size-20' width={80} height={80} />
+      ) : (
+        <span>Resim Yok</span>
+      )}
     </Link>
   )
-
-  const renderRating = useCallback((data: IReview) => <Rating value={data.rating} readOnly cancel={false} />, [])
 
   const renderStatusDropdown = (data: IReview) => (
     <Dropdown
@@ -68,9 +71,13 @@ const UserReviews = () => {
                 >
                   <Column field='id' header='ID' />
                   <Column field='comment' header='Yorum' maxConstraints={20} />
-                  <Column header='Ürün Bağlantılı Resmi' body={renderProductImage}></Column>
-                  <Column field='rating' header='Puan' body={renderRating}></Column>
-                  <Column header='Durum' body={renderStatusDropdown}></Column>
+                  <Column header='Ürün Bağlantılı Resmi' body={renderProductImage} />
+                  <Column
+                    field='rating'
+                    header='Puan'
+                    body={data => <Rating value={data.rating} readOnly cancel={false} />}
+                  />
+                  <Column header='Durum' body={renderStatusDropdown} />
                 </DataTable>
               ) : (
                 <div className='flex flex-col items-center justify-center'>

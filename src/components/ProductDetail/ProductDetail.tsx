@@ -1,163 +1,41 @@
 'use client'
 import { Galleria } from 'primereact/galleria'
-import { useEffect, useRef, useState } from 'react'
 import { Rating } from 'primereact/rating'
 import { RadioButton } from 'primereact/radiobutton'
 import { FaCommentAlt, FaInfoCircle, FaMinus, FaPencilAlt, FaPlus, FaShoppingCart } from 'react-icons/fa'
 import { MdDescription } from 'react-icons/md'
 import { TabView, TabPanel } from 'primereact/tabview'
 import { Messages } from 'primereact/messages'
-import { setProductCookie } from '@/helper/cookieUtils'
-import { IaddToCartRequest } from '@/services/order/types'
 import { InputNumber } from 'primereact/inputnumber'
 import { ProgressSpinner } from 'primereact/progressspinner'
 import UpdateProduct from '../account/userProducts/UpdateProduct'
 import ProductReview from './productReview'
 import { productStatus } from '@/shared/constants'
 import { AnimatePresence } from 'framer-motion'
-import { useAuth } from '@/hooks/useAuth'
-import toast from 'react-hot-toast'
-import Link from 'next/link'
-import { useGetProductById } from '@/services/product/use-product-service'
-import { useAddToCart } from '@/services/order/use-cart-service'
+import { useProductDetail } from '@/hooks/useProductDetail'
+import Image from 'next/image'
 
 const ProductDetail = ({ productId }: { productId: number }) => {
-  const [images, setImages] = useState<{ source: string }[] | string | undefined>(undefined)
-
-  const [selectSize, setSelectSize] = useState<string | undefined>(undefined)
-  const [selectColor, setSelectColor] = useState<string | undefined>(undefined)
-  // const size = [{ name: "S", key: "s" }]
-  const [quantity, setQuantity] = useState(1)
-  const msgs = useRef<Messages>(null)
-  const [sizes, setSizes] = useState<{ name: string; key: string }[] | undefined>(undefined)
-  const [colors, setColors] = useState<{ name: string; key: string }[] | undefined>(undefined)
-  const [isUpdate, setIsUpdate] = useState(false)
-
-  const { data: product, isPending: productLoading, error } = useGetProductById(productId)
-
-  const { mutate: addToCart, isPending: addCartLoading } = useAddToCart()
-
-  const { auth, isAuthorized } = useAuth()
-
-  useEffect(() => {
-    if (auth && product) {
-      const startTime = Date.now() // Sayfa açılma zamanı
-      // Sayfa kapatıldığında veya başka bir sayfaya geçildiğinde
-      const beforeUnloadHandler = () => {
-        const endTime = Date.now() // Sayfa kapatılma zamanı
-        const durationInSeconds = (endTime - startTime) / 1000 // Saniye cinsinden geçen süre
-        if (product) setProductCookie(product.id, durationInSeconds)
-      }
-
-      // beforeunload olayını dinle
-      window.addEventListener('beforeunload', beforeUnloadHandler)
-
-      return () => {
-        // Komponent kaldırıldığında, olay dinleyiciyi kaldır
-        window.removeEventListener('beforeunload', beforeUnloadHandler)
-      }
-    }
-  }, [auth, product])
-
-  useEffect(() => {
-    if (!productId) return
-    if (error) {
-      msgs.current?.clear()
-      msgs.current?.show([
-        {
-          sticky: true,
-          severity: 'error',
-          summary: 'Hata',
-          detail: error.message,
-          closable: false
-        }
-      ])
-      return
-    }
-    if (product) {
-      setSizes(
-        product.sizes?.map((size: string) => ({
-          name: size,
-          key: size
-        }))
-      )
-      setColors(
-        product.colors?.map((color: string) => ({
-          name: color,
-          key: color
-        }))
-      )
-      const imagesSources: string[] = []
-      product.images?.forEach((image: string) => {
-        return imagesSources.push(image)
-      })
-      if (product.image) imagesSources.push(product.image)
-      setImages(imagesSources.map((source: string) => ({ source: source })))
-    }
-  }, [productId, product, error])
-
-  const itemTemplate = (item: any) => (
-    <img src={item.source} alt={item.alt} style={{ width: '100%', display: 'block' }} />
-  )
-
-  const thumbnailTemplate = (item: any) => (
-    <img
-      src={item.source}
-      alt={item.alt}
-      style={{
-        display: 'block',
-        width: 'auto',
-        height: 90,
-        objectFit: 'cover'
-      }}
-    />
-  )
-
-  const handleAddToCart = async () => {
-    if (!product) return
-    if (!isAuthorized) return toast.error('Lütfen giriş yapınız')
-
-    if ((sizes && sizes?.length > 0 && !selectSize) || (colors && colors?.length > 0 && !selectColor))
-      return toast.error('Lütfen renk ve beden seçiniz')
-
-    const cartAdd: IaddToCartRequest = {
-      quantity: quantity,
-      size: selectSize,
-      color: selectColor
-    }
-    addToCart(
-      { productId: product.id, input: cartAdd },
-      {
-        onSuccess: data => toast.success(addToCartSuccessTemplete(data.data.message)),
-        onError: err => toast.error(err.message)
-      }
-    )
-  }
-
-  const addToCartSuccessTemplete = (message: string) => {
-    return (
-      <div className='flex flex-col justify-center'>
-        <div className='flex'>
-          <img src={product?.image as string} alt={product?.name} className='mx-auto h-20 w-20' />
-          <div className='flex flex-col'>
-            <h2 className='text-xl font-semibold'>{message}</h2>
-            <h3 className='text-md font-semibold'>{product?.name}</h3>
-            <h3 className='text-md font-semibold'>
-              {quantity} x {product?.price} TL
-            </h3>
-          </div>
-        </div>
-        <div className='mt-4 flex flex-row gap-x-2'>
-          <Link href='/cart' className='rounded-md bg-primary px-3 py-2 text-white'>
-            Sepete Git
-          </Link>
-          <Link href={`/shop/${product?.categoryId}`} className='rounded-md bg-primary px-3 py-2 text-white'>
-            Alışverişe Devam Et
-          </Link>
-        </div>
-      </div>
-    )
-  }
+  const {
+    product,
+    productLoading,
+    images,
+    sizes,
+    colors,
+    addCartLoading,
+    handleAddToCart,
+    selectSize,
+    setSelectSize,
+    selectColor,
+    setSelectColor,
+    quantity,
+    setQuantity,
+    isUpdate,
+    setIsUpdate,
+    msgs,
+    isAuthorized,
+    authId
+  } = useProductDetail(productId)
 
   return (
     <>
@@ -175,9 +53,13 @@ const ProductDetail = ({ productId }: { productId: number }) => {
                 <Galleria
                   numVisible={4}
                   className='w-full border border-solid'
-                  item={itemTemplate}
+                  item={(item: any) => (
+                    <Image src={item.source} alt={item.alt} className='!w-full' width={500} height={500} />
+                  )}
                   value={images as any}
-                  thumbnail={thumbnailTemplate}
+                  thumbnail={item => (
+                    <Image src={item.source} alt={item.alt} width={130} height={90} className='object-cover' />
+                  )}
                 />
               )}
             </div>
@@ -188,7 +70,7 @@ const ProductDetail = ({ productId }: { productId: number }) => {
                 <AnimatePresence>
                   {isUpdate && <UpdateProduct productUpdateId={product.id} setIsUpdate={setIsUpdate} />}
                 </AnimatePresence>
-                {isAuthorized && auth.id == product?.userId && (
+                {isAuthorized && authId == product?.userId && (
                   <button
                     className='text-primary transition-all duration-300 ease-in-out hover:text-primaryDark'
                     onClick={() => setIsUpdate(true)}

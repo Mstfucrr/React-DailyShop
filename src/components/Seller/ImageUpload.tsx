@@ -3,6 +3,7 @@ import { Button } from 'primereact/button'
 import { useCallback } from 'react'
 import { FaTimes } from 'react-icons/fa'
 import toast from 'react-hot-toast'
+import Image from 'next/image'
 
 type Props = {
   setcoverImage: React.Dispatch<React.SetStateAction<File | null>>
@@ -42,7 +43,7 @@ const RenderCoverImage = ({
           severity='success'
           rounded
           text={true}
-          className='h-full w-full'
+          className='size-full'
           onClick={() => {
             const input = document.createElement('input')
             input.type = 'file'
@@ -66,7 +67,7 @@ const RenderAnotherImages = ({ productImages, handleAddImage, handleRemoveImage 
       <div className='mt-3 flex w-full flex-row flex-wrap gap-4'>
         {productImages.map(image => (
           <div
-            className='relative flex h-auto w-full justify-end rounded-3xl border border-dashed border-blue-600 md:w-[300px]'
+            className='relative flex h-auto w-full justify-end overflow-hidden rounded-3xl border border-dashed border-blue-600 md:w-[320px]'
             key={image.name}
           >
             <FaTimes
@@ -75,7 +76,13 @@ const RenderAnotherImages = ({ productImages, handleAddImage, handleRemoveImage 
                 handleRemoveImage(image)
               }}
             />
-            <img src={URL.createObjectURL(image)} alt='resim' className=' object-contain p-2 ' />
+            <Image
+              src={URL.createObjectURL(image)}
+              alt='resim'
+              className='size-full  object-contain'
+              width={300}
+              height={300}
+            />
           </div>
         ))}
 
