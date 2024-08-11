@@ -6,9 +6,8 @@ import { AxiosResponse } from 'axios'
 export const fetchCategories = async (): Promise<AxiosResponse<ICategory[]>> =>
   await publicAxiosInstance.get('/Categories/GetList')
 
-export const useGetCategories = () => {
-  return useQuery({
+export const useGetCategories = () =>
+  useQuery({
     queryKey: ['categories'],
     queryFn: fetchCategories
   })
-}

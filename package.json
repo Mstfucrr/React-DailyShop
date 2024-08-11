@@ -7,7 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\""
+    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:list": "jest --listTests"
   },
   "dependencies": {
     "axios": "^1.4.0",
@@ -35,6 +38,11 @@
   "devDependencies": {
     "@tanstack/react-query": "^5.40.0",
     "@tanstack/react-query-devtools": "^5.40.0",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^6.4.8",
+    "@testing-library/react": "^16.0.0",
+    "@testing-library/react-hooks": "^8.0.1",
+    "@types/jest": "^29.5.12",
     "@types/node": "^20.4.4",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
@@ -45,9 +53,15 @@
     "eslint": "^8.45.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.3",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "jest-next-dynamic": "^1.0.1",
     "postcss": "^8.4.27",
     "prettier": "3.2.4",
+    "react-test-renderer": "^18.3.1",
     "tailwindcss": "^3.3.3",
+    "ts-jest": "^29.2.4",
+    "ts-node": "^10.9.2",
     "typescript": "^5.0.2"
   },
   "description": "This is a [React](https://reactjs.org) + [TypeScript](https://www.typescriptlang.org/).",
