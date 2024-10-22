@@ -7,15 +7,11 @@ const SiteIcon = () => {
   const { data } = useGetSiteIcon()
   const pathName = usePathname()
 
-  const fetchSiteIcon = () => {
-    if (data) {
-      document.querySelector('link[rel="icon"]')?.setAttribute('href', data?.data.data)
-      localStorage.setItem('siteIcon', data?.data.data)
-    }
-  }
-
   useEffect(() => {
-    fetchSiteIcon()
+    if (data) {
+      document.querySelector('link[rel="icon"]')?.setAttribute('href', data.data)
+      localStorage.setItem('siteIcon', data.data)
+    }
   }, [data, pathName])
   return null
 }

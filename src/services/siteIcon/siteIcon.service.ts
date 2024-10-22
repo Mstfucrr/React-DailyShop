@@ -10,9 +10,8 @@ type SiteIcon = {
 export const getSiteIcon = async (): Promise<AxiosResponse<SiteIcon>> =>
   await publicAxiosInstance.get('/Abouts/GetIcon')
 
-export const useGetSiteIcon = () => {
-  return useQuery({
+export const useGetSiteIcon = () =>
+  useQuery({
     queryKey: ['siteIcon'],
-    queryFn: getSiteIcon
+    queryFn: () => getSiteIcon().then(res => res.data)
   })
-}
