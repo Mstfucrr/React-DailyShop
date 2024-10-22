@@ -8,10 +8,9 @@ const SiteIcon = () => {
   const pathName = usePathname()
 
   useEffect(() => {
-    if (data) {
-      document.querySelector('link[rel="icon"]')?.setAttribute('href', data.data)
-      localStorage.setItem('siteIcon', data.data)
-    }
+    if (!data) return
+    document.querySelector('link[rel="icon"]')?.setAttribute('href', data.data)
+    localStorage.setItem('siteIcon', data.data)
   }, [data, pathName])
   return null
 }
